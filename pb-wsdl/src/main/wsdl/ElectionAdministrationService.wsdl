@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<definitions name="ElectionAdministrationService" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	targetNamespace="http://univote.bfh.ch/election" xmlns:tns="http://univote.bfh.ch/election"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://univote.bfh.ch/election" schemaLocation="ElectionAdministrationService.xsd"/>
+		</xsd:schema>
+	</types>
+
+	<message name="registerMixerInfo">
+		<part name="parameters" element="tns:registerMixerInfo"/>
+	</message>
+	<message name="registerMixerInfoResponse">
+		<part name="parameters" element="tns:registerMixerInfoResponse"/>
+	</message>
+	<message name="registerTallyInfo">
+		<part name="parameters" element="tns:registerTallyInfo"/>
+	</message>
+	<message name="registerTallyInfoResponse">
+		<part name="parameters" element="tns:registerTallyInfoResponse"/>
+	</message>
+	<message name="registerElectionAdministrationInfo">
+		<part name="parameters" element="tns:registerElectionAdministrationInfo"/>
+	</message>
+	<message name="registerElectionAdministrationInfoResponse">
+		<part name="parameters" element="tns:registerElectionAdministrationInfoResponse"/>
+	</message>
+	<message name="publishElectionDefinition">
+		<part name="parameters" element="tns:publishElectionDefinition"/>
+	</message>
+	<message name="publishElectionDefinitionResponse">
+		<part name="parameters" element="tns:publishElectionDefinitionResponse"/>
+	</message>
+	<message name="ElectionAdministrationServiceFault">
+		<part name="fault" element="tns:errorCode"/>
+	</message>
+	<message name="publishElectionOptions">
+		<part name="parameters" element="tns:publishElectionOptions"/>
+	</message>
+	<message name="publishElectionOptionsResponse">
+		<part name="parameters" element="tns:publishElectionOptionsResponse"/>
+	</message>
+	<message name="publishElectoralRoll">
+		<part name="parameters" element="tns:publishElectoralRoll"/>
+	</message>
+	<message name="publishElectoralRollResponse">
+		<part name="parameters" element="tns:publishElectoralRollResponse"/>
+	</message>
+	<message name="startVotingPhase">
+		<part name="parameters" element="tns:startVotingPhase"/>
+	</message>
+	<message name="startVotingPhaseResponse">
+		<part name="parameters" element="tns:startVotingPhaseResponse"/>
+	</message>
+	<message name="stopVotingPhase">
+		<part name="parameters" element="tns:stopVotingPhase"/>
+	</message>
+	<message name="stopVotingPhaseResponse">
+		<part name="parameters" element="tns:stopVotingPhaseResponse"/>
+	</message>
+
+	<portType name="ElectionAdministration">
+		<operation name="registerMixerInfo">
+			<input message="tns:registerMixerInfo"/>
+			<output message="tns:registerMixerInfoResponse"/>
+			<fault message="tns:ElectionAdministrationServiceFault" name="ElectionAdministrationServiceFault"/>
+		</operation>
+		<operation name="registerTallyInfo">
+			<input message="tns:registerTallyInfo"/>
+			<output message="tns:registerTallyInfoResponse"/>
+			<fault message="tns:ElectionAdministrationServiceFault" name="ElectionAdministrationServiceFault"/>
+		</operation>
+		<operation name="registerElectionAdministrationInfo">
+			<input message="tns:registerElectionAdministrationInfo"/>
+			<output message="tns:registerElectionAdministrationInfoResponse"/>
+			<fault message="tns:ElectionAdministrationServiceFault" name="ElectionAdministrationServiceFault"/>
+		</operation>
+		<operation name="publishElectionDefinition">
+			<input message="tns:publishElectionDefinition"/>
+			<output message="tns:publishElectionDefinitionResponse"/>
+			<fault message="tns:ElectionAdministrationServiceFault" name="ElectionAdministrationServiceFault"/>
+		</operation>
+		<operation name="publishElectionOptions">
+			<input message="tns:publishElectionOptions"/>
+			<output message="tns:publishElectionOptionsResponse"/>
+			<fault message="tns:ElectionAdministrationServiceFault" name="ElectionAdministrationServiceFault"/>
+		</operation>
+		<operation name="publishElectoralRoll">
+			<input message="tns:publishElectoralRoll"/>
+			<output message="tns:publishElectoralRollResponse"/>
+			<fault message="tns:ElectionAdministrationServiceFault" name="ElectionAdministrationServiceFault"/>
+		</operation>
+		<operation name="startVotingPhase">
+			<input message="tns:startVotingPhase"/>
+			<output message="tns:startVotingPhaseResponse"/>
+			<fault message="tns:ElectionAdministrationServiceFault" name="ElectionAdministrationServiceFault"/>
+		</operation>
+		<operation name="stopVotingPhase">
+			<input message="tns:stopVotingPhase"/>
+			<output message="tns:stopVotingPhaseResponse"/>
+			<fault message="tns:ElectionAdministrationServiceFault" name="ElectionAdministrationServiceFault"/>
+		</operation>
+	</portType>
+
+	<binding name="ElectionAdministrationPortBinding" type="tns:ElectionAdministration">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+		<operation name="registerMixerInfo">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionAdministrationServiceFault">
+				<soap:fault name="ElectionAdministrationServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="registerTallyInfo">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionAdministrationServiceFault">
+				<soap:fault name="ElectionAdministrationServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="registerElectionAdministrationInfo">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionAdministrationServiceFault">
+				<soap:fault name="ElectionAdministrationServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="publishElectionDefinition">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionAdministrationServiceFault">
+				<soap:fault name="ElectionAdministrationServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="publishElectionOptions">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionAdministrationServiceFault">
+				<soap:fault name="ElectionAdministrationServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="publishElectoralRoll">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionAdministrationServiceFault">
+				<soap:fault name="ElectionAdministrationServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="startVotingPhase">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionAdministrationServiceFault">
+				<soap:fault name="ElectionAdministrationServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="stopVotingPhase">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionAdministrationServiceFault">
+				<soap:fault name="ElectionAdministrationServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+
+	<service name="ElectionAdministrationService">
+		<port name="ElectionAdministrationPort" binding="tns:ElectionAdministrationPortBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+
+</definitions>

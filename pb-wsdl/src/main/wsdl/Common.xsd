@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<xs:schema version="1.0" targetNamespace="http://univote.bfh.ch/common" xmlns:tns="http://univote.bfh.ch/common"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:complexType name="ballot">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="verificationKey" type="xs:integer"/>
+			<xs:element name="encryptedVote" type="tns:encryptedVote"/>
+			<xs:element name="proof" type="tns:proof"/>
+			<xs:element name="signature" type="tns:voterSignature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ballots">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="ballot" type="tns:ballot" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="blindedGenerator">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="generator" type="xs:integer"/>
+			<xs:element name="proof" type="tns:proof"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="candidate">
+		<xs:complexContent>
+			<xs:extension base="tns:choice">
+				<xs:sequence>
+					<xs:element name="number" type="xs:string"/>
+					<xs:element name="lastName" type="xs:string"/>
+					<xs:element name="firstName" type="xs:string"/>
+					<xs:element name="sex" type="tns:sex"/>
+					<xs:element name="yearOfBirth" type="xs:int"/>
+					<xs:element name="studyBranch" type="tns:localizedText" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="studyDegree" type="tns:localizedText" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="semesterCount" type="xs:int"/>
+					<xs:element name="status" type="tns:candidateStatus"/>
+					<xs:element name="listId" type="xs:int"/>
+					<xs:element name="cumulation" type="xs:int"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:simpleType name="candidateStatus">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="PREVIOUS"/>
+			<xs:enumeration value="NEW"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="certificate">
+		<xs:sequence>
+			<xs:element name="value" type="xs:base64Binary"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="choice" abstract="true">
+		<xs:sequence>
+			<xs:element name="choiceId" type="xs:int"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="electionData">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="title" type="xs:string"/>
+			<xs:element name="choice" type="tns:choice" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="rule" type="tns:rule" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="prime" type="xs:integer"/>
+			<xs:element name="groupOrder" type="xs:integer"/>
+			<xs:element name="generator" type="xs:integer"/>
+			<xs:element name="encryptionKey" type="xs:integer"/>
+			<xs:element name="electionGenerator" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="electionAdministrationInfo">
+		<xs:sequence>
+			<xs:element name="identifier" type="xs:string"/>
+			<xs:element name="certificate" type="tns:certificate"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="electionDefinition">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="title" type="xs:string"/>
+			<xs:element name="keyLength" type="xs:int"/>
+			<xs:element name="mixerId" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="tallierId" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="votingPhaseBegin" type="xs:dateTime"/>
+			<xs:element name="votingPhaseEnd" type="xs:dateTime"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="electionGenerator">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="generator" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="electionManagerInfo">
+		<xs:sequence>
+			<xs:element name="identifier" type="xs:string"/>
+			<xs:element name="certificate" type="tns:certificate"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+    <xs:complexType name="electionOptions">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="choice" type="tns:choice" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="rule" type="tns:rule" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="electionSystemInfo">
+		<xs:sequence>
+			<xs:element name="certificateAuthority" type="tns:certificate"/>
+			<xs:element name="electionAdministration" type="tns:certificate"/>
+			<xs:element name="electionManager" type="tns:certificate"/>
+			<xs:element name="mixer" type="tns:certificate" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="tallier" type="tns:certificate" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="electoralRoll">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="voterHash" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="encryptedVote">
+		<xs:sequence>
+			<xs:element name="firstValue" type="xs:integer"/>
+			<xs:element name="secondValue" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="encryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="vote" type="tns:encryptedVote" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="encryptedVotesToMix">
+		<xs:sequence>
+			<xs:element name="mixerId" type="xs:string"/>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="vote" type="tns:encryptedVote" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="encryptionKey">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="encryptionKeyShare">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer"/>
+			<xs:element name="proof" type="tns:proof"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="encryptionParameters">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="prime" type="xs:integer"/>
+			<xs:element name="groupOrder" type="xs:integer"/>
+			<xs:element name="generator" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="decryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="vote" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="forallRule">
+		<xs:complexContent>
+			<xs:extension base="tns:rule">
+				<xs:sequence>
+					<xs:element name="lowerBound" type="xs:int"/>
+					<xs:element name="upperBound" type="xs:int"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:simpleType name="languageCode">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="DE"/>
+			<xs:enumeration value="FR"/>
+			<xs:enumeration value="EN"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="localizedText">
+		<xs:sequence>
+			<xs:element name="language" type="tns:languageCode"/>
+			<xs:element name="text" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="mixedEncryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="vote" type="tns:encryptedVote" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="proof" type="tns:proof"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="mixedVerificationKeys">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="proof" type="tns:proof"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="mixedVerificationKey">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer"/>
+			<xs:element name="proof" type="tns:proof"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="mixerInfo">
+		<xs:sequence>
+			<xs:element name="identifier" type="xs:string"/>
+			<xs:element name="endpointUrl" type="xs:string"/>
+			<xs:element name="certificate" type="tns:certificate"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="mixingParameters">
+		<xs:sequence>
+			<xs:element name="mixerId" type="xs:string"/>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="prime" type="xs:integer"/>
+			<xs:element name="groupOrder" type="xs:integer"/>
+			<xs:element name="generator" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="newCertificate">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="voterId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer"/>
+			<xs:element name="value" type="xs:base64Binary"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="newVerificationKey">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="voterId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="partiallyDecryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="vote" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="proof" type="tns:proof"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="plaintextVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="vote" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="politicalList">
+		<xs:complexContent>
+			<xs:extension base="tns:choice">
+				<xs:sequence>
+					<xs:element name="number" type="xs:string"/>
+					<xs:element name="title" type="tns:localizedText" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="partyName" type="tns:localizedText" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="partyShortName" type="tns:localizedText" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="proof">
+		<xs:sequence>
+			<xs:element name="commitment" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="response" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="revokedCertificate">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="voterId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer"/>
+			<xs:element name="value" type="xs:base64Binary"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="revokedVerificationKey">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="voterId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="rule" abstract="true">
+		<xs:sequence>
+			<xs:element name="choiceId" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="sex">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="M"/>
+			<xs:enumeration value="F"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="signature">
+		<xs:sequence>
+			<xs:element name="signerId" type="xs:string"/>
+			<xs:element name="timestamp" type="xs:dateTime"/>
+			<xs:element name="value" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="signatureParameters">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="prime" type="xs:integer"/>
+			<xs:element name="groupOrder" type="xs:integer"/>
+			<xs:element name="generator" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="summationRule">
+		<xs:complexContent>
+			<xs:extension base="tns:rule">
+				<xs:sequence>
+					<xs:element name="lowerBound" type="xs:int"/>
+					<xs:element name="upperBound" type="xs:int"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="tallyInfo">
+		<xs:sequence>
+			<xs:element name="identifier" type="xs:string"/>
+			<xs:element name="endpointUrl" type="xs:string"/>
+			<xs:element name="certificate" type="tns:certificate"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+    <xs:complexType name="verificationKeyToMix">
+		<xs:sequence>
+			<xs:element name="mixerId" type="xs:string"/>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="verificationKeys">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="verificationKeysToMix">
+		<xs:sequence>
+			<xs:element name="mixerId" type="xs:string"/>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="key" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="voterCertificate">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="certificate" type="tns:certificate"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="voterCertificates">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="certificate" type="tns:certificate" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="signature" type="tns:signature"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="voterSignature">
+		<xs:sequence>
+			<xs:element name="firstValue" type="xs:integer"/>
+			<xs:element name="secondValue" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

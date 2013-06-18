@@ -1,0 +1,259 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ch.bfh.e-voting</groupId>
+		<artifactId>corporate-pom</artifactId>
+		<version>1.0</version>
+	</parent>
+
+	<groupId>ch.bfh.univote2</groupId>
+	<artifactId>maven-base-config</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+	<name>maven-base-config</name>
+	<description>
+		This is the maven base configuration for UniVote2 projects.
+	</description>
+	<developers>
+		<developer>
+			<id>due1</id>
+			<name>Eric Dubuis</name>
+			<!-- <email><![CDATA[http://www.google.com/recaptcha/mailhide/d?k=015DwOEx8g5kLmbHmS51UU_g==&c=R2u82Jejkk_pqRGBdCEeEfldyHOQHpA8SpTNdnvdRBM=]]></email> -->
+			<email>http://bit.ly/10risQL</email>
+			<url>https://prof.ti.bfh.ch/due1</url>
+			<organization>Berner Fachhochschule / RISIS</organization>
+			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
+			<roles>
+				<role>project leader</role>
+				<role>system designer</role>
+				<role>software architect</role>
+				<role>software developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>hnr1</id>
+			<name>Rolf Haenni</name>
+			<!-- <email><![CDATA[http://www.google.com/recaptcha/mailhide/d?k=015DwOEx8g5kLmbHmS51UU_g==&c=nHikvhFWZENReyZN3zPaXqczGDUaQFNTe-A_B5V-m1s=]]></email> -->
+			<email>http://bit.ly/ZxrBoc</email>
+			<url>https://prof.ti.bfh.ch/hnr1</url>
+			<organization>Berner Fachhochschule / RISIS</organization>
+			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
+			<roles>
+				<role>project leader</role>
+				<role>system designer</role>
+				<role>security advisor</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>fhs1</id>
+			<name>Stephan Fischli</name>
+			<!-- <email><![CDATA[http://www.google.com/recaptcha/mailhide/d?k=015DwOEx8g5kLmbHmS51UU_g==&c=29IHBX4Bvtrf3QQ66E4VNTeXK4xrJr7AA9_WJrL2k3k=]]></email> -->
+			<email>http://bit.ly/17aqW3J</email>
+			<url>https://prof.ti.bfh.ch/fhs1</url>
+			<organization>Berner Fachhochschule / RISIS</organization>
+			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
+			<roles>
+				<role>software architect</role>
+				<role>software developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>knr1</id>
+			<name>Reto E. Koenig</name>
+			<!-- <email><![CDATA[http://www.google.com/recaptcha/mailhide/d?k=015DwOEx8g5kLmbHmS51UU_g==&c=Y7CBVzdOlNacgCCb4pIrgyfof2GiTx7IyhGO8k6n6hc=]]></email> -->
+			<email>http://bit.ly/14KclfR</email>
+			<url>https://prof.ti.bfh.ch/knr1</url>
+			<organization>Berner Fachhochschule / RISIS</organization>
+			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
+			<roles>
+				<role>technology advisor</role>
+				<role>software developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>hss3</id>
+			<name>Severin Hauser</name>
+			<!-- <email><![CDATA[http://www.google.com/recaptcha/mailhide/d?k=015DwOEx8g5kLmbHmS51UU_g==&c=IwzXjNSkKdFrv8qDgZ1QCmJ98_kPosSi8vSm8P_31LM=]]></email> -->
+			<email>http://bit.ly/10rj1tL</email>
+			<url>https://staff.ti.bfh.ch/hss3</url>
+			<organization>Berner Fachhochschule / RISIS</organization>
+			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
+			<roles>
+				<role>software developer</role>
+				<role>server administrator</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>lhp2</id>
+			<name>Philipp Locher</name>
+			<!-- <email><![CDATA[http://www.google.com/recaptcha/mailhide/d?k=015DwOEx8g5kLmbHmS51UU_g==&c=pT1zCVX90-jAHv0In0YiKVVTRtQEr4Z4nto41vxgg_E=]]></email> -->
+			<email>http://bit.ly/ZxrNDS</email>
+			<url>https://staff.ti.bfh.ch/lhp2</url>
+			<organization>Berner Fachhochschule / RISIS</organization>
+			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
+			<roles>
+				<role>software developer</role>
+				<role>user interface designer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>vonbp3</id>
+			<name>Philémon von Bergen</name>
+			<!-- <email><![CDATA[http://www.google.com/recaptcha/mailhide/d?k=015DwOEx8g5kLmbHmS51UU_g==&c=x-9FntUoFEkv1iBb_pxqSg==]]></email> -->
+			<email>http://bit.ly/1295TP4</email>
+			<organization>Berner Fachhochschule / RISIS</organization>
+			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
+			<roles>
+				<role>user interface designer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
+	<properties>
+		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jacoco</groupId>
+			<artifactId>org.jacoco.core</artifactId>
+			<version>0.6.0.201210061924</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.13</version>
+					<configuration>
+						<argLine>-Xms1024m -Xmx4096m -XX:MaxPermSize=500m ${argLine}</argLine>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.6.0.201210061924</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.2</version>
+				<configuration>
+					<reportPlugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-project-info-reports-plugin</artifactId>
+							<version>2.4</version>
+							<configuration>
+								<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+								<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+							</configuration>
+							<reports>
+								<report>dependencies</report>
+								<report>project-team</report>
+								<report>mailing-list</report>
+								<report>cim</report>
+								<report>issue-tracking</report>
+								<report>license</report>
+								<report>scm</report>
+								<report>summary</report>
+							</reports>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<version>2.8</version>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-surefire-report-plugin</artifactId>
+							<version>2.13</version>
+							<reportSets>
+								<reportSet>
+									<reports>
+										<report>report-only</report>
+										<report>failsafe-report-only</report>
+									</reports>
+								</reportSet>
+							</reportSets>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-jxr-plugin</artifactId>
+							<version>2.3</version>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-pmd-plugin</artifactId>
+							<version>2.7.1</version>
+							<configuration>
+								<linkXref>true</linkXref>
+								<sourceEncoding>utf-8</sourceEncoding>
+								<minimumTokens>100</minimumTokens>
+								<targetJdk>1.7</targetJdk>
+								<excludes>
+									<exclude>**/common/*.java</exclude>
+									<exclude>**/generated/*.java</exclude>
+								</excludes>
+								<excludeRoots>
+									<excludeRoot>target/generated-sources</excludeRoot>
+								</excludeRoots>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-checkstyle-plugin</artifactId>
+							<version>2.9.1</version>
+							<configuration>
+								<configLocation>src/checkstyle/checkstyle-configuration.xml</configLocation>
+								<headerLocation>src/checkstyle/checkstyle-header.txt</headerLocation>
+							</configuration>
+							<reportSets>
+								<reportSet>
+									<reports>
+										<report>checkstyle</report>
+									</reports>
+								</reportSet>
+							</reportSets>
+						</plugin>
+					</reportPlugins>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

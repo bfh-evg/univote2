@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://univote.bfh.ch/election"
+	xmlns:tns="http://univote.bfh.ch/election" xmlns:ns1="http://univote.bfh.ch/common">
+
+	<xs:import namespace="http://univote.bfh.ch/common" schemaLocation="Common.xsd"/>
+
+	<xs:element name="errorCode" type="xs:int"/>
+	<xs:element name="registerMixerInfo" type="tns:registerMixerInfo"/>
+	<xs:element name="registerMixerInfoResponse" type="tns:registerMixerInfoResponse"/>
+	<xs:element name="registerTallyInfo" type="tns:registerTallyInfo"/>
+	<xs:element name="registerTallyInfoResponse" type="tns:registerTallyInfoResponse"/>
+	<xs:element name="registerElectionAdministrationInfo" type="tns:registerElectionAdministrationInfo"/>
+	<xs:element name="registerElectionAdministrationInfoResponse" type="tns:registerElectionAdministrationInfoResponse"/>
+	<xs:element name="publishElectionDefinition" type="tns:publishElectionDefinition"/>
+	<xs:element name="publishElectionDefinitionResponse" type="tns:publishElectionDefinitionResponse"/>
+	<xs:element name="publishElectionOptions" type="tns:publishElectionOptions"/>
+	<xs:element name="publishElectionOptionsResponse" type="tns:publishElectionOptionsResponse"/>
+	<xs:element name="publishElectoralRoll" type="tns:publishElectoralRoll"/>
+	<xs:element name="publishElectoralRollResponse" type="tns:publishElectoralRollResponse"/>
+	<xs:element name="startVotingPhase" type="tns:startVotingPhase"/>
+	<xs:element name="startVotingPhaseResponse" type="tns:startVotingPhaseResponse"/>
+	<xs:element name="stopVotingPhase" type="tns:stopVotingPhase"/>
+	<xs:element name="stopVotingPhaseResponse" type="tns:stopVotingPhaseResponse"/>
+
+	<xs:complexType name="registerMixerInfo">
+		<xs:sequence>
+			<xs:element name="mixerInfo" type="ns1:mixerInfo"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="registerMixerInfoResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="registerTallyInfo">
+		<xs:sequence>
+			<xs:element name="tallyInfo" type="ns1:tallyInfo"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="registerTallyInfoResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="registerElectionAdministrationInfo">
+		<xs:sequence>
+			<xs:element name="electionAdministrationInfo" type="ns1:electionAdministrationInfo"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="registerElectionAdministrationInfoResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="publishElectionOptions">
+		<xs:sequence>
+			<xs:element name="electionOptions" type="ns1:electionOptions"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="publishElectionOptionsResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="publishElectionDefinition">
+		<xs:sequence>
+			<xs:element name="electionDefinition" type="ns1:electionDefinition"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="publishElectionDefinitionResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="publishElectoralRoll">
+		<xs:sequence>
+			<xs:element name="electoralRoll" type="ns1:electoralRoll"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="publishElectoralRollResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="startVotingPhase">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="startVotingPhaseResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="stopVotingPhase">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="stopVotingPhaseResponse">
+		<xs:sequence/>
+	</xs:complexType>
+
+</xs:schema>

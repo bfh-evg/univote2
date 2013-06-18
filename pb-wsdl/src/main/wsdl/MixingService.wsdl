@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<definitions name="MixingService" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	targetNamespace="http://univote.bfh.ch/mixing" xmlns:tns="http://univote.bfh.ch/mixing"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://univote.bfh.ch/mixing" schemaLocation="MixingService.xsd"/>
+		</xsd:schema>
+	</types>
+
+	<message name="registerElectionManagerInfo">
+		<part name="parameters" element="tns:registerElectionManagerInfo"/>
+	</message>
+	<message name="registerElectionManagerInfoResponse">
+		<part name="parameters" element="tns:registerElectionManagerInfoResponse"/>
+	</message>
+	<message name="blindGenerator">
+		<part name="parameters" element="tns:blindGenerator"/>
+	</message>
+	<message name="blindGeneratorResponse">
+		<part name="parameters" element="tns:blindGeneratorResponse"/>
+	</message>
+	<message name="MixingServiceFault">
+		<part name="fault" element="tns:errorCode"/>
+	</message>
+	<message name="mixVerificationKeys">
+		<part name="parameters" element="tns:mixVerificationKeys"/>
+	</message>
+	<message name="mixVerificationKeysResponse">
+		<part name="parameters" element="tns:mixVerificationKeysResponse"/>
+	</message>
+	<message name="getMixedVerificationKeys">
+		<part name="parameters" element="tns:getMixedVerificationKeys"/>
+	</message>
+	<message name="getMixedVerificationKeysResponse">
+		<part name="parameters" element="tns:getMixedVerificationKeysResponse"/>
+	</message>
+	<message name="latelyMixVerificationKey">
+		<part name="parameters" element="tns:latelyMixVerificationKey"/>
+	</message>
+	<message name="latelyMixVerificationKeyResponse">
+		<part name="parameters" element="tns:latelyMixVerificationKeyResponse"/>
+	</message>
+	<message name="mixEncryptedVotes">
+		<part name="parameters" element="tns:mixEncryptedVotes"/>
+	</message>
+	<message name="mixEncryptedVotesResponse">
+		<part name="parameters" element="tns:mixEncryptedVotesResponse"/>
+	</message>
+	<message name="getMixedEncryptedVotes">
+		<part name="parameters" element="tns:getMixedEncryptedVotes"/>
+	</message>
+	<message name="getMixedEncryptedVotesResponse">
+		<part name="parameters" element="tns:getMixedEncryptedVotesResponse"/>
+	</message>
+
+	<portType name="Mixing">
+		<operation name="registerElectionManagerInfo">
+			<input message="tns:registerElectionManagerInfo"/>
+			<output message="tns:registerElectionManagerInfoResponse"/>
+			<fault message="tns:MixingServiceFault" name="MixingServiceFault"/>
+		</operation>
+		<operation name="blindGenerator">
+			<input message="tns:blindGenerator"/>
+			<output message="tns:blindGeneratorResponse"/>
+			<fault message="tns:MixingServiceFault" name="MixingServiceFault"/>
+		</operation>
+		<operation name="mixVerificationKeys">
+			<input message="tns:mixVerificationKeys"/>
+			<output message="tns:mixVerificationKeysResponse"/>
+			<fault message="tns:MixingServiceFault" name="MixingServiceFault"/>
+		</operation>
+		<operation name="getMixedVerificationKeys">
+			<input message="tns:getMixedVerificationKeys"/>
+			<output message="tns:getMixedVerificationKeysResponse"/>
+			<fault message="tns:MixingServiceFault" name="MixingServiceFault"/>
+		</operation>
+		<operation name="latelyMixVerificationKey">
+			<input message="tns:latelyMixVerificationKey"/>
+			<output message="tns:latelyMixVerificationKeyResponse"/>
+			<fault message="tns:MixingServiceFault" name="MixingServiceFault"/>
+		</operation>
+		<operation name="mixEncryptedVotes">
+			<input message="tns:mixEncryptedVotes"/>
+			<output message="tns:mixEncryptedVotesResponse"/>
+			<fault message="tns:MixingServiceFault" name="MixingServiceFault"/>
+		</operation>
+		<operation name="getMixedEncryptedVotes">
+			<input message="tns:getMixedEncryptedVotes"/>
+			<output message="tns:getMixedEncryptedVotesResponse"/>
+			<fault message="tns:MixingServiceFault" name="MixingServiceFault"/>
+		</operation>
+	</portType>
+
+	<binding name="MixingPortBinding" type="tns:Mixing">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+		<operation name="registerElectionManagerInfo">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="MixingServiceFault">
+				<soap:fault name="MixingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="blindGenerator">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="MixingServiceFault">
+				<soap:fault name="MixingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="mixVerificationKeys">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="MixingServiceFault">
+				<soap:fault name="MixingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getMixedVerificationKeys">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="MixingServiceFault">
+				<soap:fault name="MixingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="latelyMixVerificationKey">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="MixingServiceFault">
+				<soap:fault name="MixingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="mixEncryptedVotes">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="MixingServiceFault">
+				<soap:fault name="MixingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getMixedEncryptedVotes">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="MixingServiceFault">
+				<soap:fault name="MixingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+
+	<service name="MixingService">
+		<port name="MixingPort" binding="tns:MixingPortBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+
+</definitions>

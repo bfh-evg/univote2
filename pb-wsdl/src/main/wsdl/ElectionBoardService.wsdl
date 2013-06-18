@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<definitions name="ElectionBoardService" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	targetNamespace="http://univote.bfh.ch/election" xmlns:tns="http://univote.bfh.ch/election"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://univote.bfh.ch/election" schemaLocation="ElectionBoardService.xsd"/>
+		</xsd:schema>
+	</types>
+
+	<!-- Public Parameters and Certificates -->
+	<message name="getSignatureParameters">
+		<part name="parameters" element="tns:getSignatureParameters"/>
+	</message>
+	<message name="getSignatureParametersResponse">
+		<part name="parameters" element="tns:getSignatureParametersResponse"/>
+	</message>
+	<message name="getRootCertificate">
+		<part name="parameters" element="tns:getRootCertificate"/>
+	</message>
+	<message name="getRootCertificateResponse">
+		<part name="parameters" element="tns:getRootCertificateResponse"/>
+	</message>
+	<message name="getElectionSystemInfo">
+		<part name="parameters" element="tns:getElectionSystemInfo"/>
+	</message>
+	<message name="getElectionSystemInfoResponse">
+		<part name="parameters" element="tns:getElectionSystemInfoResponse"/>
+	</message>
+
+	<!-- Election Setup -->
+	<message name="getElectionDefinition">
+		<part name="parameters" element="tns:getElectionDefinition"/>
+	</message>
+	<message name="getElectionDefinitionResponse">
+		<part name="parameters" element="tns:getElectionDefinitionResponse"/>
+	</message>
+	<message name="getEncryptionParameters">
+		<part name="parameters" element="tns:getEncryptionParameters"/>
+	</message>
+	<message name="getEncryptionParametersResponse">
+		<part name="parameters" element="tns:getEncryptionParametersResponse"/>
+	</message>
+	<message name="getEncryptionKeyShare">
+		<part name="parameters" element="tns:getEncryptionKeyShare"/>
+	</message>
+	<message name="getEncryptionKeyShareResponse">
+		<part name="parameters" element="tns:getEncryptionKeyShareResponse"/>
+	</message>
+	<message name="getEncryptionKey">
+		<part name="parameters" element="tns:getEncryptionKey"/>
+	</message>
+	<message name="getEncryptionKeyResponse">
+		<part name="parameters" element="tns:getEncryptionKeyResponse"/>
+	</message>
+	<message name="getBlindedGenerator">
+		<part name="parameters" element="tns:getBlindedGenerator"/>
+	</message>
+	<message name="getBlindedGeneratorResponse">
+		<part name="parameters" element="tns:getBlindedGeneratorResponse"/>
+	</message>
+	<message name="getElectionGenerator">
+		<part name="parameters" element="tns:getElectionGenerator"/>
+	</message>
+	<message name="getElectionGeneratorResponse">
+		<part name="parameters" element="tns:getElectionGeneratorResponse"/>
+	</message>
+
+	<!-- Election Preparation -->
+	<message name="getElectionOptions">
+		<part name="parameters" element="tns:getElectionOptions"/>
+	</message>
+	<message name="getElectionOptionsResponse">
+		<part name="parameters" element="tns:getElectionOptionsResponse"/>
+	</message>
+	<message name="getElectionData">
+		<part name="parameters" element="tns:getElectionData"/>
+	</message>
+	<message name="getElectionDataResponse">
+		<part name="parameters" element="tns:getElectionDataResponse"/>
+	</message>
+	<message name="getElectoralRoll">
+		<part name="parameters" element="tns:getElectoralRoll"/>
+	</message>
+	<message name="getElectoralRollResponse">
+		<part name="parameters" element="tns:getElectoralRollResponse"/>
+	</message>
+	<message name="getVoterCertificates">
+		<part name="parameters" element="tns:getVoterCertificates"/>
+	</message>
+	<message name="getVoterCertificatesResponse">
+		<part name="parameters" element="tns:getVoterCertificatesResponse"/>
+	</message>
+	<message name="getVerificationKeysMixedBy">
+		<part name="parameters" element="tns:getVerificationKeysMixedBy"/>
+	</message>
+	<message name="getVerificationKeysMixedByResponse">
+		<part name="parameters" element="tns:getVerificationKeysMixedByResponse"/>
+	</message>
+	<message name="getMixedVerificationKeys">
+		<part name="parameters" element="tns:getMixedVerificationKeys"/>
+	</message>
+	<message name="getMixedVerificationKeysResponse">
+		<part name="parameters" element="tns:getMixedVerificationKeysResponse"/>
+	</message>
+
+	<!-- Election Period -->
+	<message name="getLatelyRegisteredVoterCertificates">
+		<part name="parameters" element="tns:getLatelyRegisteredVoterCertificates"/>
+	</message>
+	<message name="getLatelyRegisteredVoterCertificatesResponse">
+		<part name="parameters" element="tns:getLatelyRegisteredVoterCertificatesResponse"/>
+	</message>
+	<message name="getVerificationKeysLatelyMixedBy">
+		<part name="parameters" element="tns:getVerificationKeysLatelyMixedBy"/>
+	</message>
+	<message name="getVerificationKeysLatelyMixedByResponse">
+		<part name="parameters" element="tns:getVerificationKeysLatelyMixedByResponse"/>
+	</message>
+	<message name="getLatelyMixedVerificationKeys">
+		<part name="parameters" element="tns:getLatelyMixedVerificationKeys"/>
+	</message>
+	<message name="getLatelyMixedVerificationKeysResponse">
+		<part name="parameters" element="tns:getLatelyMixedVerificationKeysResponse"/>
+	</message>
+	<message name="getBallot">
+		<part name="parameters" element="tns:getBallot"/>
+	</message>
+	<message name="getBallotResponse">
+		<part name="parameters" element="tns:getBallotResponse"/>
+	</message>
+	<message name="getBallots">
+		<part name="parameters" element="tns:getBallots"/>
+	</message>
+	<message name="getBallotsResponse">
+		<part name="parameters" element="tns:getBallotsResponse"/>
+	</message>
+	<message name="getEncryptedVotesMixedBy">
+		<part name="parameters" element="tns:getEncryptedVotesMixedBy"/>
+	</message>
+	<message name="getEncryptedVotesMixedByResponse">
+		<part name="parameters" element="tns:getEncryptedVotesMixedByResponse"/>
+	</message>
+	<message name="getMixedEncryptedVotes">
+		<part name="parameters" element="tns:getMixedEncryptedVotes"/>
+	</message>
+	<message name="getMixedEncryptedVotesResponse">
+		<part name="parameters" element="tns:getMixedEncryptedVotesResponse"/>
+	</message>
+
+	<!-- Mixing and Tallying -->
+	<message name="getPartiallyDecryptedVotes">
+		<part name="parameters" element="tns:getPartiallyDecryptedVotes"/>
+	</message>
+	<message name="getPartiallyDecryptedVotesResponse">
+		<part name="parameters" element="tns:getPartiallyDecryptedVotesResponse"/>
+	</message>
+	<message name="getDecryptedVotes">
+		<part name="parameters" element="tns:getDecryptedVotes"/>
+	</message>
+	<message name="getDecryptedVotesResponse">
+		<part name="parameters" element="tns:getDecryptedVotesResponse"/>
+	</message>
+	<message name="getPlaintextVotes">
+		<part name="parameters" element="tns:getPlaintextVotes"/>
+	</message>
+	<message name="getPlaintextVotesResponse">
+		<part name="parameters" element="tns:getPlaintextVotesResponse"/>
+	</message>
+
+	<!-- Error Handling -->
+	<message name="ElectionBoardServiceFault">
+		<part name="fault" element="tns:errorCode"/>
+	</message>
+
+	<portType name="ElectionBoard">
+
+		<!-- Public Parameters and Certificates -->
+		<operation name="getSignatureParameters">
+			<input message="tns:getSignatureParameters"/>
+			<output message="tns:getSignatureParametersResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getRootCertificate">
+			<input message="tns:getRootCertificate"/>
+			<output message="tns:getRootCertificateResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getElectionSystemInfo">
+			<input message="tns:getElectionSystemInfo"/>
+			<output message="tns:getElectionSystemInfoResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+
+		<!-- Election Setup -->
+		<operation name="getElectionDefinition">
+			<input message="tns:getElectionDefinition"/>
+			<output message="tns:getElectionDefinitionResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getEncryptionParameters">
+			<input message="tns:getEncryptionParameters"/>
+			<output message="tns:getEncryptionParametersResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getEncryptionKeyShare">
+			<input message="tns:getEncryptionKeyShare"/>
+			<output message="tns:getEncryptionKeyShareResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getEncryptionKey">
+			<input message="tns:getEncryptionKey"/>
+			<output message="tns:getEncryptionKeyResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getBlindedGenerator">
+			<input message="tns:getBlindedGenerator"/>
+			<output message="tns:getBlindedGeneratorResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getElectionGenerator">
+			<input message="tns:getElectionGenerator"/>
+			<output message="tns:getElectionGeneratorResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+
+		<!-- Election Preparation -->
+		<operation name="getElectionOptions">
+			<input message="tns:getElectionOptions"/>
+			<output message="tns:getElectionOptionsResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getElectionData">
+			<input message="tns:getElectionData"/>
+			<output message="tns:getElectionDataResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getElectoralRoll">
+			<input message="tns:getElectoralRoll"/>
+			<output message="tns:getElectoralRollResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getVoterCertificates">
+			<input message="tns:getVoterCertificates"/>
+			<output message="tns:getVoterCertificatesResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getVerificationKeysMixedBy">
+			<input message="tns:getVerificationKeysMixedBy"/>
+			<output message="tns:getVerificationKeysMixedByResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getMixedVerificationKeys">
+			<input message="tns:getMixedVerificationKeys"/>
+			<output message="tns:getMixedVerificationKeysResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+
+		<!-- Election Period -->
+		<operation name="getLatelyRegisteredVoterCertificates">
+			<input message="tns:getLatelyRegisteredVoterCertificates"/>
+			<output message="tns:getLatelyRegisteredVoterCertificatesResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getVerificationKeysLatelyMixedBy">
+			<input message="tns:getVerificationKeysLatelyMixedBy"/>
+			<output message="tns:getVerificationKeysLatelyMixedByResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getLatelyMixedVerificationKeys">
+			<input message="tns:getLatelyMixedVerificationKeys"/>
+			<output message="tns:getLatelyMixedVerificationKeysResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getBallot">
+			<input message="tns:getBallot"/>
+			<output message="tns:getBallotResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getBallots">
+			<input message="tns:getBallots"/>
+			<output message="tns:getBallotsResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+
+		<!-- Mixing and Tallying -->
+		<operation name="getEncryptedVotesMixedBy">
+			<input message="tns:getEncryptedVotesMixedBy"/>
+			<output message="tns:getEncryptedVotesMixedByResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getMixedEncryptedVotes">
+			<input message="tns:getMixedEncryptedVotes"/>
+			<output message="tns:getMixedEncryptedVotesResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getPartiallyDecryptedVotes">
+			<input message="tns:getPartiallyDecryptedVotes"/>
+			<output message="tns:getPartiallyDecryptedVotesResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getDecryptedVotes">
+			<input message="tns:getDecryptedVotes"/>
+			<output message="tns:getDecryptedVotesResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+		<operation name="getPlaintextVotes">
+			<input message="tns:getPlaintextVotes"/>
+			<output message="tns:getPlaintextVotesResponse"/>
+			<fault message="tns:ElectionBoardServiceFault" name="ElectionBoardServiceFault"/>
+		</operation>
+	</portType>
+
+	<binding name="ElectionBoardPortBinding" type="tns:ElectionBoard">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+
+		<!-- Public Parameters and Certificates -->
+		<operation name="getSignatureParameters">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getRootCertificate">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getElectionSystemInfo">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+
+		<!-- Election Setup -->
+		<operation name="getElectionDefinition">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getEncryptionParameters">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getEncryptionKeyShare">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getEncryptionKey">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getBlindedGenerator">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getElectionGenerator">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+
+		<!-- Election Preparation -->
+		<operation name="getElectionOptions">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getElectionData">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getElectoralRoll">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getVoterCertificates">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getVerificationKeysMixedBy">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getMixedVerificationKeys">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+
+		<!-- Election Period -->
+		<operation name="getLatelyRegisteredVoterCertificates">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getVerificationKeysLatelyMixedBy">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getLatelyMixedVerificationKeys">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getBallot">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getBallots">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+
+		<!-- Mixing and Tallying -->
+		<operation name="getEncryptedVotesMixedBy">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getMixedEncryptedVotes">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getPartiallyDecryptedVotes">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getDecryptedVotes">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getPlaintextVotes">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ElectionBoardServiceFault">
+				<soap:fault name="ElectionBoardServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+
+	<service name="ElectionBoardService">
+		<port name="ElectionBoardPort" binding="tns:ElectionBoardPortBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+
+</definitions>

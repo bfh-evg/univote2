@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://univote.bfh.ch/registration" xmlns:tns="http://univote.bfh.ch/registration"
+	xmlns:ns1="http://univote.bfh.ch/common">
+
+	<xs:import namespace="http://univote.bfh.ch/common" schemaLocation="Common.xsd"/>
+
+	<xs:element name="errorCode" type="xs:int"/>
+	<xs:element name="getCertificate" type="tns:getCertificate"/>
+	<xs:element name="getCertificateResponse" type="tns:getCertificateResponse"/>
+	<xs:element name="getCertificates" type="tns:getCertificates"/>
+	<xs:element name="getCertificatesResponse" type="tns:getCertificatesResponse"/>
+	<xs:element name="registerListener" type="tns:registerListener"/>
+	<xs:element name="registerListenerResponse" type="tns:registerListenerResponse"/>
+	<xs:element name="unregisterListener" type="tns:unregisterListener"/>
+	<xs:element name="unregisterListenerResponse" type="tns:unregisterListenerResponse"/>
+
+	<xs:complexType name="getCertificates">
+		<xs:sequence>
+			<xs:element name="voterHash" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getCertificatesResponse">
+		<xs:sequence>
+			<xs:element name="certificate" type="ns1:certificate" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getCertificate">
+		<xs:sequence>
+			<xs:element name="voterHash" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getCertificateResponse">
+		<xs:sequence>
+			<xs:element name="certificate" type="ns1:certificate"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="registerListener">
+		<xs:sequence>
+			<xs:element name="endpointAddress" type="xs:anyURI"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="registerListenerResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="unregisterListener">
+		<xs:sequence>
+			<xs:element name="endpointAddress" type="xs:anyURI"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="unregisterListenerResponse">
+		<xs:sequence/>
+	</xs:complexType>
+
+</xs:schema>

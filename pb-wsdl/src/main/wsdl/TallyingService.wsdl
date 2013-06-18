@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<definitions name="TallyingService" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	targetNamespace="http://univote.bfh.ch/tallying" xmlns:tns="http://univote.bfh.ch/tallying"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://univote.bfh.ch/tallying" schemaLocation="TallyingService.xsd"/>
+		</xsd:schema>
+	</types>
+
+	<message name="registerElectionManagerInfo">
+		<part name="parameters" element="tns:registerElectionManagerInfo"/>
+	</message>
+	<message name="registerElectionManagerInfoResponse">
+		<part name="parameters" element="tns:registerElectionManagerInfoResponse"/>
+	</message>
+	<message name="generateEncryptionKeyShare">
+		<part name="parameters" element="tns:generateEncryptionKeyShare"/>
+	</message>
+	<message name="generateEncryptionKeyShareResponse">
+		<part name="parameters" element="tns:generateEncryptionKeyShareResponse"/>
+	</message>
+	<message name="TallyingServiceFault">
+		<part name="fault" element="tns:errorCode"/>
+	</message>
+	<message name="partiallyDecryptVotes">
+		<part name="parameters" element="tns:partiallyDecryptVotes"/>
+	</message>
+	<message name="partiallyDecryptVotesResponse">
+		<part name="parameters" element="tns:partiallyDecryptVotesResponse"/>
+	</message>
+	<message name="getPartiallyDecryptedVotes">
+		<part name="parameters" element="tns:getPartiallyDecryptedVotes"/>
+	</message>
+	<message name="getPartiallyDecryptedVotesResponse">
+		<part name="parameters" element="tns:getPartiallyDecryptedVotesResponse"/>
+	</message>
+
+	<portType name="Tallying">
+		<operation name="registerElectionManagerInfo">
+			<input message="tns:registerElectionManagerInfo"/>
+			<output message="tns:registerElectionManagerInfoResponse"/>
+			<fault message="tns:TallyingServiceFault" name="TallyingServiceFault"/>
+		</operation>
+		<operation name="generateEncryptionKeyShare">
+			<input message="tns:generateEncryptionKeyShare"/>
+			<output message="tns:generateEncryptionKeyShareResponse"/>
+			<fault message="tns:TallyingServiceFault" name="TallyingServiceFault"/>
+		</operation>
+		<operation name="partiallyDecryptVotes">
+			<input message="tns:partiallyDecryptVotes"/>
+			<output message="tns:partiallyDecryptVotesResponse"/>
+			<fault message="tns:TallyingServiceFault" name="TallyingServiceFault"/>
+		</operation>
+		<operation name="getPartiallyDecryptedVotes">
+			<input message="tns:getPartiallyDecryptedVotes"/>
+			<output message="tns:getPartiallyDecryptedVotesResponse"/>
+			<fault message="tns:TallyingServiceFault" name="TallyingServiceFault"/>
+		</operation>
+	</portType>
+
+	<binding name="TallyingPortBinding" type="tns:Tallying">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+		<operation name="registerElectionManagerInfo">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="TallyingServiceFault">
+				<soap:fault name="TallyingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="generateEncryptionKeyShare">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="TallyingServiceFault">
+				<soap:fault name="TallyingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="partiallyDecryptVotes">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="TallyingServiceFault">
+				<soap:fault name="TallyingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getPartiallyDecryptedVotes">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="TallyingServiceFault">
+				<soap:fault name="TallyingServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+
+	<service name="TallyingService">
+		<port name="TallyingPort" binding="tns:TallyingPortBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+
+</definitions>

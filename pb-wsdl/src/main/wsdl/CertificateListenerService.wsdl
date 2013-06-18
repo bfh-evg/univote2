@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<definitions name="CertificateListenerService" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	targetNamespace="http://univote.bfh.ch/election" xmlns:tns="http://univote.bfh.ch/election"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://univote.bfh.ch/election" schemaLocation="CertificateListenerService.xsd"/>
+		</xsd:schema>
+	</types>
+
+	<message name="certificateUpdated">
+		<part name="parameters" element="tns:certificateUpdated"/>
+	</message>
+	<message name="certificateUpdatedResponse">
+		<part name="parameters" element="tns:certificateUpdatedResponse"/>
+	</message>
+	<message name="CertificateListenerServiceFault">
+		<part name="fault" element="tns:errorCode"/>
+	</message>
+
+	<portType name="CertificateListener">
+		<operation name="certificateUpdated">
+			<input message="tns:certificateUpdated"/>
+			<output message="tns:certificateUpdatedResponse"/>
+			<fault message="tns:CertificateListenerServiceFault" name="CertificateListenerServiceFault"/>
+		</operation>
+	</portType>
+
+	<binding name="CertificateListenerPortBinding" type="tns:CertificateListener">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+		<operation name="certificateUpdated">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="CertificateListenerServiceFault">
+				<soap:fault name="CertificateListenerServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+
+	<service name="CertificateListenerService">
+		<port name="CertificateListenerPort" binding="tns:CertificateListenerPortBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+
+</definitions>

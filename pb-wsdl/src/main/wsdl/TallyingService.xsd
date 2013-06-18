@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://univote.bfh.ch/tallying"
+	xmlns:tns="http://univote.bfh.ch/tallying" xmlns:ns1="http://univote.bfh.ch/common">
+
+	<xs:import namespace="http://univote.bfh.ch/common" schemaLocation="Common.xsd"/>
+
+	<xs:element name="errorCode" type="xs:int"/>
+	<xs:element name="registerElectionManagerInfo" type="tns:registerElectionManagerInfo"/>
+	<xs:element name="registerElectionManagerInfoResponse" type="tns:registerElectionManagerInfoResponse"/>
+	<xs:element name="generateEncryptionKeyShare" type="tns:generateEncryptionKeyShare"/>
+	<xs:element name="generateEncryptionKeyShareResponse" type="tns:generateEncryptionKeyShareResponse"/>
+	<xs:element name="getPartiallyDecryptedVotes" type="tns:getPartiallyDecryptedVotes"/>
+	<xs:element name="getPartiallyDecryptedVotesResponse" type="tns:getPartiallyDecryptedVotesResponse"/>
+	<xs:element name="partiallyDecryptVotes" type="tns:partiallyDecryptVotes"/>
+	<xs:element name="partiallyDecryptVotesResponse" type="tns:partiallyDecryptVotesResponse"/>
+
+	<xs:complexType name="registerElectionManagerInfo">
+		<xs:sequence>
+			<xs:element name="electionManagerInfo" type="ns1:electionManagerInfo"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="registerElectionManagerInfoResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="generateEncryptionKeyShare">
+		<xs:sequence>
+			<xs:element name="encryptionParameters" type="ns1:encryptionParameters"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="generateEncryptionKeyShareResponse">
+		<xs:sequence>
+			<xs:element name="encryptionKeyShare" type="ns1:encryptionKeyShare"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="partiallyDecryptVotes">
+		<xs:sequence>
+			<xs:element name="encryptedVotes" type="ns1:encryptedVotes"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="partiallyDecryptVotesResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="getPartiallyDecryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getPartiallyDecryptedVotesResponse">
+		<xs:sequence>
+			<xs:element name="partiallyDecryptedVotes" type="ns1:partiallyDecryptedVotes"/>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

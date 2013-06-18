@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://univote.bfh.ch/election"
+	xmlns:tns="http://univote.bfh.ch/election" xmlns:ns1="http://univote.bfh.ch/common">
+
+	<xs:import namespace="http://univote.bfh.ch/common" schemaLocation="Common.xsd"/>
+
+	<!-- Public Parameters and Certificates -->
+	<xs:element name="getSignatureParameters" type="tns:getSignatureParameters"/>
+	<xs:element name="getSignatureParametersResponse" type="tns:getSignatureParametersResponse"/>
+	<xs:element name="getRootCertificate" type="tns:getRootCertificate"/>
+	<xs:element name="getRootCertificateResponse" type="tns:getRootCertificateResponse"/>
+	<xs:element name="getElectionSystemInfo" type="tns:getElectionSystemInfo"/>
+	<xs:element name="getElectionSystemInfoResponse" type="tns:getElectionSystemInfoResponse"/>
+
+	<!-- Election Setup -->
+	<xs:element name="getElectionDefinition" type="tns:getElectionDefinition"/>
+	<xs:element name="getElectionDefinitionResponse" type="tns:getElectionDefinitionResponse"/>
+	<xs:element name="getEncryptionParameters" type="tns:getEncryptionParameters"/>
+	<xs:element name="getEncryptionParametersResponse" type="tns:getEncryptionParametersResponse"/>
+	<xs:element name="getEncryptionKeyShare" type="tns:getEncryptionKeyShare"/>
+	<xs:element name="getEncryptionKeyShareResponse" type="tns:getEncryptionKeyShareResponse"/>
+	<xs:element name="getEncryptionKey" type="tns:getEncryptionKey"/>
+	<xs:element name="getEncryptionKeyResponse" type="tns:getEncryptionKeyResponse"/>
+	<xs:element name="getBlindedGenerator" type="tns:getBlindedGenerator"/>
+	<xs:element name="getBlindedGeneratorResponse" type="tns:getBlindedGeneratorResponse"/>
+	<xs:element name="getElectionGenerator" type="tns:getElectionGenerator"/>
+	<xs:element name="getElectionGeneratorResponse" type="tns:getElectionGeneratorResponse"/>
+
+	<!-- Election Preparation -->
+	<xs:element name="getElectionOptions" type="tns:getElectionOptions"/>
+	<xs:element name="getElectionOptionsResponse" type="tns:getElectionOptionsResponse"/>
+	<xs:element name="getElectionData" type="tns:getElectionData"/>
+	<xs:element name="getElectionDataResponse" type="tns:getElectionDataResponse"/>
+	<xs:element name="getElectoralRoll" type="tns:getElectoralRoll"/>
+	<xs:element name="getElectoralRollResponse" type="tns:getElectoralRollResponse"/>
+	<xs:element name="getVoterCertificates" type="tns:getVoterCertificates"/>
+	<xs:element name="getVoterCertificatesResponse" type="tns:getVoterCertificatesResponse"/>
+	<xs:element name="getVerificationKeysMixedBy" type="tns:getVerificationKeysMixedBy"/>
+	<xs:element name="getVerificationKeysMixedByResponse" type="tns:getVerificationKeysMixedByResponse"/>
+	<xs:element name="getMixedVerificationKeys" type="tns:getMixedVerificationKeys"/>
+	<xs:element name="getMixedVerificationKeysResponse" type="tns:getMixedVerificationKeysResponse"/>
+
+	<!-- Election Period -->
+	<xs:element name="getLatelyRegisteredVoterCertificates" type="tns:getLatelyRegisteredVoterCertificates"/>
+	<xs:element name="getLatelyRegisteredVoterCertificatesResponse" type="tns:getLatelyRegisteredVoterCertificatesResponse"/>
+	<xs:element name="getVerificationKeysLatelyMixedBy" type="tns:getVerificationKeysLatelyMixedBy"/>
+	<xs:element name="getVerificationKeysLatelyMixedByResponse" type="tns:getVerificationKeysLatelyMixedByResponse"/>
+	<xs:element name="getLatelyMixedVerificationKeys" type="tns:getLatelyMixedVerificationKeys"/>
+	<xs:element name="getLatelyMixedVerificationKeysResponse" type="tns:getLatelyMixedVerificationKeysResponse"/>
+	<xs:element name="getBallot" type="tns:getBallot"/>
+	<xs:element name="getBallotResponse" type="tns:getBallotResponse"/>
+	<xs:element name="getBallots" type="tns:getBallots"/>
+	<xs:element name="getBallotsResponse" type="tns:getBallotsResponse"/>
+
+	<!-- Mixing and Tallying -->
+	<xs:element name="getEncryptedVotesMixedBy" type="tns:getEncryptedVotesMixedBy"/>
+	<xs:element name="getEncryptedVotesMixedByResponse" type="tns:getEncryptedVotesMixedByResponse"/>
+	<xs:element name="getMixedEncryptedVotes" type="tns:getMixedEncryptedVotes"/>
+	<xs:element name="getMixedEncryptedVotesResponse" type="tns:getMixedEncryptedVotesResponse"/>
+	<xs:element name="getPartiallyDecryptedVotes" type="tns:getPartiallyDecryptedVotes"/>
+	<xs:element name="getPartiallyDecryptedVotesResponse" type="tns:getPartiallyDecryptedVotesResponse"/>
+	<xs:element name="getDecryptedVotes" type="tns:getDecryptedVotes"/>
+	<xs:element name="getDecryptedVotesResponse" type="tns:getDecryptedVotesResponse"/>
+	<xs:element name="getPlaintextVotes" type="tns:getPlaintextVotes"/>
+	<xs:element name="getPlaintextVotesResponse" type="tns:getPlaintextVotesResponse"/>
+
+	<!-- Error Handling -->
+	<xs:element name="errorCode" type="xs:int"/>
+
+
+	<!-- Public Parameters and Certificates -->
+	<xs:complexType name="getSignatureParameters">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="getSignatureParametersResponse">
+		<xs:sequence>
+			<xs:element name="signatureParameters" type="ns1:signatureParameters"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getRootCertificate">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="getRootCertificateResponse">
+		<xs:sequence>
+			<xs:element name="certificate" type="ns1:certificate"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectionSystemInfo">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="getElectionSystemInfoResponse">
+		<xs:sequence>
+			<xs:element name="electionSystemInfo" type="ns1:electionSystemInfo"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Election Setup -->
+	<xs:complexType name="getElectionDefinition">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectionDefinitionResponse">
+		<xs:sequence>
+			<xs:element name="electionDefinition" type="ns1:electionDefinition"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getEncryptionParameters">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getEncryptionParametersResponse">
+		<xs:sequence>
+			<xs:element name="encryptionParameters" type="ns1:encryptionParameters"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getEncryptionKeyShare">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="tallierId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getEncryptionKeyShareResponse">
+		<xs:sequence>
+			<xs:element name="encryptionKeyShare" type="ns1:encryptionKeyShare"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getEncryptionKey">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getEncryptionKeyResponse">
+		<xs:sequence>
+			<xs:element name="encryptionKey" type="ns1:encryptionKey"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getBlindedGenerator">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="mixerId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getBlindedGeneratorResponse">
+		<xs:sequence>
+			<xs:element name="blindedGenerator" type="ns1:blindedGenerator"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectionGenerator">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectionGeneratorResponse">
+		<xs:sequence>
+			<xs:element name="electionGenerator" type="ns1:electionGenerator"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Election Preparation -->
+	<xs:complexType name="getElectionOptions">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectionOptionsResponse">
+		<xs:sequence>
+			<xs:element name="electionOptions" type="ns1:electionOptions"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectionData">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectionDataResponse">
+		<xs:sequence>
+			<xs:element name="electionData" type="ns1:electionData"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectoralRoll">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getElectoralRollResponse">
+		<xs:sequence>
+			<xs:element name="electoralRoll" type="ns1:electoralRoll"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getVoterCertificates">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getVoterCertificatesResponse">
+		<xs:sequence>
+			<xs:element name="voterCertificates" type="ns1:voterCertificates"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getVerificationKeysMixedBy">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="mixerId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getVerificationKeysMixedByResponse">
+		<xs:sequence>
+			<xs:element name="mixedVerificationKeys" type="ns1:mixedVerificationKeys"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getMixedVerificationKeys">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getMixedVerificationKeysResponse">
+		<xs:sequence>
+			<xs:element name="mixedVerificationKeys" type="ns1:mixedVerificationKeys"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Election Period -->
+	<xs:complexType name="getLatelyRegisteredVoterCertificates">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getLatelyRegisteredVoterCertificatesResponse">
+		<xs:sequence>
+			<xs:element name="voterCertificate" type="ns1:voterCertificate" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getVerificationKeysLatelyMixedBy">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="mixerId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getVerificationKeysLatelyMixedByResponse">
+		<xs:sequence>
+			<xs:element name="mixedVerificationKey" type="ns1:mixedVerificationKey" minOccurs="0" maxOccurs="unbounded"
+			/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getLatelyMixedVerificationKeys">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getLatelyMixedVerificationKeysResponse">
+		<xs:sequence>
+			<xs:element name="mixedVerificationKey" type="ns1:mixedVerificationKey" minOccurs="0" maxOccurs="unbounded"
+			/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getBallot">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="verificationKey" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getBallotResponse">
+		<xs:sequence>
+			<xs:element name="ballot" type="ns1:ballot"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getBallots">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getBallotsResponse">
+		<xs:sequence>
+			<xs:element name="ballots" type="ns1:ballots"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Mixing and Tallying -->
+	<xs:complexType name="getEncryptedVotesMixedBy">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="mixerId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getEncryptedVotesMixedByResponse">
+		<xs:sequence>
+			<xs:element name="mixedEncryptedVotes" type="ns1:mixedEncryptedVotes"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getMixedEncryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getMixedEncryptedVotesResponse">
+		<xs:sequence>
+			<xs:element name="mixedEncryptedVotes" type="ns1:mixedEncryptedVotes"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getPartiallyDecryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+			<xs:element name="tallierId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getPartiallyDecryptedVotesResponse">
+		<xs:sequence>
+			<xs:element name="partiallyDecryptedVotes" type="ns1:partiallyDecryptedVotes"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getDecryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getDecryptedVotesResponse">
+		<xs:sequence>
+			<xs:element name="decryptedVotes" type="ns1:decryptedVotes"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getPlaintextVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getPlaintextVotesResponse">
+		<xs:sequence>
+			<xs:element name="plaintextVotes" type="ns1:plaintextVotes"/>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

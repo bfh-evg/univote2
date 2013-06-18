@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://univote.bfh.ch/mixing"
+	xmlns:tns="http://univote.bfh.ch/mixing" xmlns:ns1="http://univote.bfh.ch/common">
+
+	<xs:import namespace="http://univote.bfh.ch/common" schemaLocation="Common.xsd"/>
+
+	<xs:element name="errorCode" type="xs:int"/>
+	<xs:element name="registerElectionManagerInfo" type="tns:registerElectionManagerInfo"/>
+	<xs:element name="registerElectionManagerInfoResponse" type="tns:registerElectionManagerInfoResponse"/>
+	<xs:element name="blindGenerator" type="tns:blindGenerator"/>
+	<xs:element name="blindGeneratorResponse" type="tns:blindGeneratorResponse"/>
+	<xs:element name="getMixedEncryptedVotes" type="tns:getMixedEncryptedVotes"/>
+	<xs:element name="getMixedEncryptedVotesResponse" type="tns:getMixedEncryptedVotesResponse"/>
+	<xs:element name="getMixedVerificationKeys" type="tns:getMixedVerificationKeys"/>
+	<xs:element name="getMixedVerificationKeysResponse" type="tns:getMixedVerificationKeysResponse"/>
+	<xs:element name="latelyMixVerificationKey" type="tns:latelyMixVerificationKey"/>
+	<xs:element name="latelyMixVerificationKeyResponse" type="tns:latelyMixVerificationKeyResponse"/>
+	<xs:element name="mixEncryptedVotes" type="tns:mixEncryptedVotes"/>
+	<xs:element name="mixEncryptedVotesResponse" type="tns:mixEncryptedVotesResponse"/>
+	<xs:element name="mixVerificationKeys" type="tns:mixVerificationKeys"/>
+	<xs:element name="mixVerificationKeysResponse" type="tns:mixVerificationKeysResponse"/>
+
+	<xs:complexType name="registerElectionManagerInfo">
+		<xs:sequence>
+			<xs:element name="electionManagerInfo" type="ns1:electionManagerInfo"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="registerElectionManagerInfoResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="blindGenerator">
+		<xs:sequence>
+			<xs:element name="mixingParameters" type="ns1:mixingParameters"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="blindGeneratorResponse">
+		<xs:sequence>
+			<xs:element name="blindedGenerator" type="ns1:blindedGenerator"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getMixedVerificationKeys">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getMixedVerificationKeysResponse">
+		<xs:sequence>
+			<xs:element name="mixedVerificationKeys" type="ns1:mixedVerificationKeys"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="mixEncryptedVotes">
+		<xs:sequence>
+			<xs:element name="encryptedVotesToMix" type="ns1:encryptedVotesToMix"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="mixEncryptedVotesResponse">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="latelyMixVerificationKey">
+		<xs:sequence>
+			<xs:element name="verificationKeyToMix" type="ns1:verificationKeyToMix"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="latelyMixVerificationKeyResponse">
+		<xs:sequence>
+			<xs:element name="mixedVerificationKey" type="ns1:mixedVerificationKey"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getMixedEncryptedVotes">
+		<xs:sequence>
+			<xs:element name="electionId" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getMixedEncryptedVotesResponse">
+		<xs:sequence>
+			<xs:element name="mixedEncryptedVotes" type="ns1:mixedEncryptedVotes"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="mixVerificationKeys">
+		<xs:sequence>
+			<xs:element name="verificationKeysToMix" type="ns1:verificationKeysToMix"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="mixVerificationKeysResponse">
+		<xs:sequence/>
+	</xs:complexType>
+
+</xs:schema>

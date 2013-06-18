@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+   Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+   Bern University of Applied Sciences, Engineering and Information Technology,
+   Research Institute for Security in the Information Society, E-Voting Group,
+   Biel, Switzerland.
+
+   Project Univote.
+
+   Distributable under GPL license.
+   See terms of license at gnu.org.
+
+-->
+<definitions name="CertificateProvisionService" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	targetNamespace="http://univote.bfh.ch/registration" xmlns:tns="http://univote.bfh.ch/registration"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://univote.bfh.ch/registration" schemaLocation="CertificateProvisionService.xsd"
+			/>
+		</xsd:schema>
+	</types>
+
+	<message name="getCertificates">
+		<part name="parameters" element="tns:getCertificates"/>
+	</message>
+	<message name="getCertificatesResponse">
+		<part name="parameters" element="tns:getCertificatesResponse"/>
+	</message>
+	<message name="CertificateProvisionServiceFault">
+		<part name="fault" element="tns:errorCode"/>
+	</message>
+	<message name="getCertificate">
+		<part name="parameters" element="tns:getCertificate"/>
+	</message>
+	<message name="getCertificateResponse">
+		<part name="parameters" element="tns:getCertificateResponse"/>
+	</message>
+	<message name="registerListener">
+		<part name="parameters" element="tns:registerListener"/>
+	</message>
+	<message name="registerListenerResponse">
+		<part name="parameters" element="tns:registerListenerResponse"/>
+	</message>
+	<message name="unregisterListener">
+		<part name="parameters" element="tns:unregisterListener"/>
+	</message>
+	<message name="unregisterListenerResponse">
+		<part name="parameters" element="tns:unregisterListenerResponse"/>
+	</message>
+
+	<portType name="CertificateProvision">
+		<operation name="getCertificates">
+			<input message="tns:getCertificates"/>
+			<output message="tns:getCertificatesResponse"/>
+			<fault message="tns:CertificateProvisionServiceFault" name="CertificateProvisionServiceFault"/>
+		</operation>
+		<operation name="getCertificate">
+			<input message="tns:getCertificate"/>
+			<output message="tns:getCertificateResponse"/>
+			<fault message="tns:CertificateProvisionServiceFault" name="CertificateProvisionServiceFault"/>
+		</operation>
+		<operation name="registerListener">
+			<input message="tns:registerListener"/>
+			<output message="tns:registerListenerResponse"/>
+			<fault message="tns:CertificateProvisionServiceFault" name="CertificateProvisionServiceFault"/>
+		</operation>
+		<operation name="unregisterListener">
+			<input message="tns:unregisterListener"/>
+			<output message="tns:unregisterListenerResponse"/>
+			<fault message="tns:CertificateProvisionServiceFault" name="CertificateProvisionServiceFault"/>
+		</operation>
+	</portType>
+
+	<binding name="CertificateProvisionPortBinding" type="tns:CertificateProvision">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+		<operation name="getCertificates">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="CertificateProvisionServiceFault">
+				<soap:fault name="CertificateProvisionServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="getCertificate">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="CertificateProvisionServiceFault">
+				<soap:fault name="CertificateProvisionServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="registerListener">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="CertificateProvisionServiceFault">
+				<soap:fault name="CertificateProvisionServiceFault" use="literal"/>
+			</fault>
+		</operation>
+		<operation name="unregisterListener">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="CertificateProvisionServiceFault">
+				<soap:fault name="CertificateProvisionServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+
+	<service name="CertificateProvisionService">
+		<port name="CertificateProvisionPort" binding="tns:CertificateProvisionPortBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+
+</definitions>

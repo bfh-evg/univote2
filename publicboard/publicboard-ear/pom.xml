@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>maven-base-config</artifactId>
+		<groupId>ch.bfh.univote2</groupId>
+		<relativePath>../../maven-base-config/</relativePath>
+		<version>1.0</version>
+	</parent>
+
+	<groupId>ch.bfh.univote2</groupId>
+	<artifactId>publicboard-ear</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>ear</packaging>
+
+	<name>publicboard-ear</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ear-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<version>7</version>
+					<defaultLibBundleDir>lib</defaultLibBundleDir>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>publicboard-ejb</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+		</dependency>
+	</dependencies>
+</project>
