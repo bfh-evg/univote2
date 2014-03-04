@@ -1,0 +1,18 @@
+\makeatletter
+\newcommand{\inputpath}[1]{
+\ifx\input@path\@undefined
+\def\input@path{#1}
+\else
+\g@addto@macro{\input@path}{#1}
+\fi
+\graphicspath{#1}}
+\makeatother
+
+\def\includefigure#1#2#3#4{
+\begin{figure}[htb]
+\begin{center}
+	\includegraphics[#2]{#1}
+	\caption{#4\label{#3}}
+\end{center}
+\end{figure}
+}

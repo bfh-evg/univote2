@@ -1,0 +1,10 @@
+\begin {longtable}{@{}ll>{\hsize =.5\hsize }X>{\hsize =1.5\hsize }X@{}}
+\textbf {\vhversionname }
+ & \textbf {\vhdatename }
+ & \textbf {\vhauthorname }
+ & \textbf {\vhchangename }\\[1ex]
+1.0
+ & 28.06.2013
+ & \listset {Rolf Haenni}
+ & Initial document.\\
+\end {longtable}
