@@ -274,16 +274,16 @@ instead of $N$ individual proofs of the second type. As discussed in \subsecref{
 
 \emph{not yet implemented}
 %===============================================================================================
-\chapter{Uniboard}
+\chapter{UniBoard}
 %===============================================================================================
 
 \section{Overview}
-Uniboard is an highly configurable implementation of an public bulletin board. For univote2 we use
+UniBoard is an highly configurable implementation of an public bulletin board. For UniVote2 we use
 a configuration that supports following properties:
 
 \begin{itemize}
 	\item Multipurpose
-	\item Multitenant
+	\item Sectioned
 	\item Structured
 	\item Typed
 	\item Access-controlled
@@ -295,42 +295,47 @@ a configuration that supports following properties:
 \end{itemize}
 
 \section{Properties}
-\subsection{Uniboard basic operations}
+\subsection{UniBoard basic operations}
 
-Uniboard supports two basic operations.
+UniBoard supports two basic operations.
 \begin{itemize}
-	\item Post$(m,A):RE$ \newline This operation allows to publish a message $m$ and additional parameters $A=(\alpha_0,\dots,\alpha_n)$  on the \UB. The \UB might add additional parameters $B=(\beta_0,\dots,\beta_k)$ and stores the tuple $(m,A,B)$. The \UB also might return a response $RE$. The parameters in $A$, $B$ and the response $RE$ depend on the properties supported by the \UB.
-	\item Get$(Q):R$ \newline This operation allows to get the published data from the \UB as result $R$. The result $R$ is a set of tuples $(m,A,B)$. The query $Q=(\overline{A}, \overline{B})$, where $\overline{A} \subseteq A$ and  $\overline{B} \subseteq B$, enables one to retrieve only the information one is interested in by fixing the values of the additional parameters in $\overline{A}$ and $\overline{B}$. Depending on the property introducing parameter $\alpha_i$, $\alpha_i$ might be mandatory or optional in $Q$. Parameters in $B$ are always optional.
+	\item Post$(m,A):B$ \newline This operation allows to publish on the \UB a message $m \in \mathcal{M}$ and additional arguments $A=(\alpha_1,\dots,\alpha_n)$, where $\alpha_i \in \mathcal{A}_i$. The \UB might add additional arguments $B=(\beta_1,\dots,\beta_k)$, where $\beta_i \in \mathcal{B}_i$, and stores the tuple $(m,A,B)$. The \UB returns the additional arguments $B$. The arguments in $A$ and $B$ depend on the properties supported by the \UB.
+	\item Get$(Q):R$ \newline This operation allows to get the published data from the \UB as result $R$. The result $R$ is a set of tuples $(m,A,B)$. The query $Q=(\mathcal{A}'_1, \dots , \mathcal{A}'_n, \mathcal{B}'_1, \dots, \mathcal{B}'_k)$, where $\mathcal{A}'_i \subseteq  \mathcal{A}_i$ and  $\mathcal{B}'_i \subseteq  \mathcal{B}_i$, enables one to retrieve only the information one is interested in by reducing $\mathcal{A}'_1, \dots , \mathcal{A}'_n$ and $\mathcal{B}'_1, \dots , \mathcal{B}'_k$ to the desired values. If $\mathcal{A}'_i$ or $\mathcal{B}'_i$ is missing in $Q$ it is assumed to be equal to $\mathcal{A}_i$ or $\mathcal{B}_i$ respectively.
 \end{itemize}
 
 \subsection{Multipurpose}
-Multipurpose allows different applications to use the same \UB. This is achieved by adding the application identifier $a_i$ to $A$. For $Q$ $a_i$ is mandatory.
+Multipurpose allows multiple applications to use the same \UB. This is achieved by adding the application identifier $a_i$ to $A$. For $Q$ $a_i$ is mandatory.
 %\begin{itemize}
 %	\item Post$(m,a_i)$ : -
 %	\item Get$(a_i)$ : $\mathcal{R}_i$ where $(m,a_i) \in \mathcal{R}_i$
 %\end{itemize}
 
-\subsection{Multitenant}
+\subsection{Sectioned}
 
-\begin{itemize}
-	\item Post$(m,e_j)$ : -
-	\item Get$(e_j)$ : $\mathcal{R}_j$ where $(m,e_j) \in \mathcal{R}_j$
-\end{itemize}
+Inside a board with this property, an application can be partitioned into multiple sections. E.g.: separate data for different customers into individual sections. For this property, the section identifier $e_j$ is added to $A$. An application must consist of at least one section.
+For $Q$ $e_j$ is mandatory.
+%\begin{itemize}
+%	\item Post$(m,e_j)$ : -
+%	\item Get$(e_j)$ : $\mathcal{R}_j$ where $(m,e_j) \in \mathcal{R}_j$
+%\end{itemize}
 
 \subsection{Structured}
 
-\begin{itemize}
-	\item Post$(m,T_k)$ : -
-	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
-\end{itemize}
+In a structure board, a type identifier $T_k$ is added to the list of parameters $A$ when posting a message. For the query $Q$, $T_k$ is optional.
+
+%\begin{itemize}
+%	\item Post$(m,T_k)$ : -
+%	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
+%\end{itemize}
 
 \subsection{Typed}
 
-\begin{itemize}
-	\item Post$(message,T_k)$ : -
-	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
-\end{itemize}
-For each type a schema of the message structure must be provided.
+The typed property requires the structured property. Moreover, for each type of message, a schema of the message structure must be provided for the board verifies the content structure of every incoming message.
+%\begin{itemize}
+%	\item Post$(message,T_k)$ : -
+%	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
+%\end{itemize}
+
 
 \subsection{Access-controlled}
 
@@ -376,11 +381,11 @@ For each type a schema of the message structure must be provided.
 \end{itemize}
 
 %===============================================================================================
-\chapter{Unicert}
+\chapter{UniCert}
 %===============================================================================================
 
 %===============================================================================================
-\chapter{Univote}
+\chapter{UniVote}
 %===============================================================================================
 
 %===============================================================================================
