@@ -49,7 +49,7 @@
 \newcommand{\CA}{\ensuremath{\mathit{CA}}\xspace}
 \newcommand{\EA}{\ensuremath{\mathit{EA}}\xspace}
 \newcommand{\EC}{\ensuremath{\mathit{EC}}\xspace}
-\newcommand{\BB}{\ensuremath{\mathit{BB}}\xspace}
+\newcommand{\UB}{\ensuremath{\mathit{UB}}\xspace}
 \newcommand{\Tallier}[1]{\ensuremath{\mathit{T}_{#1}}\xspace}
 \newcommand{\Mixer}[1]{\ensuremath{\mathit{M}_{#1}}\xspace}
 \newcommand{\Voter}[1]{\ensuremath{\mathit{V}_{#1}}\xspace}
@@ -90,7 +90,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\chapter{Cryptographic Protocol}
-\chapter{Cryptographic System Specification}
+\chapter{Cryptographic Primitives \& Encodings}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %===============================================================================================
@@ -273,6 +273,115 @@ instead of $N$ individual proofs of the second type. As discussed in \subsecref{
 %-----------------------------------------------------------------------------------------------
 
 \emph{not yet implemented}
+%===============================================================================================
+\chapter{Uniboard}
+%===============================================================================================
+
+\section{Overview}
+Uniboard is an highly configurable implementation of an public bulletin board. For univote2 we use
+a configuration that supports following properties:
+
+\begin{itemize}
+	\item Multipurpose
+	\item Multitenant
+	\item Structured
+	\item Typed
+	\item Access-controlled
+	\item Notifying / Active notification
+	\item Append-only
+	\item Certified reading
+	\item Certified posting
+	\item Searchable
+\end{itemize}
+
+\section{Properties}
+\subsection{Uniboard basic operations}
+
+Uniboard supports two basic operations.
+\begin{itemize}
+	\item Post$(m,A):RE$ \newline This operation allows to publish a message $m$ and additional parameters $A=(\alpha_0,\dots,\alpha_n)$  on the \UB. The \UB might add additional parameters $B=(\beta_0,\dots,\beta_k)$ and stores the tuple $(m,A,B)$. The \UB also might return a response $RE$. The parameters in $A$, $B$ and the response $RE$ depend on the properties supported by the \UB.
+	\item Get$(Q):R$ \newline This operation allows to get the published data from the \UB as result $R$. The result $R$ is a set of tuples $(m,A,B)$. The query $Q=(\overline{A}, \overline{B})$, where $\overline{A} \subseteq A$ and  $\overline{B} \subseteq B$, enables one to retrieve only the information one is interested in by fixing the values of the additional parameters in $\overline{A}$ and $\overline{B}$. Depending on the property introducing parameter $\alpha_i$, $\alpha_i$ might be mandatory or optional in $Q$. Parameters in $B$ are always optional.
+\end{itemize}
+
+\subsection{Multipurpose}
+Multipurpose allows different applications to use the same \UB. This is achieved by adding the application identifier $a_i$ to $A$. For $Q$ $a_i$ is mandatory.
+%\begin{itemize}
+%	\item Post$(m,a_i)$ : -
+%	\item Get$(a_i)$ : $\mathcal{R}_i$ where $(m,a_i) \in \mathcal{R}_i$
+%\end{itemize}
+
+\subsection{Multitenant}
+
+\begin{itemize}
+	\item Post$(m,e_j)$ : -
+	\item Get$(e_j)$ : $\mathcal{R}_j$ where $(m,e_j) \in \mathcal{R}_j$
+\end{itemize}
+
+\subsection{Structured}
+
+\begin{itemize}
+	\item Post$(m,T_k)$ : -
+	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
+\end{itemize}
+
+\subsection{Typed}
+
+\begin{itemize}
+	\item Post$(message,T_k)$ : -
+	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
+\end{itemize}
+For each type a schema of the message structure must be provided.
+
+\subsection{Access-controlled}
+
+\begin{itemize}
+	\item Post$(message,t,s)$ : -
+	\item Get$()$ : $\mathcal{R}_\UB$ where $(m,s,t) \in \mathcal{R}_\UB$
+\end{itemize}
+
+\subsection{Notifying}
+
+\begin{itemize}
+	\item Post$(message,a_i)$ : -
+	\item Get$(a_i)$ : $\mathcal{M}_i$
+\end{itemize}
+
+\subsection{Append-Only}
+
+\begin{itemize}
+	\item Post$(message,a_i)$ : -
+	\item Get$(a_i)$ : $\mathcal{M}_i$
+\end{itemize}
+
+\subsection{Certified Reading}
+
+\begin{itemize}
+	\item Post$(message,a_i)$ : -
+	\item Get$(a_i)$ : $\mathcal{M}_i$
+\end{itemize}
+
+\subsection{Certified Posting}
+
+\begin{itemize}
+	\item Post$(m)$ Upon posting your message $m$ the \UB creates the signature $S_m(m,t_\UB)$ including your message
+	and a current timestamp $t_\UB$. Timestamp and signature are returned to you.
+	\item Get$()$ 
+\end{itemize}
+
+\subsection{Searchable}
+
+\begin{itemize}
+	\item Post$(message,a_i)$ : -
+	\item Get$(a_i)$ : $\mathcal{M}_i$
+\end{itemize}
+
+%===============================================================================================
+\chapter{Unicert}
+%===============================================================================================
+
+%===============================================================================================
+\chapter{Univote}
+%===============================================================================================
 
 %===============================================================================================
 \section{Overview}
@@ -284,7 +393,7 @@ Involved parties:
 	\item[Certificate Authority.] \CA
 	\item[Election Administration.] \EA
 	\item[Election Coordinator.] \EC
-	\item[Bulletin Board.] \BB
+	\item[Uniboard.] \UB
 	\item[Talliers.] $\Tallier{1},\ldots,\Tallier{r}$
 	\item[Mixers.] $\Mixer{1},\ldots,\Mixer{m}$
 	\item[Voters.] $\Voter{1},\ldots,\Voter{n}$
@@ -345,10 +454,10 @@ Election Coordinator:
 
 Bulletin Board:
 \begin{itemize}
-	\item Identifier: \BB
-	\item Public certificate: $Z_{\BB}$, signed by \CA at time $t$
-	\item Public verification key: $\VK{\BB}$ 
-	\item Private signature key: $\SK{\BB}$
+	\item Identifier: \UB
+	\item Public certificate: $Z_{\UB}$, signed by \CA at time $t$
+	\item Public verification key: $\VK{\UB}$ 
+	\item Private signature key: $\SK{\UB}$
 \end{itemize}
 
 \subsubsection{Election Trustees}
@@ -389,7 +498,7 @@ Voters: (for $1\leq i\leq n$)
 \subsection{At all times}\label{Atalltimes}
 %-----------------------------------------------------------------------------------------------
 
-\BB notifies registered listeners about published messages. Anybody can register itself as a listener.
+\UB notifies registered listeners about published messages. Anybody can register itself as a listener.
 (This section might be changed to a description of the properties of the bulletin board(certified read,multi tenant))
 
 %-----------------------------------------------------------------------------------------------
@@ -415,7 +524,7 @@ Upon receipt, \CA performs the following steps:
 	\item Determine current timestamp $t_i$.
 	\item Compute H(\Voter{i})
 	\item Compute $Z_i=\mathit{Certify}_{\SK{\CA}}(H(\Voter{i}),\vk{i},t_i)=(H(\Voter{i}),\vk{i},t_i,\CA,S_i)$.
-	\item Publish $Z_i$ on \BB.
+	\item Publish $Z_i$ on \UB.
 \end{enumerate}
 
 \subsubsection{Registration Renewal}
@@ -432,9 +541,9 @@ The following tasks can be performed in advance, possibly long before the electi
 Upon request from \EA to run an election, \EC performs the following steps: 
 \begin{enumerate}
 	\item Choose unique \emph{election identifier} $\eid$.
-	\item Select $Z_{\EA}$ from the \BB. Check that $\mathit{Verify}_{\VK{\CA}}(Z_{\EA})=\mathit{accept}$.
+	\item Select $Z_{\EA}$ from the \UB. Check that $\mathit{Verify}_{\VK{\CA}}(Z_{\EA})=\mathit{accept}$.
 	\item Generate signature $S_{\EA}=\mathit{Sign}_{\SK{\EC}}(\eid||Z_{\EA})$. 
-	\item Publish $(\EC,\eid,Z_{\EA},S_{\EA})$ on \BB.
+	\item Publish $(\EC,\eid,Z_{\EA},S_{\EA})$ on \UB.
 \end{enumerate}
 
 
@@ -445,11 +554,11 @@ Upon request from \EA to run an election, \EC performs the following steps:
 	\item Define textual description of the election event $\descr$.
 	\item Define security parameter $\ell$ (e.g.\ $\ell=2048$ bits)
 	\item Define talliers $T=\{\Tallier{1}\ldots,\Tallier{r}\}$.
-	\item For each $\Tallier{j}\in T$, select $Z_{j}$ from \BB and check that $\mathit{Verify}_{\VK{\CA}}(Z_{j})=\mathit{accept}$. Let $\mathcal{Z}_{T}=\{Z_j:1\leq j\leq r\}$.
+	\item For each $\Tallier{j}\in T$, select $Z_{j}$ from \UB and check that $\mathit{Verify}_{\VK{\CA}}(Z_{j})=\mathit{accept}$. Let $\mathcal{Z}_{T}=\{Z_j:1\leq j\leq r\}$.
 	\item Define mixers $M=\{\Mixer{1}\ldots,\Mixer{m}\}$.
-	\item For each $\Mixer{k}\in M$, select $Z_{k}$ from \BB and check that $\mathit{Verify}_{\VK{\CA}}(Z_{k})=\mathit{accept}$. Let $\mathcal{Z}_{M}=\{Z_k:1\leq k\leq m\}$.
+	\item For each $\Mixer{k}\in M$, select $Z_{k}$ from \UB and check that $\mathit{Verify}_{\VK{\CA}}(Z_{k})=\mathit{accept}$. Let $\mathcal{Z}_{M}=\{Z_k:1\leq k\leq m\}$.
 	\item Generate signature $S_{\descr}=\mathit{Sign}_{\SK{\EA}}(\eid||\descr||\ell||\mathcal{Z}_{T}||\mathcal{Z}_{M})$.
-	\item Publish $(\EA,\eid,\descr,\ell,\mathcal{Z}_{T},\mathcal{Z}_{M},S_{\descr})$ on \BB.
+	\item Publish $(\EA,\eid,\descr,\ell,\mathcal{Z}_{T},\mathcal{Z}_{M},S_{\descr})$ on \UB.
 \end{enumerate}
 
 \subsubsection{Parameter Generation}
@@ -458,7 +567,7 @@ Upon request from \EA to run an election, \EC performs the following steps:
 \begin{enumerate}
 	\item Define ElGamal parameters $P$ (of length $\ell$ bits), $Q = (P-1)/2$, and $G \in\{2,3,4\}$ (the smallest possible value). We use capital letters to distinguish them from Schnorr parameters.
 	\item Generate signature $S_{\mathit{PQG}}=\mathit{Sign}_{\SK{\EC}}(\eid||P||Q||G)$.
-	\item Publish $(\EC,\eid,P,Q,G,S_{\mathit{PQG}})$ on \BB.
+	\item Publish $(\EC,\eid,P,Q,G,S_{\mathit{PQG}})$ on \UB.
 \end{enumerate}
 
 \subsubsection{Distributed Key Generation}
@@ -470,7 +579,7 @@ Each $\Tallier{j}\in T$ performs the following steps:
 	\item Compute $y_j = G^{x_j} \bmod{P}$.
 	\item Generate $\pi_{x_j}=\mathit{NIZKP}\{(x_j):y_j=G^{x_j}\bmod{P}\}$ to prove knowledge of $x_j$ (see \subsecref{proof_key_gen} for details).
 	\item Generate signature $S_{y_j}=\mathit{Sign}_{\sk{j}}(\eid||y_j||\pi_{x_j})$.
-	\item Publish $(\Tallier{j},\eid,y_j,\pi_{x_j},S_{y_j})$ on \BB.
+	\item Publish $(\Tallier{j},\eid,y_j,\pi_{x_j},S_{y_j})$ on \UB.
 \end{enumerate}
 
 \EC performs the following steps:
@@ -482,7 +591,7 @@ Each $\Tallier{j}\in T$ performs the following steps:
 	\end{enumerate}
 	\item Compute $y=\prod_j y_j\bmod{P}$.
 	\item Generate signature $S_y=\mathit{Sign}_{\SK{\EC}}(\eid||y)$.
-	\item Publish $(\EC,\eid,y,S_y)$ on \BB.
+	\item Publish $(\EC,\eid,y,S_y)$ on \UB.
 \end{enumerate}
 
 \subsubsection{Constructing the Election Generator}
@@ -493,7 +602,7 @@ Let $g_0=g$ the publicly known generator of the Schnorr signature scheme. Each $
 	\item Compute blinded generator $g_k = g_{k-1}^{\alpha_k}\bmod{p}$.
 	\item Generate $\pi_{\alpha_k}=\mathit{NIZKP}\{(\alpha_k):g_k=g_{k-1}^{\alpha_k}\bmod{p}\}$ to prove knowledge of $\alpha_k$ (see \subsecref{proof_fresh} for details).
 	\item Generate signature $S_{g_k}=\mathit{Sign}_{\sk{k}}(\eid||g_k||\pi_{\alpha_k})$.
-	\item Publish $(\Mixer{k},\eid,g_k,\pi_{\alpha_k},S_{g_k})$ on \BB.
+	\item Publish $(\Mixer{k},\eid,g_k,\pi_{\alpha_k},S_{g_k})$ on \UB.
 \end{enumerate}
 
 \EC performs the following steps:
@@ -505,7 +614,7 @@ Let $g_0=g$ the publicly known generator of the Schnorr signature scheme. Each $
 	\end{enumerate}
 	\item Let $\hat{g}=g_m$ be the \emph{election generator}.
 	\item Generate signature $S_{\hat{g}}=\mathit{Sign}_{\SK{\EC}}(\eid||\hat{g})$.
-	\item Publish $(\EC,\eid,\hat{g},S_{\hat{g}})$ on \BB. 
+	\item Publish $(\EC,\eid,\hat{g},S_{\hat{g}})$ on \UB. 
 \end{enumerate}
 
 %-----------------------------------------------------------------------------------------------
@@ -520,7 +629,7 @@ The following tasks are performed shortly before starting the election.
 \begin{enumerate}
 	\item Define the set of choices $C$ and a rule set $R$ describing the set $\mathcal{V}^*=\mathit{Votes}(C,R)$ of valid \emph{election options}, where $\mathit{Votes}$ is a publicly known function (see \secref{choices} for details).
 	\item Generate signature $S_C=\mathit{Sign}_{\SK{\EA}}(\eid||C||R)$.
-	\item Publish $(\EA,\eid,C,R,S_C)$ on \BB.
+	\item Publish $(\EA,\eid,C,R,S_C)$ on \UB.
 \end{enumerate}
 
 \subsubsection{Publication of Election Data}
@@ -529,7 +638,7 @@ The following tasks are performed shortly before starting the election.
 \begin{enumerate}
 	\item Check that $\mathit{Verify}_{\VK{\EA}}(\eid||C||R,S_C)=\mathit{accept}$.
 	\item Generate signature $S_{data}=\mathit{Sign}_{\SK{\EC}}(\eid||\EA||\descr||P||Q||G||y||\hat{g}||C||R)$.
-	\item Publish $(\EC,\eid,\EA,\descr,P,Q,G,y,\hat{g},C,R,S_{data})$ on \BB.
+	\item Publish $(\EC,\eid,\EA,\descr,P,Q,G,y,\hat{g},C,R,S_{data})$ on \UB.
 \end{enumerate}
 
 \subsubsection{Electoral Roll Preparation}
@@ -539,7 +648,7 @@ The following tasks are performed shortly before starting the election.
 	\item Define the \emph{electoral roll} as the set of eligible Voters $V=\{\Voter{1},\ldots,\Voter{n}\}$.
 	\item Compute $H_V=\{H(\Voter{1}),\ldots,H(\Voter{n})\}$.
 	\item Generate signature $S_{V}=\mathit{Sign}_{\SK{\EA}}(\eid||H_V)$.
-	\item Publish $(\EA,\eid,H_V,S_{V})$ on \BB.
+	\item Publish $(\EA,\eid,H_V,S_{V})$ on \UB.
 \end{enumerate}
 
 \EC performs the following steps:
@@ -547,7 +656,7 @@ The following tasks are performed shortly before starting the election.
 	\item Check that $\mathit{Verify}_{\VK{\EA}}(\eid||H_V,S_{V})=\mathit{accept}$.
 	\item For every $H(\Voter{i})\in H_V$, select the most recent $Z_i$ from the public certificate directory. For each $Z_i$, check that $\mathit{Verify}_{\VK{\CA}}(Z_i)=\mathit{accept}$. If yes, add it to the list of registered voters $\mathcal{Z}_V=\{Z_1,\ldots,Z_n\}$.\footnote{In many contexts, the number of registered voters is likely to be much smaller than the number of eligible voters.}
 	\item Generate signature $S_V=\mathit{Sign}_{\SK{\EC}}(\eid,\mathcal{Z}_V)$.
-	\item Publish $(\EC,\eid,\mathcal{Z}_V,S_V)$ on \BB.
+	\item Publish $(\EC,\eid,\mathcal{Z}_V,S_V)$ on \UB.
 \end{enumerate}
 
 
@@ -563,7 +672,7 @@ Let $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n}\}$ be the (ordered) set of public veri
 	\end{enumerate}
 	\item Generate $\pi_{\psi_k}=\mathit{NIZKP}\{(\psi_k,\alpha_k):g_k=g_{k-1}^{\alpha_k}\wedge \mathit{VK}_{k}=\mathit{Shuffle}_{\psi_k}(\mathit{VK}_{k-1},\alpha_k)\}$ using Wikström's proof of a shuffle (see \secref{proof_mix_keys} for details).
 	\item Generate signature $S_{\mathit{VK}_k}=\mathit{Sign}_{\sk{k}}(\eid||\mathit{VK}_k||\pi_{\psi_k})$.
-	\item Publish $(\Mixer{k},\eid,\mathit{VK}_k,\pi_{\psi_k},S_{\mathit{VK}_k})$ on \BB.
+	\item Publish $(\Mixer{k},\eid,\mathit{VK}_k,\pi_{\psi_k},S_{\mathit{VK}_k})$ on \UB.
 \end{enumerate}
 
 \EC performs the following steps:
@@ -575,7 +684,7 @@ Let $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n}\}$ be the (ordered) set of public veri
 	\end{enumerate}
 	\item Let $\mathit{VK}'=\mathit{VK}_m=\{\vkprime{\psi(i)}:1\leq i\leq n\}$ for $\psi=\psi_m\circ\cdots\circ\psi_1$.
 	\item Generate signature $S_{\mathit{VK}'}=\mathit{Sign}_{\SK{\EC}}(\eid,\mathit{VK}')$.
-	\item Publish $(\EC,\eid,\mathit{VK}',S_{\mathit{VK}'})$ on \BB.
+	\item Publish $(\EC,\eid,\mathit{VK}',S_{\mathit{VK}'})$ on \UB.
 \end{enumerate}
 
 %-----------------------------------------------------------------------------------------------
@@ -587,7 +696,7 @@ Let $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n}\}$ be the (ordered) set of public veri
 \subsubsection{Vote Creation and Casting}
 Consider the case of $\Voter{i}\in V$ creating and casting a vote. To do so, $\Voter{i}$ performs the following steps:
 \begin{enumerate}
-	\item Retrieve $(\EC,\eid,\EA,\descr,P,Q,G,y,\hat{g},C,R,S_{data})$ from \BB.\footnote{$\EA$ and $\descr$ are not explicitly required in the following steps. But it is important for $\Voter{i}$ to learn the identity of the election administration and the content of the election.}
+	\item Retrieve $(\EC,\eid,\EA,\descr,P,Q,G,y,\hat{g},C,R,S_{data})$ from \UB.\footnote{$\EA$ and $\descr$ are not explicitly required in the following steps. But it is important for $\Voter{i}$ to learn the identity of the election administration and the content of the election.}
 	\item Check that $\mathit{Verify}_{\VK{\EC}}(\eid||\EA||\descr||P||Q||G||y||\hat{g}||C||R,S_{data})=\mathit{accept}$.
 	\item Determine the set $\mathcal{V}^*=\mathit{Votes}(C,R)$ of election options.\footnote{The set $\mathcal{V}^*$ is not constructed explicitly, it is rather provided implicitly by a proper voting GUI on the voter's client computer.}
 	\item Choose vote $v_i\in \mathcal{V}^*$.
@@ -598,15 +707,15 @@ Consider the case of $\Voter{i}\in V$ creating and casting a vote. To do so, $\V
 	\item Generate $\pi_{r_i}=\mathit{NIZKP}\{(m_i,r_i):E_i=\mathit{Enc}_y(m_i,r_i)\}$ to prove knowledge of $(m_i,r_i)$. Note that if $E_i=(a_i,b_i)=(G^{r_i},m_i\cdot y^{r_i})$ is an ElGamal encryption, then this proof is equivalent to the proof $\mathit{NIZKP}\{(r_i):a_i=G^{r_i}\}$, which implies knowledge of $m_i$ (see \subsecref{proof_vote} for details).
 	\item Generate signature $S_i=\mathit{Sign}_{\sk{i}}(\eid||E_i||\pi_{r_i})$ using $\hat{g}$.
 	\item Compute anonymous verification key $\vkprime{j}=\hat{g}^{\sk{i}}$, where $j=\psi(i)$.
-	\item Publish ballot $B_i=(\vkprime{j},\eid,E_i,\pi_{r_i},S_i)$ on \BB.
+	\item Publish ballot $B_i=(\vkprime{j},\eid,E_i,\pi_{r_i},S_i)$ on \UB.
 \end{enumerate}
-Upon receipt of $B_i$, \BB performs the following tests:
+Upon receipt of $B_i$, \UB performs the following tests:
 \begin{enumerate}[resume]
 	\item Check that $\vkprime{j}$ belongs to an eligible voter: $\vkprime{j}\in \mathit{VK}'\cup \bar{\mathit{VK}}'$.
 	\item Check that $\Voter{i}$ has not previously submitted another ballot:\footnote{Since re-voting is not supported, only the first ballot counts.}
 	\begin{enumerate}
-		\item Check that no ballot on \BB contains $\vkprime{j}$.
-		\item If $\vkprime{j}\in \bar{VK}'\cup\hat{VK}'$, check that no other ballot on \BB contains a different key of $\Voter{i}$ from $\bar{VK}'\cup\hat{VK}'$.
+		\item Check that no ballot on \UB contains $\vkprime{j}$.
+		\item If $\vkprime{j}\in \bar{VK}'\cup\hat{VK}'$, check that no other ballot on \UB contains a different key of $\Voter{i}$ from $\bar{VK}'\cup\hat{VK}'$.
 	\end{enumerate}
 	\item Check validity of $B_i$
 	\begin{enumerate}
@@ -614,7 +723,7 @@ Upon receipt of $B_i$, \BB performs the following tests:
 		\item Optional: Check correctness of $\pi_{r_i}$ (see \subsecref{proof_vote} for details).
 	\end{enumerate}
 \end{enumerate}
-\BB publishes $B_i$, if all tests succeed.
+\UB publishes $B_i$, if all tests succeed.
 
 \subsubsection{Closing the Electronic Urn}
 
@@ -624,13 +733,13 @@ When the election period is over, \EC performs the following steps:
 	\begin{enumerate}
 		\item Check that $\vkprime{j}\in \mathit{VK}'\cup \bar{\mathit{VK}}'$.
 		\item Check that no other (more recent) ballot contains $\vkprime{j}$
-		\item If $\vkprime{j}\in \bar{VK}'\cup\hat{VK}'$, check that no other (more recent) ballot on \BB contains a different key of $\Voter{i}$ from $\bar{VK}'\cup\hat{VK}'$.
+		\item If $\vkprime{j}\in \bar{VK}'\cup\hat{VK}'$, check that no other (more recent) ballot on \UB contains a different key of $\Voter{i}$ from $\bar{VK}'\cup\hat{VK}'$.
 		\item Check that $\mathit{Verify}_{\vkprime{j}}(\eid||E_i||\pi_{r_i},S_i)=\mathit{accept}$ using $\hat{g}$.
 		\item Check correctness of $\pi_{r_i}$ (see \subsecref{proof_vote} for details).
 	\end{enumerate}
 	\item Let $\mathcal{B}$ be the set of ballot $B_i$, for which all above checks succeed. 
 	\item Generate signature $S_{\mathcal{B}}=\mathit{Sign}_{\SK{\EC}}(\eid||\mathcal{B})$.
-	\item Publish $(\EC,\eid,\mathcal{B},S_{\mathcal{E}})$ on \BB.
+	\item Publish $(\EC,\eid,\mathcal{B},S_{\mathcal{E}})$ on \UB.
 \end{enumerate}
 
 %-----------------------------------------------------------------------------------------------
@@ -649,7 +758,7 @@ Let $\mathcal{E}_0=\{E_1,\ldots,E_N\}$, $N\leq n$, be the (ordered) set of encry
 	\end{enumerate}
 	\item Generate $\pi_{\tau_k}=\mathit{NIZKP}\{(\tau_k,\bar{r}_k):\mathcal{E}_{k}=\mathit{Shuffle}_{\tau_k}(\mathcal{E}_{k-1},\bar{r}_k)\}$ using Wikström's proof of a shuffle (see \secref{proof_mix_encryptions} for details).
 	\item Generate signature $S_{\mathcal{E}_k}=\mathit{Sign}_{\sk{k}}(\eid||\mathcal{E}_k||\pi_{\tau_k})$.
-	\item Publish $(\Mixer{k},\eid,\mathcal{E}_k,\pi_{\tau_k},S_{\mathcal{E}_k})$ on \BB.
+	\item Publish $(\Mixer{k},\eid,\mathcal{E}_k,\pi_{\tau_k},S_{\mathcal{E}_k})$ on \UB.
 \end{enumerate}
 
 \EC performs the following steps:
@@ -661,7 +770,7 @@ Let $\mathcal{E}_0=\{E_1,\ldots,E_N\}$, $N\leq n$, be the (ordered) set of encry
 	\end{enumerate}
 	\item Let $\mathcal{E}'=\mathcal{E}_m=\{E_{\tau(i)}':1\leq i\leq N\}$ for $\tau=\tau\circ\cdots\circ\tau_1$.
 	\item Generate signature $S_{\mathcal{E}'}=\mathit{Sign}_{\SK{\EA}}(\eid||\mathcal{E}')$.
-	\item Publish $(\EC,\eid,\mathcal{E}',S_{\mathcal{E}'})$ on \BB.
+	\item Publish $(\EC,\eid,\mathcal{E}',S_{\mathcal{E}'})$ on \UB.
 \end{enumerate}
 
 \subsubsection{Decrypting the Votes}
@@ -672,7 +781,7 @@ Each $\Tallier{j}\in T$ performs the following steps:
 	\item Compute $\bar{a}_j = (a_{1j},\ldots,a_{Nj})$, where $a_{ij} = a_i^{-x_j}\bmod{P}$.
 	\item Generate $\pi_{x_j}'=\mathit{NIZKP}\{(x_j):[y_j=G^{x_j}\bmod{P}] \wedge \left[\bigwedge_i a_{ij} = a_i^{-x_j}\bmod{P}\right]\}$ to prove knowledge of $x_j$ (see \subsecref{proof_decryption} for details).
 	\item Generate signature $S_{\bar{a}_j}=\mathit{Sign}_{\sk{j}}(\eid||\bar{a}_j||\pi_{x_j}')$.
-	\item Publish $(\Tallier{j},\eid,\bar{a}_j,\pi_{x_j}',S_{\bar{a}_j})$ on \BB.
+	\item Publish $(\Tallier{j},\eid,\bar{a}_j,\pi_{x_j}',S_{\bar{a}_j})$ on \UB.
 \end{enumerate}
 
 \EC performs the following steps:
@@ -690,7 +799,7 @@ Each $\Tallier{j}\in T$ performs the following steps:
 	\end{enumerate}
 	\item Let $\mathcal{V}=\{v_1,\ldots,v_N\}\cap \mathcal{V}^*$ be the list of valid plaintext votes.
 	\item Generate signature $S_{\mathcal{V}}=\mathit{Sign}_{\SK{\EC}}(\eid||\mathcal{V})$.
-	\item Publish $(\EC,\eid,\mathcal{V},S_{\mathcal{V}})$ on \BB.
+	\item Publish $(\EC,\eid,\mathcal{V},S_{\mathcal{V}})$ on \UB.
 \end{enumerate}
 
 %===============================================================================================
@@ -699,7 +808,7 @@ Each $\Tallier{j}\in T$ performs the following steps:
 
 In principle, the previously described protocol requires the voter to register prior to an election. In some contexts, however, it will be impossible to enforce that \emph{all} voters have registered when the election starts. Those without a registration would then be excluded from casting a vote.
 
-Let $\Voter{i}$ be an eligible voter in a current election. This can be tested by checking if $H(\Voter{i})\in H_V$, where $V$ is denotes the set of eligible voters and $H_V$ the corresponding set of hash values as published on \BB (see \subsecref{preparation}). A late registration invokes the procedure described below.
+Let $\Voter{i}$ be an eligible voter in a current election. This can be tested by checking if $H(\Voter{i})\in H_V$, where $V$ is denotes the set of eligible voters and $H_V$ the corresponding set of hash values as published on \UB (see \subsecref{preparation}). A late registration invokes the procedure described below.
 
 \subsection{Election Period}
 
@@ -710,7 +819,7 @@ Upon notification of a newly registered voter $\Voter{i}$ during the election pe
 	\item Check if $H(\Voter{i})\in H_V$.
 	\item Select the new certificate $\bar{Z}_i=(\Voter{i},\vkbar{i},\bar{t}_i,\CA,\bar{C}_i)$ from the public certificate directory. Check that $\mathit{Verify}_{\VK{\CA}}(\bar{Z}_i)=\mathit{accept}$.
 	\item Generate signature $S_{\bar{Z}_i}=\mathit{Sign}_{\SK{\EC}}(\eid,\bar{Z}_i)$.
-	\item Publish $(\EC,\eid,\bar{Z}_i,S_{\bar{Z}_i})$ on \BB. Let $\bar{\mathcal{Z}}_V$ denote the current set of certificates added during the election period.
+	\item Publish $(\EC,\eid,\bar{Z}_i,S_{\bar{Z}_i})$ on \UB. Let $\bar{\mathcal{Z}}_V$ denote the current set of certificates added during the election period.
 \end{enumerate}
 
 Let $\vkbar{i,0}=\vkbar{i}$ be the new verification key from $\bar{Z}_i$. Repeat the following steps for each $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):\footnote{Note that this procedure corresponds to the borderline case of the general mixing procedure for a single innput public key (with a simplified proof).}
@@ -718,7 +827,7 @@ Let $\vkbar{i,0}=\vkbar{i}$ be the new verification key from $\bar{Z}_i$. Repeat
 	\item Compute $\vkbar{i,k}=\vkbar{i,k-1}^{\alpha_k}$.
 \	\item Generate $\pi_{\vkbar{i,k}}=\mathit{NIZKP}\{(\alpha_k):g_k=g_{k-1}^{\alpha_k}\wedge\vkbar{i,k}=\vkbar{i,k-1}^{\alpha_k}\}$ (see \subsecref{proof_reg_new} for details).
 	\item Generate signature $S_{\vkbar{i,k}}=\mathit{Sign}_{\sk{k}}(\eid||\vkbar{i,k}||\pi_{\vkbar{i,k}})$.
-	\item Publish $(\Mixer{k},\eid,\vkbar{i,k},\pi_{\vkbar{i,k}},S_{\vkbar{i,k}})$ on \BB.
+	\item Publish $(\Mixer{k},\eid,\vkbar{i,k},\pi_{\vkbar{i,k}},S_{\vkbar{i,k}})$ on \UB.
 \end{enumerate}
 
 \EC performs the following steps:
@@ -730,7 +839,7 @@ Let $\vkbar{i,0}=\vkbar{i}$ be the new verification key from $\bar{Z}_i$. Repeat
 	\end{enumerate}
 	\item Let $\vkbarprime{i}=\vkbar{i,m}=\vkbar{i}^{\alpha}$.
 	\item Generate signature $S_{\vkbarprime{i}}=\mathit{Sign}_{\SK{\EC}}(\eid,\Voter{i},\vkbarprime{i})$.
-	\item Publish $(\EC,\eid,\Voter{i},\vkbarprime{i},S_{\vkbarprime{i}})$ on \BB. Let $\bar{\mathit{VK}}'$ denote the set of all public keys $\vkbarprime{i}$ added during the election period.
+	\item Publish $(\EC,\eid,\Voter{i},\vkbarprime{i},S_{\vkbarprime{i}})$ on \UB. Let $\bar{\mathit{VK}}'$ denote the set of all public keys $\vkbarprime{i}$ added during the election period.
 \end{enumerate}
 
 \subsubsection{Late Renewal of Registration}
@@ -741,7 +850,7 @@ Essentially the same steps are repeated, if the current set $\mathcal{Z}_V \cup 
 	\item Compute $\vkhat{i,k}=\vkhat{i,k-1}^{\alpha_k}$.
 \	\item Generate $\pi_{\vkhat{i,k}}=\mathit{NIZKP}\{(\alpha_k):g_k=g_{k-1}^{\alpha_k}\wedge\vkhat{i,k}=\vkhat{i,k-1}^{\alpha_k}\}$ (see \subsecref{proof_reg_new} for details).
 	\item Generate signature $S_{\vkhat{i,k}}=\mathit{Sign}_{\sk{k}}(\eid||\vkhat{i,k}||\pi_{\vkhat{i,k}})$.
-	\item Publish $(\Mixer{k},\eid,\vkhat{i,k},\pi_{\vkhat{i,k}},S_{\vkhat{i,k}})$ on \BB.
+	\item Publish $(\Mixer{k},\eid,\vkhat{i,k},\pi_{\vkhat{i,k}},S_{\vkhat{i,k}})$ on \UB.
 \end{enumerate}
 
 \EC performs the following steps:
@@ -753,7 +862,7 @@ Essentially the same steps are repeated, if the current set $\mathcal{Z}_V \cup 
 	\end{enumerate}
 	\item Let $\vkhatprime{i}=\vkhat{m}=\vkhat{i}^{\alpha}$.
 	\item Generate signature $S_{\vkhatprime{i}}=\mathit{Sign}_{\SK{\EC}}(\eid,\Voter{i},\vkhatprime{i})$.
-	\item Publish $(\EC,\eid,\Voter{i},\vkhatprime{i},S_{\vkhatprime{i}})$ on \BB. Let $\hat{\mathit{VK}}'$ denote the set of all public keys $\vkhatprime{i}$, which have been replaced by a new one during the election period.
+	\item Publish $(\EC,\eid,\Voter{i},\vkhatprime{i},S_{\vkhatprime{i}})$ on \UB. Let $\hat{\mathit{VK}}'$ denote the set of all public keys $\vkhatprime{i}$, which have been replaced by a new one during the election period.
 \end{enumerate}
 
 
