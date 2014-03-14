@@ -302,7 +302,7 @@ UniBoard supports two basic operations.
 	\item Post$(m,A):B$ \newline This operation allows to publish on the \UB a message $m \in \mathcal{M}$ and additional arguments $A=(\alpha_1,\dots,\alpha_n)$, where $\alpha_i \in \mathcal{A}_i$. The \UB might add additional arguments $B=(\beta_1,\dots,\beta_k)$, where $\beta_j \in \mathcal{B}_j$, and stores the tuple $(m,A,B)$. The \UB returns the additional arguments $B$. The arguments in $A$ and $B$ depend on the properties supported by the \UB.
 	\item Get$(Q):R$ \newline This operation allows to get the published data from the \UB as result $R$. The result $R$ for a query $Q=(\mathcal{A}'_1, \dots , \mathcal{A}'_n, \mathcal{B}'_1, \dots, \mathcal{B}'_k)$, where $\mathcal{A}'_i \subseteq  \mathcal{A}_i$ and  $\mathcal{B}'_j \subseteq  \mathcal{B}_j$, is the set of tuples $(m,A,B)$ such that $\alpha_i \in \mathcal{A}'_i$ and $\beta_j \in \mathcal{B}'_j$. $Q$ enables one to retrieve only the information one is interested in by reducing $\mathcal{A}'_1, \dots , \mathcal{A}'_n$ and $\mathcal{B}'_1, \dots , \mathcal{B}'_k$ to the desired values. If $\mathcal{A}'_i$ or $\mathcal{B}'_j$ is missing in $Q$ it is assumed to be equal to $\mathcal{A}_i$ or $\mathcal{B}_j$ respectively.
 \end{itemize}
- a query   
+    
 \subsection{Multipurpose}
 Multipurpose allows multiple applications to use the same \UB. This is achieved by adding the application identifier $a_i$ to $A$. For $Q$ $a_i$ is mandatory.
 %\begin{itemize}
@@ -322,6 +322,7 @@ For $Q$ $e_j$ is mandatory.
 \subsection{Structured}
 
 In a structure board, a type identifier $T_k$ is added to the list of parameters $A$ when posting a message. For the query $Q$, $T_k$ is optional.
+test
 
 %\begin{itemize}
 %	\item Post$(m,T_k)$ : -

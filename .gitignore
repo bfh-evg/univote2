@@ -1,2 +1,12 @@
 */target/
 /publicboard/publicboard-ejb/target/
+#Latex helper files to ignore
+*.aux
+*.bbl
+*.blg
+*.hst
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.ver
