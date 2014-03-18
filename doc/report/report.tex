@@ -276,24 +276,7 @@ instead of $N$ individual proofs of the second type. As discussed in \subsecref{
 %===============================================================================================
 \chapter{UniBoard}
 %===============================================================================================
-
-\section{Overview}
-UniBoard is an highly configurable implementation of an public bulletin board. For UniVote2 we use
-a configuration that supports following properties:
-
-\begin{itemize}
-	\item Multipurpose
-	\item Sectioned
-	\item Structured
-	\item Typed
-	\item Access-controlled
-	\item Notifying / Active notification
-	\item Append-only
-	\item Certified reading
-	\item Certified posting
-	\item Searchable
-\end{itemize}
-
+A bulletin board can have different properties. This section first presents some of the most important ones and then describes which have been selected for UniBoard.
 \section{Properties}
 \subsection{UniBoard basic operations}
 
@@ -302,7 +285,9 @@ UniBoard supports two basic operations.
 	\item Post$(m,A):B$ \newline This operation allows to publish on the \UB a message $m \in \mathcal{M}$ and additional arguments $A=(\alpha_1,\dots,\alpha_n)$, where $\alpha_i \in \mathcal{A}_i$. The \UB might add additional arguments $B=(\beta_1,\dots,\beta_k)$, where $\beta_j \in \mathcal{B}_j$, and stores the tuple $(m,A,B)$. The \UB returns the additional arguments $B$. The arguments in $A$ and $B$ depend on the properties supported by the \UB.
 	\item Get$(Q):R$ \newline This operation allows to get the published data from the \UB as result $R$. The result $R$ for a query $Q=(\mathcal{A}'_1, \dots , \mathcal{A}'_n, \mathcal{B}'_1, \dots, \mathcal{B}'_k)$, where $\mathcal{A}'_i \subseteq  \mathcal{A}_i$ and  $\mathcal{B}'_j \subseteq  \mathcal{B}_j$, is the set of tuples $(m,A,B)$ such that $\alpha_i \in \mathcal{A}'_i$ and $\beta_j \in \mathcal{B}'_j$. $Q$ enables one to retrieve only the information one is interested in by reducing $\mathcal{A}'_1, \dots , \mathcal{A}'_n$ and $\mathcal{B}'_1, \dots , \mathcal{B}'_k$ to the desired values. If $\mathcal{A}'_i$ or $\mathcal{B}'_j$ is missing in $Q$ it is assumed to be equal to $\mathcal{A}_i$ or $\mathcal{B}_j$ respectively.
 \end{itemize}
- a query   
+
+TODO: give an identifier to content of the board
+    
 \subsection{Multipurpose}
 Multipurpose allows multiple applications to use the same \UB. This is achieved by adding the application identifier $a_i$ to $A$. For $Q$ $a_i$ is mandatory.
 %\begin{itemize}
@@ -321,7 +306,7 @@ For $Q$ $e_j$ is mandatory.
 
 \subsection{Structured}
 
-In a structure board, a type identifier $T_k$ is added to the list of parameters $A$ when posting a message. For the query $Q$, $T_k$ is optional.
+In a structure board, a type identifier $T$ is added to the list of parameters $A$ when posting a message. For the query $Q$, $T$ is optional.
 
 %\begin{itemize}
 %	\item Post$(m,T_k)$ : -
@@ -330,7 +315,12 @@ In a structure board, a type identifier $T_k$ is added to the list of parameters
 
 \subsection{Typed}
 
-The typed property requires the structured property. Moreover, for each type of message, a schema of the message structure must be provided for the board verifies the content structure of every incoming message.
+The typed property requires the structured property. Moreover, for each type of message, a schema of the message structure must be provided for the board verifies the content structure of every incoming message. For that, an additional method must be introduced:
+
+\begin{itemize}
+	\item SetMessageStructureScheme$(scheme)$ : -
+\end{itemize}
+
 %\begin{itemize}
 %	\item Post$(message,T_k)$ : -
 %	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
@@ -339,45 +329,88 @@ The typed property requires the structured property. Moreover, for each type of 
 
 \subsection{Access-controlled}
 
+The goal of the access-controlled property is to allow only authorized entities to publish one, a defined number or an undefined number of messages on the board. This check is done by verifying if the signer of the posted message is allowed to publish. This implies that the signature of the message $s$ must be added to $A$. In the query $Q$, $s$ is optional.
+
 \begin{itemize}
-	\item Post$(message,t,s)$ : -
-	\item Get$()$ : $\mathcal{R}_\UB$ where $(m,s,t) \in \mathcal{R}_\UB$
+	\item Post$(m,s): B$
 \end{itemize}
+%\begin{itemize}
+%	\item Post$(message,t,s)$ : -
+%	\item Get$()$ : $\mathcal{R}_\UB$ where $(m,s,t) \in \mathcal{R}_\UB$
+%\end{itemize}
 
 \subsection{Notifying}
 
+The notification property of the board allows an entity to register itself to be notified when a certain type of message is posted on the board. In order to accomplish that, two additional methods must be introduced:
+
 \begin{itemize}
-	\item Post$(message,a_i)$ : -
-	\item Get$(a_i)$ : $\mathcal{M}_i$
+	\item RegisterForNotification$(entity, T )$ : -
+	\item UnregisterNotifications$(entity, T)$ : -
 \end{itemize}
 
 \subsection{Append-Only}
 
-\begin{itemize}
-	\item Post$(message,a_i)$ : -
-	\item Get$(a_i)$ : $\mathcal{M}_i$
-\end{itemize}
+The append-only property ensures that no already published message can be removed from the board. So, $\mathcal{UB}_t \subseteq \mathcal{UB}_{t+1}$ where $\mathcal{UB}_{t} $ represent the content on the board at time $t$.
+
+TODO is the signature of the method modified ?
 
 \subsection{Certified Reading}
 
+When querying the board, it creates a signature $S_q(Q,R,t_\UB)$ over the query $Q$ the result $R$ and the timestamp $t_\UB$ of the query process. For this property, the Get operation must be adapted as follows:
+
 \begin{itemize}
-	\item Post$(message,a_i)$ : -
-	\item Get$(a_i)$ : $\mathcal{M}_i$
+	\item Get$(Q): (R, S_q, t_\UB)$
 \end{itemize}
 
 \subsection{Certified Posting}
 
+Upon posting a message $m$ the \UB creates the signature $S_m(m,A,B,t_\UB)$ including the message, the $A$ and $B$ arguments and the current timestamp $t_\UB$. Timestamp and signature are returned. So, the Post operation must be adapted and becomes:
+
 \begin{itemize}
-	\item Post$(m)$ Upon posting your message $m$ the \UB creates the signature $S_m(m,t_\UB)$ including your message
-	and a current timestamp $t_\UB$. Timestamp and signature are returned to you.
-	\item Get$()$ 
+	\item Post$(m,A): (B, S_m,t_\UB)$
 \end{itemize}
+
+TODO: query possibilities
 
 \subsection{Searchable}
 
+The searchable property allow to query not only attributes $A$ and $B$, but also indicate attributes $C$ that must be found in the message itself. The Get operation must be modified as follow:
+
 \begin{itemize}
-	\item Post$(message,a_i)$ : -
-	\item Get$(a_i)$ : $\mathcal{M}_i$
+	\item Get$(Q):R$ \newline The result $R$ for a query $Q=(\mathcal{A}'_1, \dots , \mathcal{A}'_n, \mathcal{B}'_1, \dots, \mathcal{B}'_k, \mathcal{C}'_1, \dots, \mathcal{C}'_l)$, where $\mathcal{A}'_i \subseteq  \mathcal{A}_i$ and  $\mathcal{B}'_j \subseteq  \mathcal{B}_j$ and $\mathcal{C}'_f \subseteq  \mathcal{M}$, is the set of tuples $(m,A,B)$ such that $\alpha_i \in \mathcal{A}'_i$ and $\beta_j \in \mathcal{B}'_j$, and $\mathcal{C}'_f = m'$ where $m'$ is a portion of $m$. 
+\end{itemize}
+
+TODO check if this description is correct
+
+\subsection{Combination of multiple properties}
+
+All the properties mentioned earlier can be combined together. So, for example, a board with properties multipurpose, sectioned, structured, typed, access-controlled, notifying, append-only, certified reading, certified posting and searchable would have following operations:
+
+\begin{itemize} 
+	\item Post$(m,a_i,e_j,T,s,): (B,S_m,t_\UB)$
+	\item Get$(Q): (R, S_q, t_\UB)$ where $Q=(\mathcal{A}'_1, \dots , \mathcal{A}'_n, \mathcal{B}'_1, \dots, \mathcal{B}'_k, \mathcal{C}'_1, \dots, \mathcal{C}'_l)$
+	\item SetMessageStructureScheme$(scheme)$ : -
+	\item RegisterForNotification$(entity, T )$ : -
+	\item UnregisterNotifications$(entity, T)$ : -
+\end{itemize}
+
+\section{Properties of UniBoard}
+
+UniBoard is an highly configurable implementation of an public bulletin board. For UniVote2 we use
+a configuration that supports following properties:
+
+TODO adapt this list
+\begin{itemize}
+	\item Multipurpose
+	\item Sectioned
+	\item Structured
+	\item Typed
+	\item Access-controlled
+	\item Notifying / Active notification
+	\item Append-only
+	\item Certified reading
+	\item Certified posting
+	\item Searchable
 \end{itemize}
 
 %===============================================================================================
