@@ -296,9 +296,11 @@ UniBoard supports two basic operations.
 Usually a bulletin board supports only one application(e.g. traditional electronic bulletin board).
 Multipurpose allows multiple applications to use the same bulletin board. This is achieved by defining an $\mathcal{A}_i$ as the set of all valid application ids.
 
+With a multipurpose bulletin board, the resting $\mathcal{A}_i$ and $\mathcal{B}_i$ can be defined differently for each application. Therefore, we define Post$_m$ and Get$_m$ as the operations for application $m$.
+
 \subsection{Sectioned}
 
-Inside a bulletin board with this property, an application can be partitioned into multiple sections. E.g.: separate data for different customers into individual sections. To realize this property a set $\mathcal{A}_i$ is defined as the set of all section identifiers for the given application.
+Inside a bulletin board with this property, an application can be partitioned into multiple sections. E.g.: separate data for different customers into individual sections. To realize this property, a set $\mathcal{A}_i$ is defined as the set of all section identifiers for the given application.
 
 \subsection{Structured}
 
