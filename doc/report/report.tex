@@ -276,42 +276,34 @@ instead of $N$ individual proofs of the second type. As discussed in \subsecref{
 %===============================================================================================
 \chapter{UniBoard}
 %===============================================================================================
-A bulletin board can have different properties. This section first presents some of the most important ones and then describes which have been selected for UniBoard.
+A bulletin board can have many different properties. To give one flexibility in their bulletin board implementation UniBoard specifies a common interface and a component model. This allows one to combine different properties as the need arrives or to write their own implementation of a certain property.
+
+This section first presents some of the most important properties a bulletin board can have and then describes which ones have been selected for UniBoard configuration in UniVote.
+
 \section{Properties}
 \subsection{UniBoard basic operations}
 
 UniBoard supports two basic operations.
 \begin{itemize}
-	\item Post$(m,A):B$ \newline This operation allows to publish on the \UB a message $m \in \mathcal{M}$ and additional arguments $A=(\alpha_1,\dots,\alpha_n)$, where $\alpha_i \in \mathcal{A}_i$. The \UB might add additional arguments $B=(\beta_1,\dots,\beta_k)$, where $\beta_j \in \mathcal{B}_j$, and stores the tuple $(m,A,B)$. The \UB returns the additional arguments $B$. The arguments in $A$ and $B$ depend on the properties supported by the \UB.
-	\item Get$(Q):R$ \newline This operation allows to get the published data from the \UB as result $R$. The result $R$ for a query $Q=(\mathcal{A}'_1, \dots , \mathcal{A}'_n, \mathcal{B}'_1, \dots, \mathcal{B}'_k)$, where $\mathcal{A}'_i \subseteq  \mathcal{A}_i$ and  $\mathcal{B}'_j \subseteq  \mathcal{B}_j$, is the set of tuples $(m,A,B)$ such that $\alpha_i \in \mathcal{A}'_i$ and $\beta_j \in \mathcal{B}'_j$. $Q$ enables one to retrieve only the information one is interested in by reducing $\mathcal{A}'_1, \dots , \mathcal{A}'_n$ and $\mathcal{B}'_1, \dots , \mathcal{B}'_k$ to the desired values. If $\mathcal{A}'_i$ or $\mathcal{B}'_j$ is missing in $Q$ it is assumed to be equal to $\mathcal{A}_i$ or $\mathcal{B}_j$ respectively.
+	\item Post$(m,A):B$ \newline This operation allows to publish on UniBoard a message $m \in \mathcal{M}$ and additional arguments $A=(\alpha_1,\dots,\alpha_n)$, where $\alpha_i \in \mathcal{A}_i$. UniBoard might add additional arguments $B=(\beta_1,\dots,\beta_k)$, where $\beta_j \in \mathcal{B}_j$, and stores the post $p=(m,A,B)$ in $\mathcal{P}_{UB}$. UniBoard returns the additional arguments $B$. The arguments in $A$ and $B$ depend on the properties supported by UniBoard.
+	\item Get$(Q):R$ \newline This operation allows to get the published data $\mathcal{P}_{UB}$ from UniBoard as result $R$. The result $R$ for a query $Q=(\mathcal{A}'_1, \dots , \mathcal{A}'_n, \mathcal{B}'_1, \dots, \mathcal{B}'_k)$, where $\mathcal{A}'_i \subseteq  \mathcal{A}_i$ and  $\mathcal{B}'_j \subseteq  \mathcal{B}_j$, is the set of posts $R\subseteq\mathcal{P}_{UB}$ such that each $p\in R$ fulfils $\alpha_i \in \mathcal{A}'_i$ and $\beta_j \in \mathcal{B}'_j$. $Q$ enables one to retrieve only the information one is interested in by reducing $\mathcal{A}'_1, \dots , \mathcal{A}'_n$ and $\mathcal{B}'_1, \dots , \mathcal{B}'_k$ to the desired values. 
+	%If $\mathcal{A}'_i$ or $\mathcal{B}'_j$ is missing in $Q$ it is assumed to be equal to $\mathcal{A}_i$ or $\mathcal{B}_j$ respectively.
 \end{itemize}
 
-TODO: give an identifier to content of the board
+
     
 \subsection{Multipurpose}
-Multipurpose allows multiple applications to use the same \UB. This is achieved by adding the application identifier $a_i$ to $A$. For $Q$ $a_i$ is mandatory.
-%\begin{itemize}
-%	\item Post$(m,a_i)$ : -
-%	\item Get$(a_i)$ : $\mathcal{R}_i$ where $(m,a_i) \in \mathcal{R}_i$
-%\end{itemize}
+Usually a bulletin board supports only one application(e.g. traditional electronic bulletin board).
+Multipurpose allows multiple applications to use the same bulletin board. This is achieved by defining an $\mathcal{A}_i$ as the set of all valid application ids.
 
 \subsection{Sectioned}
 
-Inside a board with this property, an application can be partitioned into multiple sections. E.g.: separate data for different customers into individual sections. For this property, the section identifier $e_j$ is added to $A$. An application must consist of at least one section.
-For $Q$ $e_j$ is mandatory.
-%\begin{itemize}
-%	\item Post$(m,e_j)$ : -
-%	\item Get$(e_j)$ : $\mathcal{R}_j$ where $(m,e_j) \in \mathcal{R}_j$
-%\end{itemize}
+Inside a bulletin board with this property, an application can be partitioned into multiple sections. E.g.: separate data for different customers into individual sections. To realize this property a set $\mathcal{A}_i$ is defined as the set of all section identifiers for the given application.
 
 \subsection{Structured}
 
-In a structure board, a type identifier $T$ is added to the list of parameters $A$ when posting a message. For the query $Q$, $T$ is optional.
-
-%\begin{itemize}
-%	\item Post$(m,T_k)$ : -
-%	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
-%\end{itemize}
+In a structured bulletin board, an application defines a set of message types $\mathcal{A}_i$. A
+ message $m$ always belongs to a message type $T_j$ where $T_j\in\mathcal{A}_i$. Therefore a message type $T_j$ is added to the list of parameters $A$ when posting a message.
 
 \subsection{Typed}
 
