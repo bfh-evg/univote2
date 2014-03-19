@@ -278,10 +278,10 @@ instead of $N$ individual proofs of the second type. As discussed in \subsecref{
 %===============================================================================================
 A bulletin board can have many different properties. To give one flexibility in their bulletin board implementation UniBoard specifies a common interface and a component model. This allows one to combine different properties as the need arrives or to write their own implementation of a certain property.
 
-This section first presents some of the most important properties a bulletin board can have and then describes which ones have been selected for UniBoard configuration in UniVote.
+This section first presents the basic general operations supported by UniBoard and then describes which properties UniBoard configuration must have in UniVote.
 
-\section{Properties}
-\subsection{UniBoard basic operations}
+%\section{Properties}
+\section{UniBoard basic operations}
 
 UniBoard supports two basic operations.
 \begin{itemize}
@@ -290,35 +290,96 @@ UniBoard supports two basic operations.
 	%If $\mathcal{A}'_i$ or $\mathcal{B}'_j$ is missing in $Q$ it is assumed to be equal to $\mathcal{A}_i$ or $\mathcal{B}_j$ respectively.
 \end{itemize}
 
+\section{UniBoard properties for UniVote}
 
-    
+For the use of UniVote, UniBoard is used as bulletin board. UniVote require following properties for the board:
+
+\begin{itemize}
+	\item Multipurpose
+	\item Sectioned
+	\item Grouped
+	\item Typed
+	\item Certified posting
+	\item Certified reading
+	\item Access-controlled
+	\item Append-only
+	\item Notifying / Active notification
+	\item Searchable
+\end{itemize}
+
+These properties will be described below showing which effect they have on the basic operations described earlier.
+
 \subsection{Multipurpose}
-Usually a bulletin board supports only one application(e.g. traditional electronic bulletin board).
-Multipurpose allows multiple applications to use the same bulletin board. This is achieved by defining an $\mathcal{A}_i$ as the set of all valid application ids.
 
-With a multipurpose bulletin board, the resting $\mathcal{A}_i$ and $\mathcal{B}_i$ can be defined differently for each application. Therefore, we define Post$_m$ and Get$_m$ as the operations for application $m$.
+Usually a bulletin board supports only one application(e.g. traditional electronic bulletin board). Multipurpose allows multiple applications to use the same bulletin board. The data stored on the bulletin board can look very different for each application in accordance with the board properties needed by the applications. So, the basic operations must be extended with an application identifier $i$ in order to be able to define independent $\mathcal{A}_i$ and $\mathcal{B}_i$ for each application. Thus, the operations look like:
+
+\begin{itemize}
+	\item Post$(m, i, A):B$
+	\item Get$(i, Q):R$ 
+	%If $\mathcal{A}'_i$ or $\mathcal{B}'_j$ is missing in $Q$ it is assumed to be equal to $\mathcal{A}_i$ or $\mathcal{B}_j$ respectively.
+\end{itemize}
+
+TODO add a method returning all applications?
+
+%This is achieved by defining an $\mathcal{A}_i$ as the set of all valid application ids.
+
+%With a multipurpose bulletin board, the resting $\mathcal{A}_i$ and $\mathcal{B}_i$ can be defined differently for each application. Therefore, we define Post$_m$ and Get$_m$ as the operations for application $m$.
 
 \subsection{Sectioned}
 
-Inside a bulletin board with this property, an application can be partitioned into multiple sections. E.g.: separate data for different customers into individual sections. To realize this property, a set $\mathcal{A}_i$ is defined as the set of all section identifiers for the given application.
+Inside a bulletin board with this property, an application can be divided into multiple sections. E.g.: separate data for different customers into individual sections. To realize this property, $\alpha_1$ is used as section identifier. So, $\mathcal{A}_1$ represents the set of all section identifiers for the given application.
 
-\subsection{Structured}
+An additional operation must be introduced allowing to ask the board for all the sections inside an application:
+\begin{itemize}
+	\item GetAllSections$(i):\mathcal{A}_1$ \newline
+	The operation returns the set of all section identifiers  $\mathcal{A}_1$ for application $i$. 
+\end{itemize}
 
-In a structured bulletin board, an application defines a set of message types $\mathcal{A}_i$. A
- message $m$ always belongs to a message type $T_j$ where $T_j\in\mathcal{A}_i$. Therefore a message type $T_j$ is added to the list of parameters $A$ when posting a message.
+\subsection{Grouped}
+
+In a grouped bulletin board, messages are grouped inside a section into groups defined by the application. A group identifier must be provided on posting. Therefore, $\alpha_2$ is used as group identifier. So, $\mathcal{A}_2$ represents the set of all possible group identifiers. 
+
+An additional operation must be introduced allowing to ask the board for all the groups inside an application:
+\begin{itemize}
+	\item GetAllGroups$(i):\mathcal{A}_2$ \newline
+	The operation returns the set of all group identifiers  $\mathcal{A}_2$ for application $i$. 
+\end{itemize}
+
+% message $m$ always belongs to a message type $T_j$ where $T_j\in\mathcal{A}_i$. Therefore a message type $T_j$ is added to the list of parameters $A$ when posting a message.
 
 \subsection{Typed}
 
-The typed property requires the structured property. Moreover, for each type of message, a schema of the message structure must be provided for the board verifies the content structure of every incoming message. For that, an additional method must be introduced:
+The typed property requires a schema of the message structure to be provided. On posting, the bulletin board has to check the structure of $m$ with the proposed schema. Inside a group, all messages are from the same type.
+%The typed property requires the structured property. Moreover, for each type of message, a schema of the message structure must be provided for the board verifies the content structure of every incoming message. For that, an additional method must be introduced:
 
-\begin{itemize}
-	\item SetMessageStructureScheme$(scheme)$ : -
-\end{itemize}
+%\begin{itemize}
+%	\item SetMessageStructureScheme$(scheme)$ : -
+%\end{itemize}
 
 %\begin{itemize}
 %	\item Post$(message,T_k)$ : -
 %	\item Get$(T_k)$ : $\mathcal{R}_k$ where $(m,T_k) \in \mathcal{R}_k$
 %\end{itemize}
+
+\subsection{Certified Posting}
+
+Upon posting a message $m$ UniBoard creates the signature $S_m(m,i,A,B,t_{\mathcal{UB}})$ including the message, the application identifier $i$, the $A$ and $B$ arguments and the current timestamp $t_\mathcal{UB}$. Timestamp and signature are returned. So, the Post operation must be adapted and becomes:
+
+\begin{itemize}
+	\item Post$(m,i,A): (B, S_m,t_\mathcal{UB})$
+\end{itemize}
+
+TODO: query possibilities
+
+\subsection{Certified Reading}
+
+When querying the board, it creates a signature $S_q(Q,R,t_\mathcal{UB})$ over the query $Q$ the result $R$ and the timestamp $t_\mathcal{UB}$ of the query process. For this property, the Get operation must be adapted as follows:
+
+\begin{itemize}
+	\item Get$(Q): (R, S_q, t_\mathcal{UB})$
+\end{itemize}
+
+TODO introduce the verification operation done by the user. In the Univote specs, we then can reference on this instead of rewriting it each time
 
 
 \subsection{Access-controlled}
@@ -333,6 +394,13 @@ The goal of the access-controlled property is to allow only authorized entities 
 %	\item Get$()$ : $\mathcal{R}_\UB$ where $(m,s,t) \in \mathcal{R}_\UB$
 %\end{itemize}
 
+
+\subsection{Append-Only}
+
+The append-only property ensures that no already published message can be removed from the board. So, $\mathcal{UB}_t \subseteq \mathcal{UB}_{t+1}$ where $\mathcal{UB}_{t} $ represent the content on the board at time $t$.
+
+TODO is the signature of the method modified ?
+
 \subsection{Notifying}
 
 The notification property of the board allows an entity to register itself to be notified when a certain type of message is posted on the board. In order to accomplish that, two additional methods must be introduced:
@@ -342,29 +410,9 @@ The notification property of the board allows an entity to register itself to be
 	\item UnregisterNotifications$(entity, T)$ : -
 \end{itemize}
 
-\subsection{Append-Only}
 
-The append-only property ensures that no already published message can be removed from the board. So, $\mathcal{UB}_t \subseteq \mathcal{UB}_{t+1}$ where $\mathcal{UB}_{t} $ represent the content on the board at time $t$.
 
-TODO is the signature of the method modified ?
 
-\subsection{Certified Reading}
-
-When querying the board, it creates a signature $S_q(Q,R,t_\UB)$ over the query $Q$ the result $R$ and the timestamp $t_\UB$ of the query process. For this property, the Get operation must be adapted as follows:
-
-\begin{itemize}
-	\item Get$(Q): (R, S_q, t_\UB)$
-\end{itemize}
-
-\subsection{Certified Posting}
-
-Upon posting a message $m$ the \UB creates the signature $S_m(m,A,B,t_\UB)$ including the message, the $A$ and $B$ arguments and the current timestamp $t_\UB$. Timestamp and signature are returned. So, the Post operation must be adapted and becomes:
-
-\begin{itemize}
-	\item Post$(m,A): (B, S_m,t_\UB)$
-\end{itemize}
-
-TODO: query possibilities
 
 \subsection{Searchable}
 
@@ -388,24 +436,7 @@ All the properties mentioned earlier can be combined together. So, for example, 
 	\item UnregisterNotifications$(entity, T)$ : -
 \end{itemize}
 
-\section{Properties of UniBoard}
 
-UniBoard is an highly configurable implementation of an public bulletin board. For UniVote2 we use
-a configuration that supports following properties:
-
-TODO adapt this list
-\begin{itemize}
-	\item Multipurpose
-	\item Sectioned
-	\item Structured
-	\item Typed
-	\item Access-controlled
-	\item Notifying / Active notification
-	\item Append-only
-	\item Certified reading
-	\item Certified posting
-	\item Searchable
-\end{itemize}
 
 %===============================================================================================
 \chapter{UniCert}
