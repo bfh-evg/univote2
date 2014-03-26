@@ -6,3 +6,5 @@
 /doc/report/*.gz
 /doc/report/*.log
 /doc/report/*.toc
+/doc/report/*.hst
+/doc/report/*.ver

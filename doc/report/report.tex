@@ -385,8 +385,16 @@ This property depends on the grouped property. It defines for each group $g$ the
 %\end{itemize}
 
 \subsection{Access-controlled}
-
-The goal of the access-controlled property is to allow only authorized entities to publish one, a defined number or an undefined number of messages on the board. This check is done by verifying if the signer of the posted message is allowed to publish. Therefore, a signature from the poster must be added when posting. $\alpha_3$ is used for this purpose. So, $\mathcal{A}_3$ represents the set of all valid signatures.
+The goal of the access-controlled property is to allow only authorized entities to publish messages on the board. First the sender of the message must be identified. Therefore one has now to provide $\alpha_{i3}$, which is a signature of the message, $\alpha_{i1}$ and $\alpha_{i2}$, and $\alpha_{i4}$, which represents his public key $pk$.
+To enable UniBoard to check, if the sender is allowed to post the message, we introduce for every application a group $g_0$,which contains all authorization information. Note that this group needs to be typed, so that UniBoard can understand its content.
+Also note that group $g_0$ can have many different flavours depending on the authorization capabilities one needs. For the configuration used for UniVote and UniCert we defined following fields:
+\begin{itemize}
+ 	\item $pk$ public key of the person receiving the authorization
+ 	\item $g$ group the authorization is for
+ 	\item $n$ the number of posts allowed(a negative number corresponds to a revocation)
+ 	\item $sig_{i}$ signature where $i$ is the person giving the authorization
+ \end{itemize}
+%The goal of the access-controlled property is to allow only authorized entities to publish one, a defined number or an undefined number of messages on the board. This check is done by verifying if the signer of the posted message is allowed to publish. Therefore, a signature from the poster must be added when posting. $\alpha_3$ is used for this purpose. So, $\mathcal{A}_3$ represents the set of all valid signatures.
 
 %\begin{itemize}
 %	\item Post$(message,t,s)$ : -
