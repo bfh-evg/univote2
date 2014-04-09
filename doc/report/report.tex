@@ -352,7 +352,7 @@ This property requires the typed property, as it allows to query not only the ar
 The notification property of the board allows an entity  $e$ to register itself to be notified when a certain set of messages $\mathcal{P}_i(Q)$ is posted on the board. In order to accomplish that, two additional methods must be introduced:
 
 \begin{itemize}
-	\item Register$(i, e, Q ,\gamma): c$ \newline Where $Q$ represents the query for the messages the entity is interested in and $c$ a return code, which can be used to unregister. 
+	\item Register$(i, e, Q ,\gamma): c$ \newline Where $Q$ represents the query for the messages the entity is interested in, $\gamma$ further arguments that limit the query and $c$ a return code, which can be used to unregister. 
 	\item Unregister$(i, c)$ : - \newline By providing his/her return code $c$, one can unregister and will not receive any further notification.
 \end{itemize}
 
