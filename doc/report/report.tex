@@ -408,13 +408,20 @@ Unregister$(i, c)$ : -
 \chapter{UniCert}
 %===============================================================================================
 
-UniCert is a kind of certification authority. It can be used to issue digital certificates that can then be used in an application. UniCert issues X.509 certificate in PEM format and publishes them on UniBoard in a UniCert specific area. UniCert provides an interface where requester can authenticate themselves and request a certificate corresponding to their needs.
+UniCert is a software component playing the role of certification authority. It can be used to issue digital certificates that can then be used in an application. UniCert issues X.509 certificate in PEM format and publishes them on UniBoard in a UniCert specific area. UniCert provides an interface where the certificate requester can authenticate themselves and request a certificate corresponding to their needs.
 
-\paragraph{Authentication} Authentication in UniCert can be done through various identity providers. The requester has to authenticate themselves to one of these providers which returns the resulting authentication token to UniCert. Based on the identity informations of the requester, a certificate can be issued. 
+\paragraph*{Authentication} Authentication in UniCert can be done through various identity providers. The requester has to authenticate themselves to one of these providers which returns the resulting authentication token to UniCert. Based on the identity informations contained in the token, a certificate can be issued. 
 
-\paragraph{Usage} Each issued certificate can be use for a specific purpose also called usage (e.g. voter certificate, tallier certificate, ...) which is mentioned in the certificate. The usage is linked to a given cryptographic setup (e.g specific $p,q$ and $g$ values for a DSA certificate). So, when requesting a certificate, the requester must indicate a usage and compute a private key corresponding to the setup linked with the selected usage. Then, the requester can submit a certificate signing request indicating the public key corresponding to the private key computed, the usage and an authentication token.
+\paragraph*{Certificate usage} Each issued certificate can be use for a specific purpose also called usage (e.g. voter certificate, tallier certificate, ...) which is mentioned in the certificate. The usage is linked to a given cryptographic setup (e.g specific $p,q$ and $g$ values for a DSA certificate). So, when requesting a certificate, the requester must indicate a usage and compute a private key corresponding to the setup linked with the selected usage. Then, the requester can submit a certificate signing request (CSR) indicating the public key corresponding to the private key computed, the usage and an authentication token.
 
-use hash of mail address in certificate for data privacy
+Before signing the CSR submitted by the requester, UniCert has to verify if the content of the CSR correspond to the setup corresponding to the selected usage. Following properties must be checked:
+\begin{itemize}
+	\item check if the same cryptographic setup as the one specified by the selected usage is used
+	\item check if the requester knows the private key corresponding to the public of the CSR submitted
+	\item check if the distinguished name of the requester is in the format required by the usage
+\end{itemize}
+
+This last point is needed for data protection reasons. Since the issued certificate are published on UniBoard, one could require the certificate to be anonymized. This can be defined during the creation of a new usage. When requested, a hash of the mail address can be used in the certificate instead of the mail address itself.
 
 
 
