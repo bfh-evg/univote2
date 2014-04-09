@@ -171,7 +171,7 @@ Let $m=id||k||t||\CA$ denote a particular type of message, where $id$ is a uniqu
 is \emph{digital certificate} of $k$ issued by $\CA$ at time $t$. It can be verified by checking that $\mathit{Verify}_{\VK{\CA}}(Z_{id})=\mathit{Verify}_{\VK{\CA}}(id||k||t||\CA,S_{id})=\mathit{accept}$.
 
 %-----------------------------------------------------------------------------------------------
-\subsection{Zero-Knowledge Proofs of Knowledge}\label{zip}
+\subsection{Zero-Knowledge Proofs of Knowledge}\label{zkp}
 %-----------------------------------------------------------------------------------------------
 
 A \emph{zero-knowledge proof} is a cryptographic protocol, where the \emph{prover} $P$ tries to convince the \emph{verifier} $V$ that a mathematical statement is true, but without revealing any  information other than the truth of the statement. A \emph{proof of knowledge} is a particular proof allowing $P$ to demonstrate knowledge of a secret information involved in the mathematical statement.
@@ -280,7 +280,8 @@ A bulletin board allows  a group of authors to post public messages, so that the
 
 To give one flexibility in their bulletin board implementation UniBoard specifies generic interfaces and a component model. This allows one to combine different properties as the need arrives or to write their own implementation of a certain property. 
 
-UniVote and UniCert both use UniBoard for their public messages. In both cases, the same set of properties are required. In this chapter, these properties are introduced one by one and their descriptions show the concrete operations calls used in UniVote and UniCert, building up on the arguments introduced by previous properties.
+UniVote and UniCert both use UniBoard for their public messages. In both cases, the same set of properties is used. In this chapter, the properties used are introduced one by one.
+% and their descriptions show the concrete operations calls used in UniVote and UniCert, building up on the arguments introduced by previous properties.
 
 
 \section{Multipurpose or single purpose}
@@ -288,14 +289,14 @@ UniVote and UniCert both use UniBoard for their public messages. In both cases, 
 UniBoard supports two modes, single purpose (a single application uses the bulletin board) and multipurpose (multiple applications can use it). In the multipurpose mode the two basic operations look like this:
 
 \begin{itemize}
-	\item Post$(i ,m,\alpha):\beta$ \newline This operation allows to publish on UniBoard for application $i$ a message $m \in \mathcal{M}$ and additional arguments $\alpha=(\alpha_1,\dots,\alpha_n)$, where $\alpha_j \in \mathcal{A}_{ij}$. $\mathcal{A}_{ij}$ is the set of possible values for $\alpha_j$ in application $i$. UniBoard might add additional arguments $\beta=(\beta_1,\dots,\beta_k)$, where $\beta_j \in \mathcal{B}_{ij}$, and stores the post $p=(i, m,\alpha,\beta)$ in $\mathcal{P}_i$. UniBoard returns the additional arguments $\beta$ to the author of the message. The arguments in $\alpha$ and $\beta$ depend on the properties supported by UniBoard.
-	\item Get$(i, Q):R$ \newline This operation allows to get the published data $\mathcal{P}_i$ from UniBoard for application $i$. The query $Q=(\mathcal{A}'_{i1}, \dots , \mathcal{A}'_{in}, \mathcal{B}'_{i1}, \dots, \mathcal{B}'_{ik})$, where $\mathcal{A}'_{ij} \subseteq  \mathcal{A}_{ij}$ and  $\mathcal{B}'_{ij} \subseteq  \mathcal{B}_{ij}$, allows one to retrieve only a subset $R\subseteq\mathcal{P}_i$, where each $p\in R$ fulfils $\alpha_j \in \mathcal{A}'_{ij}$ and $\beta_j \in \mathcal{B}'_{ij}$. Note that $R$ might also be denoted as $\mathcal{P}_i(Q)$and if $Q$ reduces $\mathcal{A}'_{ij}$ to a single value $\alpha_j$, one can also denote this as $\mathcal{P}_i(\langle\alpha_j\rangle)$.
+	\item Post$(i ,m,\alpha):\beta$ \newline This operation allows to publish for application $i$ a message $m \in \mathcal{M}$ and additional arguments $\alpha=(\alpha_1,\dots,\alpha_n)$, where $\alpha_j \in \mathcal{A}_{ij}$. $\mathcal{A}_{ij}$ is the set of possible values for $\alpha_j$ in application $i$. UniBoard might add additional arguments $\beta=(\beta_1,\dots,\beta_k)$, where $\beta_j \in \mathcal{B}_{ij}$, and stores the post $p=(i, m,\alpha,\beta)$ in $\mathcal{P}_i$. UniBoard returns the additional arguments $\beta$ to the author of the message. The arguments in $\alpha$ and $\beta$ depend on the properties supported by UniBoard.
+	\item Get$(i, Q, \gamma):R$ \newline This operation allows to get the published data $\mathcal{P}_i$ from UniBoard for application $i$. One has to provide $i$, query $Q$ and additional arguments $\gamma$. UniBoard returns the result $R=(\mathcal{P}_i',\delta)$, where  $\mathcal{P}_i'\subseteq\mathcal{P}_i$ and $\delta$ are additional arguments. The query $Q=(\mathcal{A}'_{i1}, \dots , \mathcal{A}'_{in}, \mathcal{B}'_{i1}, \dots, \mathcal{B}'_{ik})$, where $\mathcal{A}'_{ij} \subseteq  \mathcal{A}_{ij}$ and  $\mathcal{B}'_{ij} \subseteq  \mathcal{B}_{ij}$, allows one to retrieve a $\mathcal{P}_i'$, where each $p\in \mathcal{P}_i'$ fulfils $\alpha_j \in \mathcal{A}'_{ij}$ and $\beta_j \in \mathcal{B}'_{ij}$. Note that $\mathcal{P}_i'$ might also be denoted as $\mathcal{P}_i(Q)$ and if $Q$ reduces $\mathcal{A}'_{ij}$ to a single value $\alpha_j$, one can also denote this as $\mathcal{P}_i(\langle\alpha_j\rangle)$. Also note that properties adding arguments in $\gamma$ might further reduce $\mathcal{P}_i'$. The arguments in $\gamma$ and $\delta$ depend on the properties supported by UniBoard.
 \end{itemize}
 
 In the single-purpose mode $i$ can be omitted. It must then be publicly known what application is running on UniBoard.
 
 \section{Post Properties}
-
+Post properties have influence on the post operation and might add an argument in either $\alpha$ or $\beta$.
 \subsection{Sectioned}
 
 Inside a bulletin board with this property, an application can be divided into multiple sections. E.g.: separate data for different customers into individual sections. To realize this property, one must provide the section $s\in\mathcal{S}_i$ when posting a message, where $\mathcal{S}_i$ is the set of all existing sections for application $i$. All posts for section $s$ are stored in $\mathcal{P}_i(\langle s\rangle)$.
@@ -320,7 +321,7 @@ To enable the board to check, if the author is allowed to post the message, we i
  
  \subsection{Ordered/Sequential}
  
- The ordered property ensures that all published posts $\mathcal{P}_i(\langle s\rangle)$ for a section of an application have a total order. This is achieved by adding a sequence number $n\in\mathbb{N}$ to each post, where $n=|\mathcal{P}_i(\langle s\rangle)|$.
+ The ordered property ensures that all published posts $\mathcal{P}_i(\langle s\rangle)$ for a section of an application have a total order. This is achieved by adding a sequence number $n\in\mathbb{N}$ to each post, where $n=|\mathcal{P}_i(\langle s\rangle)|+1$.
 
  
   \subsection{Chronological}
@@ -332,45 +333,37 @@ To enable the board to check, if the author is allowed to post the message, we i
 
 \subsection{Certified Posting}
 With certified posting every author receives after a successful post a receipt from the board, which confirms that the message has been published.
-Upon posting a message $m$, the board creates the signature $\sigma_p= Sign_{BB}(i, m, \alpha,\beta)$ including the application identifier $i$, the message, and the $\alpha$ and $\beta$ arguments. This signature is returned in $\beta$.
+Upon posting a message $m$, the board creates the signature $\sigma_p= Sign_{BB}(i, m, \alpha,\beta)$ including the application identifier $i$, the message, and the $\alpha$ and $\beta$ arguments. This signature is added to $\beta$.
 
-\section{Further Properties}
+\section{Get Properties}
 
 \subsection{Certified Reading}
 
-This property forces the board to commit to every response $R$ it returns. When querying the board, it creates a signature $\sigma_q(Q,R,t)$ over the query $Q$, the result $R$ and the timestamp $t$ when the query was processed. For this property, the Get operation must be changed as follows:
+This property forces the board to commit to every response $R$ it returns. This is achieved by adding a timestamp $t$ and a signature $\sigma_q=Sign_{BB}(i, Q,\gamma, \delta)$ to the result $R$.
 
-\begin{itemize}
-	\item Get$(i, Q): (R, t, \sigma_q)$
-\end{itemize}
+\subsection{Searchable}
+
+This property requires the typed property, as it allows to query not only the arguments $\alpha$ and $\beta$, but also the contents of the message $m$. Therefore one has to add a filter $f\in\mathcal{F}_g$, where $\mathcal{F}_g$ is the set of all possible filters of group $g$. $g$ has to be set in $Q$.
+
+\section{Further Properties}
 
 \subsection{Notifying}
 
 The notification property of the board allows an entity  $e$ to register itself to be notified when a certain set of messages $\mathcal{P}_i(Q)$ is posted on the board. In order to accomplish that, two additional methods must be introduced:
 
 \begin{itemize}
-	\item Register$(i, e, Q ): c$ \newline Where $Q$ represents the query for the messages the entity is interested in and $c$ a return code, which can be used to unregister. 
-	\item Unregister$(i, c)$ : -
+	\item Register$(i, e, Q ,\gamma): c$ \newline Where $Q$ represents the query for the messages the entity is interested in and $c$ a return code, which can be used to unregister. 
+	\item Unregister$(i, c)$ : - \newline By providing his/her return code $c$, one can unregister and will not receive any further notification.
 \end{itemize}
-
-%\subsection{Searchable}
-
-%TODO Do we keep that?
-%This property requires the typed property, as it allows to query not only the arguments $\alpha$ and $\beta$, but also the contents of the message $m$. So $Q$ needs to be expanded with $\gamma$ which must be found in the message $m$ itself. The Get operation must be modified as follow:
-%
-%\begin{itemize}
-%	\item Get$(Q):R$ \newline The result $R$ for a query $Q=(\mathcal{A}'_1, \dots , \mathcal{A}'_n, \mathcal{B}'_1, \dots, \mathcal{B}'_k, \mathcal{C}'_1, \dots, \mathcal{C}'_l)$, where $\mathcal{A}'_i \subseteq  \mathcal{A}_i$ and  $\mathcal{B}'_j \subseteq  \mathcal{B}_j$ and $\mathcal{C}'_f \subseteq  \mathcal{M}$, is the set of tuples $(m,A,B)$ such that $\alpha_i \in \mathcal{A}'_i$ and $\beta_j \in \mathcal{B}'_j$, and $\mathcal{C}'_f = m'$ where $m'$ is a portion of $m$. 
-%\end{itemize}
 
 
 \section{Properties of UniVote and UniCert}
 
-For UniVote and UniCert we want a multipurpose board the supports all properties described in the previous sections. This results in four operations. 
-%TODO More text
+For UniVote and UniCert a multipurpose board the supports all properties described in the previous sections is used. This results in our UniBoard configuration supporting following four operations.
 
 Post$(i, m, (s, g, \sigma_a, k):(n, t , h, \sigma_p)$
 \begin{enumerate}
-	\item Check application identifier $i$.
+	\item Check that the application $i$ exists.
 	\item Check that section $s$ exists.
 	\item Check that group $g$ exists.
 	\item Check if message $m$ is of the type of group $g$.
@@ -385,11 +378,16 @@ Post$(i, m, (s, g, \sigma_a, k):(n, t , h, \sigma_p)$
 	\item Return $(n, t, h, \sigma_p)$ to the author.
 \end{enumerate}
 
-Get$(i, Q): (R, t, \sigma_q)$
+Get$(i,(\mathcal{S}_i',\mathcal{G}_i',\Sigma_a',\mathcal{K}_i',\mathbb{N}',\mathcal{T}',\mathcal{H}',\Sigma_p'),(f)): (\mathcal{P}_i(\mathcal{S}_i',\mathcal{G}_i',\Sigma_a',\mathcal{K}_i',\mathbb{N}',\mathcal{T}',\mathcal{H}',\Sigma_p',\langle f\rangle), (t, \sigma_q))$
 \begin{enumerate}
 	\item Check that the application $i$ exists.
+	\item Search all messages $\mathcal{P}_i'$ that fulfil $(\mathcal{S}_i',\mathcal{G}_i',\Sigma_a',\mathcal{K}_i',\mathbb{N}',\mathcal{T}',\mathcal{H}',\Sigma_p')$.
+	\item Further filter this messages with $f$.
+	\item Set timestamp $t$
+	\item Create the signature $\sigma_q$
+	\item return the result to the requester.
 \end{enumerate}
-Register$(i, e, Q ): c$
+Register$(i, e, (\mathcal{S}_i',\mathcal{G}_i',\Sigma_a',\mathcal{K}_i',\mathbb{N}',\mathcal{T}',\mathcal{H}',\Sigma_p'),(f) ): c$
 \begin{enumerate}
 	\item Check that the application $i$ exists.
 	\item Generate a unique notification code $c$.
