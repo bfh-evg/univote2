@@ -284,26 +284,24 @@ UniVote and UniCert both use UniBoard for their public messages. In both cases, 
 % and their descriptions show the concrete operations calls used in UniVote and UniCert, building up on the arguments introduced by previous properties.
 
 
-\section{Multipurpose or single purpose}
+\section{Basic operations}
 
-UniBoard supports two modes, single purpose (a single application uses the bulletin board) and multipurpose (multiple applications can use it). In the multipurpose mode the two basic operations look like this:
+
 
 \begin{itemize}
-	\item Post$(i ,m,\alpha):\beta$ \newline This operation allows to publish for application $i$ a message $m \in \mathcal{M}$ and additional arguments $\alpha=(\alpha_1,\dots,\alpha_n)$, where $\alpha_j \in \mathcal{A}_{ij}$. $\mathcal{A}_{ij}$ is the set of possible values for $\alpha_j$ in application $i$. UniBoard might add additional arguments $\beta=(\beta_1,\dots,\beta_k)$, where $\beta_j \in \mathcal{B}_{ij}$, and stores the post $p=(i, m,\alpha,\beta)$ in $\mathcal{P}_i$. UniBoard returns the additional arguments $\beta$ to the author of the message. The arguments in $\alpha$ and $\beta$ depend on the properties supported by UniBoard.
-	\item Get$(i, Q, \gamma):R$ \newline This operation allows to get the published data $\mathcal{P}_i$ from UniBoard for application $i$. One has to provide $i$, query $Q$ and additional arguments $\gamma$. UniBoard returns the result $R=(\mathcal{P}_i',\delta)$, where  $\mathcal{P}_i'\subseteq\mathcal{P}_i$ and $\delta$ are additional arguments. The query $Q=(\mathcal{A}'_{i1}, \dots , \mathcal{A}'_{in}, \mathcal{B}'_{i1}, \dots, \mathcal{B}'_{ik})$, where $\mathcal{A}'_{ij} \subseteq  \mathcal{A}_{ij}$ and  $\mathcal{B}'_{ij} \subseteq  \mathcal{B}_{ij}$, allows one to retrieve a $\mathcal{P}_i'$, where each $p\in \mathcal{P}_i'$ fulfils $\alpha_j \in \mathcal{A}'_{ij}$ and $\beta_j \in \mathcal{B}'_{ij}$. Note that $\mathcal{P}_i'$ might also be denoted as $\mathcal{P}_i(Q)$ and if $Q$ reduces $\mathcal{A}'_{ij}$ to a single value $\alpha_j$, one can also denote this as $\mathcal{P}_i(\langle\alpha_j\rangle)$. Also note that properties adding arguments in $\gamma$ might further reduce $\mathcal{P}_i'$. The arguments in $\gamma$ and $\delta$ depend on the properties supported by UniBoard.
+	\item Post$(m,\alpha):\beta$ \newline This operation allows to publish a message $m \in \mathcal{M}$ and additional arguments $\alpha=(\alpha_1,\dots,\alpha_u)\in\mathcal{A}$, where $\alpha_i \in \mathcal{A}_{i}$ and $\mathcal{A}=\prod_{i=1}^u\mathcal{A}_i$. UniBoard might add additional arguments $\beta=(\beta_1,\dots,\beta_v)\in\mathcal{B}$, where $\beta_i \in \mathcal{B}_{i}$ and $\mathcal{B}=\prod_{i=1}^v\mathcal{B}_i$, and stores the post $p=(m,\alpha,\beta)$ in $\mathcal{P}$. UniBoard returns the additional arguments $\beta$ to the author of the message. The arguments in $\alpha$ and $\beta$ depend on the properties supported by UniBoard.
+	\item Get$(Q):R, \gamma$ \newline This operation allows to get the published data $\mathcal{P}$ from UniBoard. One has to provide query $Q$. UniBoard returns the result $R\subseteq\mathcal{P}$ and $\gamma$ containing additional information. The query $Q\subseteq\mathcal{M}\times\mathcal{A}\times\mathcal{B}$ defines the subset of posts $R=\{(m, \alpha, \beta)\in \mathcal{P}:(m, \alpha, \beta)\in Q\}$ satisfying the query. Note that $Q$ might also be denoted as $\langle\alpha_i\rangle$, where $\alpha_i\in\mathcal{A}_i$, if $Q$ reduces $\mathcal{A}_{i}$ to a single value. If it is true for more then one value this can denoted as  $\langle\alpha_i,\alpha_j\rangle=\langle\alpha_i\rangle\cap\langle\alpha_j\rangle$. The subset $R$ as result of $Q$ might also be denoted as $\mathcal{P}_Q$ or $\mathcal{P}_{i,j}$. The arguments in $\gamma$ depend on the properties supported by UniBoard.
 \end{itemize}
-
-In the single-purpose mode $i$ can be omitted. It must then be publicly known what application is running on UniBoard.
 
 \section{Post Properties}
 Post properties have influence on the post operation and might add an argument in either $\alpha$ or $\beta$.
 \subsection{Sectioned}
 
-Inside a bulletin board with this property, an application can be divided into multiple sections. E.g.: separate data for different customers into individual sections. To realize this property, one must provide the section $s\in\mathcal{S}_i$ when posting a message, where $\mathcal{S}_i$ is the set of all existing sections for application $i$. All posts for section $s$ are stored in $\mathcal{P}_i(\langle s\rangle)$.
+Inside a bulletin board with this property, the board can be divided into multiple sections. E.g.: separate data for different customers into individual sections. To realize this property, one must provide the section $s\in\mathcal{S}$ when posting a message, where $\mathcal{S}$ is the set of all existing sections.
 
 \subsection{Grouped}
 
-In a grouped bulletin board, messages are organized into groups $\mathcal{G}_i$ defined by the application $i$. So a group $g\in\mathcal{G}_i$ must be provided on posting a message. 
+In a grouped bulletin board, messages are organized into groups $\mathcal{G}$ defined by the application the board is used for. So a group $g\in\mathcal{G}$ must be provided on posting a message. 
 
 \subsection{Typed}
 
@@ -316,12 +314,12 @@ To enable the board to check, if the author is allowed to post the message, we i
 
 \begin{itemize}
 	\item static - the set $\mathcal{K}$ is publicly known and can not be changed.
-	\item dynamic - the set $\mathcal{K}$ is defined as the function $f_i(\alpha, \mathcal{P}_i, t)$, where $t$ is the current time of the board.
+	\item dynamic - the set $\mathcal{K}$ is defined as the function $f(\alpha, \mathcal{P}, t)$, where $t$ is the current time of the board.
 \end{itemize}
  
  \subsection{Ordered/Sequential}
  
- The ordered property ensures that all published posts $\mathcal{P}_i(\langle s\rangle)$ for a section of an application have a total order. This is achieved by adding a sequence number $n\in\mathbb{N}$ to each post, where $n=|\mathcal{P}_i(\langle s\rangle)|+1$.
+ The ordered property ensures that all published posts $\mathcal{P}_s$ for a section have a total order. This is achieved by adding a sequence number $n\in\mathbb{N}$ to each post, where $n=|\mathcal{P}_s|+1$.
 
  
   \subsection{Chronological}
@@ -329,11 +327,11 @@ To enable the board to check, if the author is allowed to post the message, we i
  
  \subsection{Append-Only}
  
- The append-only property ensures that no posted message can be removed from the board. So, $\mathcal{P}_t \subseteq \mathcal{P}_{t+1}$ where $\mathcal{P}_{t} $ represent the content on the board at time $t$. The solution presented here requires that the board has the ordered property. The board creates a hash-chain $H$ over $\mathcal{P}_i(\langle s\rangle)$. For each $p_j$ it creates an hash $h_j\in{H}$ which includes the hash $h_{j-1}$ of the preceding post $p_{j-1}$ and $p_j$. This hash $h_j$ is then added to the post.
+ The append-only property ensures that no posted message can be removed from the board. So, $\mathcal{P}^t \subseteq \mathcal{P}_{t+1}$ where $\mathcal{P}_{t} $ represent the content on the board at time $t$. The solution presented here requires that the board has the ordered property. The board creates a hash-chain $H_s$ over $\mathcal{P}_s$. For each $p_i$ it creates an hash $h_i\in{H_s}$ which includes the hash $h_{i-1}$ of the preceding post $p_{i-1}$ and $p_i$. This hash $h_i$ is then added to the post.
 
 \subsection{Certified Posting}
 With certified posting every author receives after a successful post a receipt from the board, which confirms that the message has been published.
-Upon posting a message $m$, the board creates the signature $\sigma_p= Sign_{BB}(i, m, \alpha,\beta)$ including the application identifier $i$, the message, and the $\alpha$ and $\beta$ arguments. This signature is added to $\beta$.
+Upon posting a message $m$, the board creates the signature $\sigma_p= Sign_{BB}(m, \alpha,\beta)$ including the message, and the $\alpha$ and $\beta$ arguments. This signature is added to $\beta$.
 
 \section{Get Properties}
 
@@ -341,9 +339,9 @@ Upon posting a message $m$, the board creates the signature $\sigma_p= Sign_{BB}
 
 This property forces the board to commit to every response $R$ it returns. This is achieved by adding a timestamp $t$ and a signature $\sigma_q=Sign_{BB}(i, Q,\gamma, \delta)$ to the result $R$.
 
-\subsection{Searchable}
-
-This property requires the typed property, as it allows to query not only the arguments $\alpha$ and $\beta$, but also the contents of the message $m$. Therefore one has to add a filter $f\in\mathcal{F}_g$, where $\mathcal{F}_g$ is the set of all possible filters of group $g$. $g$ has to be set in $Q$.
+%\subsection{Searchable}
+%
+%This property requires the typed property, as it allows to query not only the arguments $\alpha$ and $\beta$, but also the contents of the message $m$. Therefore one has to add a filter $f\in\mathcal{F}_g$, where $\mathcal{F}_g$ is the set of all possible filters of group $g$. $g$ has to be set in $Q$.
 
 \section{Further Properties}
 
@@ -352,7 +350,7 @@ This property requires the typed property, as it allows to query not only the ar
 The notification property of the board allows an entity  $e$ to register itself to be notified when a certain set of messages $\mathcal{P}_i(Q)$ is posted on the board. In order to accomplish that, two additional methods must be introduced:
 
 \begin{itemize}
-	\item Register$(i, e, Q ,\gamma): c$ \newline Where $Q$ represents the query for the messages the entity is interested in, $\gamma$ further arguments that limit the query and $c$ a return code, which can be used to unregister. 
+	\item Register$(i, e, Q): c$ \newline Where $Q$ represents the query for the messages the entity is interested in and $c$ a return code, which can be used to unregister. 
 	\item Unregister$(i, c)$ : - \newline By providing his/her return code $c$, one can unregister and will not receive any further notification.
 \end{itemize}
 
@@ -377,17 +375,16 @@ Post$(i, m, (s, g, \sigma_a, k):(n, t , h, \sigma_p)$
 	\item Save the post.
 	\item Return $(n, t, h, \sigma_p)$ to the author.
 \end{enumerate}
-
-Get$(i,(\mathcal{S}_i',\mathcal{G}_i',\Sigma_a',\mathcal{K}_i',\mathbb{N}',\mathcal{T}',\mathcal{H}',\Sigma_p'),(f)): (\mathcal{P}_i(\mathcal{S}_i',\mathcal{G}_i',\Sigma_a',\mathcal{K}_i',\mathbb{N}',\mathcal{T}',\mathcal{H}',\Sigma_p',\langle f\rangle), (t, \sigma_q))$
+For the get operation the query q is  $Q\subseteq\mathcal{M}\times\mathcal{S}\times\mathcal{G}\times\Sigma_a\times\mathcal{K}\times\mathbb{N}\times\mathcal{T}\times\mathcal{H}\times\Sigma_p$ \newline
+Get$(i,Q): R, (t, \sigma_q)$
 \begin{enumerate}
 	\item Check that the application $i$ exists.
-	\item Search all messages $\mathcal{P}_i'$ that fulfil $(\mathcal{S}_i',\mathcal{G}_i',\Sigma_a',\mathcal{K}_i',\mathbb{N}',\mathcal{T}',\mathcal{H}',\Sigma_p')$.
-	\item Further filter this messages with $f$.
-	\item Set timestamp $t$
-	\item Create the signature $\sigma_q$
+	\item Search all messages $\mathcal{P}_i(Q)$.
+	\item Set timestamp $t$ to the current time.
+	\item Create the signature $\sigma_q$.
 	\item return the result to the requester.
 \end{enumerate}
-Register$(i, e, (\mathcal{S}_i',\mathcal{G}_i',\Sigma_a',\mathcal{K}_i',\mathbb{N}',\mathcal{T}',\mathcal{H}',\Sigma_p'),(f) ): c$
+Register$(i, e, Q): c$
 \begin{enumerate}
 	\item Check that the application $i$ exists.
 	\item Generate a unique notification code $c$.
