@@ -420,23 +420,24 @@ UniCert then issues a certificate based on the identity information present in t
 \paragraph*{Data privacy} Since the issued certificates are published on UniBoard, one could want the certificates to be anonymized. This requirement is also linked to a usage. The creator of a new usage can define if the certificates generated for this usage must be anonymized or not. If they must be, a hash of the mail address of the requester is used as distinguished name instead of the mail address itself.
 
 \paragraph*{Certificate generation procedure}
-Involved parties in certification generation procedure are are Unicert ($UC$), the certificate requester ($R$), UniBoard ($UB$) and an identity providers $A_i \in \mathcal{A} = {A_1, \dots , A_n}$. The process works as follows:
+Involved parties in certification generation procedure are UniCert ($UC$), the certificate requester ($R$), UniBoard ($UB$) and an identity providers $A_i \in \mathcal{A} = {A_1, \dots , A_n}$. The process works as follows:
 \begin{enumerate}
 	\item $UC$ generates an authentication request $a_{req}$ for $R$
 	\item $R$ authenticate themselves to $A_i$
 	\item If authentication was successful, $A_i$ generates an authentication response $a_{resp}$ for $R$
 	\item $R$ transfers $a_{resp}$ to $UC$
-	\item $R$ chooses a usage $u$ in a list of proposed values
-	\item $R$ gets the cryptographic setup $s$ corresponding to $u$
+	\item $UC$ gets the available usages $\mathcal{U}$ from $UB$ \todo{get()} \todo{From where are the "usage" possibilities read? From each section for UniVote in UniBoard? => read over multiple sections... Theoretically not, because the setup is not related to an election but to a group of elections.}  \todo{Who defines the usages? The Election Coordinator?}
+	\item $R$ chooses a usage $u$ in $\mathcal{U}$ proposed by $UC$ 
+	\item $R$ gets the cryptographic setup $s$ corresponding to $u$ from $UB$ \todo{get() }\todo{How is the link between crypto setup and usage done? And what about other properties?}
 	\item $R$ generates a private key $x$ with $s$ and compute the corresponding public key $y$
-	\item $R$ compute a zero knowledge proof $\pi$ showing they know $x$
-	\item $R$ sends $y$, $\pi$ and $u$ to $UC$
-	\item $UC$ checks with $a_{resp}$ if $R$ is authorized to generate a certificate for $u$
+	\item $R$ compute a zero knowledge proof $\pi$ showing that they know $x$
+	\item $R$ sends $y$, $\pi$ and $u$ to $UC$ \todo{Format of the public key to submit?}
+	\item $UC$ checks with $a_{resp}$ if $R$ is authorized to generate a certificate for $u$ \todo{is it needed? If yes, how is that done?}
 	\item $UC$ checks if $\pi$ is correct
 	\item $UC$ checks if $s$ used by $R$ to generate $x$ and $y$ is the same as $s'$ corresponding to $u$
-	\item $UC$ get the properties $\mathcal{P}$ linked to $u$
-	\item $UC$ generates the certificate $c$ using $a_{resp}$, $y$, $u$ and $\mathcal{P}$
-	\item $UC$ publishes $c$ on $UB$
+	\item $UC$ get the properties $\mathcal{P}$ linked to $u$ from $UB$ \todo{get()}
+	\item $UC$ generates the certificate $c$ using $a_{resp}$, $y$, $u$ and $\mathcal{P}$ \todo{Format of the certificate?} \todo{Describe which field of X.509 certificate contains what?} \todo{Which hash method is used for DN?}
+	\item $UC$ publishes $c$ on $UB$ and returns $c$ to $R$
 \end{enumerate} 
 
 %First of all, the requester has to authenticate themselves against an identity provider. The authentication token returned is transmitted to UniCert. Then, the requester has to select the usage for which the certificate must be emitted. Then, they have to generate the private key and the corresponding public key with the setup linked to the selected usage. The usage and the public key can then be provided to UniCert.
@@ -451,22 +452,6 @@ Involved parties in certification generation procedure are are Unicert ($UC$), t
 %\end{itemize}
 
 %When all these verifications succeed, the certificate is generated with the submitted information and the information present in the authentication token. Finally, the certificate is published on UniBoard and returned to the requester.
-
-%\todo{Is it necessary to describe the interface more in details?}
-
-\todo{From where are the "usage" possibilities read? From each section for UniVote in UniBoard? => read over multiple sections... Theoretically not, because the setup is not related to an election but to a group of elections.}
-
-\todo{Who defines the usages? The Election Coordinator?}
-
-\todo{Must the authentication token be explicitly given to UniCert or is it done implicitly}
-
-\todo{How is the link between crypto setup and usage done? And what about other properties?}
-
-\todo{Format of the public key to submit? Format of the certificate?}
-
-\todo{Describe which field of X.509 certificate contains what?}
-
-\todo{Which hash method is used for DN?}
 
 
 %===============================================================================================
