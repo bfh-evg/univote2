@@ -11,6 +11,7 @@
 \inputpath{{listings/}{figures/}}
 
 \usepackage{enumitem}
+\usepackage[enabled]{easy-todo}
 
 \setcounter{secnumdepth}{4}
 \renewcommand{\thesubsubsection}{\alph{subsubsection}}
@@ -403,14 +404,51 @@ Unregister$(i, c)$ : -
 \chapter{UniCert}
 %===============================================================================================
 
-UniCert is a kind of certification authority. It can be used to issue digital certificates that can then be used in an application. UniCert issues X.509 certificate in PEM format and publishes them on UniBoard in a UniCert specific area. UniCert provides an interface where requester can authenticate themselves and request a certificate corresponding to their needs.
+UniCert is a software component playing the role of certification authority. It can be used to issue digital certificates that can be used in an application to authenticate users or to sign and/or encrypt messages. UniCert provides an interface where the certificate requester can authenticate themselves and request a certificate corresponding to their needs. UniCert is coupled with UniBoard since the issued certificates are published on UniBoard in an UniCert specific area. 
 
-\paragraph{Authentication} Authentication in UniCert can be done through various identity providers. The requester has to authenticate themselves to one of these providers which returns the resulting authentication token to UniCert. Based on the identity informations of the requester, a certificate can be issued. 
+\paragraph*{Authentication} A digital certificate must be linked to an entity, thus the entity has to authenticate itself to UniCert. Authentication in UniCert can be done via various identity providers (e.g. SwitchAAI, Google, Facebook, ...). The certificate requester has to authenticate themselves against one of these providers which returns the resulting authentication token to UniCert. 
+%UniCert then verifies if the identity received corresponds to the information that are asked to figure in the certificate. If yes, a certificate can be issued using the public key and usage field (see next section) provided. 
+UniCert then issues a certificate based on the identity information present in the token and on other properties provided by the requester.
 
-\paragraph{Usage} Each issued certificate can be use for a specific purpose also called usage (e.g. voter certificate, tallier certificate, ...) which is mentioned in the certificate. The usage is linked to a given cryptographic setup (e.g specific $p,q$ and $g$ values for a DSA certificate). So, when requesting a certificate, the requester must indicate a usage and compute a private key corresponding to the setup linked with the selected usage. Then, the requester can submit a certificate signing request indicating the public key corresponding to the private key computed, the usage and an authentication token.
+\todo{Does the requester submit a CSR, or does he only send the public key and the usage?}
 
-use hash of mail address in certificate for data privacy
+\paragraph*{Certificate usage} Each issued certificate can be used for a specific purpose also called \textbf{usage} (e.g. voter certificate, tallier certificate, ...) which is mentioned in the certificate. The usage is linked to a given cryptographic setup (e.g specific $p,q$ and $g$ values for a DSA certificate) and other properties (e.g. privacy properties) . When requesting a certificate, the requester must indicate a usage and compute a private key corresponding to the setup linked with the selected usage. 
 
+\paragraph*{Data privacy} Since the issued certificates are published on UniBoard, one could want the certificates to be anonymized. This requirement is also linked to a usage. The creator of a new usage can define if the certificates generated for this usage must be anonymized or not. If they must be, a hash of the mail address of the requester is used as distinguished name instead of the mail address itself.
+
+\paragraph*{Certificate generation procedure}
+Involved parties in certification generation procedure are UniCert ($UC$), the certificate requester ($R$), UniBoard ($UB$) and an identity providers $A_i \in \mathcal{A} = {A_1, \dots , A_n}$. The process works as follows:
+\begin{enumerate}
+	\item $UC$ generates an authentication request $a_{req}$ for $R$
+	\item $R$ authenticate themselves to $A_i$
+	\item If authentication was successful, $A_i$ generates an authentication response $a_{resp}$ for $R$
+	\item $R$ transfers $a_{resp}$ to $UC$
+	\item $UC$ gets the available usages $\mathcal{U}$ from $UB$ \todo{get()} \todo{From where are the "usage" possibilities read? From each section for UniVote in UniBoard? => read over multiple sections... Theoretically not, because the setup is not related to an election but to a group of elections.}  \todo{Who defines the usages? The Election Coordinator?}
+	\item $R$ chooses a usage $u$ in $\mathcal{U}$ proposed by $UC$ 
+	\item $R$ gets the cryptographic setup $s$ corresponding to $u$ from $UB$ \todo{get() }\todo{How is the link between crypto setup and usage done? And what about other properties?}
+	\item $R$ generates a private key $x$ with $s$ and compute the corresponding public key $y$
+	\item $R$ compute a zero knowledge proof $\pi$ showing that they know $x$
+	\item $R$ sends $y$, $\pi$ and $u$ to $UC$ \todo{Format of the public key to submit?}
+	\item $UC$ checks with $a_{resp}$ if $R$ is authorized to generate a certificate for $u$ \todo{is it needed? If yes, how is that done?}
+	\item $UC$ checks if $\pi$ is correct
+	\item $UC$ checks if $s$ used by $R$ to generate $x$ and $y$ is the same as $s'$ corresponding to $u$
+	\item $UC$ get the properties $\mathcal{P}$ linked to $u$ from $UB$ \todo{get()}
+	\item $UC$ generates the certificate $c$ using $a_{resp}$, $y$, $u$ and $\mathcal{P}$ \todo{Format of the certificate?} \todo{Describe which field of X.509 certificate contains what?} \todo{Which hash method is used for DN?}
+	\item $UC$ publishes $c$ on $UB$ and returns $c$ to $R$
+\end{enumerate} 
+
+%First of all, the requester has to authenticate themselves against an identity provider. The authentication token returned is transmitted to UniCert. Then, the requester has to select the usage for which the certificate must be emitted. Then, they have to generate the private key and the corresponding public key with the setup linked to the selected usage. The usage and the public key can then be provided to UniCert.
+
+%Before creating the certificate with the information submitted by the requester, UniCert has to verify some properties:
+%\begin{itemize}
+%	\item check if the authentication was successful
+%	\item check if this entity is allowed to create a certificate for the selected usage
+%	\item check if the cryptographic setup used to generate the private and public keys matches the one specified by the selected usage
+%	\item check if the requester knows the private key corresponding to the public one submitted
+%	\item check if the distinguished name of the requester must be a hash of the mail address or the mail address itself
+%\end{itemize}
+
+%When all these verifications succeed, the certificate is generated with the submitted information and the information present in the authentication token. Finally, the certificate is published on UniBoard and returned to the requester.
 
 
 %===============================================================================================
