@@ -1,0 +1,29 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "Schema for a UniVote election definition",
+	"description": "This JSON schema describes the format of an election definition in the UniVote system",
+	"type": "object",
+	"properties": {
+		"electionId": {
+			"type": "string",
+			"description": "Identifier of the election"
+		},	
+		"title": {
+			"type": "string",
+			"description":  "Title of the election"
+		},
+		"description": {
+			"type": "string",
+			"description":  "Description of the election"
+		},
+		"votingPeriodBegin": {
+			"type": "date",
+			"description": "Date and time of beginning of the voting period"
+		},
+		"votingPeriodEnd": {
+			"type": "date",
+			"description": "Date and time of the end of the voting period"
+		}
+	},
+	"required": ["electionId", "title", "description", "votingPeriodBegin", "votingPeriodEnd"]
+}
