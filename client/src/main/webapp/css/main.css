@@ -1,0 +1,225 @@
+/* 
+ * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+ * Bern University of Applied Sciences, Engineering and Information Technology,
+ * Research Institute for Security in the Information Society, E-Voting Group,
+ * Biel, Switzerland.
+ *
+ * Project UniVote.
+ *
+ * Distributable under GPL license.
+ * See terms of license at gnu.org.
+ * 
+ * General page styling
+*/
+
+/* bfh reset based on http://meyerweb.com/eric/tools/css/reset/ */
+html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, p, blockquote, pre,a, abbr, acronym, address, big, cite, code,del, dfn, em, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td,article, aside, canvas, details, embed,figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary,time, mark, audio, video {margin: 0;padding: 0;border: 0;outline: 0;font-size: 100%;font: inherit;vertical-align: baseline;background: transparent;}
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {display: block;} /* HTML5 display-role reset for older browsers */
+body {line-height: 1;} ol, ul, li {list-style: none;} blockquote, q {quotes: none;} blockquote:before, blockquote:after,q:before, q:after {content: '';	content: none;}:focus {outline: 0;} table {	border-collapse: collapse;border-spacing: 0;}
+/* END bfh reset */
+
+/* Clearfix */
+/* for Firefox, IE8, Opera, Safari, etc. */
+.clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+/* for IE7 */
+* + html .clearfix { display: inline-block; }
+
+
+/* G E N E R A L */
+
+html,body { 
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, sans-serif;
+	font-size: 14px;
+	line-height: 16px;
+	padding: 0;
+	height: 100%;
+}
+
+h1					{ font-size: 24px; line-height: 26px; font-weight: bold; padding-top: 20px; padding-bottom: 20px; }
+h2					{ font-size: 20px; line-height: 22px; font-weight: bold; padding-top: 10px; padding-bottom: 20px; }
+h3					{ font-size: 20px; line-height: 24px; font-weight: bold; color: #ccc; margin: 30px 0 0 0px; border-top: 1px solid #ccc; padding-left: 20px; width: 300px;}
+h4					{ font-size: 14px; line-height: 16px; font-weight: bold; padding-top: 10px; padding-bottom: 5px; }
+
+p					{ padding-top: 10px; padding-bottom: 5px;  }
+button				{ cursor: pointer; }
+
+
+a, a:visited		{ text-decoration: underline; color: #e22; }
+a:hover				{ color: #e66; }
+a.raquo, span.raquo	{ background: url('../img/raquo.png') no-repeat 0 0; padding-left: 15px;}
+
+.active, a.active	{ color: #e22; }
+
+.hidden				{ display: none; }
+
+.right				{ float: right; }
+.left				{ float: left; }
+.center				{ text-align: center; }
+
+.small				{ font-size: 12px; line-height: 14px;}
+.tiny				{ font-size: 11px; line-height: 13px;}
+.important			{ font-weight: bold; }
+.block				{ padding-left: 70px; padding-right: 50px; }
+.block li			{ padding-bottom: 10px; }
+.bottom				{ vertical-align: bottom; }
+.middle				{ vertical-align: middle; }
+
+.spacer0			{ padding-top:  0px; }
+.spacer5			{ padding-top:  5px; }			
+.spacer10			{ padding-top: 10px; }
+.spacer20			{ padding-top: 20px; }
+.spacer30			{ padding-top: 30px; }
+.spacer50			{ padding-top: 50px; }
+
+#wrapper			{ position: relative; width: 960px; margin: 0 auto; min-height: 100%; }
+#container			{ padding-bottom: 40px; }
+
+
+/* H E A D E R  A N D  F O O T E R */
+
+#header				{ position: relative; text-align: right; padding-top: 10px; padding-bottom: 10px;}
+#logo				{ display: inline; }
+#logo img			{ width: 150px; padding-top: 2px;}
+
+#lang				{ z-index: 5; position: absolute; top: 10px; right: 0px;}
+
+#lang a				{ padding-left: 10px; }
+
+
+#footer{
+	border-top: 1px solid black;
+	width:100%;
+	text-align: center;
+	font-size: 11px;
+	position: absolute;
+	bottom:0;
+	height: 20px; /* Height of the footer */
+}
+
+#footer .left		{ position: absolute; left: 0; top: 0; }
+#footer .right		{ position: absolute; right: 0; top: 0; }
+
+div.blockUI.blockMsg p	{ padding: 10px; }
+p#blockui-processing	{ text-align: left; }
+
+
+/* P R O G R E S S - B A R */
+
+div.progress-bar {
+	position: relative;
+	width: 100%;
+	margin-bottom: 30px;
+	padding: 0;
+	border-top: 1px black solid;
+	border-bottom: 1px black solid;
+	height: 30px;
+	background-color: #eee;
+}
+
+div.progress-bar div.step{
+	display: inline;
+	padding-left: 40px;
+	padding-right: 30px;
+	font-size: 16px;
+	line-height: 30px;
+}
+
+div.progress-bar img	{ position: absolute; top:0;}
+
+
+.substep			{ position: relative; padding: 20px 50px 0px 50px; } 
+.substep_nr			{ position: absolute; font-size: 60px; line-height: 60px; width: 50px; padding: 0px 55px 0 0; text-align: right; color: #ccc; border-top: 1px solid #ccc;}
+.substep p			{ padding-left: 70px }
+.substep .row		{ padding-top: 10px;}
+.substep .col1		{ text-align: right; width: 380px; float: left;}
+.substep .col2		{ float: left; padding-left: 10px;}
+.substep .col2only	{ margin-left: 390px; padding-top: 10px; }
+.substep .small		{ padding-top: 5px; }
+
+
+/* I N D E X */
+
+body.index #header	{ text-align: center; padding-bottom: 30px;}
+body.index #logo	{ display: inline; }
+body.index #logo img{ width: 220px; padding-top: 2px;}
+
+.votingevents li	{ padding-top: 5px; }
+.votingevent-title	{ border-top: 1px solid #ccc; padding-left: 10px; padding-right: 10px; }
+.votingevent-link	{ padding-left: 10px; display: block; }
+.votingevent-link .inactive { text-decoration: underline; color: #dcc; }
+
+#browser-check		{ color: #c00; padding-top: 30px; padding-bottom: 20px; }
+
+#brief-instruction	{ padding-bottom: 20px; }
+#brief-instruction p,
+#brief-instruction ol { text-align: left; }
+#brief-instruction ol { padding-left: 40px; padding-right: 10px; list-style: decimal; }
+#brief-instruction li { padding-bottom: 5px; list-style: decimal; }
+#brief-instruction li:last-child { padding-bottom: 0px; }
+
+#help-box p			{ text-align: left; }
+#help-box form div	{ text-align: center; width: 400px; margin: auto; padding-bottom: 20px;}
+#help-box form span,
+#help-box form input,
+#help-box form textarea { display: block; text-align: left; }
+#help-box form span		{ padding-top: 10px; padding-bottom: 2px;}
+#help-box form span.tiny{ padding-top: 0px; color: #aaa; }
+#help-box form input	{ width: 250px; }
+#help-box form textarea { width: 400px; height: 100px; font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, sans-serif; font-size: 12px;}
+#help-box form button.button	{ min-width: 150px; margin: 20px 5px 10px 5px; }
+
+/* R E G I S T R A T I O N */
+
+#substep_2_1_1, 
+#substep_2_2,
+#substep_2_3			{ opacity: 0.2; filter: alpha(opacity = 20); }
+
+textarea#secretkey_ta	{ background-color: #eee; width: 220px; height: 60px;}
+
+#password-check-icon	{ padding-left: 10px; opacity: 0.1; filter: alpha(opacity = 10); }
+#password-check-icon.ok	{ opacity: 1; filter: alpha(opacity = 100); }
+
+#certificate-viewer		{ overflow: auto; min-height: 500px; padding: 10px; }
+#certificate-viewer	table { text-align: left; font-size: 12px; margin: 10px auto; width: 600px;}
+#certificate-viewer	table th { font-weight: bold; }
+#certificate-viewer	table td { padding-left: 10px; width: 350px; }
+#certificate-viewer	table tr { border-bottom: 1px solid #ccc; }
+#certificate-viewer	table tr:last-child { border-bottom: none; }
+
+
+/* V O T E */
+
+#upload_key_form table	{ width: 360px; margin-left: 300px; margin-top: 30px;} 
+#upload_key_form td		{ padding-bottom: 5px; }
+#upload_key_error		{ color: #c00; display: none; }
+
+#sk-upload-manually		{ display: none; }
+#sk-upload-manually div.tiny { color: #aaa; padding: 5px 5px 10px 0px; padding-left: 100px; line-height: 16px;}
+#sk-upload-manually textarea { height: 120px; width: 450px; font-size: 12px; }
+
+
+/* C O N T R O L S */
+
+.button				{ min-width: 160px; height: 30px; }
+
+#file				{ width: 350px; }
+
+input.text			{ width: 132px; }
+input.browse		{ width: 60px; }
+textarea			{ font-family: Courier, serif; font-size: 14px; }
+input, textarea{
+	padding: 4px;
+	margin: 0px;
+	border: solid 1px #cf9ea2;
+	outline: 0;
+	color: black;
+	background: #FFFFFF url('') left top repeat-x;
+	background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF),
+		        color-stop(4%, #EEEEEE), to(#FFFFFF) );
+	background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+	box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+}
+
+

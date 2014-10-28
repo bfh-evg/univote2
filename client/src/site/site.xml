@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.3.0 http://maven.apache.org/xsd/decoration-1.3.0.xsd"
+         name="UniVote" >
+    <bannerLeft>
+        <name>UniVote</name>
+        <src>images/logo_quer.png</src>
+        <href>https://www.univote.ch/</href>
+    </bannerLeft>
+    <version position="right" />
+    <body>
+        <breadcrumbs>
+            <item name="RISIS" href="http://risis.ti.bfh.ch" />
+            <item name="E-Voting Group" href="http://e-voting.ti.bfh.ch" />
+        </breadcrumbs>
+        <menu name="UniVote">
+            <item name="Parent" href="../index.html"/>
+            <item name="Voting Client" href="index.html"/>
+            <item name="Develper Resources" href="developer/index.html"
+                collapse="true">
+                <!-- <item name="Specification" href="developer/spec/index.html"/> -->
+            </item>
+            <item name="Building, Deployment" href="build-deploy.html"/>
+            <item name="Configuration" href="configuration.html"/>
+        </menu>
+        <menu ref="reports"/>
+        <menu name="Additional Reports" >
+            <item name="Test Coverage" href="jacoco/index.html"/>
+        </menu>
+    </body>
+</project>

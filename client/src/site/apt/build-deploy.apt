@@ -1,0 +1,142 @@
+Building and Deploying the Voting Client
+
+    We describe here the build and deploy process of the
+voting client. Notice that the build processes for
+building the production and demo versions
+differ as different key stores and different application
+servers, running on different hosts, are used.
+
+        [Note.] When building the voting client
+from the source distribution then you must provide
+the appropiate key stores. No key stores
+are contained in the source distribution. Of course,
+you must provide your application
+server running on your host, too.
+
+    The same code base (the <<<votingClient>>> Maven
+module) is used for building and deploying any
+variant of the voting subsystem.
+
+        [Note.] The build process of the Voting Client
+subsystem automatically includes the artifact
+of the Maven module <<<registration>>>, which is assumed
+to be installed in your local Maven repository. Therefore,
+installing the Maven module <<<registration>>> is a
+prerequisite for building the Voting Client.
+
+
+* Building and Deploying the Voting Client
+
+    The following instructions must
+be adapted accordingly if applied to your demo environment.
+For the UniVote development
+team, we have to follow the steps given here.
+
+    [[1]] To build the demo instance use the
+    following Maven profile <<<Demo>>>. Then
+    execute the Maven <<<package>>> goal:
+
+----
+mvn clean package -P Demo
+----
+
+    This generates a WAR file in the <<<./target>>> directory:
+
+----
+ls -1 target
+...
+voting-client-demo-<version>.war
+...
+----
+
+
+    [[1]] To deploy the demo instance, connect to the
+    corresponding GlassFish Admin Console:
+
+----
+https://<votingClientHost>:<votingClientPort>/
+----
+
+    The URL for the GlassFish Admin Console for the
+UniVote demo system is:
+
+----
+https://urd.bfh.ch:4048/
+----
+
+    [[2]] Deploy the generated WAR file. Use the suggested
+default values except for the field labelled <Context Root>. As
+Context Root choose:
+
+----
+voting-client
+----
+
+    (Omit the suffix <<<-demo>>> as JS scripts depend on
+    the production version of the value for <Context Root>.)
+
+    Expect an error-free deployment and the following
+    warning: <Command succeeded with Warning...>. This
+    is normal as the data base tables cannot be
+    recreated.
+
+    []
+
+
+* Building the Production Variant of the Voting Client
+
+    The following instructions must
+be adapted accordingly if applied to your production environment.
+For the UniVote deployed at {{{http://univote.ch}http://univote.ch}},
+the UniVote team has to follow the steps given here.
+
+    [[1]] To build the production instance use the
+    following Maven profile <<<Production>>>. Then
+    execute the Maven <<<package>>> goal:
+
+----
+mvn clean package -P Production
+----
+
+    This generates a WAR file in the <<<./target>>> directory:
+
+----
+ls -1 target
+...
+voting-client-<version>.war
+...
+----
+
+
+    [[1]] To deploy the production instance, connect to the
+    corresponding GlassFish Admin Console:
+
+----
+https://<votingClientHost>:<votingClientPort>/
+----
+
+    The URL for the GlassFish Admin Console for the
+UniVote demo system is:
+
+----
+https://univote.ch:8048/
+----
+
+    [[2]] Deploy the generated WAR file. Use the suggested
+default values except for the field labelled <Context Root>. As
+Context Root choose:
+
+----
+voting-client
+----
+
+    (Omit the suffix <<<-<version>.war>>> as JS scripts depend on
+    the correct value for <Context Root>.)
+
+    Expect an error-free deployment and the following
+    warning: <Command succeeded with Warning...>. This
+    is normal as the data base tables cannot be
+    recreated.
+
+    []
+

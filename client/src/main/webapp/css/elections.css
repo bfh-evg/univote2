@@ -1,0 +1,85 @@
+/* 
+ * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+ * Bern University of Applied Sciences, Engineering and Information Technology,
+ * Research Institute for Security in the Information Society, E-Voting Group,
+ * Biel, Switzerland.
+ *
+ * Project UniVote.
+ *
+ * Distributable under GPL license.
+ * See terms of license at gnu.org.
+ * 
+ * Page styling for voting page
+*/
+
+#container_elections{ height:600px; padding-top: 20px; }
+
+#col1				{ float: left; width: 530px; height: 600px; position: relative; }
+#col2				{ float: right; width: 380px; height: 600px; position: relative; }
+
+.list, 
+#created-list		{ margin: 10px; padding-bottom: 25px; min-height: 325px; }
+
+.list li, 
+#created-list li	{ margin-bottom: 4px; padding: 1px; font-size: 14px; line-height: 17px; cursor: move; }
+
+.list li span, 
+#created-list li span{ display: inline-block; width: 85%; }
+
+.list li span i, 
+#created-list li span i { font-size: 12px; font-style: italic; }
+
+.qtip i				{ font-size: 10px; font-style: italic; }
+
+/* composed list container */
+#result				{ position: relative; height: 520px; background: url('../img/creme.png') repeat; }
+#result-scroll		{ height: 520px; overflow-y: auto; }
+
+#vote_button_div	{ height:40px; padding-top: 10px; text-align: center; }
+#submit_vote_button	{ width: 150px; }
+
+/* Selected party field ul*/
+#selected-list		{ margin: 10px; max-width: 260px; }
+#selected-list li	{ font-size: 18px; width: 108px; text-align: center; line-height: 36px; }
+
+#list-title			{ padding: 10px; }
+
+#lists-footer, 
+#createdlist-footer { position: absolute; bottom: 0; right: 0px; height: 25px; }
+#lists-footer		{ background-image: url('../img/lists-footer.png'); width: 380px; }
+#createdlist-footer { background-image: url('../img/createdlist-footer.png');  width: 370px; }
+
+/* Class applyied when party is being dragged */
+.partyBeingDragged	{ width: 108px; text-align: center; line-height: 36px; z-index: 5; }
+.partyBeingDragged img { display: none; }
+
+/* Class applyied when candidate is being dragged */
+.candidateBeingDragged { line-height: 17px; width: 300px; z-index: 5; }
+.candidateBeingDragged img { display: none; }
+
+
+/* Tabs: version left*/
+.ui-tabs-left		{ width: 530px; padding: 0; }
+.ui-tabs-left .ui-tabs-nav { padding: 10px .1em 0 10px; float: left; width: 130px; height: 550px; border-width: 0 1px 0 0; background-position: 0 0;}
+.ui-tabs-left .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px 3px 0; }
+.ui-tabs-left .ui-tabs-nav li a { display:block; width:75px;}
+.ui-tabs-left .ui-tabs-nav li.ui-tabs-active { padding-right: .1em; border-right-width: 1px; margin-bottom: 3px; }
+.ui-tabs-left .ui-tabs-panel { padding: 0; float: right; width: 380px; height: 560px; overflow-y: auto; }
+.ui-tabs-left .ui-tabs-panel p { padding: 10px; }
+
+
+/* Others */
+
+#confirm_button		{ width: 100px; height: 40px; }
+
+.icon				{ width: 15px; height: 15px; float: right; cursor: pointer; }
+.tooltip_candidate	{ padding-top: 1px; }
+.drag_candidate, 
+.remove_candidate	{ padding: 1px 2px 0 4px;  }
+.drag_list			{ margin-top: 12px; margin-right: 3px; }
+
+#result .buttons	{ float: right; padding: 10px; }
+
+#created-list li.placeholder-item	{ cursor: default; }
+.placeholder		{ height: 17px; }
+.ui-state-highlight #selected-list li { border: 1px solid #fcefa1; background: #fbf9ee;}

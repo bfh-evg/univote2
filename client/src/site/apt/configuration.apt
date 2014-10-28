@@ -1,0 +1,62 @@
+Configuration Manual
+
+    After having installed the Voting Client subsystem, there are a few
+things that need to be configured...
+
+    These are...
+
+* Configuration of the RSA Signature Parameters of the Election Manager
+
+    The signature of data signed by the Election Manager is
+validated in the Voting Client subsystem. As of this version,
+the public RSA signature parameters needed for the validation are hard-coded
+within the Javascript configuration file <<<univote-config.js>>>.
+
+    Currently, the follwing values (of type String) are used:
+
+    * For the demo system:\
+      N =\
+92558986469241318288832740329307338833681686020741869464706500295501628894304148
+79731133083109050743697545208196398455836006705000421026176762358386159816932241
+52005141282176385993517254890387093073864718956855203724164158852312468764401005
+29917690267503573299999732612304403746086647757871473345737464088331\
+      PK =\
+65537
+
+    * For the production system:\
+      N =\
+98091215837140518315054085825672659753837992283160845085470885259043466160975832
+96125900538686522941324918598932821982429351047832341975378203466945458455623776
+81962074885323338827705692549973613300601858720649656310341786992142531810901232
+61474011978191996889233164626528888582371594561479336522656016756789\
+      PK =\
+65537
+
+[]
+
+
+* Configuration of Java Mail
+
+    Provide text...
+
+----
+	// Configure smtp server
+	//JNDI Name: mail/MailSession
+	//Mail Host: hermes.bfh.ch
+	//Default User: virt-due1
+	//Default Sender Address: selectio-helvetica@bfh.ch
+	//Description: Registration-Mailer
+	//Status: Enabled (true)
+	//
+	//Store Protocol: imap
+	//Store Protocol Class: com.sun.mail.imap.IMAPStrore
+	//TransportProtocol: smtp
+	//Transport Protocol Class: com.sun.mail.smtp.SMTPTransport
+	//
+	//Additional Properties (4)
+	//mail-smtp:port - 25
+	//mail-smtp.password - <password>
+	//mail-smtp.auth - true
+	//mail-smtp.starttls.enable - true
+
+----

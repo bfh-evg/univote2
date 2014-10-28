@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="#{languageDetails.locale}"
+	  xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+	<!--
+	/* 
+	 * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+	 * Bern University of Applied Sciences, Engineering and Information Technology,
+	 * Research Institute for Security in the Information Society, E-Voting Group,
+	 * Biel, Switzerland.
+	 *
+	 * Project UniVote.
+	 *
+	 * Distributable under GPL license.
+	 * See terms of license at gnu.org.
+	 * 
+	 * HTML structure of the HTML pages
+	 */
+	-->
+	<h:head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<link rel="shortcut icon" href="favicon.ico" />
+		<link rel="icon" href="favicon.ico" type="image/x-icon" />
+		<title><ui:insert name="page_title">UniVote</ui:insert></title>
+		
+		<link rel="stylesheet" type="text/css" href="css/main.css" />
+		<h:outputText value="&lt;!--[if lte IE 7]&gt;&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;css/main_ie7.css&quot;/&gt;&lt;![endif]--&gt;" escape="false" />
+		<ui:insert name="head_include_css"></ui:insert>
+		
+		<script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" src="js/lib/jquery.blockUI.js"></script>
+		<script type="text/javascript" src="js/univote-config.js"></script>
+		<script type="text/javascript" src="js/univote-messages.jsp"></script>
+		
+		<ui:insert name="head_include_js"></ui:insert>
+		
+	</h:head>
+	<!-- 
+	 *
+	 *
+	-->
+	<h:body class="locale_#{languageDetails.locale} #{bodyClass}">
+		<f:view locale="#{languageDetails.locale}">
+			<div id="wrapper">
+				<div id="header">
+					<div id="logo"><h:outputLink value="index.xhtml"><img src="img/logo.png" alt="UNI-Vote"/></h:outputLink></div>
+					<ui:insert name="header"></ui:insert>
+				</div>
+
+				<div id="container">
+					<ui:insert name="content">Default content</ui:insert>
+				</div>
+
+				<div id="footer" class="center">
+					<div class="left">UniVote</div>
+					 #{msg.about}
+					<div class="right">© <h:outputText value="#{languageDetails.currentDate}"><f:convertDateTime pattern="yyyy" type="date" /></h:outputText></div>
+				</div>
+			</div> 
+		</f:view>
+	</h:body>
+</html>

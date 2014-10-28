@@ -1,0 +1,20 @@
+The Voting Client Subsystem
+
+    This is the documentation of the Voting Client subsystem, a
+part of UniVote, an Internet-based e-voting system targeting
+university elections.  The intention of this documentation is to provide
+all the necessary information in order to fully understand
+the way how the Registration subsystem is specified, designed, and
+implemented.  You will find information on how to get the software and
+on how build and configure it; the latter, however, must be
+performed well-aligned with other subsystems of UniVote.
+
+* Document Set
+
+    The document set of the Voting Client subsystem consists of authored
+documents as well as of automatically generated
+{{{http://maven.apache.org}Maven}}
+reports.
+
+    TODO: Provide an introduction of the document structure here...
+

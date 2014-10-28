@@ -1,0 +1,94 @@
+<!--
+/* 
+ * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
+ * Bern University of Applied Sciences, Engineering and Information Technology,
+ * Research Institute for Security in the Information Society, E-Voting Group,
+ * Biel, Switzerland.
+ *
+ * Project UniVote.
+ *
+ * Distributable under GPL license.
+ * See terms of license at gnu.org.
+ * 
+ * HTML structure of the GUI, index page
+ */
+-->
+
+<ui:composition template="template.xhtml"
+				xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+	<ui:param name="bodyClass" value="index" />
+	
+	<ui:define name="head_include_js">
+		<script type="text/javascript" src="js/lib/base64.js"></script>
+		<script type="text/javascript" src="js/univote-util.js"></script>
+		<script type="text/javascript" src="js/index.js"></script>
+	</ui:define>
+	
+	<ui:define name="page_title">
+		#{msg.title}
+	</ui:define>
+
+	<ui:define name="header">
+		<div id="lang">
+			<h:form>
+				<h:commandLink action="#{languageDetails.setLocale('de')}"><img src="img/DE.png" alt="Deutsch"/></h:commandLink>
+				<h:commandLink action="#{languageDetails.setLocale('fr')}"><img src="img/FR.png" alt="Français"/></h:commandLink>
+				<h:commandLink action="#{languageDetails.setLocale('en')}"><img src="img/EN.png" alt="English"/></h:commandLink>				
+			</h:form>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+		<div id="content" class="index">
+			
+			<h1 class="center">#{msg.welcome}</h1>
+		
+			<p class="block"><h:outputText value="#{msg.introtext}" escape="false" /></p>
+			<p class="block spacer0"><a href="#" class="raquo" onclick="showBriefInstruction(); return false;">#{msg.goInstruction}</a></p>
+			<p class="block spacer0"><a href="#" class="raquo" onclick="showHelp(); return false;">#{msg.goHelpBox}</a></p>
+			
+			<h3 class="">#{msg.registrationTitle}</h3>
+			<p class="block"><h:outputText value="#{msg.registrationText}" escape="false" /></p>
+			<p class="block spacer0"><a href="https://urd.bfh.ch/unicert-authentication/authenticate?params=univote-idf1-r1-switch-dsa" class="raquo">#{msg.goRegister}</a></p>
+			
+			<h3 class="">#{msg.votingeventsTitle}</h3>
+			<p class="block">#{msg.votingeventsText}</p>
+			
+			<!--<c:if test="#{electionDetails.getCurrentElections().size() > 0}">-->
+			<div id="currentElections" class="hidden">
+			    <h4 class="block">#{msg.currentVotes}</h4>
+				<ul id="currentElectionsList" class="block votingevents">
+					<ui:repeat value="#{electionDetails.getCurrentElections()}" var="item">
+						<li>
+							<span class="votingevent-title"><h:outputText value="#{item.getTitle(languageDetails.locale)}" escape="false" /></span>
+							<span class="votingevent-link">
+								<h:outputText rendered="#{item.isInVotingPeriod()}" value="&lt;a href=&quot;vote.xhtml?electionId=#{item.id}&quot; class=&quot;raquo&quot;&gt;#{msg.goVote}&lt;/a&gt;" escape="false"/>
+								<h:outputText rendered="#{not item.isInVotingPeriod()}" value="&lt;span class=&quot;inactive raquo&quot;&gt;#{msg.goVote}&lt;/span&gt;" escape="false"/>
+							</span>
+						</li>
+					</ui:repeat>
+				</ul>
+			</div>
+			<!--</c:if>-->
+			
+			<!--<c:if test="#{electionDetails.getPassedElections().size() > 0}">-->
+			<div id="pastElections" class="hidden">
+			    <h4 class="block">#{msg.passedVotes}</h4>
+				<ul id="pastElectionsList" class="block votingevents">
+					<ui:repeat value="#{electionDetails.getPassedElections()}" var="item">
+						<li>
+							<span class="votingevent-title"><h:outputText value="#{item.getTitle(languageDetails.locale)}" escape="false" /></span>
+						</li>
+					</ui:repeat>
+				</ul>
+			</div>
+			<!--</c:if>-->
+		</div>		
+	</ui:define>
+
+</ui:composition>

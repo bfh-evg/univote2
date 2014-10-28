@@ -1,0 +1,4 @@
+flv=demo_de_v4_MQ.flv
+showfullscreen=1
+autoplay=1
+showplayer=always
