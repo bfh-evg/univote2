@@ -3,18 +3,14 @@
 	"title": "Schema for a UniVote election definition",
 	"description": "This JSON schema describes the format of an election definition in the UniVote system",
 	"type": "object",
-	"properties": {
-		"electionId": {
-			"type": "string",
-			"description": "Identifier of the election"
-		},	
+	"properties": {	
 		"title": {
-			"type": "string",
+			"$ref": "#/definitions/localizedTexts",
 			"description":  "Title of the election"
 		},
 		"description": {
-			"type": "string",
-			"description":  "Description of the election"
+			"$ref": "#/definitions/localizedTexts",
+			"description":  "Description of the election. This text is displayed on voting page as description and hint for the election."
 		},
 		"votingPeriodBegin": {
 			"type": "date",
@@ -25,5 +21,28 @@
 			"description": "Date and time of the end of the voting period"
 		}
 	},
-	"required": ["electionId", "title", "description", "votingPeriodBegin", "votingPeriodEnd"]
+	"required": ["title", "description", "votingPeriodBegin", "votingPeriodEnd"],
+
+	"definitions": {
+		"localizedTexts": {
+			"type": "array",
+			"description": "Container for multilingual texts",
+			"items": {
+				"type": "object",
+				"properties": {
+					"languageCode": {
+						"type": "string",
+						"description": "Language code of the language of string 'text'",
+						"enum": [ "EN", "DE", "FR"]
+					},
+					"text": {
+						"type": "string",
+						"description": "Content"
+					}
+				},
+				"required": ["languageCode", "text"]
+			}
+		},
+	}
 }
+

@@ -50,7 +50,7 @@
 						"type":"object",
 						"additionalProperties" : false,
 						"properties":{
-							"objectType": {
+							"type": {
 								"type": "string",
 								"description":  "Canonical name of classe",
 								"enum": ["ForAllRule", "SummationRule"]	
@@ -63,7 +63,7 @@
 								"type":"number",
 								"description": "Maximal number of occurences of a choice id"
 							},
-							"choiceId": {
+							"choiceIds": {
 								"type":"array",
 								"description": "List of concerned choice id",
 								"items":
@@ -73,7 +73,7 @@
 								}
 							}
 						},
-						"required": ["objectType", "lowerBound", "upperBound", "choiceId"]
+						"required": ["type", "lowerBound", "upperBound", "choiceId"]
 					}
 				},
 				"encryptionSetting": {
@@ -131,13 +131,13 @@
 								"$ref": "#/definitions/candidateList" 
 							}
 						},
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum": [ "CandidateElection" ]	
 						}
 					},
-					"required": ["choices", "candidateLists", "objectType"]
+					"required": ["choices", "candidateLists", "type"]
 				}
 			]
 		},
@@ -172,13 +172,13 @@
 								"$ref": "#/definitions/partyList" 
 							}
 						},
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum": [ "PartyElection" ]	
 						}
 					},
-					"required": ["choices", "partyLists", "objectType"]
+					"required": ["choices", "partyLists", "type"]
 				}
 			]
 		},
@@ -202,13 +202,13 @@
 							"$ref": "#/definitions/localizedTexts",
 							"description": "Question of the vote"
 						},
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum": [ "Vote" ]	
 						}
 					},
-					"required": ["choices", "question", "objectType"]
+					"required": ["choices", "question", "type"]
 				}
 			]
 		},
@@ -247,13 +247,17 @@
 							"type": "string",
 							"description": "Firstname of the candidate"
 						},
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum": [ "Candidate", "PartyCandidate" ]	
+						},
+						"description": {
+							"$ref": "#/definitions/localizedTexts",
+							"description":  "Additional information for candidate displayed in tooltip on voting page. Multiline texts must be provided as comma separated strings"
 						}
 					},
-					"required": ["candidateNumber", "lastname", "firstname", "objectType"]
+					"required": ["candidateNumber", "lastname", "firstname", "type"]
 				}
 			]
 		},
@@ -269,13 +273,13 @@
 							"$ref": "#/definitions/localizedTexts",
 							"description": "Name of the party"
 						},
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum": [ "Party" ]	
 						}
 					},
-					"required": ["name", "objectType"]
+					"required": ["name", "type"]
 				}
 			]
 		},
@@ -291,13 +295,13 @@
 							"$ref": "#/definitions/localizedTexts",
 							"description": "Text of the option"
 						},
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum": [ "Option" ]	
 						}
 					},
-					"required": ["text", "objectType"]
+					"required": ["text", "type"]
 				}
 			]
 		},
@@ -313,13 +317,13 @@
 							"type": "number",
 							"description": "Reference on party choice id"
 						},
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum": [ "PartyCandidate" ]	
 						}
 					},
-					"required": ["partyId", "objectType"]
+					"required": ["partyId", "type"]
 				}
 			]
 		},
@@ -334,9 +338,9 @@
 					"$ref": "#/definitions/localizedTexts",
 					"description":  "Name of the list"	
 				},
-				"shortName": {
+				"listNumber": {
 					"$ref": "#/definitions/localizedTexts",
-					"description":  "Short name of the list"	
+					"description":  "List number. Can also be a text. This content is displayed in the tabs"	
 				},
 				"choicesIds": {
 					"type": "array",
@@ -346,7 +350,7 @@
 					}
 				}
 			},
-			"required": ["objectType", "name", "shortName", "choicesIds"]
+			"required": ["type", "name", "listNumber", "choicesIds"]
 		},
 		"candidateList": {
 			"allOf": [
@@ -356,13 +360,13 @@
 				{ 
 
 					"properties": {
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum":	["CandidateList"]
 						}
 					},
-					"required": ["objectType"]
+					"required": ["type"]
 				}
 			]
 		},
@@ -378,13 +382,13 @@
 							"type": "number",
 							"description": "Reference to party choice id"
 						},
-						"objectType": {
+						"type": {
 							"type": "string",
 							"description":  "Canonical name of class",
 							"enum":	["PartyList"]
 						}
 					},
-					"required": ["partyId", "objectType"]
+					"required": ["partyId", "type"]
 				}
 			]
 		},
@@ -460,6 +464,7 @@
 		"signatureDL": {
 			"additionalProperties" : false,
 			"properties": {
+				
 				"type": {
 					"type": "string",
 					"enum": [
