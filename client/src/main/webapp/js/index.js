@@ -40,9 +40,18 @@ $(document).ready(function(){
 	// In the current version, the js file api is not needed. But for checking
 	// for an actual version of FF, Safari and Chrome the file api can be used.
 	// IE is checked by version as IE9 is fine but does not support the file api. 
+	if( ($.browser.msie && $.browser.version < 9)){
+	    $.blockUI({
+			message: '<div id="browser-check">'+
+				'<h2>'+msg.browsercheck1+'</h2>'+
+				'<p>'+msg.browsercheck4+'</p><p>'+msg.browsercheck3+'</p>'+
+				'</div>',
+			overlayCSS: {opacity: '0.2'}
+		});
+	}
+	
 	if (
-			(!$.browser.msie && !(window.File && window.FileReader && window.FileList && window.Blob)) ||
-			($.browser.msie && $.browser.version < 9)
+			(!$.browser.msie && !(window.File && window.FileReader && window.FileList && window.Blob))
 		) {
 		
 		$.blockUI({
@@ -61,7 +70,8 @@ $(document).ready(function(){
 	elements.pastElectionsDiv = document.getElementById('pastElections');
 	elements.currentElectionsList = document.getElementById('currentElectionsList');
 	elements.pastElectionsList = document.getElementById('pastElectionsList');
-	
+	elements.loadingElections = document.getElementById('loadingElections');
+	elements.noElections = document.getElementById('noElections');
 	
 	retrieveElections();
 });
@@ -153,67 +163,78 @@ function retrieveElections() {
 	cache: false,
 	dataType: 'json',
 	data: queryJson,
+	timeout: 10000,
 	success: function(resultContainer) {
-
+	    var lang = document.getElementById('language').value.toLowerCase();
+	    
+	    
 	    // Save election data
 	    var posts = resultContainer.result.post;
 	    for(var index in posts){
 		
 		//assumes that only one post is retuned
-		var b64 = new Base64();
-		var message = JSON.parse(b64.decode(posts[index].message));
+		var message = JSON.parse(B64.decode(posts[index].message));
 		var electionId = posts[index].alpha.attribute[0].value.value;
-		
 		var now = new Date().getTime();
-		if(new Date(message.start).getTime() < now){
-		    if (new Date(message.end).getTime() > now){
-			$(elements.currentElectionsList).append('<li><span class="votingevent-title">'+message.name+'</span><span class="votingevent-link"><a href="vote.xhtml?electionId='+electionId+'" class="raquo">'+msg.goVote+'</a></span></li>');
+		if(new Date(message.votingPeriodBegin).getTime() <= now){
+		    if (new Date(message.votingPeriodEnd).getTime() >= now){
+			//Current election
+			$(elements.currentElectionsList).append('<li><span class="votingevent-title">'+getLocalizedText(message.title, lang)+'</span><span class="votingevent-link"><a href="vote.xhtml?electionId='+electionId+'" class="raquo">'+msg.goVote+'</a></span></li>');
 		    } else {
-			$(elements.pastElectionsList).append('<li><span class="votingevent-title">'+message.name+'</span></li>');
+			//Past election
+			$(elements.pastElectionsList).append('<li><span class="votingevent-title">'+getLocalizedText(message.title, lang)+'</span></li>');
 		    }
 		} else {
-		    $(elements.currentElectionsList).append('<li><span class="votingevent-title">'+message.name+'</span><span class="votingevent-link"><a class="inactive raquo">'+msg.goVote+'</a></span></li>');
+		    //Future election
+		    $(elements.currentElectionsList).append('<li><span class="votingevent-title">'+getLocalizedText(message.title, lang)+'</span><span class="votingevent-link"><a class="inactive raquo">'+msg.goVote+'</a></span></li>');
 		} 
 
 	    }
-
+  
+	    
 	    if($(elements.currentElectionsList).find("li").length>0){
-		$(elements.currentElectionsDiv).show(800);//.removeClass("hidden");
+		$(elements.loadingElections).hide();
+		$(elements.currentElectionsDiv).show(800);
 	    }
 	    
 	    if($(elements.pastElectionsList).find("li").length>0){
-		$(elements.pastElectionsDiv).show(800);//.removeClass("hidden");
+		$(elements.loadingElections).hide();
+		$(elements.pastElectionsDiv).show(800);
 	    }
 	    
-//	    //assumes that there is only one election since GUI only supports one election
-//	    var elections = message.elections;
-//	    if (elections.length < 0) {
-//		//no data received
-//		processFatalError(msg.retreiveElectionDataError);
-//		return;
-//	    } else if (elections.length > 1) {
-//		//Multiple elections received. Only one is currently supported by the current voting client.
-//		processFatalError(msg.tooMuchDataReceived);
-//		return;
-//	    }
-//	    electionData = elections[0];
-//
-//	    if (electionData.objectType === classNameVote) {
-//		//Votes are not currently supported by the current voting client.
-//		processFatalError(msg.incompatibleDataReceived);
-//		return;
-//	    } else if (electionData.objectType !== classNameCandidateElection && electionData.objectType !== classNamePartyElection) {
-//		//Unknown type of election
-//		processFatalError(msg.incompatibleDataReceived);
-//	    }
-//
-//	    // Check signatures of retrieved post
-//	    uvCrypto.verifySignatureOfElectionData(resultContainer, verifySignatureCb);
+	    if($(elements.currentElectionsList).find("li").length===0 && $(elements.pastElectionsList).find("li").length===0){
+		$(elements.loadingElections).html(msg.noElections);
 
+	    }
+	    
 	},
 	error: function() {
-	    processFatalError(msg.retreiveElectionDataError);
+	    $(elements.loadingElections).html(msg.retreiveElectionDefinitionError);
 	}
     });
 
+}/**
+ * Helper for localized text elements of lists and candidates.
+ * 
+ * @param localizedTexts - Array of univote_bfh_ch_common_localizedText.
+ * @param lang - Current language.
+ */
+function getLocalizedText(localizedTexts, lang) {
+    if (localizedTexts == undefined)
+	return '';
+
+    var text = '';
+    for (var index in localizedTexts) {
+	if (localizedTexts[index].languageCode == lang.toUpperCase()) {
+	    text = localizedTexts[index].text;
+	    break;
+	}
+    }
+    if (text == '' && localizedTexts.length > 0) {
+	text = localizedTexts[0].text;
+    }
+    return text;
+
 }
+
+

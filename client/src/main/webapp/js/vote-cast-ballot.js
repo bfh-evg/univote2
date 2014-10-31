@@ -141,32 +141,28 @@ function finalizeVote(){
 		return;
 	}
 
-	var ballot = new univote_bfh_ch_common_ballot();
-	ballot.setElectionId(electionId);
+	
 	ballotData.electionId = electionId;
 	
 	// 3 - Encrypt vote 
 	ballotData.encryptedVote = uvCrypto.encryptVote(voteInGq, encryptionKey);
-	ballot.setEncryptedVote(ballot.Data.encryptedVote.encVote);
+	//encrypted vote is stored in ballotData.encryptedVote.encVote
 	
 	// 4 - Compute anonymous verification key
 	ballotData.verifKey = uvCrypto.computeElectionVerificationKey(electionGenerator, secretKey);
-	ballot.setVerificationKey(ballotData.verifKey.vkString);
+	//verification key is stored in ballotData.verifKey.vkString
 
 	// 5 - Generate NIZKP
 	ballotData.proof = uvCrypto.computeVoteProof(ballotData.encryptedVote.r, ballotData.encryptedVote.a, ballotData.verifKey.vk);
-	ballot.setProof(ballotData.proof.proof);
+	//Proof is stored in ballotData.proof
 
-	// 6 - Generate signature
-	ballotData.signature = uvCrypto.signBallot({id: electionId, E: ballotData.encryptedVote.encVote, pi: ballotData.proof.proof}, electionGenerator, secretKey);
-	ballot.setSignature(ballotData.signature.sign);
-
+	var ballot = { encryptedVote: ballotData.encryptedVote.encVote, proof: ballotData.proof.proof};
+	
+	//6 - Sign post
+	//TODO create and sign post
+	
 	// 7 - Finally cast vote by calling webservice
-	var voteService = new univote_bfh_ch_election_Voting();
-	voteService.url = URL_VOTING_SERVICE+'VotingService';
-	voteService.synchronous = false;
-
-	voteService.castVote(castVoteSuccessCallback, castVoteErrorCallback, ballot); 
+	//TODO post post
 	
 }
 
@@ -197,39 +193,35 @@ function finalizeVoteAsync(){
 	
 	var step4 = function(_encryptedVote) {
 		ballotData.encryptedVote = _encryptedVote;
-		ballot.setEncryptedVote(ballotData.encryptedVote.encVote);
 		// 4 - Compute anonymous verification key
 		uvCrypto.computeElectionVerificationKeyAsync(electionGenerator, secretKey, step5, updateCb);
 	};
 	
 	var step5 = function(_verifKey) {
+		
 		ballotData.verifKey = _verifKey;
-		ballot.setVerificationKey(ballotData.verifKey.vkString);
 		// 5 - Generate NIZKP
 		uvCrypto.computeVoteProofAsync(ballotData.encryptedVote.r, ballotData.encryptedVote.a, ballotData.verifKey.vk, step6, updateCb);
 	};
 	
 	var step6 = function(_proof) {
 		ballotData.proof = _proof;
-		ballot.setProof(ballotData.proof.proof);
-		// 6 - Generate signature
-		uvCrypto.signBallotAsync({id: electionId, E: ballotData.encryptedVote.encVote, pi: ballotData.proof.proof}, electionGenerator, secretKey, step7, updateCb);	
+		ballot = { encryptedVote: ballotData.encryptedVote.encVote, proof: ballotData.proof.proof};
+		//6 - Sign post
+		//TODO create and sign post
+		step7(1)
 	};
 	
 	var step7 = function(_signature) {
-		ballotData.signature = _signature;
-		ballot.setSignature(ballotData.signature.sign);
-		
+	  
+		ballotData.signature = { a: "toto", b: "titi"}//_signature;
 		// 7 - Finally cast vote by calling webservice
-		var voteService = new univote_bfh_ch_election_Voting();
-		voteService.url = URL_VOTING_SERVICE+'VotingService';
-		voteService.synchronous = false;
-		voteService.castVote(castVoteSuccessCallback, castVoteErrorCallback, ballot); 
+		//TODO post post
+		castVoteSuccessCallback({ signature: { timestamp: "toto", value: "titi"}})
+		//use castVoteSuccessCallback, castVoteErrorCallback
 	};
 	
 	// Starting finalizing asynchronously
-	ballot = new univote_bfh_ch_common_ballot();
-	ballot.setElectionId(electionId);
 	ballotData.electionId = electionId;
 	
 	try{
@@ -340,13 +332,14 @@ function castVoteSuccessCallback(response){
 			qrContent.push(',"eVb":',	'"'+leemon.bigInt2str(ballotData.encryptedVote.b, base)+'"');		// 1024 bit
 			qrContent.push(',"rB":',	'"'+leemon.bigInt2str(blindedRandomness, base)+'"'); //  1024 bit
 			qrContent.push(',"vk":',	'"'+leemon.bigInt2str(ballotData.verifKey.vk, base)+'"');			// 1024 bit
-			qrContent.push(',"pC":',	'"'+leemon.bigInt2str(ballotData.proof.t, base)+'"');				// 1024 bit
-			qrContent.push(',"pR":',	'"'+leemon.bigInt2str(ballotData.proof.s, base)+'"');				// 1024 bit
+			qrContent.push(',"pC":',	'"'+leemon.bigInt2str(ballotData.proof.commitment, base)+'"');				// 1024 bit
+			qrContent.push(',"pR":',	'"'+leemon.bigInt2str(ballotData.proof.response, base)+'"');				// 1024 bit
 			qrContent.push(',"vSA":',	'"'+leemon.bigInt2str(ballotData.signature.a, base)+'"');			//  256 bit
 			qrContent.push(',"vSB":',	'"'+leemon.bigInt2str(ballotData.signature.b, base)+'"');			//  256 bit
 			//qrContent.push(',"sSId":',	'"'+response.getSignature().getSignerId()+'"');
-			qrContent.push(',"sT":',	'"'+response.getSignature().getTimestamp()+'"');
-			qrContent.push(',"sV":',	'"'+leemon.bigInt2str(leemon.str2bigInt(response.getSignature().getValue(), 10, 1), base)+'"');
+			//TODO read signature timestamp and value returned from board
+			qrContent.push(',"sT":',	'"'+response.signature.timestamp+'"');
+			qrContent.push(',"sV":',	'"'+leemon.bigInt2str(leemon.str2bigInt(response.signature.value, 10, 1), base)+'"');
 			qrContent.push('}');
 			// Create qr-code and add data
 			var qr = qrcode(27, 'L');
@@ -374,6 +367,7 @@ function castVoteSuccessCallback(response){
 
 		} catch (e) {
 			// Go to step 3 in any case!!
+			alert(e)
 			gotoStep3();
 			$.unblockUI();
 		}

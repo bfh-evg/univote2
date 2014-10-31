@@ -41,13 +41,16 @@
 				<h:commandLink action="#{languageDetails.setLocale('en')}"><img src="img/EN.png" alt="English"/></h:commandLink>				
 			</h:form>
 		</div>
+		<form name="properties">
+			<input type="hidden" id="language" value="#{languageDetails.locale}" />
+		</form>	
 	</ui:define>
 
 	<ui:define name="content">
 		<div id="content" class="index">
 			
 			<h1 class="center">#{msg.welcome}</h1>
-		
+	
 			<p class="block"><h:outputText value="#{msg.introtext}" escape="false" /></p>
 			<p class="block spacer0"><a href="#" class="raquo" onclick="showBriefInstruction(); return false;">#{msg.goInstruction}</a></p>
 			<p class="block spacer0"><a href="#" class="raquo" onclick="showHelp(); return false;">#{msg.goHelpBox}</a></p>
@@ -59,35 +62,21 @@
 			<h3 class="">#{msg.votingeventsTitle}</h3>
 			<p class="block">#{msg.votingeventsText}</p>
 			
-			<!--<c:if test="#{electionDetails.getCurrentElections().size() > 0}">-->
+			<div id="loadingElections" class="block votingevents">#{msg.loadingElections}</div>
+			
 			<div id="currentElections" class="hidden">
 			    <h4 class="block">#{msg.currentVotes}</h4>
 				<ul id="currentElectionsList" class="block votingevents">
-					<ui:repeat value="#{electionDetails.getCurrentElections()}" var="item">
-						<li>
-							<span class="votingevent-title"><h:outputText value="#{item.getTitle(languageDetails.locale)}" escape="false" /></span>
-							<span class="votingevent-link">
-								<h:outputText rendered="#{item.isInVotingPeriod()}" value="&lt;a href=&quot;vote.xhtml?electionId=#{item.id}&quot; class=&quot;raquo&quot;&gt;#{msg.goVote}&lt;/a&gt;" escape="false"/>
-								<h:outputText rendered="#{not item.isInVotingPeriod()}" value="&lt;span class=&quot;inactive raquo&quot;&gt;#{msg.goVote}&lt;/span&gt;" escape="false"/>
-							</span>
-						</li>
-					</ui:repeat>
+					
 				</ul>
 			</div>
-			<!--</c:if>-->
 			
-			<!--<c:if test="#{electionDetails.getPassedElections().size() > 0}">-->
 			<div id="pastElections" class="hidden">
 			    <h4 class="block">#{msg.passedVotes}</h4>
 				<ul id="pastElectionsList" class="block votingevents">
-					<ui:repeat value="#{electionDetails.getPassedElections()}" var="item">
-						<li>
-							<span class="votingevent-title"><h:outputText value="#{item.getTitle(languageDetails.locale)}" escape="false" /></span>
-						</li>
-					</ui:repeat>
+					    
 				</ul>
 			</div>
-			<!--</c:if>-->
 		</div>		
 	</ui:define>
 

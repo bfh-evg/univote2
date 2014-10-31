@@ -1,87 +1,136 @@
-function Base64() {
+﻿/*
+Copyright Vassilis Petroulias [DRDigit]
 
-	//Source: http://ntt.cc/2008/01/19/base64-encoder-decoder-with-javascript.html
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-	var keyStr = "ABCDEFGHIJKLMNOP" +
-		"QRSTUVWXYZabcdef" +
-		"ghijklmnopqrstuv" +
-		"wxyz0123456789+/" +
-		"=";
+       http://www.apache.org/licenses/LICENSE-2.0
 
-	this.encode = function(input) {
-	    input = escape(input);
-	    var output = "";
-	    var chr1, chr2, chr3 = "";
-	    var enc1, enc2, enc3, enc4 = "";
-	    var i = 0;
-
-	    do {
-		chr1 = input.charCodeAt(i++);
-		chr2 = input.charCodeAt(i++);
-		chr3 = input.charCodeAt(i++);
-
-		enc1 = chr1 >> 2;
-		enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-		enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-		enc4 = chr3 & 63;
-
-		if (isNaN(chr2)) {
-		    enc3 = enc4 = 64;
-		} else if (isNaN(chr3)) {
-		    enc4 = 64;
-		}
-
-		output = output +
-			keyStr.charAt(enc1) +
-			keyStr.charAt(enc2) +
-			keyStr.charAt(enc3) +
-			keyStr.charAt(enc4);
-		chr1 = chr2 = chr3 = "";
-		enc1 = enc2 = enc3 = enc4 = "";
-	    } while (i < input.length);
-
-	    return output;
-	}
-
-	this.decode = function(input) {
-	    var output = "";
-	    var chr1, chr2, chr3 = "";
-	    var enc1, enc2, enc3, enc4 = "";
-	    var i = 0;
-
-	    // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
-	    var base64test = /[^A-Za-z0-9\+\/\=]/g;
-	    if (base64test.exec(input)) {
-		alert("There were invalid base64 characters in the input text.\n" +
-			"Valid base64 characters are A-Z, a-z, 0-9, '+', '/',and '='\n" +
-			"Expect errors in decoding.");
-	    }
-	    input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-
-	    do {
-		enc1 = keyStr.indexOf(input.charAt(i++));
-		enc2 = keyStr.indexOf(input.charAt(i++));
-		enc3 = keyStr.indexOf(input.charAt(i++));
-		enc4 = keyStr.indexOf(input.charAt(i++));
-
-		chr1 = (enc1 << 2) | (enc2 >> 4);
-		chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-		chr3 = ((enc3 & 3) << 6) | enc4;
-
-		output = output + String.fromCharCode(chr1);
-
-		if (enc3 != 64) {
-		    output = output + String.fromCharCode(chr2);
-		}
-		if (enc4 != 64) {
-		    output = output + String.fromCharCode(chr3);
-		}
-
-		chr1 = chr2 = chr3 = "";
-		enc1 = enc2 = enc3 = enc4 = "";
-
-	    } while (i < input.length);
-
-	    return unescape(output);
-	}
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+var B64 = {
+    alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
+    lookup: null,
+    ie: /MSIE /.test(navigator.userAgent),
+    ieo: /MSIE [67]/.test(navigator.userAgent),
+    encode: function (s) {
+        var buffer = B64.toUtf8(s),
+            position = -1,
+            len = buffer.length,
+            nan0, nan1, nan2, enc = [, , , ];
+        if (B64.ie) {
+            var result = [];
+            while (++position < len) {
+                nan0 = buffer[position];
+                nan1 = buffer[++position];
+                enc[0] = nan0 >> 2;
+                enc[1] = ((nan0 & 3) << 4) | (nan1 >> 4);
+                if (isNaN(nan1))
+                    enc[2] = enc[3] = 64;
+                else {
+                    nan2 = buffer[++position];
+                    enc[2] = ((nan1 & 15) << 2) | (nan2 >> 6);
+                    enc[3] = (isNaN(nan2)) ? 64 : nan2 & 63;
+                }
+                result.push(B64.alphabet.charAt(enc[0]), B64.alphabet.charAt(enc[1]), B64.alphabet.charAt(enc[2]), B64.alphabet.charAt(enc[3]));
+            }
+            return result.join('');
+        } else {
+            var result = '';
+            while (++position < len) {
+                nan0 = buffer[position];
+                nan1 = buffer[++position];
+                enc[0] = nan0 >> 2;
+                enc[1] = ((nan0 & 3) << 4) | (nan1 >> 4);
+                if (isNaN(nan1))
+                    enc[2] = enc[3] = 64;
+                else {
+                    nan2 = buffer[++position];
+                    enc[2] = ((nan1 & 15) << 2) | (nan2 >> 6);
+                    enc[3] = (isNaN(nan2)) ? 64 : nan2 & 63;
+                }
+                result += B64.alphabet[enc[0]] + B64.alphabet[enc[1]] + B64.alphabet[enc[2]] + B64.alphabet[enc[3]];
+            }
+            return result;
+        }
+    },
+    decode: function (s) {
+        if (s.length % 4)
+            throw new Error("InvalidCharacterError: 'B64.decode' failed: The string to be decoded is not correctly encoded.");
+        var buffer = B64.fromUtf8(s),
+            position = 0,
+            len = buffer.length;
+        if (B64.ieo) {
+            var result = [];
+            while (position < len) {
+                if (buffer[position] < 128) 
+                    result.push(String.fromCharCode(buffer[position++]));
+                else if (buffer[position] > 191 && buffer[position] < 224) 
+                    result.push(String.fromCharCode(((buffer[position++] & 31) << 6) | (buffer[position++] & 63)));
+                else 
+                    result.push(String.fromCharCode(((buffer[position++] & 15) << 12) | ((buffer[position++] & 63) << 6) | (buffer[position++] & 63)));
+            }
+            return result.join('');
+        } else {
+            var result = '';
+            while (position < len) {
+                if (buffer[position] < 128) 
+                    result += String.fromCharCode(buffer[position++]);
+                else if (buffer[position] > 191 && buffer[position] < 224) 
+                    result += String.fromCharCode(((buffer[position++] & 31) << 6) | (buffer[position++] & 63));
+                else 
+                    result += String.fromCharCode(((buffer[position++] & 15) << 12) | ((buffer[position++] & 63) << 6) | (buffer[position++] & 63));
+            }
+            return result;
+        }
+    },
+    toUtf8: function (s) {
+        var position = -1,
+            len = s.length,
+            chr, buffer = [];
+        if (/^[\x00-\x7f]*$/.test(s)) while (++position < len)
+            buffer.push(s.charCodeAt(position));
+        else while (++position < len) {
+            chr = s.charCodeAt(position);
+            if (chr < 128) 
+                buffer.push(chr);
+            else if (chr < 2048) 
+                buffer.push((chr >> 6) | 192, (chr & 63) | 128);
+            else 
+                buffer.push((chr >> 12) | 224, ((chr >> 6) & 63) | 128, (chr & 63) | 128);
+        }
+        return buffer;
+    },
+    fromUtf8: function (s) {
+        var position = -1,
+            len, buffer = [],
+            enc = [, , , ];
+        if (!B64.lookup) {
+            len = B64.alphabet.length;
+            B64.lookup = {};
+            while (++position < len)
+                B64.lookup[B64.alphabet.charAt(position)] = position;
+            position = -1;
+        }
+        len = s.length;
+        while (++position < len) {
+            enc[0] = B64.lookup[s.charAt(position)];
+            enc[1] = B64.lookup[s.charAt(++position)];
+            buffer.push((enc[0] << 2) | (enc[1] >> 4));
+            enc[2] = B64.lookup[s.charAt(++position)];
+            if (enc[2] == 64) 
+                break;
+            buffer.push(((enc[1] & 15) << 4) | (enc[2] >> 2));
+            enc[3] = B64.lookup[s.charAt(++position)];
+            if (enc[3] == 64) 
+                break;
+            buffer.push(((enc[2] & 3) << 6) | enc[3]);
+        }
+        return buffer;
     }
+};

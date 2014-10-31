@@ -41,6 +41,42 @@ function sha256BigInt(bigInteger){
 }
 
 /*
+ *	Hashes an integer
+ *	returns a hex representation of the hash
+ */
+function sha256Int(long) {
+
+    var bigint = leemon.int2bigInt(long, 1);
+    return sha256BigInt(bigint);
+}
+
+/*
+ *	Hashes a date
+ *	returns a hex representation of the hash
+ */
+function sha256Date(date) {
+    
+    var dateFormatted = date.toISOString();
+    
+    //TODO discuss which side must change
+    //Workaround because current Java implementation does not includes milliseconds
+    dateFormatted = dateFormatted.substring(0, dateFormatted.length-5)+"Z";
+    
+    return sha256String(dateFormatted);
+}
+
+/*
+ *	Hashes a base 64 representation of a byte array
+ *	returns a hex representation of the hash
+ */
+function sha256ByteArray(base64ByteArray) {
+    
+    var byteArray = B64.decode(base64ByteArray);
+    
+    return sha256BigInt(byteArray)
+}
+
+/*
  *	Hashes a hexadecimal representation
  *	returns a hex representation of the hash
  */

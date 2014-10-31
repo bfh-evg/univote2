@@ -1,66 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
     <context-param>
-        <param-name>javax.faces.PROJECT_STAGE</param-name>
-        <param-value>Development</param-value>
+	<param-name>javax.faces.PROJECT_STAGE</param-name>
+	<param-value>Development</param-value>
     </context-param>
     <context-param>
-        <param-name>com.sun.faces.autoCompleteOffOnViewState</param-name>
-        <param-value>false</param-value>
+	<param-name>com.sun.faces.autoCompleteOffOnViewState</param-name>
+	<param-value>false</param-value>
     </context-param>
 
     <context-param>
-        <param-name>dev-mode</param-name>
-		<param-value>false</param-value>	
+	<param-name>dev-mode</param-name>
+	<param-value>false</param-value>	
     </context-param>
     <context-param>
-        <param-name>dev-mode-registration-mock</param-name>
-        <param-value>false</param-value>
+	<param-name>dev-mode-registration-mock</param-name>
+	<param-value>false</param-value>
     </context-param>
     <context-param>
-        <param-name>aai-debug-mode</param-name>
-        <param-value>false</param-value>
+	<param-name>aai-debug-mode</param-name>
+	<param-value>false</param-value>
     </context-param>
 	
-	<context-param>
-        <param-name>support-request-email-to</param-name>
-        <param-value>selectio-helvetica@bfh.ch</param-value>
+    <context-param>
+	<param-name>support-request-email-to</param-name>
+	<param-value>selectio-helvetica@bfh.ch</param-value>
     </context-param>
 
-	<context-param>
-        <param-name>support-request-email-subject</param-name>
-        <param-value>UniVote support request</param-value>
+    <context-param>
+	<param-name>support-request-email-subject</param-name>
+	<param-value>UniVote support request</param-value>
     </context-param>
 
 
     <servlet>
-        <servlet-name>Faces Servlet</servlet-name>
-        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+	<servlet-name>Faces Servlet</servlet-name>
+	<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+	
+	<load-on-startup>1</load-on-startup>
     </servlet>
+    
+    <!-- Enable Cross Origin Requests -->
+    <filter>
+	<filter-name>CORSFilter</filter-name>
+	<filter-class>CORSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+	<filter-name>CORSFilter</filter-name>
+	<url-pattern>/voting-client2/*</url-pattern>
+    </filter-mapping>
     <!--
     <servlet>
-        <servlet-name>RegistrationProxy</servlet-name>
-        <servlet-class>ch.bfh.univote.voteclient.registration.RegistrationProxy</servlet-class>
+	<servlet-name>RegistrationProxy</servlet-name>
+	<servlet-class>ch.bfh.univote.voteclient.registration.RegistrationProxy</servlet-class>
     </servlet>
     -->
     <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.xhtml</url-pattern>
+	<servlet-name>Faces Servlet</servlet-name>
+	<url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
     <!--
     <servlet-mapping>
-        <servlet-name>RegistrationProxy</servlet-name>
-        <url-pattern>/registration</url-pattern>
+	<servlet-name>RegistrationProxy</servlet-name>
+	<url-pattern>/registration</url-pattern>
     </servlet-mapping>
     -->
     <session-config>
-        <session-timeout>
-            30
-        </session-timeout>
+	<session-timeout>
+	    30
+	</session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>index.xhtml</welcome-file>
+	<welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
 
 </web-app>

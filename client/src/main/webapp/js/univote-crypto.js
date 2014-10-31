@@ -50,6 +50,7 @@
 
 	window.uvConfig = window.uvConfig || {};
 
+	//TODO clean what is no more needed
 	// Signs used for concat.
 	var CONCAT_SEPARATOR = uvConfig.CONCAT_SEPARATOR || "|";
 	var CONCAT_DELIMINATOR_L = uvConfig.CONCAT_DELIMINATOR_L || "(";
@@ -116,7 +117,7 @@
 	    elgamal.q = leemon.str2bigInt(qStr, base, 1);
 	    elgamal.g = leemon.str2bigInt(gStr, base, 1);
 	}
-	
+
 	/**
 	 * Sets the Elgamal parameters at runtime.
 	 *
@@ -131,7 +132,6 @@
 	    schnorr.g = leemon.str2bigInt(gStr, base, 1);
 	}
 
-
 	////////////////////////////////////////////////////////////////////////
 	// Non-interactive zero-knowledge proof
 
@@ -144,27 +144,31 @@
 	 * @param otherInput - Some other input as bigInt or string.
 	 * @return Proof as object containing t (commitment), c (challange) and s (response) as bigInt.
 	 */
-	this.NIZKP = function(system, secretInput, publicInput, otherInput) {
+	this.NIZKP = function(p, q, g, secretInput, publicInput, otherInput) {
 
 	    //1. Choose omega at random from Zq
-	    var omega = leemon.randBigIntInZq(system.q);
+	    var omega = leemon.randBigIntInZq(q);
 
 	    //2. Compute t = g^omega mod p
-	    var t = leemon.powMod(system.g, omega, system.p);
+	    var t = leemon.powMod(g, omega, p);
 
-	    //3. Compute c = H(publicInput||t||otherInput) mod q
-	    var m = [];
-	    m.push(leemon.bigInt2str(publicInput, 10), CONCAT_SEPARATOR);
-	    m.push(leemon.bigInt2str(t, 10));
-	    if (otherInput) {
-		m.push(CONCAT_SEPARATOR);
-		m.push(otherInput instanceof Array ? leemon.bigInt2str(otherInput, 10) : otherInput);
-	    }
-	    var cStr = SHA256(m.join(''));
-	    var c = leemon.mod(leemon.str2bigInt(cStr, 16, 1), system.q);
+	    //3. Compute c = H(H(H(publicInput)||H(t))||H(otherInput))
+	    //3.1 Hash of public input
+	    var hashPI = sha256BigInt(publicInput);
+	    //3.2 Hash of commitment
+	    var hashCommitment = sha256BigInt(t);
+	    //3.3 Hash of the hash of public input concatenated with hash of commitment
+	    //(Steps 3.1 to 3.3 are the computation of to the recursive hash of a Pair[publicInput, Commitment] in UniCrypt)
+	    var hashPIAndCommitment = sha256HexStr(hashPI + hashCommitment);
+	    //3.4 Hash of other input
+	    var hashOtherInput = sha256String(otherInput);
+	    //3.5 Hash of hashPIAndCommitment concatenated with hashOtherInput
+	    //(Steps 3.1 to 3.5 are the computation of to the recursive hash of a Pair[Pair[publicInput, Commitment], otherInput] in UniCrypt)
+	    var cStr = sha256HexStr(hashPIAndCommitment + hashOtherInput);
+	    var c = leemon.mod(leemon.str2bigInt(cStr, 16, 1), q);
 
 	    //4. Compute s = omega+c*secretInput mod q
-	    var s = leemon.mod(leemon.add(omega, leemon.multMod(c, secretInput, elgamal.q)), system.q);
+	    var s = leemon.mod(leemon.add(omega, leemon.multMod(c, secretInput, q)), q);
 
 	    // 5. Return proof
 	    return {t: t, c: c, s: s};
@@ -173,24 +177,31 @@
 	/**
 	 * Asynchronous version of NIZKP.
 	 **/
-	this.NIZKPAsync = function(system, secretInput, publicInput, otherInput, doneCb, updateCb) {
+	this.NIZKPAsync = function(p, q, g, secretInput, publicInput, otherInput, doneCb, updateCb) {
 
 	    // step 2
 	    var step2 = function(_t) {
-		var t = _t;
-		//3. Compute c = H(publicInput||t||otherInput) mod q
-		var m = [];
-		m.push(leemon.bigInt2str(publicInput, 10), CONCAT_SEPARATOR);
-		m.push(leemon.bigInt2str(t, 10));
-		if (otherInput) {
-		    m.push(CONCAT_SEPARATOR);
-		    m.push(otherInput instanceof Array ? leemon.bigInt2str(otherInput, 10) : otherInput);
-		}
-		var cStr = SHA256(m.join(''));
-		var c = leemon.mod(leemon.str2bigInt(cStr, 16, 1), system.q);
 
+		var t = _t;
+		//3. Compute c = H(H(H(publicInput)||H(t))||H(otherInput))
+		//3.1 Hash of public input
+		var hashPI = sha256BigInt(publicInput);
+
+		//3.2 Hash of commitment
+		var hashCommitment = sha256BigInt(t);
+
+		//3.3 Hash of the hash of public input concatenated with hash of commitment
+		//(Steps 3.1 to 3.3 are the computation of to the recursive hash of a Pair[publicInput, Commitment] in UniCrypt)
+		var hashPIAndCommitment = sha256HexStr(hashPI + hashCommitment);
+
+		//3.4 Hash of other input
+		var hashOtherInput = sha256String(otherInput);
+		//3.5 Hash of hashPIAndCommitment concatenated with hashOtherInput
+		//(Steps 3.1 to 3.5 are the computation of to the recursive hash of a Pair[Pair[publicInput, Commitment], otherInput] in UniCrypt)
+		var cStr = sha256HexStr(hashPIAndCommitment + hashOtherInput);
+		var c = leemon.mod(leemon.str2bigInt(cStr, 16, 1), q);
 		//4. Compute s = omega+c*secretInput mod q
-		var s = leemon.mod(leemon.add(omega, leemon.multMod(c, secretInput, system.q)), system.q);
+		var s = leemon.mod(leemon.add(omega, leemon.multMod(c, secretInput, q)), q);
 
 		// 5. Call callback with proof
 		doneCb({t: t, c: c, s: s});
@@ -199,48 +210,13 @@
 
 	    // Start with step 1
 	    //1. Choose omega at random from Zq
-	    var omega = leemon.randBigIntInZq(elgamal.q);
+	    var omega = leemon.randBigIntInZq(q);
+
 
 	    //2. Compute t = g^omega mod p
-	    leemon.powModAsync(system.g, omega, system.p, updateCb, step2);
+	    leemon.powModAsync(g, omega, p, updateCb, step2);
 	}
 
-
-
-	
-
-	/*
-	 * Computes verification key proof.
-	 *
-	 * @param sk - The secret key as bigInt.
-	 * @param vk - The verification key as bigInt.
-	 * @param voterId - Voter's id as string.
-	 * @return Proof as object containing t (commitment), c (challange) and
-	 * s (response) as string representing a bigInt to the base 10.
-	 */
-	this.computeVerificationKeyProof = function(sk, vk, voterId) {
-	    var proof = this.NIZKP(schnorr, sk, vk, voterId);
-	    proof.t = leemon.bigInt2str(proof.t, 10);
-	    proof.c = leemon.bigInt2str(proof.c, 10);
-	    proof.s = leemon.bigInt2str(proof.s, 10);
-	    return proof;
-	}
-
-	/**
-	 * Asynchronous version of comupteVerificationKeyProof.
-	 */
-	this.computeVerificationKeyProofAsync = function(sk, vk, voterId, doneCb, updateCb) {
-
-	    // done
-	    var nizkpDoneCb = function(proof) {
-		proof.t = leemon.bigInt2str(proof.t, 10);
-		proof.c = leemon.bigInt2str(proof.c, 10);
-		proof.s = leemon.bigInt2str(proof.s, 10);
-		doneCb(proof);
-	    };
-
-	    this.NIZKPAsync(schnorr, sk, vk, voterId, nizkpDoneCb, updateCb);
-	}
 
 	/**
 	 * Blind the randomization (r) used during ballot-encryption by blinding it with the secret key (sk)
@@ -573,15 +549,14 @@
 	 * the single values (r, a, b) of the encryption as bigInt (for further processing).
 	 */
 	this.encryptVote = function(vote, encryptionKey) {
-	    var encVote = new univote_bfh_ch_common_encryptedVote();
+
 
 	    var r = leemon.randBigIntInZq(elgamal.q);
 	    var a = leemon.powMod(elgamal.g, r, elgamal.p);
 	    var b = leemon.powMod(encryptionKey, r, elgamal.p);
 	    b = leemon.multMod(b, vote, elgamal.p);
 
-	    encVote.setFirstValue(leemon.bigInt2str(a, 10));
-	    encVote.setSecondValue(leemon.bigInt2str(b, 10));
+	    var encVote = {firstvalue: leemon.bigInt2str(a, 10), secondvalue: leemon.bigInt2str(b, 10)};
 
 	    return {encVote: encVote, r: r, a: a, b: b};
 	}
@@ -601,9 +576,8 @@
 	    // step 3
 	    var step3 = function(_b) {
 		var b = leemon.multMod(_b, vote, elgamal.p);
-		var encVote = new univote_bfh_ch_common_encryptedVote();
-		encVote.setFirstValue(leemon.bigInt2str(a, 10));
-		encVote.setSecondValue(leemon.bigInt2str(b, 10));
+
+		var encVote = {firstvalue: leemon.bigInt2str(a, 10), secondvalue: leemon.bigInt2str(b, 10)};
 
 		doneCb({encVote: encVote, r: r, a: a, b: b});
 	    };
@@ -652,11 +626,9 @@
 	 */
 	this.computeVoteProof = function(r, a, vk) {
 
-	    var proof = this.NIZKP(elgamal, r, a, vk);
+	    var result = this.NIZKP(elgamal.p, elgamal.q, elgamal.g, r, a, leemon.bigInt2str(vk, 10));
 
-	    proof.proof = new univote_bfh_ch_common_proof();
-	    proof.proof.setCommitment([leemon.bigInt2str(proof.t, 10)])
-	    proof.proof.setResponse([leemon.bigInt2str(proof.s, 10)]);
+	    var proof = {commitment: [leemon.bigInt2str(result.t, 10)], response: [leemon.bigInt2str(result.s, 10)]};
 
 	    return proof;
 	}
@@ -667,14 +639,13 @@
 	this.computeVoteProofAsync = function(r, a, vk, doneCb, updateCb) {
 
 	    // done
-	    var nizkpDoneCb = function(proof) {
-		proof.proof = new univote_bfh_ch_common_proof();
-		proof.proof.setCommitment([leemon.bigInt2str(proof.t, 10)])
-		proof.proof.setResponse([leemon.bigInt2str(proof.s, 10)]);
+	    var nizkpDoneCb = function(result) {
+		var proof = {commitment: [leemon.bigInt2str(result.t, 10)], response: [leemon.bigInt2str(result.s, 10)]};
+
 		doneCb(proof);
 	    };
 
-	    this.NIZKPAsync(elgamal, r, a, vk, nizkpDoneCb, updateCb);
+	    this.NIZKPAsync(elgamal.p, elgamal.q, elgamal.g, r, a, leemon.bigInt2str(vk, 10), nizkpDoneCb, updateCb);
 	}
 
 	/*
@@ -688,17 +659,19 @@
 	 * @return An object with the signature (univote_bfh_ch_common_voterSignature)
 	 * and the single signature values as bigInt.
 	 */
-	this.signBallot = function(ballot, generator, sk) {
+	this.signPost = function(post, generator, sk) {
 
-	    // 1. Concat m
-	    var m = signBallotConcatM(ballot);
-
+	    // 1. Hash post
+	    var postHash = this.hashPost(post, false, false);
+	    
 	    // 2. Choose r at random from Zq and calculate g^r
 	    var r = leemon.randBigIntInZq(schnorr.q);
 	    var a2 = leemon.powMod(generator, r, schnorr.p);
 
 	    // 3. Hash and calculate second part of signature
-	    var aStr = SHA256(m + CONCAT_SEPARATOR + leemon.bigInt2str(a2, 10));
+	    var a2Hash = sha256BigInt(a2);
+	    var aStr = sha256HexStr(postHash+a2Hash);
+	    //TODO compute mod p or mod q ???
 	    var a = leemon.str2bigInt(aStr, 16, 1);
 	    var b = leemon.sub(schnorr.q, leemon.multMod(a, sk, schnorr.q));
 	    b = leemon.mod(leemon.add(r, b), schnorr.q);
@@ -706,68 +679,147 @@
 	    // 4. Create return object
 	    var sign = {a: a, b: b};
 
-	    sign.sign = new univote_bfh_ch_common_voterSignature();
-	    sign.sign.setFirstValue(leemon.bigInt2str(a, 10));
-	    sign.sign.setSecondValue(leemon.bigInt2str(b, 10));
-
 	    return sign;
 	}
 
 	/**
 	 * Asynchronous version of signBallot.
 	 **/
-	this.signBallotAsync = function(ballot, generator, sk, doneCb, updateCb) {
+	//TODO adapt to synchronous version
+	this.signPostAsync = function(post, generator, sk, doneCb, updateCb) {
 
 	    // step 2
-	    var step2 = function(_a2) {
+//	    var step2 = function(_a2) {
+//
+//		//TODO adapt hash
+//		// 3. Hash and calculate second part of signature
+//		var aStr = SHA256(m + CONCAT_SEPARATOR + leemon.bigInt2str(_a2, 10));
+//		var a = leemon.str2bigInt(aStr, 16, 1);
+//		var b = leemon.sub(schnorr.q, leemon.multMod(a, sk, schnorr.q));
+//		b = leemon.mod(leemon.add(r, b), schnorr.q);
+//
+//		// 4. Create return object
+//		var sign = {a: a, b: b};
+//
+//		doneCb(sign);
+//	    }
+//
+//	    // Start with step 1
+//	    // 1. Concat m
+//	    var m = preparePostForSignature(post);
+//
+//	    // 2. Choose r at random from Zq and calculate g^r
+//	    var r = leemon.randBigIntInZq(schnorr.q);
+//	    leemon.powModAsync(generator, r, schnorr.p, updateCb, step2);
+	}
 
-		// 3. Hash and calculate second part of signature
-		var aStr = SHA256(m + CONCAT_SEPARATOR + leemon.bigInt2str(_a2, 10));
-		var a = leemon.str2bigInt(aStr, 16, 1);
-		var b = leemon.sub(schnorr.q, leemon.multMod(a, sk, schnorr.q));
-		b = leemon.mod(leemon.add(r, b), schnorr.q);
+	//TODO verifiy if it works
+	/**
+	 * Helper method computing the hash value of a post
+	 *
+	 * @param post - The post to hash
+	 * @param includeBeta - If the beta attributes must also be hashed
+	 *	(true when checking signature of result container (CertifiedReading) or signature of board (CertifiedPosting))
+	 * @param includeBetaSignature - If the board signature present in beta attibutes must also be hashed
+	 *	(true when checking signature of result container (CertifiedReading) only)
+	 * @return The hash value of the post.
+	 */
+	this.hashPost = function(post, includeBeta, includeBetaSignature) {
+	    //Get message and alpha attributes
+	    var message = post.message;
+	    var alpha = post.alpha.attribute;
 
-		// 4. Create return object
-		var sign = {a: a, b: b};
+	    var messageHash = sha256ByteArray(message);
 
-		sign.sign = new univote_bfh_ch_common_voterSignature();
-		sign.sign.setFirstValue(leemon.bigInt2str(a, 10));
-		sign.sign.setSecondValue(leemon.bigInt2str(b, 10));
+	    var concatenatedAlphaHashes = ""
+	    for (var i = 0; i < alpha.length; i++) {
+		var attribute = alpha[i];
+		if(alpha.key==="signature" && includeBeta==false){
+		    //If includeBeta==false, we are checking or generating signature of poster (AccessControlled),
+		    //thus signature of post itself must not be included
+		    //If includeBeta==true, then we are checking signature of board (CertifiedPosting or CertifiedReading),
+		    //thus signature must be included
+		    continue;
+		}
+		if (attribute.value.type === "stringValue") {
+		    concatenatedAlphaHashes += sha256String(attribute.value.value);
+		} else if (attribute.value.type === "integerValue") {
+		    concatenatedAlphaHashes += sha256Int(attribute.value.value);
+		} else if (attribute.value.type === "dateValue") {
+		    concatenatedAlphaHashes += sha256Date(attribute.value.value);
+		} else if (attribute.value.type === "integerValue") {
+		    concatenatedAlphaHashes += sha256ByteArray(attribute.value.value);
+		} else {
+		    return "Error: unknown type of alpha attribute.";
+		}
+	    }
+	    var alphaHash = sha256HexStr(concatenatedAlphaHashes);
 
-		doneCb(sign);
+	    var betaHash = "";
+	    if (includeBeta) {
+		var beta = post.beta.attribute;
+		var concatenatedBetaHashes = ""
+		for (var i = 0; i < beta.length; i++) {
+		    var attribute = beta[i];
+		    
+		    if(beta.key==="signature" && includeBetaSignature==false){
+			//If includeBetaSignature==false, we are checking signature of board (CertifiedPosting),
+			//thus signature of post itself must not be included
+			//If includeBeta==true, then we are checking signature whole board result (CertifiedReading),
+			//thus signature must be included
+			continue;
+		    }
+		    
+		    if (attribute.value.type === "stringValue") {
+			concatenatedBetaHashes += sha256String(attribute.value.value);
+		    } else if (attribute.value.type === "integerValue") {
+			concatenatedBetaHashes += sha256Int(attribute.value.value);
+		    } else if (attribute.value.type === "dateValue") {
+			concatenatedBetaHashes += sha256Date(attribute.value.value);
+		    } else if (attribute.value.type === "integerValue") {
+			concatenatedBetaHashes += sha256ByteArray(attribute.value.value);
+		    } else {
+			return "Error: unknown type of beta attribute.";
+		    }
+		}
+		betaHash = sha256HexStr(concatenatedBetaHashes);
 	    }
 
-	    // Start with step 1
-	    // 1. Concat m
-	    var m = signBallotConcatM(ballot);
-
-	    // 2. Choose r at random from Zq and calculate g^r
-	    var r = leemon.randBigIntInZq(schnorr.q);
-	    leemon.powModAsync(generator, r, schnorr.p, updateCb, step2);
+	    return sha256HexStr(messageHash+alphaHash+betaHash);
 	}
 
+	//TODO verifiy if it works
 	/**
-	 * Helper to concat a ballot for signing (used in signBallot and signBallotAsync).
+	 * Helper method computing the hash value of a result container
 	 *
-	 * @param ballot - An object holding all ballot data.
-	 * @return The concatenated ballot.
+	 * @param resultContainer - The result container to hash
+	 * @return The hash value of the result container.
 	 */
-	var signBallotConcatM = function(ballot) {
-	    var m = [];
-	    m.push(CONCAT_DELIMINATOR_L);
-	    m.push(ballot.id, CONCAT_SEPARATOR);
-	    m.push(CONCAT_DELIMINATOR_L);
-	    m.push(ballot.E.getFirstValue(), CONCAT_SEPARATOR, ballot.E.getSecondValue());
-	    m.push(CONCAT_DELIMINATOR_R, CONCAT_SEPARATOR);
-	    m.push(CONCAT_DELIMINATOR_L);
-	    m.push(CONCAT_DELIMINATOR_L, ballot.pi.getCommitment().join(CONCAT_SEPARATOR), CONCAT_DELIMINATOR_R);
-	    m.push(CONCAT_SEPARATOR);
-	    m.push(CONCAT_DELIMINATOR_L, ballot.pi.getResponse().join(CONCAT_SEPARATOR), CONCAT_DELIMINATOR_R);
-	    m.push(CONCAT_DELIMINATOR_R);
-	    m.push(CONCAT_DELIMINATOR_R);
-	    return m.join('');
-	}
+	this.hashResultContainer = function(resultContainer) {
+	    var result = resultContainer.result;
+	    var gamma = resultContainer.gamma;
+	    var posts = result.post;
 
+	    //Compute hash of all the posts contained in the resultContainer received
+	    var concatenatedPostHashes = "";
+	    for (var i = 0; i < posts.length; i++) {
+		//in the signature of the whole ResultContainer, all the beta attributes are taken into account
+		//inclusive the board signature (CertifiedPosting) present in beta attributes
+		concatenatedPostHashes += hashPost(posts[i], true, true);
+	    }
+
+	    var postsHash = sha256HexStr(concatenatedPostHashes);
+
+//	    if(includeGammas){
+	    //TODO Is timestamp in gamma included in signature?
+	    //What is the name of this gamma field ?
+	    var timestampHash = sha256String(gamma.timestamp);
+	    //is this result hashed directly with postsHash or is it hashed once more on gamma level?
+	    return sha256HexStr(postsHash + timestampHash);
+//	    } else {
+//		return postsHash;
+//	    }
+	}
 
 
 	////////////////////////////////////////////////////////////////////////
@@ -780,8 +832,30 @@
 	 * @param electionData - The election data as univote_bfh_ch_common_electionData
 	 * @param callback - The callback passing true if signature is correct, false otherwise.
 	 */
-	this.verifySignatureOfElectionData = function(resultContainer, callback) {
-	    //TODO!!!!!
+	this.verifyResultSignature = function(resultContainer, callback) {
+	    //1. Verify ResultContainer signature
+	    var resultContainerHash = hashResultContainer(resultContainer);
+	    //TODO verify signature
+	    
+	    //2. Verify board signature of each Post
+	    var posts = resultContainer.result.post;
+	    for (var i = 0; i < posts.length; i++) {
+	       var post = posts[i];
+	       
+	       var postHash = hashPost(post, true, false);
+	       //TODO verify signature
+	    }
+	    
+	    //3. Verify poster signature of each Post
+	    for (var i = 0; i < posts.length; i++) {
+	       var post = posts[i];
+	       
+	       var postHash = hashPost(post, false, false);
+	       //TODO verify signature
+	    }
+	    
+	    
+	    
 //	    var i, item;
 //
 //	    // Helper to concat localized text.
@@ -877,158 +951,10 @@
 //
 //		// 3. Compare
 //		var x = leemon.mod(leemon.str2bigInt(SHA256(m.join('')), 16, 1), rsa.n);
-		callback(true);
+	    callback(true);
 //	    });
 	}
     }
-
-
-
-    /**
-     *
-     *  Secure Hash Algorithm (SHA256)
-     *  http://www.webtoolkit.info/
-     *
-     *  Original code by Angel Marin, Paul Johnston.
-     *
-     */
-    function SHA256(s) {
-
-	var chrsz = 8;
-	var hexcase = 1;
-
-	function safe_add(x, y) {
-	    var lsw = (x & 0xFFFF) + (y & 0xFFFF);
-	    var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-	    return (msw << 16) | (lsw & 0xFFFF);
-	}
-
-	function S(X, n) {
-	    return (X >>> n) | (X << (32 - n));
-	}
-	function R(X, n) {
-	    return (X >>> n);
-	}
-	function Ch(x, y, z) {
-	    return ((x & y) ^ ((~x) & z));
-	}
-	function Maj(x, y, z) {
-	    return ((x & y) ^ (x & z) ^ (y & z));
-	}
-	function Sigma0256(x) {
-	    return (S(x, 2) ^ S(x, 13) ^ S(x, 22));
-	}
-	function Sigma1256(x) {
-	    return (S(x, 6) ^ S(x, 11) ^ S(x, 25));
-	}
-	function Gamma0256(x) {
-	    return (S(x, 7) ^ S(x, 18) ^ R(x, 3));
-	}
-	function Gamma1256(x) {
-	    return (S(x, 17) ^ S(x, 19) ^ R(x, 10));
-	}
-
-	function core_sha256(m, l) {
-	    var K = new Array(0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5, 0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174, 0xE49B69C1, 0xEFBE4786, 0xFC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA, 0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147, 0x6CA6351, 0x14292967, 0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85, 0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070, 0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3, 0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2);
-	    var HASH = new Array(0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19);
-	    var W = new Array(64);
-	    var a, b, c, d, e, f, g, h, i, j;
-	    var T1, T2;
-
-	    m[l >> 5] |= 0x80 << (24 - l % 32);
-	    m[((l + 64 >> 9) << 4) + 15] = l;
-
-	    for (var i = 0; i < m.length; i += 16) {
-		a = HASH[0];
-		b = HASH[1];
-		c = HASH[2];
-		d = HASH[3];
-		e = HASH[4];
-		f = HASH[5];
-		g = HASH[6];
-		h = HASH[7];
-
-		for (var j = 0; j < 64; j++) {
-		    if (j < 16)
-			W[j] = m[j + i];
-		    else
-			W[j] = safe_add(safe_add(safe_add(Gamma1256(W[j - 2]), W[j - 7]), Gamma0256(W[j - 15])), W[j - 16]);
-
-		    T1 = safe_add(safe_add(safe_add(safe_add(h, Sigma1256(e)), Ch(e, f, g)), K[j]), W[j]);
-		    T2 = safe_add(Sigma0256(a), Maj(a, b, c));
-
-		    h = g;
-		    g = f;
-		    f = e;
-		    e = safe_add(d, T1);
-		    d = c;
-		    c = b;
-		    b = a;
-		    a = safe_add(T1, T2);
-		}
-
-		HASH[0] = safe_add(a, HASH[0]);
-		HASH[1] = safe_add(b, HASH[1]);
-		HASH[2] = safe_add(c, HASH[2]);
-		HASH[3] = safe_add(d, HASH[3]);
-		HASH[4] = safe_add(e, HASH[4]);
-		HASH[5] = safe_add(f, HASH[5]);
-		HASH[6] = safe_add(g, HASH[6]);
-		HASH[7] = safe_add(h, HASH[7]);
-	    }
-	    return HASH;
-	}
-
-	function str2binb(str) {
-	    var bin = Array();
-	    var mask = (1 << chrsz) - 1;
-	    for (var i = 0; i < str.length * chrsz; i += chrsz) {
-		bin[i >> 5] |= (str.charCodeAt(i / chrsz) & mask) << (24 - i % 32);
-	    }
-	    return bin;
-	}
-
-	function Utf8Encode(string) {
-	    string = string.replace(/\r\n/g, "\n");
-	    var utftext = "";
-
-	    for (var n = 0; n < string.length; n++) {
-
-		var c = string.charCodeAt(n);
-
-		if (c < 128) {
-		    utftext += String.fromCharCode(c);
-		}
-		else if ((c > 127) && (c < 2048)) {
-		    utftext += String.fromCharCode((c >> 6) | 192);
-		    utftext += String.fromCharCode((c & 63) | 128);
-		}
-		else {
-		    utftext += String.fromCharCode((c >> 12) | 224);
-		    utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-		    utftext += String.fromCharCode((c & 63) | 128);
-		}
-
-	    }
-
-	    return utftext;
-	}
-
-	function binb2hex(binarray) {
-	    var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-	    var str = "";
-	    for (var i = 0; i < binarray.length * 4; i++) {
-		str += hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8 + 4)) & 0xF) +
-			hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8)) & 0xF);
-	    }
-	    return str;
-	}
-
-	s = Utf8Encode(s);
-	return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
-
-    } // End SHA256
-
 
     window.uvCrypto = new Crypto();
 

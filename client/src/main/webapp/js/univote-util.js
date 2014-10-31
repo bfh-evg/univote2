@@ -79,7 +79,7 @@
 			for(var j=0; j<rules.length; j++){
 
 				var countSR = 0;
-				var ids = rules[j].choiceId;
+				var ids = rules[j].choiceIds;
 
 				//loop through the concerned ids
 				for(var i=0; i<ids.length; i++){
@@ -108,7 +108,7 @@
 
 			//loop through the rules
 			for(var i=0; i<rules.length; i++){
-				var ids = rules[i].choiceId;
+				var ids = rules[i].choiceIds;
 
 				//loop through the concerned ids
 				for(var j=0; j<ids.length; j++){
@@ -139,7 +139,7 @@
 				var lowerBoundSR = rules[i].lowerBound;
 				//check only for rules whose limit is more than 0
 				if(lowerBoundSR>0){
-					var ids = rules[i].choiceId;
+					var ids = rules[i].choiceIds;
 
 					//loop through the concerned ids
 					for(var j=0; j<ids.length; j++){
@@ -176,7 +176,7 @@
 				var lowerBoundSR = sumRule.lowerBound;
 				//check only for rules whose limit is more than 0
 				if(lowerBoundSR>0){
-					var ids = sumRule.choiceId;
+					var ids = sumRule.choiceIds;
 					var countSR = 0;
 
 					//loop through the concerned ids

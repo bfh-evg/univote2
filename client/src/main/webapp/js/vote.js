@@ -336,7 +336,8 @@ function processFatalError(errorMsg) {
  */
 function retrieveElectionData() {
 
-    var queryJson = '{"constraint": [{"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "section" ]},"value": {"@type": "stringValue","value": "'+electionId+'"}}, {"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "group" ]},"value": {"@type": "stringValue","value": "electionData"}}]}';
+    //TODO order by time
+    var queryJson = '{"constraint": [{"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "section" ]},"value": {"@type": "stringValue","value": "' + electionId + '"}}, {"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "group" ]},"value": {"@type": "stringValue","value": "electionData"}}]}';
 
     $.ajax({
 	url: uvConfig.URL_UNIBOARD,
@@ -346,23 +347,25 @@ function retrieveElectionData() {
 	cache: false,
 	dataType: 'json',
 	data: queryJson,
+	timeout: 10000,
 	success: function(resultContainer) {
 
 	    // Save election data
 	    var posts = resultContainer.result.post;
+	    var post;
 	    if (posts.length < 0) {
 		//no data received
 		processFatalError(msg.retreiveElectionDataError);
 		return;
 	    } else if (posts.length > 1) {
-		//multiple posts received
-		processFatalError(msg.tooMuchDataReceived);
-		return;
+		//multiple posts received, the last one is the right one
+		post = posts[posts.lenght - 1];
+	    } else {
+		post = posts[0];
 	    }
 
 	    //assumes that only one post is retuned
-	    var b64 = new Base64();
-	    var message = JSON.parse(b64.decode(posts[0].message));
+	    var message = JSON.parse(B64.decode(post.message));
 
 //	    alert(JSON.stringify(message))
 
@@ -378,18 +381,19 @@ function retrieveElectionData() {
 		return;
 	    }
 	    electionData = elections[0];
-	    
-	    if (electionData.objectType === classNameVote) {
+
+	    if (electionData.type === classNameVote) {
 		//Votes are not currently supported by the current voting client.
 		processFatalError(msg.incompatibleDataReceived);
 		return;
-	    } else if (electionData.objectType !== classNameCandidateElection && electionData.objectType !== classNamePartyElection) {
+	    } else if (electionData.type !== classNameCandidateElection && electionData.type !== classNamePartyElection) {
 		//Unknown type of election
 		processFatalError(msg.incompatibleDataReceived);
+		return;
 	    }
 
 	    // Check signatures of retrieved post
-	    uvCrypto.verifySignatureOfElectionData(resultContainer, verifySignatureCb);
+	    uvCrypto.verifyPostSignature(resultContainer, verifySignatureCb);
 
 	},
 	error: function() {
@@ -445,9 +449,9 @@ function verifySignatureCb(success) {
 	choices = electionData.choices;
 	rules = electionData.rules;
 	lists = [];
-	if (electionData.objectType === classNameCandidateElection) {
+	if (electionData.type === classNameCandidateElection) {
 	    lists = electionData.candidateLists === undefined ? new Array() : electionData.candidateLists;
-	} else if (electionData.objectType === classNamePartyElection) {
+	} else if (electionData.type === classNamePartyElection) {
 	    lists = electionData.partyLists;
 	}
 
@@ -472,17 +476,17 @@ function verifySignatureCb(success) {
 	// Split different rules
 	for (i = 0; i < rules.length; i++) {
 	    var rule = rules[i];
-	    if (rule.objectType === classNameSummationRule) {
+	    if (rule.type === classNameSummationRule) {
 		sumRules.push(rule);
 	    }
-	    else if (rule.objectType === classNameForAllRule) {
+	    else if (rule.type === classNameForAllRule) {
 		forAllRules.push(rule);
 	    }
 	}
 
 	// Figure out whether the voter can vote for candidates and a list or
 	// only for candidates
-	listsAreSelectable = electionData.objectType === classNamePartyElection;
+	listsAreSelectable = electionData.type === classNamePartyElection;
 
 	// Render the vote view: Add lists and candidates to the view
 	renderVoteView(lists, choicesMap);
@@ -515,37 +519,47 @@ function renderVoteView(lists, choicesMap) {
 	var list = lists[i - 1];
 
 	// Get list information
-	var choiceId, partyName, number, title, listShortName;
+	var choiceId, partyName, number, title, listNumber, listSubtitle;
 	if (noList) {
 	    choiceId = '';
 	    partyName = '';
 	    number = '';
 	    title = '';
-	    listShortName = '';
+	    listNumber = msg.list + " 1";
+	    listSubtitle = '';
 	} else {
-	    if (electionData.objectType === classNamePartyElection) {
+	    //if PartyElection, get the choice id and partyName bound to the list
+	    if (electionData.type === classNamePartyElection) {
 		choiceId = list.partyId;
 		partyName = getLocalizedText(choicesMap.get(choiceId).name, lang);
 	    } else {
-		choiceId = 0;
+		choiceId = -1;
 		partyName = "";
 	    }
 
-	    //TODO
-	    number = list.number;
+	    //Get name of list
 	    title = getLocalizedText(list.name, lang);
-	    listShortName = getLocalizedText(list.shortName, lang);
+	    
+	    //If list.number is a number, create a string of the form 'List #'
+	    //If list.number is a string, get it as is
+	    var number = getLocalizedText(list.listNumber, lang);
+	    if(isNumber(number)){
+		listNumber = msg.list + " " + number;
+	    } else {
+		listNumber=number;
+	    }
+	    listSubtitle = listNumber;
 	}
 
 	// Tab creation
 	var dragListIcon = listsAreSelectable ? '<img class="drag_list icon" src="img/plus.png" alt="' + msg.add + '" title="' + msg.add + '"/>' : '';
-	var contentToAppend = '<li><a href="#list-' + i + '">' + msg.list + ' ' + number + '</a><input type="hidden" class="choiceid" value="' + choiceId + '"/>' + dragListIcon + '</li>';
+	var contentToAppend = '<li><a href="#list-' + i + '">' + listNumber + '</a><input type="hidden" class="choiceid" value="' + choiceId + '"/>' + dragListIcon + '</li>';
 	$(elements.lists).append(contentToAppend);
 
 	// Creation of the list of candidates in HTML
 	var contentToAppend2 = '<div id="list-' + i + '">';
-	var partyShortNameStr = title === listShortName || listShortName === '' ? '' : listShortName + ' - ';
-	contentToAppend2 += '<p>' + title + '<br/><span class="small">' + partyShortNameStr + partyName + '</span></p>';
+	var listDescription = title === listSubtitle || listSubtitle === '' ? '' : listSubtitle + ' - ';
+	contentToAppend2 += '<p>' + title + '<br/><span class="small">' + listDescription + " " + partyName + '</span></p>';
 	contentToAppend2 += '<ul class="list">';
 
 	// For each candidate in the list
@@ -553,35 +567,22 @@ function renderVoteView(lists, choicesMap) {
 	    var candidate = choicesMap.get(list.choicesIds[j]);
 
 	    // Get candidate information
-//	    var cNumber = candidate.candidateNumber;
 	    var cLastName = candidate.lastname;
 	    var cFirstName = candidate.firstname;
 	    var cChoiceId = candidate.choiceId;
-	    //TODO
-	    var cStatus = '';//candidate.getStatus();
-	    var cSemesterCount = '';//candidate.getSemesterCount();
-	    var cStudyBranch = '';//getLocalizedText(candidate.getStudyBranch(), lang);
-	    var cStudyDegree = '';//getLocalizedText(candidate.getStudyDegree(), lang);
 
 	    // Create candidate's list element (currently cNumber is not displayed to the voter)
-	    var tooltiptext = [];
-	    //tooltiptext.push( cNumber );
-	    tooltiptext.push(cLastName + '&nbsp;' + cFirstName + (cStatus == 'PREVIOUS' ? ' <i>(' + msg.previous + ')</i>' : ''));
-	    if (cStudyDegree != '' && cStudyDegree != '-')
-		tooltiptext.push(cStudyDegree);
-	    if (cStudyBranch != '' && cStudyBranch != '-')
-		tooltiptext.push(cStudyBranch);
-	    if (cSemesterCount > 0)
-		tooltiptext.push(msg.semester + ': ' + cSemesterCount);
+	    var tooltiptext = getLocalizedText(candidate.description, lang).replace(",", "<br/>");
 
 	    contentToAppend2 += '<li class="ui-state-default">' +
 		    //'<span>' + cNumber + ' ' + cLastName + ' ' + cFirstName + 
 		    '<span>&nbsp;' + cLastName + ' ' + cFirstName +
-		    (cStatus == 'PREVIOUS' ? ' <i>(' + msg.previous + ')</i>' : '') +
 		    '</span><input type="hidden" class="choiceid" value="' + cChoiceId + '"/>' +
-		    '<img class="drag_candidate icon" src="img/plus.png" alt="' + msg.add + '" title="' + msg.add + '"/>' +
-		    '<img class="tooltip_candidate icon" src="img/info_small.png" alt="" tooltip="' + tooltiptext.join('<br/>') + '"/>' +
-		    '</li>';
+		    '<img class="drag_candidate icon" src="img/plus.png" alt="' + msg.add + '" title="' + msg.add + '"/>';
+	    if (tooltiptext != "") {
+		contentToAppend2 += '<img class="tooltip_candidate icon" src="img/info_small.png" alt="" tooltip="' + tooltiptext + '"/>';
+	    }
+	    contentToAppend2 += '</li>';
 	}
 	contentToAppend2 += '</ul></div>';
 	$(elements.listsContent).append(contentToAppend2);
@@ -616,6 +617,8 @@ function getLocalizedText(localizedTexts, lang) {
 
 }
 
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 //===========================================================================
-
-
