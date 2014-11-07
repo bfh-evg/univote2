@@ -21,15 +21,16 @@ describe('encodeVoteTest', function () {
 
         var rules = Array();
 
-        var rule = new univote_bfh_ch_common_forallRule();
-        rule.setLowerBound(0);
-        rule.setUpperBound(3);
-        rule.getChoiceId()[0] = 1;
-        rule.getChoiceId()[1] = 2;
-        rule.getChoiceId()[2] = 3;
-        rule.getChoiceId()[3] = 4;
-        rule.getChoiceId()[4] = 5;
-        rule.getChoiceId()[5] = 6;
+        var rule = {};
+        rule.lowerBound = 0;
+        rule.upperBound = 3;
+	rule.choiceIds = [];
+        rule.choiceIds[0] = 1;
+        rule.choiceIds[1] = 2;
+        rule.choiceIds[2] = 3;
+        rule.choiceIds[3] = 4;
+        rule.choiceIds[4] = 5;
+        rule.choiceIds[5] = 6;
 
 
         rules.push(rule);
@@ -62,21 +63,23 @@ describe('encodeVoteTest', function () {
 
         var rules = Array();
 
-        var rule1 = new univote_bfh_ch_common_forallRule();
-        rule1.setLowerBound(0);
-        rule1.setUpperBound(34);
+        var rule1 = {};
+        rule1.lowerBound =0;
+        rule1.upperBound = 34;
+	rule1.choiceIds = [];
         // ids 1, 2, 5, 6 are represented on 6 bits
-        rule1.getChoiceId()[0] = 1;
-        rule1.getChoiceId()[1] = 2;
-        rule1.getChoiceId()[4] = 5;
-        rule1.getChoiceId()[5] = 6;
+        rule1.choiceIds[0] = 1;
+        rule1.choiceIds[1] = 2;
+        rule1.choiceIds[4] = 5;
+        rule1.choiceIds[5] = 6;
 
-        var rule2 = new univote_bfh_ch_common_forallRule();
-        rule2.setLowerBound(0);
-        rule2.setUpperBound(12);
+        var rule2 = {};
+        rule2.lowerBound = 0;
+        rule2.upperBound = 12;
+	rule2.choiceIds = [];
         // ids 3, 4 are represented on 4 bits
-        rule2.getChoiceId()[0] = 3;
-        rule2.getChoiceId()[1] = 4;
+        rule2.choiceIds[0] = 3;
+        rule2.choiceIds[1] = 4;
 
 
         rules.push(rule1);
@@ -112,15 +115,16 @@ describe('encodeVoteTest', function () {
 
         var rules = Array();
 
-        var rule = new univote_bfh_ch_common_forallRule();
-        rule.setLowerBound(0);
-        rule.setUpperBound(3);
-        rule.getChoiceId()[0] = 1;
-        rule.getChoiceId()[1] = 2;
+        var rule = {};
+        rule.lowerBound = 0;
+        rule.upperBound = 3;
+	rule.choiceIds = [];
+        rule.choiceIds[0] = 1;
+        rule.choiceIds[1] = 2;
         //choiceId 3 is not to find in any rule
-        rule.getChoiceId()[3] = 4;
-        rule.getChoiceId()[4] = 5;
-        rule.getChoiceId()[5] = 6;
+        rule.choiceIds[3] = 4;
+        rule.choiceIds[4] = 5;
+        rule.choiceIds[5] = 6;
 
 
         rules.push(rule);
@@ -156,15 +160,16 @@ describe('encodeVoteTest', function () {
 
         var rules = Array();
 
-        var rule = new univote_bfh_ch_common_forallRule();
-        rule.setLowerBound(0);
-        rule.setUpperBound(3);
-        rule.getChoiceId()[0] = 1;
-        rule.getChoiceId()[1] = 2;
-        rule.getChoiceId()[2] = 3;
-        rule.getChoiceId()[3] = 4;
-        rule.getChoiceId()[4] = 5;
-        rule.getChoiceId()[5] = 6;
+        var rule = {};
+        rule.lowerBound =0;
+        rule.upperBound =3;
+	rule.choiceIds = [];
+        rule.choiceIds[0] = 1;
+        rule.choiceIds[1] = 2;
+        rule.choiceIds[2] = 3;
+        rule.choiceIds[3] = 4;
+        rule.choiceIds[4] = 5;
+        rule.choiceIds[5] = 6;
 
 
         rules.push(rule);
@@ -186,18 +191,20 @@ describe('encodeVoteTest', function () {
         
         var rules = Array();
 
-        var rule1 = new univote_bfh_ch_common_forallRule();
-        rule1.setLowerBound(0);
-        rule1.setUpperBound(34);
+        var rule1 = {};
+        rule1.lowerBound = 0;
+        rule1.upperBound = 34;
         // id 1 is represented on 6 bits BUT is overruled by rule 2!
-        rule1.getChoiceId()[0] = 1;
+	rule1.choiceIds = [];
+        rule1.choiceIds[0] = 1;
 
-        var rule2 = new univote_bfh_ch_common_forallRule();
-        rule2.setLowerBound(0);
-        rule2.setUpperBound(3);
+        var rule2 = {};
+        rule2.lowerBound = 0;
+        rule2.upperBound = 3;
         // ids 1, 2 are represented on 2 bits
-        rule2.getChoiceId()[0] = 1;
-        rule2.getChoiceId()[1] = 2;
+	rule2.choiceIds = [];
+        rule2.choiceIds[0] = 1;
+        rule2.choiceIds[1] = 2;
 
 
         rules.push(rule1);
@@ -223,12 +230,13 @@ describe('encodeVoteTest', function () {
         
         var rules = Array();
 
-        var rule = new univote_bfh_ch_common_forallRule();
-        rule.setLowerBound(0);
-        rule.setUpperBound(3);
+        var rule = {};
+        rule.lowerBound=0;
+        rule.upperBound=3;
         // ids 1, 2 are represented on 2 bits
-        rule.getChoiceId()[0] = 1;
-        rule.getChoiceId()[1] = 2;
+        rule.choiceIds = [];
+	rule.choiceIds[0] = 1;
+        rule.choiceIds[1] = 2;
 		
         rules.push(rule);
 		var testFn = function () {
@@ -240,13 +248,13 @@ describe('encodeVoteTest', function () {
 	
 });
 
-/*
+
 describe('votingKeyEncryption', function () {
     it('encrypt/decrypt voting key', function () {
 
 		var error = '';
 
-		var sk = leemon.bigInt2str(uvCrypto.generateSecretKey(), 64);
+		var sk = leemon.bigInt2str(leemon.str2bigInt("1684485249618432870053204561280133322807761663018476281181354505463046570451", 10, 64));
 		var pw = leemon.bigInt2str(leemon.randBigInt(Math.random()*200), 64);
 		var key = uvCrypto.encryptSecretKey(sk, pw);
 		var sk2 = uvCrypto.decryptSecretKey(key, pw, function(message){error=message});
@@ -257,7 +265,6 @@ describe('votingKeyEncryption', function () {
 
     });
 });
-*/
 
 
 describe('mapZq2GqTest', function () {
@@ -291,4 +298,18 @@ describe('mapZq2GqTest', function () {
 });
 
 
+describe('pairing Tests', function () {
+    it('pairing and unpairing leemon big integers', function () {
 
+        var a = leemon.randBigInt(160);
+	var b = leemon.randBigInt(160);
+	
+	var paired = uvCrypto.pair(a,b);
+	var unpaired = uvCrypto.unpair(paired);
+	
+	expect(leemon.equals(unpaired[0],a));
+	expect(leemon.equals(unpaired[1],b));
+	expect(!leemon.equals(unpaired[1],a));
+	expect(!leemon.equals(unpaired[0],b));
+    });
+});

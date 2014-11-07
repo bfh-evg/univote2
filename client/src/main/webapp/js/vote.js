@@ -393,8 +393,15 @@ function retrieveElectionData() {
 	    }
 
 	    // Check signatures of retrieved post
-	    uvCrypto.verifyPostSignature(resultContainer, verifySignatureCb);
-
+	    //TODO
+//	    try{
+		uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, verifySignatureCb);
+		verifySignatureCb(true)
+//	    } catch(msg) {
+		//TODO uncomment
+//		processFatalError(msg.incompatibleDataReceived);
+//	    }
+	    //verifySignatureCb(true)
 	},
 	error: function() {
 	    processFatalError(msg.retreiveElectionDataError);

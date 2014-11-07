@@ -50,24 +50,17 @@
 
 	window.uvConfig = window.uvConfig || {};
 
-	//TODO clean what is no more needed
-	// Signs used for concat.
-	var CONCAT_SEPARATOR = uvConfig.CONCAT_SEPARATOR || "|";
-	var CONCAT_DELIMINATOR_L = uvConfig.CONCAT_DELIMINATOR_L || "(";
-	var CONCAT_DELIMINATOR_R = uvConfig.CONCAT_DELIMINATOR_R || ")";
-
 	// Pre- and postfix used for secret key padding. Important: As the padded
 	// secret key is converted into a bigInt only leemon's base64 charset can
 	// be used (0-9, A-Z, a-z, _ and =)
-	var PRIVATE_KEY_PREFIX = uvConfig.PRIVATE_KEY_PREFIX || "=====BEGIN_UNIVOTE_PRIVATE_KEY=====";
-	var PRIVATE_KEY_POSTFIX = uvConfig.PRIVATE_KEY_POSTFIX || "=====END_UNIVOTE_PRIVATE_KEY=====";
-
+	var PRIVATE_KEY_PREFIX = uvConfig.PRIVATE_KEY_PREFIX || "=====BEGIN_UNICERT_PRIVATE_KEY=====";
+	var PRIVATE_KEY_POSTFIX = uvConfig.PRIVATE_KEY_POSTFIX || "=====END_UNICERT_PRIVATE_KEY=====";
+	var PRIVATE_KEY_ONE_TIME_PAD_PREPOSTFIX_SIZE = uvConfig.PRIVATE_KEY_ONE_TIME_PAD_PREPOSTFIX_SIZE || 512;
+	
 	// Pre- and postfix used for padding the encrypted secret key.
-	var ENC_PRIVATE_KEY_PREFIX = uvConfig.ENC_PRIVATE_KEY_PREFIX || "-----BEGIN UNIVOTE ENCRYPTED VOTING KEY-----";
-	var ENC_PRIVATE_KEY_POSTFIX = uvConfig.ENC_PRIVATE_KEY_POSTFIX || "-----END UNIVOTE ENCRYPTED VOTING KEY-----";
+	var ENC_PRIVATE_KEY_PREFIX = uvConfig.ENC_PRIVATE_KEY_PREFIX || "-----BEGIN ENCRYPTED UNICERT KEY-----";
+	var ENC_PRIVATE_KEY_POSTFIX = uvConfig.ENC_PRIVATE_KEY_POSTFIX || "-----END ENCRYPTED UNICERT KEY-----";
 
-	// IMPORTANT: (size of q) + (size of pre- and postfix) = 256 + 411 < 1024
-	var PRIVATE_KEY_ONE_TIME_PAD_SIZE = uvConfig.PRIVATE_KEY_ONE_TIME_PAD_SIZE || 1024;
 
 	// Base refers only to the bigInt representation of Schnorr, Elgamal and RSA parameters.
 	var base = uvConfig.BASE || 10;
@@ -441,9 +434,9 @@
 		    // lowest max must be taken.
 		    var nbrVoicesPerCandidate = 0;
 		    for (var j = 0; j < forAllRules.length; j++) {
-			var ruleIds = forAllRules[j].getChoiceId();
+			var ruleIds = forAllRules[j].choiceIds;
 			if (isInArray(actualId, ruleIds)) {
-			    var upperBound = forAllRules[j].getUpperBound();
+			    var upperBound = forAllRules[j].upperBound;
 			    if (nbrVoicesPerCandidate == 0 || upperBound < nbrVoicesPerCandidate) {
 				nbrVoicesPerCandidate = upperBound;
 			    }
@@ -663,14 +656,14 @@
 
 	    // 1. Hash post
 	    var postHash = this.hashPost(post, false, false);
-	    
+
 	    // 2. Choose r at random from Zq and calculate g^r
 	    var r = leemon.randBigIntInZq(schnorr.q);
 	    var a2 = leemon.powMod(generator, r, schnorr.p);
 
 	    // 3. Hash and calculate second part of signature
 	    var a2Hash = sha256BigInt(a2);
-	    var aStr = sha256HexStr(postHash+a2Hash);
+	    var aStr = sha256HexStr(postHash + a2Hash);
 	    //TODO compute mod p or mod q ???
 	    var a = leemon.str2bigInt(aStr, 16, 1);
 	    var b = leemon.sub(schnorr.q, leemon.multMod(a, sk, schnorr.q));
@@ -691,7 +684,6 @@
 	    // step 2
 //	    var step2 = function(_a2) {
 //
-//		//TODO adapt hash
 //		// 3. Hash and calculate second part of signature
 //		var aStr = SHA256(m + CONCAT_SEPARATOR + leemon.bigInt2str(_a2, 10));
 //		var a = leemon.str2bigInt(aStr, 16, 1);
@@ -713,7 +705,6 @@
 //	    leemon.powModAsync(generator, r, schnorr.p, updateCb, step2);
 	}
 
-	//TODO verifiy if it works
 	/**
 	 * Helper method computing the hash value of a post
 	 *
@@ -727,14 +718,17 @@
 	this.hashPost = function(post, includeBeta, includeBetaSignature) {
 	    //Get message and alpha attributes
 	    var message = post.message;
-	    var alpha = post.alpha.attribute;
 
-	    var messageHash = sha256ByteArray(message);
+	    //TODO see if needed in final version
+	    var alpha = JSON.parse(JSON.stringify(post.alpha.attribute).replace(/@/g, ""));
+
+
+	    var messageHash = sha256String(B64.decode(message));
 
 	    var concatenatedAlphaHashes = ""
 	    for (var i = 0; i < alpha.length; i++) {
 		var attribute = alpha[i];
-		if(alpha.key==="signature" && includeBeta==false){
+		if ((attribute.key === "signature" || attribute.key === "publickey") && includeBeta == false) {
 		    //If includeBeta==false, we are checking or generating signature of poster (AccessControlled),
 		    //thus signature of post itself must not be included
 		    //If includeBeta==true, then we are checking signature of board (CertifiedPosting or CertifiedReading),
@@ -746,49 +740,49 @@
 		} else if (attribute.value.type === "integerValue") {
 		    concatenatedAlphaHashes += sha256Int(attribute.value.value);
 		} else if (attribute.value.type === "dateValue") {
-		    concatenatedAlphaHashes += sha256Date(attribute.value.value);
+		    concatenatedAlphaHashes += sha256Date(new Date(attribute.value.value));
 		} else if (attribute.value.type === "integerValue") {
 		    concatenatedAlphaHashes += sha256ByteArray(attribute.value.value);
 		} else {
-		    return "Error: unknown type of alpha attribute.";
+		    throw "Error: unknown type of alpha attribute.";
 		}
 	    }
 	    var alphaHash = sha256HexStr(concatenatedAlphaHashes);
 
 	    var betaHash = "";
 	    if (includeBeta) {
-		var beta = post.beta.attribute;
+		var beta = JSON.parse(JSON.stringify(post.beta.attribute).replace(/@/g, ""));
 		var concatenatedBetaHashes = ""
 		for (var i = 0; i < beta.length; i++) {
 		    var attribute = beta[i];
-		    
-		    if(beta.key==="signature" && includeBetaSignature==false){
+		    if (attribute.key === "boardSignature" && includeBetaSignature == false) {
 			//If includeBetaSignature==false, we are checking signature of board (CertifiedPosting),
 			//thus signature of post itself must not be included
 			//If includeBeta==true, then we are checking signature whole board result (CertifiedReading),
 			//thus signature must be included
 			continue;
 		    }
-		    
+
 		    if (attribute.value.type === "stringValue") {
 			concatenatedBetaHashes += sha256String(attribute.value.value);
 		    } else if (attribute.value.type === "integerValue") {
 			concatenatedBetaHashes += sha256Int(attribute.value.value);
 		    } else if (attribute.value.type === "dateValue") {
-			concatenatedBetaHashes += sha256Date(attribute.value.value);
+			concatenatedBetaHashes += sha256Date(new Date(attribute.value.value));
 		    } else if (attribute.value.type === "integerValue") {
 			concatenatedBetaHashes += sha256ByteArray(attribute.value.value);
 		    } else {
-			return "Error: unknown type of beta attribute.";
+			throw "Error: unknown type of beta attribute.";
 		    }
 		}
 		betaHash = sha256HexStr(concatenatedBetaHashes);
+	    } else {
+		betaHash = sha256HexStr("");
 	    }
 
-	    return sha256HexStr(messageHash+alphaHash+betaHash);
+	    return sha256HexStr(messageHash + alphaHash + betaHash);
 	}
 
-	//TODO verifiy if it works
 	/**
 	 * Helper method computing the hash value of a result container
 	 *
@@ -805,20 +799,16 @@
 	    for (var i = 0; i < posts.length; i++) {
 		//in the signature of the whole ResultContainer, all the beta attributes are taken into account
 		//inclusive the board signature (CertifiedPosting) present in beta attributes
-		concatenatedPostHashes += hashPost(posts[i], true, true);
+		concatenatedPostHashes += this.hashPost(posts[i], true, true);
 	    }
 
 	    var postsHash = sha256HexStr(concatenatedPostHashes);
 
-//	    if(includeGammas){
-	    //TODO Is timestamp in gamma included in signature?
-	    //What is the name of this gamma field ?
-	    var timestampHash = sha256String(gamma.timestamp);
+	    var timestampHash = sha256Date(new Date(gamma.attribute[0].value.value));
+
 	    //is this result hashed directly with postsHash or is it hashed once more on gamma level?
 	    return sha256HexStr(postsHash + timestampHash);
-//	    } else {
-//		return postsHash;
-//	    }
+
 	}
 
 
@@ -832,128 +822,123 @@
 	 * @param electionData - The election data as univote_bfh_ch_common_electionData
 	 * @param callback - The callback passing true if signature is correct, false otherwise.
 	 */
-	this.verifyResultSignature = function(resultContainer, callback) {
+	this.verifyResultSignature = function(resultContainer, posterSetting, callback) {
 	    //1. Verify ResultContainer signature
-	    var resultContainerHash = hashResultContainer(resultContainer);
-	    //TODO verify signature
-	    
+	    var resultContainerHash = this.hashResultContainer(resultContainer);
+
+	    //TODO verify board signature
+//	    if(! this.verifySignature(resultContainer.gamma.attribute[1].value.value, resultContainerHash, uvConfig.BOARD_SETTING)){
+//		throw "Wrong board signature for result container";
+//	    }
+
 	    //2. Verify board signature of each Post
 	    var posts = resultContainer.result.post;
 	    for (var i = 0; i < posts.length; i++) {
-	       var post = posts[i];
-	       
-	       var postHash = hashPost(post, true, false);
-	       //TODO verify signature
+		var post = posts[i];
+
+		var postHash = this.hashPost(post, true, false);
+
+		if (!this.verifySignature(post.beta.attribute[2].value.value, postHash, uvConfig.BOARD_SETTING)) {
+		    throw "Wrong board signature in post " + i;
+		}
+
 	    }
-	    
 	    //3. Verify poster signature of each Post
 	    for (var i = 0; i < posts.length; i++) {
-	       var post = posts[i];
-	       
-	       var postHash = hashPost(post, false, false);
-	       //TODO verify signature
+		var post = posts[i];
+
+		var postHash = this.hashPost(post, false, false);
+
+		if (!this.verifySignature(post.alpha.attribute[3].value.value, postHash, posterSetting)) {
+		    throw "Wrong poster signature in post " + i;
+		}
 	    }
-	    
-	    
-	    
-//	    var i, item;
-//
-//	    // Helper to concat localized text.
-//	    var concatLocalizedText = function(loc) {
-//		var s = [];
-//		s.push(CONCAT_DELIMINATOR_L);
-//		for (var i = 0; i < loc.length; i++) {
-//		    if (i > 0) {
-//			s.push(CONCAT_SEPARATOR);
-//		    }
-//		    s.push(CONCAT_DELIMINATOR_L);
-//		    var t = loc[i];
-//		    s.push(t.getLanguage(), CONCAT_SEPARATOR, t.getText());
-//		    s.push(CONCAT_DELIMINATOR_R);
-//		}
-//		s.push(CONCAT_DELIMINATOR_R);
-//		return s.join('');
-//	    }
-//
-//	    // 1. CONCAT
-//	    var m = [];
-//	    m.push(CONCAT_DELIMINATOR_L);
-//	    // 1.1 ElectionID
-//	    m.push(electionData.getElectionId(), CONCAT_SEPARATOR);
-//	    // 1.2 Title
-//	    m.push(electionData.getTitle(), CONCAT_SEPARATOR);
-//	    // 1.3 Choices
-//	    m.push(CONCAT_DELIMINATOR_L);
-//	    var choices = electionData.getChoice();
-//	    for (i = 0; i < choices.length; i++) {
-//		if (i > 0) {
-//		    m.push(CONCAT_SEPARATOR);
-//		}
-//		item = choices[i];
-//		m.push(CONCAT_DELIMINATOR_L);
-//		m.push(item.getChoiceId(), CONCAT_SEPARATOR);
-//		if (item instanceof univote_bfh_ch_common_politicalList) {
-//		    m.push(item.getNumber(), CONCAT_SEPARATOR);
-//		    m.push(concatLocalizedText(item.getTitle()), CONCAT_SEPARATOR);
-//		    m.push(concatLocalizedText(item.getPartyName()), CONCAT_SEPARATOR);
-//		    m.push(concatLocalizedText(item.getPartyShortName()));
-//		} else if (item instanceof univote_bfh_ch_common_candidate) {
-//		    m.push(item.getNumber(), CONCAT_SEPARATOR);
-//		    m.push(item.getLastName(), CONCAT_SEPARATOR);
-//		    m.push(item.getFirstName(), CONCAT_SEPARATOR);
-//		    m.push(item.getSex(), CONCAT_SEPARATOR);
-//		    m.push(item.getYearOfBirth(), CONCAT_SEPARATOR);
-//		    m.push(concatLocalizedText(item.getStudyBranch()), CONCAT_SEPARATOR);
-//		    m.push(concatLocalizedText(item.getStudyDegree()), CONCAT_SEPARATOR);
-//		    m.push(item.getSemesterCount(), CONCAT_SEPARATOR);
-//		    m.push(item.getStatus(), CONCAT_SEPARATOR);
-//		    m.push(item.getListId(), CONCAT_SEPARATOR);
-//		    m.push(item.getCumulation());
-//		}
-//		m.push(CONCAT_DELIMINATOR_R);
-//	    }
-//	    m.push(CONCAT_DELIMINATOR_R, CONCAT_SEPARATOR);
-//	    // 1.4 Rules
-//	    m.push(CONCAT_DELIMINATOR_L);
-//	    var rules = electionData.getRule();
-//	    for (i = 0; i < rules.length; i++) {
-//		if (i > 0) {
-//		    m.push(CONCAT_SEPARATOR);
-//		}
-//		item = rules[i];
-//		m.push(CONCAT_DELIMINATOR_L);
-//		if (item instanceof univote_bfh_ch_common_summationRule) {
-//		    m.push('summationRule', CONCAT_SEPARATOR);
-//		} else if (item instanceof univote_bfh_ch_common_forallRule) {
-//		    m.push('forallRule', CONCAT_SEPARATOR);
-//		}
-//		m.push(CONCAT_DELIMINATOR_L, item.getChoiceId().join(CONCAT_SEPARATOR), CONCAT_DELIMINATOR_R);
-//		m.push(CONCAT_SEPARATOR);
-//		m.push(item.getLowerBound(), CONCAT_SEPARATOR);
-//		m.push(item.getUpperBound());
-//		m.push(CONCAT_DELIMINATOR_R);
-//	    }
-//	    m.push(CONCAT_DELIMINATOR_R, CONCAT_SEPARATOR);
-//	    // 1.5 p, q, g
-//	    m.push(electionData.getPrime(), CONCAT_SEPARATOR);
-//	    m.push(electionData.getGroupOrder(), CONCAT_SEPARATOR);
-//	    m.push(electionData.getGenerator(), CONCAT_SEPARATOR);
-//	    // 1.6 encryptionKey, electionG
-//	    m.push(electionData.getEncryptionKey(), CONCAT_SEPARATOR);
-//	    m.push(electionData.getElectionGenerator());
-//	    m.push(CONCAT_DELIMINATOR_R, CONCAT_SEPARATOR);
-//	    m.push(electionData.getSignature().getTimestamp());
-//
-//	    // 2. Decrypt signature
-//	    var signatureC = electionData.getSignature().getValue();
-//	    leemon.powModAsync(leemon.str2bigInt(signatureC, 10, 1), rsa.pk, rsa.n, function() {
-//	    }, function(signature) {
-//
-//		// 3. Compare
-//		var x = leemon.mod(leemon.str2bigInt(SHA256(m.join('')), 16, 1), rsa.n);
+
 	    callback(true);
-//	    });
+
 	}
+	/**
+	 * 
+	 * @param {type} signature signature values comma separated
+	 * @param {type} messageHash hash of the message signed
+	 * @param {type} signatureSetting signature setting of the signer (P, Q, G, and public key)
+	 * @returns {undefined}
+	 */
+	this.verifySignature = function(signature, messageHash, signatureSetting) {
+//	    console.log(signature)
+	    var signatureValues = this.unpair(leemon.str2bigInt(signature, 10));//signature.split(",");
+	    
+//	    console.log("Hash: " + messageHash)
+
+	    var a = signatureValues[1];
+	    var b = signatureValues[0];
+//	    console.log("a: "+leemon.bigInt2str(signatureValues[1], 10))
+//	    console.log("b: "+leemon.bigInt2str(signatureValues[0], 10))
+//	    console.log("Sig a: " + leemon.bigInt2str(a, 10))
+//	    console.log("Sig b: " + leemon.bigInt2str(b, 10))
+//
+//	    console.log("g: " + signatureSetting.G)
+//	    console.log("p: " + signatureSetting.P)
+//	    console.log("q: " + signatureSetting.Q)
+//	    console.log("pk: " + signatureSetting.PK)
+	    var c = leemon.powMod(leemon.str2bigInt(signatureSetting.G, 10), a, leemon.str2bigInt(signatureSetting.P, 10));
+	    var d = leemon.powMod(leemon.str2bigInt(signatureSetting.PK, 10), b, leemon.str2bigInt(signatureSetting.P, 10));
+//	    console.log("c: " + leemon.bigInt2str(c, 10))
+//	    console.log("d: " + leemon.bigInt2str(d, 10))
+	    var a2Verif = leemon.multMod(c, leemon.inverseMod(d, leemon.str2bigInt(signatureSetting.P, 10)), leemon.str2bigInt(signatureSetting.P, 10));
+//	    console.log("a2Verif: " + leemon.bigInt2str(a2Verif, 10))
+	    var bVerif = sha256HexStr(messageHash + sha256BigInt(a2Verif));
+//	    console.log("bVerif: " + bVerif)
+//	    console.log("b: "+b)
+//	    console.log("b verif 10: "+leemon.bigInt2str(leemon.mod(leemon.str2bigInt(bVerif, 16),leemon.str2bigInt(signatureSetting.Q,10)),10))
+//	    console.log("b verif: "+leemon.mod(leemon.str2bigInt(bVerif, 16, 1),signatureSetting.Q))
+	    return leemon.equals(b, leemon.mod(leemon.str2bigInt(bVerif, 16), leemon.str2bigInt(signatureSetting.Q, 10)));
+
+
+	}
+
+	this.pair = function(bigInt1, bigInt2) {
+	    var one = leemon.str2bigInt("1",10);
+	    if (leemon.greater(bigInt2, bigInt1) || leemon.equals(bigInt2, bigInt1)) {
+		return leemon.add(leemon.mult(bigInt2, bigInt2), one);
+	    } else {
+		return leemon.add(leemon.add(leemon.mult(bigInt1, bigInt1), bigInt1), bigInt2);
+	    }
+	}
+
+	this.unpair = function(bigInt) {
+	    var x1 = this.isqrt(bigInt);
+	    var x2 = leemon.sub(bigInt, leemon.mult(x1, x1));
+	    
+	    if (leemon.greater(x1, x2)) {
+		return [x2, x1];
+	    } else {
+		return [x1, leemon.sub(x2, x1)];
+	    }
+	}
+
+	// This is a private helper method to compute the integer square root of a BigInteger value.
+	this.isqrt = function(bigInt) {
+	    var one = leemon.str2bigInt("1",10);
+	    var a = one;
+	    	    
+	    var b = leemon.add(leemon.rightShift(bigInt, 5),leemon.str2bigInt("8",10));
+    
+	    while (leemon.greater(b, a) || leemon.equals(b, a)) {
+		
+		var mid = leemon.rightShift(leemon.add(a, b),  1);
+		var square = leemon.mult(mid, mid);
+	
+	
+		if (leemon.greater(square, bigInt)){
+		    b = leemon.sub(mid, one);
+		} else {
+		    a = leemon.add(mid, one);
+		}
+	    }
+	    return leemon.sub(a, one);
+	};
+
     }
 
     window.uvCrypto = new Crypto();

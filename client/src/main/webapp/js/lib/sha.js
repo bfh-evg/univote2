@@ -72,7 +72,6 @@ function sha256Date(date) {
 function sha256ByteArray(base64ByteArray) {
     
     var byteArray = B64.decode(base64ByteArray);
-    
     return sha256BigInt(byteArray)
 }
 
