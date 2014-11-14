@@ -51,6 +51,7 @@ a.raquo, span.raquo	{ background: url('../img/raquo.png') no-repeat 0 0; padding
 .active, a.active	{ color: #e22; }
 
 .hidden				{ display: none; }
+.notdisplayed                   { display: none; }
 
 .right				{ float: right; }
 .left				{ float: left; }
@@ -172,7 +173,8 @@ body.index #logo img{ width: 220px; padding-top: 2px;}
 
 #substep_2_1_1, 
 #substep_2_2,
-#substep_2_3			{ opacity: 0.2; filter: alpha(opacity = 20); }
+#substep_2_3, 
+#substep_2_4	{ opacity: 0.2; filter: alpha(opacity = 20); }
 
 textarea#secretkey_ta	{ background-color: #eee; width: 220px; height: 60px;}
 

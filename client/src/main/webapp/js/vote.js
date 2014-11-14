@@ -18,11 +18,11 @@
 window.uvConfig = window.uvConfig || {};
 
 
-var classNameVote = "Vote";
-var classNameCandidateElection = "CandidateElection";
-var classNamePartyElection = "PartyElection";
-var classNameSummationRule = "SummationRule";
-var classNameForAllRule = "ForAllRule";
+var CLASS_NAME_VOTE = "Vote";
+var CLASS_NAME_CANDIDATE_ELECTION = "CandidateElection";
+var CLASS_NAME_PARTY_ELECTION = "PartyElection";
+var CLASS_NAME_SUMMATION_RULE = "SummationRule";
+var CLASS_NAME_FORALL_RULE = "ForAllRule";
 /** 
  * Home site.
  */
@@ -348,6 +348,7 @@ function retrieveElectionData() {
 	dataType: 'json',
 	data: queryJson,
 	timeout: 10000,
+	crossDomain: true,
 	success: function(resultContainer) {
 
 	    // Save election data
@@ -367,8 +368,6 @@ function retrieveElectionData() {
 	    //assumes that only one post is retuned
 	    var message = JSON.parse(B64.decode(post.message));
 
-//	    alert(JSON.stringify(message))
-
 	    //assumes that there is only one election since GUI only supports one election
 	    var elections = message.elections;
 	    if (elections.length < 0) {
@@ -382,26 +381,26 @@ function retrieveElectionData() {
 	    }
 	    electionData = elections[0];
 
-	    if (electionData.type === classNameVote) {
+	    if (electionData.type === CLASS_NAME_VOTE) {
 		//Votes are not currently supported by the current voting client.
 		processFatalError(msg.incompatibleDataReceived);
 		return;
-	    } else if (electionData.type !== classNameCandidateElection && electionData.type !== classNamePartyElection) {
+	    } else if (electionData.type !== CLASS_NAME_CANDIDATE_ELECTION && electionData.type !== CLASS_NAME_PARTY_ELECTION) {
 		//Unknown type of election
 		processFatalError(msg.incompatibleDataReceived);
 		return;
 	    }
 
 	    // Check signatures of retrieved post
-	    //TODO
-//	    try{
-		uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, verifySignatureCb);
-		verifySignatureCb(true)
-//	    } catch(msg) {
-		//TODO uncomment
-//		processFatalError(msg.incompatibleDataReceived);
-//	    }
-	    //verifySignatureCb(true)
+	    try{
+		//Signature of ResultContainer (certified read is not checked, since the one post contained in the ResultContainer
+		//is also signed)
+		var result = uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true, verifySignatureCb);
+		verifySignatureCb(result)
+	    } catch(msg) {
+		processFatalError(msg.signatureError);
+		return;
+	    }
 	},
 	error: function() {
 	    processFatalError(msg.retreiveElectionDataError);
@@ -456,9 +455,9 @@ function verifySignatureCb(success) {
 	choices = electionData.choices;
 	rules = electionData.rules;
 	lists = [];
-	if (electionData.type === classNameCandidateElection) {
+	if (electionData.type === CLASS_NAME_CANDIDATE_ELECTION) {
 	    lists = electionData.candidateLists === undefined ? new Array() : electionData.candidateLists;
-	} else if (electionData.type === classNamePartyElection) {
+	} else if (electionData.type === CLASS_NAME_PARTY_ELECTION) {
 	    lists = electionData.partyLists;
 	}
 
@@ -483,17 +482,17 @@ function verifySignatureCb(success) {
 	// Split different rules
 	for (i = 0; i < rules.length; i++) {
 	    var rule = rules[i];
-	    if (rule.type === classNameSummationRule) {
+	    if (rule.type === CLASS_NAME_SUMMATION_RULE) {
 		sumRules.push(rule);
 	    }
-	    else if (rule.type === classNameForAllRule) {
+	    else if (rule.type === CLASS_NAME_FORALL_RULE) {
 		forAllRules.push(rule);
 	    }
 	}
 
 	// Figure out whether the voter can vote for candidates and a list or
 	// only for candidates
-	listsAreSelectable = electionData.type === classNamePartyElection;
+	listsAreSelectable = electionData.type === CLASS_NAME_PARTY_ELECTION;
 
 	// Render the vote view: Add lists and candidates to the view
 	renderVoteView(lists, choicesMap);
@@ -536,7 +535,7 @@ function renderVoteView(lists, choicesMap) {
 	    listSubtitle = '';
 	} else {
 	    //if PartyElection, get the choice id and partyName bound to the list
-	    if (electionData.type === classNamePartyElection) {
+	    if (electionData.type === CLASS_NAME_PARTY_ELECTION) {
 		choiceId = list.partyId;
 		partyName = getLocalizedText(choicesMap.get(choiceId).name, lang);
 	    } else {

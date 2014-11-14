@@ -56,7 +56,7 @@
 	var PRIVATE_KEY_PREFIX = uvConfig.PRIVATE_KEY_PREFIX || "=====BEGIN_UNICERT_PRIVATE_KEY=====";
 	var PRIVATE_KEY_POSTFIX = uvConfig.PRIVATE_KEY_POSTFIX || "=====END_UNICERT_PRIVATE_KEY=====";
 	var PRIVATE_KEY_ONE_TIME_PAD_PREPOSTFIX_SIZE = uvConfig.PRIVATE_KEY_ONE_TIME_PAD_PREPOSTFIX_SIZE || 512;
-	
+
 	// Pre- and postfix used for padding the encrypted secret key.
 	var ENC_PRIVATE_KEY_PREFIX = uvConfig.ENC_PRIVATE_KEY_PREFIX || "-----BEGIN ENCRYPTED UNICERT KEY-----";
 	var ENC_PRIVATE_KEY_POSTFIX = uvConfig.ENC_PRIVATE_KEY_POSTFIX || "-----END ENCRYPTED UNICERT KEY-----";
@@ -243,6 +243,137 @@
 	    }
 	    //1. map randomization into g_q
 	    this.mapZq2GqAsync(r, step2, updateCb, errorCb);
+	}
+	
+	
+	////////////////////////////////////////////////////////////////////////
+	// Secret key and verification key generation
+
+	/**
+	 * Generates a discrete log secret key. A secret key is a random number in Zq in
+	 * the Schnorr system.
+	 *
+	 * @return Secret key as bigInt.
+	 */
+	this.generateDLOGSecretKey = function(q) {
+
+	    var sk = leemon.randBigIntInZq(q);
+	    return sk;
+	}
+
+	/**
+	 * Generates a RSA key pair.
+	 *
+	 * @return Secret key as bigInt.
+	 */
+	this.generateRSASecretKey = function(size, doneCb, progressCb) {
+	    var p, q, n;
+	    var e = leemon.str2bigInt("65537", 10, 0);
+	    var keys = [];
+
+
+	    var qCb = function(prime) {
+		q = prime;
+
+		//the prime must not be congruent to 1 modulo e
+		if (leemon.equalsInt(leemon.mod(p, e), 1) || leemon.equalsInt(leemon.mod(q, e), 1)) {
+		    ucCrypto.generateRSASecretKey(size, doneCb, progressCb);
+		    return;
+		}
+
+		n = leemon.mult(p, q);
+		var phi = leemon.mult(leemon.addInt(p, -1), leemon.addInt(q, -1));
+
+		var d = leemon.inverseMod(e, phi);
+
+		keys[0] = d;
+		keys[1] = e;
+		keys[2] = n;
+
+		doneCb(keys);
+		return keys;
+	    };
+
+	    var pCb = function(prime) {
+		p = prime;
+		leemon.randProbPrimeAsync(size / 2 + 2, qCb, progressCb);
+	    };
+
+	    leemon.randProbPrimeAsync(size / 2 + 2, pCb, progressCb);
+	    return;
+	}
+
+	/**
+	 * Computes the verification key for a secret key.
+	 * => vk = g^sk mod p  (Schnorr)
+	 *
+	 * @param sk - Secret key as bigInt.
+	 * @return Verification key as bigInt.
+	 */
+	this.computeVerificationKey = function(sk) {
+
+	    var vk = leemon.powMod(schnorr.g, sk, schnorr.p);
+	    return vk;
+	}
+
+	/**
+	 * Asynchronous version of comupteVerificationKey.
+	 */
+	this.computeVerificationKeyAsync = function(p, g, sk, doneCb, progressCb) {
+
+	    leemon.powModAsync(g, sk, p, progressCb, doneCb);
+	}
+
+	/*
+	 * Computes verification key proof.
+	 *
+	 * @param sk - The secret key as bigInt.
+	 * @param vk - The verification key as bigInt.
+	 * @param voterId - Voter's id as string.
+	 * @return Proof as object containing t (commitment), c (challange) and
+	 * s (response) as string representing a bigInt to the base 10.
+	 */
+	this.computeVerificationKeyProof = function(p, q, g, sk, vk, voterId) {
+	    var proof = this.NIZKP(p, q, g, sk, vk, voterId);
+	    proof.t = leemon.bigInt2str(proof.t, 10);
+	    proof.c = leemon.bigInt2str(proof.c, 10);
+	    proof.s = leemon.bigInt2str(proof.s, 10);
+	    return proof;
+	}
+
+	/**
+	 * Asynchronous version of comupteVerificationKeyProof.
+	 */
+	this.computeVerificationKeyProofAsync = function(p, q, g, sk, vk, voterId, doneCb, updateCb) {
+
+	    // done
+	    var nizkpDoneCb = function(proof) {
+		proof.t = leemon.bigInt2str(proof.t, 10);
+		proof.c = leemon.bigInt2str(proof.c, 10);
+		proof.s = leemon.bigInt2str(proof.s, 10);
+		console.log("Challenge: "+proof.c);
+		doneCb(proof);
+	    };
+	    
+	    this.NIZKPAsync(p, q, g, sk, vk, voterId, nizkpDoneCb, updateCb);
+	}
+
+
+	this.computeSignatureAsync = function(sk, vk, modulo, message, doneCb, updateCb) {
+	    //TODO remove console comments
+	    //hash the message
+	    var hashedMessage = sha256String(message); //base 16 encoded string
+//	    console.log("hash: " + hashedMessage)
+	    //Create a BigInteger with the hashedMessage
+	    var messageBigInt = leemon.str2bigInt(hashedMessage, 16);
+	    //Computes the new BigInt modulo n since RSA message space in between 0 and n-1
+	    var messageBigIntMod = leemon.mod(messageBigInt, modulo);
+//	    console.log("messageBigIntMod: " + leemon.bigInt2str(messageBigIntMod, 10));
+//	    console.log("n: " + leemon.bigInt2str(modulo, 10));
+//	    console.log("pk: " + leemon.bigInt2str(vk, 10));
+//	    console.log("sig oth in: " + message);
+	    leemon.powModAsync(messageBigIntMod, sk, modulo, updateCb, doneCb);
+
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -730,9 +861,9 @@
 		var attribute = alpha[i];
 		if ((attribute.key === "signature" || attribute.key === "publickey") && includeBeta == false) {
 		    //If includeBeta==false, we are checking or generating signature of poster (AccessControlled),
-		    //thus signature of post itself must not be included
+		    //thus signature and key of post itself must not be included
 		    //If includeBeta==true, then we are checking signature of board (CertifiedPosting or CertifiedReading),
-		    //thus signature must be included
+		    //thus signature and key must be included
 		    continue;
 		}
 		if (attribute.value.type === "stringValue") {
@@ -751,6 +882,7 @@
 
 	    var betaHash = "";
 	    if (includeBeta) {
+
 		var beta = JSON.parse(JSON.stringify(post.beta.attribute).replace(/@/g, ""));
 		var concatenatedBetaHashes = ""
 		for (var i = 0; i < beta.length; i++) {
@@ -789,27 +921,27 @@
 	 * @param resultContainer - The result container to hash
 	 * @return The hash value of the result container.
 	 */
-	this.hashResultContainer = function(resultContainer) {
-	    var result = resultContainer.result;
-	    var gamma = resultContainer.gamma;
-	    var posts = result.post;
-
-	    //Compute hash of all the posts contained in the resultContainer received
-	    var concatenatedPostHashes = "";
-	    for (var i = 0; i < posts.length; i++) {
-		//in the signature of the whole ResultContainer, all the beta attributes are taken into account
-		//inclusive the board signature (CertifiedPosting) present in beta attributes
-		concatenatedPostHashes += this.hashPost(posts[i], true, true);
-	    }
-
-	    var postsHash = sha256HexStr(concatenatedPostHashes);
-
-	    var timestampHash = sha256Date(new Date(gamma.attribute[0].value.value));
-
-	    //is this result hashed directly with postsHash or is it hashed once more on gamma level?
-	    return sha256HexStr(postsHash + timestampHash);
-
-	}
+//	this.hashResultContainer = function(resultContainer) {
+//	    var result = resultContainer.result;
+//	    var gamma = resultContainer.gamma;
+//	    var posts = result.post;
+//
+//	    //Compute hash of all the posts contained in the resultContainer received
+//	    var concatenatedPostHashes = "";
+//	    for (var i = 0; i < posts.length; i++) {
+//		//in the signature of the whole ResultContainer, all the beta attributes are taken into account
+//		//inclusive the board signature (CertifiedPosting) present in beta attributes
+//		concatenatedPostHashes += this.hashPost(posts[i], true, true);
+//	    }
+//
+//	    var postsHash = sha256HexStr(concatenatedPostHashes);
+//
+//	    var timestampHash = sha256Date(new Date(gamma.attribute[0].value.value));
+//
+//	    //is this result hashed directly with postsHash or is it hashed once more on gamma level?
+//	    return sha256HexStr(postsHash + timestampHash);
+//
+//	}
 
 
 	////////////////////////////////////////////////////////////////////////
@@ -822,9 +954,9 @@
 	 * @param electionData - The election data as univote_bfh_ch_common_electionData
 	 * @param callback - The callback passing true if signature is correct, false otherwise.
 	 */
-	this.verifyResultSignature = function(resultContainer, posterSetting, callback) {
+	this.verifyResultSignature = function(resultContainer, posterSetting, verifyPosterSignature, callback) {
 	    //1. Verify ResultContainer signature
-	    var resultContainerHash = this.hashResultContainer(resultContainer);
+//	    var resultContainerHash = this.hashResultContainer(resultContainer);
 
 	    //TODO verify board signature
 //	    if(! this.verifySignature(resultContainer.gamma.attribute[1].value.value, resultContainerHash, uvConfig.BOARD_SETTING)){
@@ -843,18 +975,21 @@
 		}
 
 	    }
-	    //3. Verify poster signature of each Post
-	    for (var i = 0; i < posts.length; i++) {
-		var post = posts[i];
 
-		var postHash = this.hashPost(post, false, false);
+	    if (verifyPosterSignature == true) {
+		//3. Verify poster signature of each Post
+		for (var i = 0; i < posts.length; i++) {
+		    var post = posts[i];
 
-		if (!this.verifySignature(post.alpha.attribute[3].value.value, postHash, posterSetting)) {
-		    throw "Wrong poster signature in post " + i;
+		    var postHash = this.hashPost(post, false, false);
+		    if (!this.verifySignature(post.alpha.attribute[2].value.value, postHash, posterSetting)) {
+			throw "Wrong poster signature in post " + i;
+		    }
 		}
 	    }
 
-	    callback(true);
+	    return true;
+	    //callback(true);
 
 	}
 	/**
@@ -867,7 +1002,7 @@
 	this.verifySignature = function(signature, messageHash, signatureSetting) {
 //	    console.log(signature)
 	    var signatureValues = this.unpair(leemon.str2bigInt(signature, 10));//signature.split(",");
-	    
+
 //	    console.log("Hash: " + messageHash)
 
 	    var a = signatureValues[1];
@@ -898,7 +1033,7 @@
 	}
 
 	this.pair = function(bigInt1, bigInt2) {
-	    var one = leemon.str2bigInt("1",10);
+	    var one = leemon.str2bigInt("1", 10);
 	    if (leemon.greater(bigInt2, bigInt1) || leemon.equals(bigInt2, bigInt1)) {
 		return leemon.add(leemon.mult(bigInt2, bigInt2), one);
 	    } else {
@@ -909,7 +1044,7 @@
 	this.unpair = function(bigInt) {
 	    var x1 = this.isqrt(bigInt);
 	    var x2 = leemon.sub(bigInt, leemon.mult(x1, x1));
-	    
+
 	    if (leemon.greater(x1, x2)) {
 		return [x2, x1];
 	    } else {
@@ -919,18 +1054,18 @@
 
 	// This is a private helper method to compute the integer square root of a BigInteger value.
 	this.isqrt = function(bigInt) {
-	    var one = leemon.str2bigInt("1",10);
+	    var one = leemon.str2bigInt("1", 10);
 	    var a = one;
-	    	    
-	    var b = leemon.add(leemon.rightShift(bigInt, 5),leemon.str2bigInt("8",10));
-    
+
+	    var b = leemon.add(leemon.rightShift(bigInt, 5), leemon.str2bigInt("8", 10));
+
 	    while (leemon.greater(b, a) || leemon.equals(b, a)) {
-		
-		var mid = leemon.rightShift(leemon.add(a, b),  1);
+
+		var mid = leemon.rightShift(leemon.add(a, b), 1);
 		var square = leemon.mult(mid, mid);
-	
-	
-		if (leemon.greater(square, bigInt)){
+
+
+		if (leemon.greater(square, bigInt)) {
 		    b = leemon.sub(mid, one);
 		} else {
 		    a = leemon.add(mid, one);

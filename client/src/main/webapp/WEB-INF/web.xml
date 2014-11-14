@@ -41,30 +41,24 @@
     </servlet>
     
     <!-- Enable Cross Origin Requests -->
-    <filter>
+<!--    <filter>
 	<filter-name>CORSFilter</filter-name>
-	<filter-class>CORSFilter</filter-class>
+	<filter-class>ch.bfh.univote.voteclient.beans.CORSFilter</filter-class>
+    </filter>-->
+<!--    <filter>
+	<filter-name>CORS</filter-name>
+	<filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
     </filter>
     <filter-mapping>
-	<filter-name>CORSFilter</filter-name>
-	<url-pattern>/voting-client2/*</url-pattern>
-    </filter-mapping>
-    <!--
-    <servlet>
-	<servlet-name>RegistrationProxy</servlet-name>
-	<servlet-class>ch.bfh.univote.voteclient.registration.RegistrationProxy</servlet-class>
-    </servlet>
-    -->
+	<filter-name>CORS</filter-name>
+	<url-pattern>/*</url-pattern>
+    </filter-mapping>-->
+    
     <servlet-mapping>
 	<servlet-name>Faces Servlet</servlet-name>
 	<url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
-    <!--
-    <servlet-mapping>
-	<servlet-name>RegistrationProxy</servlet-name>
-	<url-pattern>/registration</url-pattern>
-    </servlet-mapping>
-    -->
+   
     <session-config>
 	<session-timeout>
 	    30
