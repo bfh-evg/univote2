@@ -63,8 +63,6 @@ $(document).ready(function() {
 	});
     }
 
-
-
     // Get DOM elements
     elements.currentElectionsDiv = document.getElementById('currentElections');
     elements.pastElectionsDiv = document.getElementById('pastElections');
@@ -75,6 +73,100 @@ $(document).ready(function() {
 
     retrieveElections();
 });
+
+/**
+ * Retrieves election definition from Board (asynchronously).
+ * If Board is on another domain, IE9 will not be able to retrieve the data
+ * IE9 does not support cross domain ajax request.
+ * JSONP would be a solution, but it only allows HTTP GET and HTTP POST is required for the 
+ * REST Service of the Board.
+ */
+function retrieveElections() {
+
+    var queryJson = '{"constraint": [{"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "section" ]},"value": {"@type": "stringValue","value": ""}}, {"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "group" ]},"value": {"@type": "stringValue","value": "electionDefinition"}}]}';
+
+    $.ajax({
+	url: uvConfig.URL_UNIBOARD_GET,
+	type: 'POST',
+	contentType: "application/json",
+	accept: "application/json",
+	cache: false,
+	dataType: 'json',
+	data: queryJson,
+	timeout: 10000,
+	crossDomain: true,
+	success: function(resultContainer) {
+	    var lang = document.getElementById('language').value.toLowerCase();
+
+	    //Signature of result is not verified since the data that is displayed here is not really sensitive 
+	    //More over, the posts are signed by EA whose key should be retrieved from the Board
+
+	    // Save election data
+	    var posts = resultContainer.result.post;
+	    for (var index in posts) {
+		var message = JSON.parse(B64.decode(posts[index].message));
+		var electionId = posts[index].alpha.attribute[0].value.value;
+		var now = new Date().getTime();
+		if (new Date(message.votingPeriodBegin).getTime() <= now) {
+		    if (new Date(message.votingPeriodEnd).getTime() >= now) {
+			//Current election
+			$(elements.currentElectionsList).append('<li><span class="votingevent-title">' + getLocalizedText(message.title, lang) + '</span><span class="votingevent-link"><a href="vote.xhtml?electionId=' + electionId + '" class="raquo">' + msg.goVote + '</a></span></li>');
+		    } else {
+			//Past election
+			$(elements.pastElectionsList).append('<li><span class="votingevent-title">' + getLocalizedText(message.title, lang) + '</span></li>');
+		    }
+		} else {
+		    //Future election
+		    $(elements.currentElectionsList).append('<li><span class="votingevent-title">' + getLocalizedText(message.title, lang) + '</span><span class="votingevent-link"><a class="inactive raquo">' + msg.goVote + '</a></span></li>');
+		}
+	    }
+
+	    //Hide container if there is no election of this type
+	    if ($(elements.currentElectionsList).find("li").length > 0) {
+		$(elements.loadingElections).hide();
+		$(elements.currentElectionsDiv).show(800);
+	    }
+
+	    if ($(elements.pastElectionsList).find("li").length > 0) {
+		$(elements.loadingElections).hide();
+		$(elements.pastElectionsDiv).show(800);
+	    }
+
+	    //Show a text if there is no election
+	    if ($(elements.currentElectionsList).find("li").length === 0 && $(elements.pastElectionsList).find("li").length === 0) {
+		$(elements.loadingElections).html(msg.noElections);
+	    }
+	},
+	error: function(msg) {
+	    $(elements.loadingElections).html(msg.retreiveElectionDefinitionError);
+	}
+    });
+}
+
+/**
+ * Helper function extracting the text in the desired language out
+ * of LocalizedText elements of lists and candidates.
+ * 
+ * @param localizedTexts - Array of i18n texts.
+ * @param lang - Current language.
+ */
+function getLocalizedText(localizedTexts, lang) {
+    if (localizedTexts == undefined)
+	return '';
+
+    var text = '';
+    for (var index in localizedTexts) {
+	if (localizedTexts[index].languageCode == lang.toUpperCase()) {
+	    text = localizedTexts[index].text;
+	    break;
+	}
+    }
+    if (text == '' && localizedTexts.length > 0) {
+	text = localizedTexts[0].text;
+    }
+    return text;
+
+}
 
 /**
  * Shows the brief instruction as overlay.
@@ -144,100 +236,3 @@ function submitHelpForm(email, message) {
     });
     return false;
 }
-
-
-/**
- * Retrieves election definition from Board (asynchronously).
- */
-function retrieveElections() {
-
-    var queryJson = '{"constraint": [{"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "section" ]},"value": {"@type": "stringValue","value": ""}}, {"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "group" ]},"value": {"@type": "stringValue","value": "electionDefinition"}}]}';
-
-    $.ajax({
-	url: uvConfig.URL_UNIBOARD,
-	type: 'POST',
-	contentType: "application/json",
-	accept: "application/json",
-	cache: false,
-	dataType: 'json',
-	data: queryJson,
-	timeout: 10000,
-	
-	success: function(resultContainer) {
-	    var lang = document.getElementById('language').value.toLowerCase();
-
-	    
-	    //Signature of result is not verified since it is not sensitive data that are displayed here
-	    //More over, the post are signed by EA whose key is not obviously known
-
-
-	    // Save election data
-	    var posts = resultContainer.result.post;
-	    for (var index in posts) {
-
-		//assumes that only one post is retuned
-		var message = JSON.parse(B64.decode(posts[index].message));
-		var electionId = posts[index].alpha.attribute[0].value.value;
-		var now = new Date().getTime();
-		if (new Date(message.votingPeriodBegin).getTime() <= now) {
-		    if (new Date(message.votingPeriodEnd).getTime() >= now) {
-			//Current election
-			$(elements.currentElectionsList).append('<li><span class="votingevent-title">' + getLocalizedText(message.title, lang) + '</span><span class="votingevent-link"><a href="vote.xhtml?electionId=' + electionId + '" class="raquo">' + msg.goVote + '</a></span></li>');
-		    } else {
-			//Past election
-			$(elements.pastElectionsList).append('<li><span class="votingevent-title">' + getLocalizedText(message.title, lang) + '</span></li>');
-		    }
-		} else {
-		    //Future election
-		    $(elements.currentElectionsList).append('<li><span class="votingevent-title">' + getLocalizedText(message.title, lang) + '</span><span class="votingevent-link"><a class="inactive raquo">' + msg.goVote + '</a></span></li>');
-		}
-
-	    }
-
-
-	    if ($(elements.currentElectionsList).find("li").length > 0) {
-		$(elements.loadingElections).hide();
-		$(elements.currentElectionsDiv).show(800);
-	    }
-
-	    if ($(elements.pastElectionsList).find("li").length > 0) {
-		$(elements.loadingElections).hide();
-		$(elements.pastElectionsDiv).show(800);
-	    }
-
-	    if ($(elements.currentElectionsList).find("li").length === 0 && $(elements.pastElectionsList).find("li").length === 0) {
-		$(elements.loadingElections).html(msg.noElections);
-
-	    }
-
-	},
-	error: function() {
-	    $(elements.loadingElections).html(msg.retreiveElectionDefinitionError);
-	}
-    });
-
-}/**
- * Helper for localized text elements of lists and candidates.
- * 
- * @param localizedTexts - Array of univote_bfh_ch_common_localizedText.
- * @param lang - Current language.
- */
-function getLocalizedText(localizedTexts, lang) {
-    if (localizedTexts == undefined)
-	return '';
-
-    var text = '';
-    for (var index in localizedTexts) {
-	if (localizedTexts[index].languageCode == lang.toUpperCase()) {
-	    text = localizedTexts[index].text;
-	    break;
-	}
-    }
-    if (text == '' && localizedTexts.length > 0) {
-	text = localizedTexts[0].text;
-    }
-    return text;
-
-}
-
-

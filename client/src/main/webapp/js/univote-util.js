@@ -11,49 +11,15 @@
  * 
  */
 
-
 /**
- * Class representing a PoliticalList.
- * This class differs from the class PoliticalList of Java in the following points:
- * - it has a list of candidates
- * - it contains the Java PoliticalList object
- * This class is used to make the rendering of the GUI easier.
+ * Function checking if an element has the indicated class
+ * @param element element
+ * @param cls class
+ * @returns true if element has the indicated class, false otherwise
  */
-//function PoliticalList(_originalList) {
-//	
-//	// The original list (univote_bfh_ch_common_politicalList)
-//	this.originalList = _originalList;
-//	// The list of candidates (list of univote_bfh_ch_common_candidate)
-//	this.candidates = new Array();
-//	
-//	if ( typeof (PoliticalList.initialized) == "undefined" ) {
-//		
-//		// Sets the original list.
-//		PoliticalList.prototype.setOriginalList = function(_originalList) {
-//			this.originalList = _originalList;
-//		}
-// 
-//		// Gets the original list.
-//		PoliticalList.prototype.getOriginalList = function() {
-//			return this.originalList;
-//		}
-//
-//		// Adds a candidate.
-//		PoliticalList.prototype.addCandidate = function(candidate) {
-//			this.candidates.push(candidate);
-//		}
-//
-//		// Gets the list of candidates.
-//		PoliticalList.prototype.getCandidates = function() {
-//			return this.candidates;
-//		}
-//
-//		PoliticalList.initialized = true;
-//	}
-//}
-
-
-
+function hasClass(element, cls) {
+    return ('' + element.className).indexOf('' + cls) > -1;
+}
 
 //======================================================================
 // R U L E - C O N T R O L

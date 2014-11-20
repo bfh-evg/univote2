@@ -47,6 +47,7 @@
 
 	////////////////////////////////////////////////////////////////////////
 	// Configuration
+	////////////////////////////////////////////////////////////////////////
 
 	window.uvConfig = window.uvConfig || {};
 
@@ -112,7 +113,7 @@
 	}
 
 	/**
-	 * Sets the Elgamal parameters at runtime.
+	 * Sets the Schnorr parameters at runtime.
 	 *
 	 * @param pStr - P as string.
 	 * @param qStr - Q as string.
@@ -127,6 +128,7 @@
 
 	////////////////////////////////////////////////////////////////////////
 	// Non-interactive zero-knowledge proof
+	////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Computes a non-interactive zero-knowledge proof.
@@ -190,7 +192,9 @@
 		//3.4 Hash of other input
 		var hashOtherInput = sha256String(otherInput);
 		//3.5 Hash of hashPIAndCommitment concatenated with hashOtherInput
-		//(Steps 3.1 to 3.5 are the computation of to the recursive hash of a Pair[Pair[publicInput, Commitment], otherInput] in UniCrypt)
+		//(Steps 3.1 to 3.5 a////////////////////////////////////////////////////////////////////////
+	// Configuration
+	////////////////////////////////////////////////////////////////////////re the computation of to the recursive hash of a Pair[Pair[publicInput, Commitment], otherInput] in UniCrypt)
 		var cStr = sha256HexStr(hashPIAndCommitment + hashOtherInput);
 		var c = leemon.mod(leemon.str2bigInt(cStr, 16, 1), q);
 		//4. Compute s = omega+c*secretInput mod q
@@ -210,6 +214,123 @@
 	    leemon.powModAsync(g, omega, p, updateCb, step2);
 	}
 
+	////////////////////////////////////////////////////////////////////////
+	// Schnorr Signature
+	////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Create a Schnorr signature
+	 * @param {type} messageHash Hash of message to sign encoded in base 16
+	 * @param {type} privateKey Private key to use to sign in leemon big int format
+	 * @param {type} p Prime p in leemon big int format
+	 * @param {type} q Prime q in leemon big int format
+	 * @param {type} g Generator g in leemon big int format
+	 * @returns the paired value of the two signature elements (s,e)
+	 */
+	this.createSchnorrSignature = function(messageHash, privateKey, p, q, g){
+	    // 1. Choose r at random from Zq and calculate g^r
+	    var r = leemon.randBigIntInZq(q);
+	    var a2 = leemon.powMod(g, r, p);
+	    
+	    // 2. Hash and calculate second part of signature
+	    var a2Hash = sha256BigInt(a2);
+	    var aStr = sha256HexStr(messageHash + a2Hash);
+	    var a = leemon.str2bigInt(aStr, 16);
+	    
+	    var b = leemon.add(r,leemon.mult(a, privateKey));
+	    b = leemon.mod(b, q);
+	    
+	    return this.pair(a,b);
+	}
+	
+	
+	/**
+	 * Verify a Schnorr signature
+	 * @param {type} signature The paired value of the signature (s,e)
+	 * @param {type} messageHash Hash of message to sign encoded in base 16
+	 * @param {type} publicKey Public key to use for the verification in leemon big int format
+	 * @param {type} p Prime p in leemon big int format
+	 * @param {type} q Prime q in leemon big int format
+	 * @param {type} g Generator g in leemon big int format
+	 * @returns true if signature is valid, false otherwise
+	 */
+	this.verifySchnorrSignature = function(signature, messageHash, publicKey, p, q, g) {
+
+	    var signatureValues = this.unpair(signature);
+
+	    var a = signatureValues[1];
+	    var b = signatureValues[0];
+	    
+	    var c = leemon.powMod(g, a, p);
+	    var d = leemon.powMod(publicKey, b, p);
+	    
+	    var a2Verif = leemon.multMod(c, leemon.inverseMod(d, p), p);
+	    
+	    var bVerif = sha256HexStr(messageHash + sha256BigInt(a2Verif));
+
+	    return leemon.equals(b, leemon.mod(leemon.str2bigInt(bVerif, 16), q));
+	}
+
+	/**
+	 * Computes the elegant pairing function for two non-negative BigInteger values.
+	 * @see http://szudzik.com/ElegantPairing.pdf
+	 * @param bigInt1 The first value
+	 * @param bigInt2 The second value
+	 * @return The result of applying the elegant pairing function
+	 */
+	this.pair = function(bigInt1, bigInt2) {
+	    if(leemon.negative(bigInt1) || leemon.negative(bigInt2)){
+		throw Error("Cannot be negative");
+	    }
+	    if (leemon.greater(bigInt2, bigInt1) || leemon.equals(bigInt2, bigInt1)) {
+		return leemon.add(leemon.mult(bigInt2, bigInt2), bigInt1);
+	    } else {
+		return leemon.add(leemon.add(leemon.mult(bigInt1, bigInt1), bigInt1), bigInt2);		
+	    }
+	}
+
+	/**
+	 * Computes the inverse of the binary elegant pairing function for a given non-negative BigInteger value.
+	 * @see http://szudzik.com/ElegantPairing.pdf
+	 * @param bigInt The input value
+	 * @return An array containing the two resulting values
+	 */
+	this.unpair = function(bigInt) {
+	    var x1 = this.isqrt(bigInt);
+	    var x2 = leemon.sub(bigInt, leemon.mult(x1, x1));
+
+	    if (leemon.greater(x1, x2)) {
+		return [x2, x1];
+	    } else {
+		return [x1, leemon.sub(x2, x1)];
+	    }
+	}
+
+	// This is a helper method to compute the integer square root of a BigInteger value.
+	this.isqrt = function(bigInt) {
+	    var one = leemon.str2bigInt("1", 10);
+	    var a = one;
+
+	    var b = leemon.add(leemon.rightShift(bigInt, 5), leemon.str2bigInt("8", 10));
+
+	    while (leemon.greater(b, a) || leemon.equals(b, a)) {
+
+		var mid = leemon.rightShift(leemon.add(a, b), 1);
+		var square = leemon.mult(mid, mid);
+
+
+		if (leemon.greater(square, bigInt)) {
+		    b = leemon.sub(mid, one);
+		} else {
+		    a = leemon.add(mid, one);
+		}
+	    }
+	    return leemon.sub(a, one);
+	};
+	
+	////////////////////////////////////////////////////////////////////////
+	// Randomization bliding functions
+	////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Blind the randomization (r) used during ballot-encryption by blinding it with the secret key (sk)
@@ -248,6 +369,7 @@
 	
 	////////////////////////////////////////////////////////////////////////
 	// Secret key and verification key generation
+	////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Generates a discrete log secret key. A secret key is a random number in Zq in
@@ -351,7 +473,6 @@
 		proof.t = leemon.bigInt2str(proof.t, 10);
 		proof.c = leemon.bigInt2str(proof.c, 10);
 		proof.s = leemon.bigInt2str(proof.s, 10);
-		console.log("Challenge: "+proof.c);
 		doneCb(proof);
 	    };
 	    
@@ -360,24 +481,19 @@
 
 
 	this.computeSignatureAsync = function(sk, vk, modulo, message, doneCb, updateCb) {
-	    //TODO remove console comments
 	    //hash the message
 	    var hashedMessage = sha256String(message); //base 16 encoded string
-//	    console.log("hash: " + hashedMessage)
 	    //Create a BigInteger with the hashedMessage
 	    var messageBigInt = leemon.str2bigInt(hashedMessage, 16);
 	    //Computes the new BigInt modulo n since RSA message space in between 0 and n-1
 	    var messageBigIntMod = leemon.mod(messageBigInt, modulo);
-//	    console.log("messageBigIntMod: " + leemon.bigInt2str(messageBigIntMod, 10));
-//	    console.log("n: " + leemon.bigInt2str(modulo, 10));
-//	    console.log("pk: " + leemon.bigInt2str(vk, 10));
-//	    console.log("sig oth in: " + message);
 	    leemon.powModAsync(messageBigIntMod, sk, modulo, updateCb, doneCb);
-
 	}
 
 	////////////////////////////////////////////////////////////////////////
 	// Secret key enc- and decryption
+	////////////////////////////////////////////////////////////////////////
+	
 	/**
 	 * Encrypts a secret key. The key is padded with PRIVATE_KEY_PREFIX/-POSTFIX
 	 * before it is encrypted using a one-time-pad (of the size PRIVATE_KEY_ONE_TIME_PAD_SIZE).
@@ -518,6 +634,7 @@
 
 	////////////////////////////////////////////////////////////////////////
 	// Vote and ballot cryptography
+	////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Encodes a vote.
@@ -771,6 +888,10 @@
 
 	    this.NIZKPAsync(elgamal.p, elgamal.q, elgamal.g, r, a, leemon.bigInt2str(vk, 10), nizkpDoneCb, updateCb);
 	}
+	
+	////////////////////////////////////////////////////////////////////////
+	// Post signatures crypto
+	////////////////////////////////////////////////////////////////////////
 
 	/*
 	 * Signs a ballot: S = Sign_sk(id||E||pi) using electionGenerator.
@@ -785,56 +906,60 @@
 	 */
 	this.signPost = function(post, generator, sk) {
 
-	    // 1. Hash post
+	    //Hash post
 	    var postHash = this.hashPost(post, false, false);
+	    
+	    var paired = this.createSchnorrSignature(postHash, sk, schnorr.p, schnorr.q, generator)
 
-	    // 2. Choose r at random from Zq and calculate g^r
-	    var r = leemon.randBigIntInZq(schnorr.q);
-	    var a2 = leemon.powMod(generator, r, schnorr.p);
-
-	    // 3. Hash and calculate second part of signature
-	    var a2Hash = sha256BigInt(a2);
-	    var aStr = sha256HexStr(postHash + a2Hash);
-	    //TODO compute mod p or mod q ???
-	    var a = leemon.str2bigInt(aStr, 16, 1);
-	    var b = leemon.sub(schnorr.q, leemon.multMod(a, sk, schnorr.q));
-	    b = leemon.mod(leemon.add(r, b), schnorr.q);
-
-	    // 4. Create return object
-	    var sign = {a: a, b: b};
-
-	    return sign;
+	    return {sig: paired, sigString: leemon.bigInt2str(paired,10)};
 	}
 
-	/**
-	 * Asynchronous version of signBallot.
-	 **/
-	//TODO adapt to synchronous version
-	this.signPostAsync = function(post, generator, sk, doneCb, updateCb) {
+	this.verifyResultSignature = function(resultContainer, posterSetting, verifyPosterSignature, callback) {
+	    //1. Verify ResultContainer signature
+	    //Currently this signature is not checked since most of the time, the result container contains only
+	    //one post, so checking the post signature is sufficient
 
-	    // step 2
-//	    var step2 = function(_a2) {
-//
-//		// 3. Hash and calculate second part of signature
-//		var aStr = SHA256(m + CONCAT_SEPARATOR + leemon.bigInt2str(_a2, 10));
-//		var a = leemon.str2bigInt(aStr, 16, 1);
-//		var b = leemon.sub(schnorr.q, leemon.multMod(a, sk, schnorr.q));
-//		b = leemon.mod(leemon.add(r, b), schnorr.q);
-//
-//		// 4. Create return object
-//		var sign = {a: a, b: b};
-//
-//		doneCb(sign);
-//	    }
-//
-//	    // Start with step 1
-//	    // 1. Concat m
-//	    var m = preparePostForSignature(post);
-//
-//	    // 2. Choose r at random from Zq and calculate g^r
-//	    var r = leemon.randBigIntInZq(schnorr.q);
-//	    leemon.powModAsync(generator, r, schnorr.p, updateCb, step2);
+	    //2. Verify board signature of each Post
+	    var posts = resultContainer.result.post;
+	    for (var i = 0; i < posts.length; i++) {
+		var post = posts[i];
+
+		var postHash = this.hashPost(post, true, false);
+		if (!this.verifySchnorrSignature(
+			leemon.str2bigInt(post.beta.attribute[2].value.value,10), 
+			postHash,
+			leemon.str2bigInt(uvConfig.BOARD_SETTING.PK,10),
+			leemon.str2bigInt(uvConfig.BOARD_SETTING.P,10),
+			leemon.str2bigInt(uvConfig.BOARD_SETTING.Q,10),
+			leemon.str2bigInt(uvConfig.BOARD_SETTING.G,10))) {
+		    throw "Wrong board signature in post " + i;
+		}
+
+	    }
+	    
+	    if (verifyPosterSignature == true) {
+		//3. Verify poster signature of each Post
+		for (var i = 0; i < posts.length; i++) {
+		    var post = posts[i];
+
+		    var postHash = this.hashPost(post, false, false);
+		    if (!this.verifySchnorrSignature(
+			    leemon.str2bigInt(post.alpha.attribute[2].value.value,10),
+			    postHash, 
+			    leemon.str2bigInt(posterSetting.PK,10),
+			    leemon.str2bigInt(posterSetting.P,10),
+			    leemon.str2bigInt(posterSetting.Q,10),
+			    leemon.str2bigInt(posterSetting.G,10))) {
+			throw "Wrong poster signature in post " + i;
+		    }
+		}
+	    }
+
+	    return true;
+
 	}
+	
+	
 
 	/**
 	 * Helper method computing the hash value of a post
@@ -849,16 +974,17 @@
 	this.hashPost = function(post, includeBeta, includeBetaSignature) {
 	    //Get message and alpha attributes
 	    var message = post.message;
-
+	    
 	    //TODO see if needed in final version
 	    var alpha = JSON.parse(JSON.stringify(post.alpha.attribute).replace(/@/g, ""));
 
 
 	    var messageHash = sha256String(B64.decode(message));
-
+	    
 	    var concatenatedAlphaHashes = ""
 	    for (var i = 0; i < alpha.length; i++) {
 		var attribute = alpha[i];
+		
 		if ((attribute.key === "signature" || attribute.key === "publickey") && includeBeta == false) {
 		    //If includeBeta==false, we are checking or generating signature of poster (AccessControlled),
 		    //thus signature and key of post itself must not be included
@@ -866,6 +992,7 @@
 		    //thus signature and key must be included
 		    continue;
 		}
+		console.log(JSON.stringify(attribute.key))
 		if (attribute.value.type === "stringValue") {
 		    concatenatedAlphaHashes += sha256String(attribute.value.value);
 		} else if (attribute.value.type === "integerValue") {
@@ -879,10 +1006,9 @@
 		}
 	    }
 	    var alphaHash = sha256HexStr(concatenatedAlphaHashes);
-
-	    var betaHash = "";
+	    
 	    if (includeBeta) {
-
+		var betaHash = "";
 		var beta = JSON.parse(JSON.stringify(post.beta.attribute).replace(/@/g, ""));
 		var concatenatedBetaHashes = ""
 		for (var i = 0; i < beta.length; i++) {
@@ -908,171 +1034,21 @@
 		    }
 		}
 		betaHash = sha256HexStr(concatenatedBetaHashes);
+		 return sha256HexStr(messageHash + alphaHash + betaHash);
 	    } else {
-		betaHash = sha256HexStr("");
+		 return sha256HexStr(messageHash + alphaHash);
 	    }
 
-	    return sha256HexStr(messageHash + alphaHash + betaHash);
+	   
 	}
 
-	/**
-	 * Helper method computing the hash value of a result container
-	 *
-	 * @param resultContainer - The result container to hash
-	 * @return The hash value of the result container.
-	 */
-//	this.hashResultContainer = function(resultContainer) {
-//	    var result = resultContainer.result;
-//	    var gamma = resultContainer.gamma;
-//	    var posts = result.post;
-//
-//	    //Compute hash of all the posts contained in the resultContainer received
-//	    var concatenatedPostHashes = "";
-//	    for (var i = 0; i < posts.length; i++) {
-//		//in the signature of the whole ResultContainer, all the beta attributes are taken into account
-//		//inclusive the board signature (CertifiedPosting) present in beta attributes
-//		concatenatedPostHashes += this.hashPost(posts[i], true, true);
-//	    }
-//
-//	    var postsHash = sha256HexStr(concatenatedPostHashes);
-//
-//	    var timestampHash = sha256Date(new Date(gamma.attribute[0].value.value));
-//
-//	    //is this result hashed directly with postsHash or is it hashed once more on gamma level?
-//	    return sha256HexStr(postsHash + timestampHash);
-//
-//	}
+	
 
 
-	////////////////////////////////////////////////////////////////////////
-	// Verify Signature of election data
-
-	/*
-	 * Verifies signature of election data asynchronously.
-	 * (eid|description|(choice1|choice2)|(rule1|rule2)|p|q|g|encryptionKey|electionG)
-	 *
-	 * @param electionData - The election data as univote_bfh_ch_common_electionData
-	 * @param callback - The callback passing true if signature is correct, false otherwise.
-	 */
-	this.verifyResultSignature = function(resultContainer, posterSetting, verifyPosterSignature, callback) {
-	    //1. Verify ResultContainer signature
-//	    var resultContainerHash = this.hashResultContainer(resultContainer);
-
-	    //TODO verify board signature
-//	    if(! this.verifySignature(resultContainer.gamma.attribute[1].value.value, resultContainerHash, uvConfig.BOARD_SETTING)){
-//		throw "Wrong board signature for result container";
-//	    }
-
-	    //2. Verify board signature of each Post
-	    var posts = resultContainer.result.post;
-	    for (var i = 0; i < posts.length; i++) {
-		var post = posts[i];
-
-		var postHash = this.hashPost(post, true, false);
-
-		if (!this.verifySignature(post.beta.attribute[2].value.value, postHash, uvConfig.BOARD_SETTING)) {
-		    throw "Wrong board signature in post " + i;
-		}
-
-	    }
-
-	    if (verifyPosterSignature == true) {
-		//3. Verify poster signature of each Post
-		for (var i = 0; i < posts.length; i++) {
-		    var post = posts[i];
-
-		    var postHash = this.hashPost(post, false, false);
-		    if (!this.verifySignature(post.alpha.attribute[2].value.value, postHash, posterSetting)) {
-			throw "Wrong poster signature in post " + i;
-		    }
-		}
-	    }
-
-	    return true;
-	    //callback(true);
-
-	}
-	/**
-	 * 
-	 * @param {type} signature signature values comma separated
-	 * @param {type} messageHash hash of the message signed
-	 * @param {type} signatureSetting signature setting of the signer (P, Q, G, and public key)
-	 * @returns {undefined}
-	 */
-	this.verifySignature = function(signature, messageHash, signatureSetting) {
-//	    console.log(signature)
-	    var signatureValues = this.unpair(leemon.str2bigInt(signature, 10));//signature.split(",");
-
-//	    console.log("Hash: " + messageHash)
-
-	    var a = signatureValues[1];
-	    var b = signatureValues[0];
-//	    console.log("a: "+leemon.bigInt2str(signatureValues[1], 10))
-//	    console.log("b: "+leemon.bigInt2str(signatureValues[0], 10))
-//	    console.log("Sig a: " + leemon.bigInt2str(a, 10))
-//	    console.log("Sig b: " + leemon.bigInt2str(b, 10))
-//
-//	    console.log("g: " + signatureSetting.G)
-//	    console.log("p: " + signatureSetting.P)
-//	    console.log("q: " + signatureSetting.Q)
-//	    console.log("pk: " + signatureSetting.PK)
-	    var c = leemon.powMod(leemon.str2bigInt(signatureSetting.G, 10), a, leemon.str2bigInt(signatureSetting.P, 10));
-	    var d = leemon.powMod(leemon.str2bigInt(signatureSetting.PK, 10), b, leemon.str2bigInt(signatureSetting.P, 10));
-//	    console.log("c: " + leemon.bigInt2str(c, 10))
-//	    console.log("d: " + leemon.bigInt2str(d, 10))
-	    var a2Verif = leemon.multMod(c, leemon.inverseMod(d, leemon.str2bigInt(signatureSetting.P, 10)), leemon.str2bigInt(signatureSetting.P, 10));
-//	    console.log("a2Verif: " + leemon.bigInt2str(a2Verif, 10))
-	    var bVerif = sha256HexStr(messageHash + sha256BigInt(a2Verif));
-//	    console.log("bVerif: " + bVerif)
-//	    console.log("b: "+b)
-//	    console.log("b verif 10: "+leemon.bigInt2str(leemon.mod(leemon.str2bigInt(bVerif, 16),leemon.str2bigInt(signatureSetting.Q,10)),10))
-//	    console.log("b verif: "+leemon.mod(leemon.str2bigInt(bVerif, 16, 1),signatureSetting.Q))
-	    return leemon.equals(b, leemon.mod(leemon.str2bigInt(bVerif, 16), leemon.str2bigInt(signatureSetting.Q, 10)));
-
-
-	}
-
-	this.pair = function(bigInt1, bigInt2) {
-	    var one = leemon.str2bigInt("1", 10);
-	    if (leemon.greater(bigInt2, bigInt1) || leemon.equals(bigInt2, bigInt1)) {
-		return leemon.add(leemon.mult(bigInt2, bigInt2), one);
-	    } else {
-		return leemon.add(leemon.add(leemon.mult(bigInt1, bigInt1), bigInt1), bigInt2);
-	    }
-	}
-
-	this.unpair = function(bigInt) {
-	    var x1 = this.isqrt(bigInt);
-	    var x2 = leemon.sub(bigInt, leemon.mult(x1, x1));
-
-	    if (leemon.greater(x1, x2)) {
-		return [x2, x1];
-	    } else {
-		return [x1, leemon.sub(x2, x1)];
-	    }
-	}
-
-	// This is a private helper method to compute the integer square root of a BigInteger value.
-	this.isqrt = function(bigInt) {
-	    var one = leemon.str2bigInt("1", 10);
-	    var a = one;
-
-	    var b = leemon.add(leemon.rightShift(bigInt, 5), leemon.str2bigInt("8", 10));
-
-	    while (leemon.greater(b, a) || leemon.equals(b, a)) {
-
-		var mid = leemon.rightShift(leemon.add(a, b), 1);
-		var square = leemon.mult(mid, mid);
-
-
-		if (leemon.greater(square, bigInt)) {
-		    b = leemon.sub(mid, one);
-		} else {
-		    a = leemon.add(mid, one);
-		}
-	    }
-	    return leemon.sub(a, one);
-	};
+	
+	
+	
+	
 
     }
 

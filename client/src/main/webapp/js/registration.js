@@ -46,10 +46,17 @@ var elements = {};
 
 var msgName;
 
+/*********************************************************************************************************************/
+/*                                                 INITIALISATIONS                                                   */
+/*********************************************************************************************************************/
+
 /**
  * Initialisation on document ready.
  */
 $(document).ready(function() {
+    
+    // Block UI while processing
+    $.blockUI({message: '<p id="blockui-processing">' + msg.processing + '.</p>'});
 
     // Get voter data
     requester.id = document.getElementById('requester-id');
@@ -89,21 +96,6 @@ $(document).ready(function() {
     elements.retreiveSecretKeyButton = document.getElementById('retreive_secretkey_bu');
     elements.generateKeyButton = document.getElementById('generate_key_bu');
 
-    // Register events (button's onclick are registered inline)
-    $(elements.secretKey).click(function() {
-	this.select();
-    })
-    $([elements.password, elements.password2]).keyup(function() {
-	checkPasswords()
-    });
-
-    init();
-
-
-
-});
-
-function init() {
     elements.retreiveSecretKeyButton.disabled = true;
     elements.password.disabled = true;
     elements.password2.disabled = true;
@@ -111,10 +103,33 @@ function init() {
     elements.role.disabled = true;
     elements.identity_function.disabled = true;
     elements.generateKeyButton.disabled = true;
+    
+    //initialize fields
     secretKey = null;
     publicKey = null;
     modulo = null;
     elements.secretKey.value = "";
+    
+    // Register events (button's onclick are registered inline)
+    $(elements.secretKey).click(function() {
+	this.select();
+    })
+    $([elements.password, elements.password2]).keyup(function() {
+	checkPasswords()
+    });
+    
+    
+    retrieveData();
+
+});
+
+/**
+ * Retrieves parameters set in UniCert (asynchronously).
+ * If UniCert is on another domain, IE9 will not be able to retrieve the data
+ * IE9 does not support cross domain ajax request.
+ * JSONP could be a solution only if it is possible to send session id with it
+ */
+function retrieveData() {
 
     $.ajax({
 	url: "https://urd.bfh.ch/unicert-authentication/parameters/",
@@ -141,12 +156,13 @@ function init() {
 		return;
 	    }
 
+	    //Fills personal fields
 	    requester.idp.value = data.idp;
 	    requester.id.value = data.uniqueUserId;
 	    requester.email.value = data.email;
 	    $(elements.mail).html(data.email);
 
-
+	    //Construct with data received
 	    if (requester.idp.value == "SwitchAAI") {
 		elements.identity_function.remove(4);
 		elements.identity_function.remove(3);
@@ -236,7 +252,7 @@ function init() {
 	    }
 
 	},
-	error: function(data) {
+	error: function() {
 	    $.unblockUI();
 	    $.blockUI({message: '<p>' + msg.dataRetrievalError + '</p>'});
 	    setTimeout(function() {
@@ -245,13 +261,11 @@ function init() {
 	}
     });
 
-    // Block UI while processing
-    $.blockUI({message: '<p id="blockui-processing">' + msg.processing + '.</p>'});
 }
 
-function hasClass(element, cls) {
-    return ('' + element.className).indexOf('' + cls) > -1;
-}
+/*********************************************************************************************************************/
+/*                                                PROCESS FUNCTIONS                                                  */
+/*********************************************************************************************************************/
 
 function updateKeysOptions() {
     if (elements.cryptoSetupType.value === "RSA") {
@@ -503,6 +517,32 @@ function completeCertRequest(byMail) {
     }
 }
 
+
+/**
+ * Goes to step 3
+ */
+function gotoStep3() {
+    // Update progress bar
+    $(elements.step2).removeClass("active");
+    $(elements.step3).addClass("active");
+
+    // Show the certificate content
+    $(elements.step2content).addClass("hidden");
+    $(elements.step3content).removeClass("hidden");
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+}
+
+/*********************************************************************************************************************/
+/*                                          CERTIFICATE REQUEST FUNCTIONS                                            */
+/*********************************************************************************************************************/
+/**
+ * If UniCert is on another domain, IE9 will not be able to send the certificate request over ajax
+ * IE9 does not support cross domain ajax request.
+ * JSONP is not usable here since a POST HTTP request must be send, and JSONP only supports HTTP GET
+ */
+
 /**
  * Creates an RSA certificate by sending (asynchronously) the verification key 
  * (base 10 encoded) to the CA.
@@ -661,24 +701,6 @@ function retreiveSecretKeyByMail(skC, doneCb, errorCb) {
 	error: errorCb
     });
 }
-
-
-/**
- * Goes to step 3
- */
-function gotoStep3() {
-    // Update progress bar
-    $(elements.step2).removeClass("active");
-    $(elements.step3).addClass("active");
-
-    // Show the certificate content
-    $(elements.step2content).addClass("hidden");
-    $(elements.step3content).removeClass("hidden");
-
-    // Scroll to top
-    window.scrollTo(0, 0);
-}
-
 
 /**
  * Inspects the cert. Blocks the UI and displays the content of the cert.

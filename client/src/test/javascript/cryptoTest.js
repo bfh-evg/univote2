@@ -313,3 +313,24 @@ describe('pairing Tests', function () {
 	expect(!leemon.equals(unpaired[0],b));
     });
 });
+
+describe('Schnorr signature tests', function () {
+    it('sign and verify', function () {
+	
+	var messageHash = sha256String("Message");
+	
+	var p = leemon.str2bigInt(uvConfig.SCHNORR.P, 10, 1);
+	var q = leemon.str2bigInt(uvConfig.SCHNORR.Q, 10, 1);
+	var g = leemon.str2bigInt(uvConfig.SCHNORR.G, 10, 1);
+	
+	//generate random secret key
+	var sk = uvCrypto.generateDLOGSecretKey(q);
+	// Compute verification key based on secret key
+	var pk = uvCrypto.computeVerificationKey(p, g, sk);
+	
+	var sig = uvCrypto.createSchnorrSignature(messageHash, sk, p, q, g);
+	var result = uvCrypto.verifySchnorrSignature(sig, messageHash, pk, p, q, g);
+        
+	expect(result==1);
+    });
+});

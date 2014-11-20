@@ -17,7 +17,6 @@
 //-------------------------------------
 window.uvConfig = window.uvConfig || {};
 
-
 var CLASS_NAME_VOTE = "Vote";
 var CLASS_NAME_CANDIDATE_ELECTION = "CandidateElection";
 var CLASS_NAME_PARTY_ELECTION = "PartyElection";
@@ -127,7 +126,7 @@ var noList = false;
  * Initialisation on document ready.
  */
 $(document).ready(function() {
-
+    
     // Get DOM elements
     elements.step1 = document.getElementById('step_1');
     elements.step2 = document.getElementById('step_2');
@@ -179,6 +178,7 @@ $(document).ready(function() {
 	$(elements.skUploadFile).hide();
 	$(elements.skUploadManually).show();
     }
+
 });
 
 /**
@@ -333,6 +333,11 @@ function processFatalError(errorMsg) {
 
 /**
  * Retrieves election data from Board (asynchronously).
+ * If Board is on another domain, IE9 will not be able to retrieve the data
+ * IE9 does not support cross domain ajax request.
+ * JSONP would be a solution, but it only allows HTTP GET and HTTP POST is required for the 
+ * REST Service of the Board.
+ *
  */
 function retrieveElectionData() {
 
@@ -340,7 +345,7 @@ function retrieveElectionData() {
     var queryJson = '{"constraint": [{"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "section" ]},"value": {"@type": "stringValue","value": "' + electionId + '"}}, {"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "group" ]},"value": {"@type": "stringValue","value": "electionData"}}]}';
 
     $.ajax({
-	url: uvConfig.URL_UNIBOARD,
+	url: uvConfig.URL_UNIBOARD_GET,
 	type: 'POST',
 	contentType: "application/json",
 	accept: "application/json",
@@ -360,7 +365,7 @@ function retrieveElectionData() {
 		return;
 	    } else if (posts.length > 1) {
 		//multiple posts received, the last one is the right one
-		post = posts[posts.lenght - 1];
+		post = posts[posts.length - 1];
 	    } else {
 		post = posts[0];
 	    }
@@ -390,7 +395,6 @@ function retrieveElectionData() {
 		processFatalError(msg.incompatibleDataReceived);
 		return;
 	    }
-
 	    // Check signatures of retrieved post
 	    try{
 		//Signature of ResultContainer (certified read is not checked, since the one post contained in the ResultContainer
@@ -403,6 +407,7 @@ function retrieveElectionData() {
 	    }
 	},
 	error: function() {
+
 	    processFatalError(msg.retreiveElectionDataError);
 	}
     });

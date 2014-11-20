@@ -25,8 +25,8 @@
 		/**
 		 * The url of the public board.
 		 */
-		this.URL_UNIBOARD			= 'http://localhost:8080/uniboard/messages/query';
-
+		this.URL_UNIBOARD_GET			= 'http://localhost:8080/bfh-restservice-mock/messages/query';
+		this.URL_UNIBOARD_POST			= 'http://localhost:8080/bfh-restservice-mock/messages/post';
 
 		/**
 		 * The home site.
