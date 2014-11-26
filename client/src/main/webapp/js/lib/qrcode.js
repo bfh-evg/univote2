@@ -85,41 +85,41 @@ var qrcode = function() {
 			mapData(_dataCache, maskPattern);
 		};
 		
-		var makeImplAsync = function(test, maskPattern, callback, errorCb) {
-
-			_moduleCount = _typeNumber * 4 + 17;
-			_modules = function(moduleCount) {
-				var modules = new Array(moduleCount);
-				for (var row = 0; row < moduleCount; row += 1) {
-					modules[row] = new Array(moduleCount);
-					for (var col = 0; col < moduleCount; col += 1) {
-						modules[row][col] = null;
-					}
-				}
-				return modules;
-			}(_moduleCount);
-
-			setupPositionProbePattern(0, 0);
-			setupPositionProbePattern(_moduleCount - 7, 0);
-			setupPositionProbePattern(0, _moduleCount - 7);
-			setupPositionAdjustPattern();
-			setupTimingPattern();
-			setupTypeInfo(test, maskPattern);
-
-			if (_typeNumber >= 7) {
-				setupTypeNumber(test);
-			}
-
-			if (_dataCache == null) {
-				try {
-					_dataCache = createData(_typeNumber, _errorCorrectLevel, _dataList);
-				} catch(e) {
-					errorCb();
-				}
-			}
-			
-			mapDataAsync(_dataCache, maskPattern, callback);
-		};
+//		var makeImplAsync = function(test, maskPattern, callback, errorCb) {
+//
+//			_moduleCount = _typeNumber * 4 + 17;
+//			_modules = function(moduleCount) {
+//				var modules = new Array(moduleCount);
+//				for (var row = 0; row < moduleCount; row += 1) {
+//					modules[row] = new Array(moduleCount);
+//					for (var col = 0; col < moduleCount; col += 1) {
+//						modules[row][col] = null;
+//					}
+//				}
+//				return modules;
+//			}(_moduleCount);
+//
+//			setupPositionProbePattern(0, 0);
+//			setupPositionProbePattern(_moduleCount - 7, 0);
+//			setupPositionProbePattern(0, _moduleCount - 7);
+//			setupPositionAdjustPattern();
+//			setupTimingPattern();
+//			setupTypeInfo(test, maskPattern);
+//
+//			if (_typeNumber >= 7) {
+//				setupTypeNumber(test);
+//			}
+//
+//			if (_dataCache == null) {
+//				try {
+//					_dataCache = createData(_typeNumber, _errorCorrectLevel, _dataList);
+//				} catch(e) {
+//					errorCb();
+//				}
+//			}
+//			
+//			mapDataAsync(_dataCache, maskPattern, callback);
+//		};
 
 		var setupPositionProbePattern = function(row, col) {
 
@@ -162,38 +162,38 @@ var qrcode = function() {
 			return pattern;
 		};
 		
-		var getBestMaskPatternAsync = function(callback, errorCb) {
-
-			var minLostPoint = 0;
-			var pattern = 0;
-
-			var yy = function(i, callback){
-				try {
-					makeImpl(true, i);
-
-					var lostPoint = QRUtil.getLostPoint(_this);
-
-					if (i == 0 || minLostPoint > lostPoint) {
-						minLostPoint = lostPoint;
-						pattern = i;
-					}
-					callback(i);
-				} catch(e) {
-					errorCb();
-				}
-			}; 
-			
-			var xx = function(i) {
-				i += 1;
-				if ( i < 8 ) {
-					setTimeout(function(){yy(i, xx);}, 10);
-				} else {
-					callback(pattern);
-				}
-			};
-			
-			setTimeout(function(){yy(0, xx);}, 10);
-		};
+//		var getBestMaskPatternAsync = function(callback, errorCb) {
+//
+//			var minLostPoint = 0;
+//			var pattern = 0;
+//
+//			var yy = function(i, callback){
+//				try {
+//					makeImpl(true, i);
+//
+//					var lostPoint = QRUtil.getLostPoint(_this);
+//
+//					if (i == 0 || minLostPoint > lostPoint) {
+//						minLostPoint = lostPoint;
+//						pattern = i;
+//					}
+//					callback(i);
+//				} catch(e) {
+//					errorCb();
+//				}
+//			}; 
+//			
+//			var xx = function(i) {
+//				i += 1;
+//				if ( i < 8 ) {
+//					setTimeout(function(){yy(i, xx);}, 10);
+//				} else {
+//					callback(pattern);
+//				}
+//			};
+//			
+//			setTimeout(function(){yy(0, xx);}, 10);
+//		};
 
 		var setupTimingPattern = function() {
 
@@ -346,70 +346,70 @@ var qrcode = function() {
 			}
 		};
 		
-		var mapDataAsync = function(data, maskPattern, callback) {
-
-			var inc = -1;
-			var row = _moduleCount - 1;
-			var bitIndex = 7;
-			var byteIndex = 0;
-			var maskFunc = QRUtil.getMaskFunction(maskPattern);
-			
-			var xx = function(col, cb) {
-				while (true) {
-
-					for (var c = 0; c < 2; c += 1) {
-
-						if (_modules[row][col - c] == null) {
-
-							var dark = false;
-
-							if (byteIndex < data.length) {
-								dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
-							}
-
-							var mask = maskFunc(row, col - c);
-
-							if (mask) {
-								dark = !dark;
-							}
-
-							_modules[row][col - c] = dark;
-							bitIndex -= 1;
-
-							if (bitIndex == -1) {
-								byteIndex += 1;
-								bitIndex = 7;
-							}
-						}
-					}
-
-					row += inc;
-
-					if (row < 0 || _moduleCount <= row) {
-						row -= inc;
-						inc = -inc;
-						break;
-					}
-				}
-				cb(col);
-			}
-			
-			
-			var yy = function(col) {
-				col -= 2;
-				if ( col > 0 ) {
-					if (col == 6) col -= 1;
-					setTimeout(function(){xx(col, yy)}, 10);
-				} else {
-					callback();
-				}
-			}
-			
-			var col = _moduleCount - 1;
-			if (col == 6) col -= 1;
-			setTimeout(function(){xx(col, yy)}, 10);
-			
-		};
+//		var mapDataAsync = function(data, maskPattern, callback) {
+//
+//			var inc = -1;
+//			var row = _moduleCount - 1;
+//			var bitIndex = 7;
+//			var byteIndex = 0;
+//			var maskFunc = QRUtil.getMaskFunction(maskPattern);
+//			
+//			var xx = function(col, cb) {
+//				while (true) {
+//
+//					for (var c = 0; c < 2; c += 1) {
+//
+//						if (_modules[row][col - c] == null) {
+//
+//							var dark = false;
+//
+//							if (byteIndex < data.length) {
+//								dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
+//							}
+//
+//							var mask = maskFunc(row, col - c);
+//
+//							if (mask) {
+//								dark = !dark;
+//							}
+//
+//							_modules[row][col - c] = dark;
+//							bitIndex -= 1;
+//
+//							if (bitIndex == -1) {
+//								byteIndex += 1;
+//								bitIndex = 7;
+//							}
+//						}
+//					}
+//
+//					row += inc;
+//
+//					if (row < 0 || _moduleCount <= row) {
+//						row -= inc;
+//						inc = -inc;
+//						break;
+//					}
+//				}
+//				cb(col);
+//			}
+//			
+//			
+//			var yy = function(col) {
+//				col -= 2;
+//				if ( col > 0 ) {
+//					if (col == 6) col -= 1;
+//					setTimeout(function(){xx(col, yy)}, 10);
+//				} else {
+//					callback();
+//				}
+//			}
+//			
+//			var col = _moduleCount - 1;
+//			if (col == 6) col -= 1;
+//			setTimeout(function(){xx(col, yy)}, 10);
+//			
+//		};
 		
 
 		var createBytes = function(buffer, rsBlocks) {
@@ -552,11 +552,11 @@ var qrcode = function() {
 			makeImpl(false, getBestMaskPattern() );
 		};
 		
-		_this.makeAsync = function(callback, errorCb) {
-			getBestMaskPatternAsync(function(x){
-				makeImplAsync(false, x, callback, errorCb);
-			}, errorCb);
-		};
+//		_this.makeAsync = function(callback, errorCb) {
+//			getBestMaskPatternAsync(function(x){
+//				makeImplAsync(false, x, callback, errorCb);
+//			}, errorCb);
+//		};
 
 		_this.createTableTag = function(cellSize, margin) {
 

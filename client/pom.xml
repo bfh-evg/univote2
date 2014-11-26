@@ -134,7 +134,7 @@
 		    <jsSrcDir>${project.basedir}/src/main/webapp/js</jsSrcDir>
 		    <sourceIncludes>
 			<include>lib/base64.js</include>
-			<include>lib/sha.js</include>
+			<include>lib/sha256.js</include>
 			<include>lib/MapClass.js</include>
 			<include>lib/leemon.js</include>
 			<include>lib/jquery-1.7.2.min.js</include>

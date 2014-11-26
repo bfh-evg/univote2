@@ -26,7 +26,6 @@
 	<ui:define name="head_include_js">
 		<script type="text/javascript" src="js/lib/leemon.js"></script>
 		<script type="text/javascript" src="js/lib/base64.js"></script>
-		<script type="text/javascript" src="js/lib/sha.js"></script>
 				
 		<script type="text/javascript" src="js/univote-random.js"></script>
 		<script type="text/javascript" src="js/univote-util.js"></script>
@@ -63,11 +62,10 @@
 			
 			<h3 class="">#{msg.registrationTitle}</h3>
 			<p class="block"><h:outputText value="#{msg.registrationText}" escape="false" /></p>
-			<p class="block spacer0"><a href="https://urd.bfh.ch/unicert-authentication/authenticate?params=univote-idf1-r1-switch-dsa&amp;returnlocation=https://urd.bfh.ch/voting-client2/registration.xhtml" class="raquo">#{msg.goRegister}</a></p>
-			<!-- https://urd.bfh.ch/voting-client2/registration.xhtml -->
+			<p class="block spacer0"><a href="https://urd.bfh.ch/unicert-authentication/authenticate?params=uv-vsbfh&amp;returnlocation=https://urd.bfh.ch/voting-client2/registration.xhtml" class="raquo">#{msg.goRegister}</a></p>			<!-- https://urd.bfh.ch/voting-client2/registration.xhtml -->
+			<p class="block spacer0"><a href="https://urd.bfh.ch/unicert-authentication/authenticate?returnlocation=https://urd.bfh.ch/voting-client2/registration.xhtml" class="raquo">#{msg.goRegister} Default</a></p>
 			<h3 class="">#{msg.votingeventsTitle}</h3>
 			<p class="block">#{msg.votingeventsText}</p>
-			
 			<div id="loadingElections" class="block votingevents">#{msg.loadingElections}</div>
 			
 			<div id="currentElections" class="hidden">

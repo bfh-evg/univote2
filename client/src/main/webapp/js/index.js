@@ -12,6 +12,17 @@
  * This file contains the index-page specific JS. 
  * 
  */
+// Check for configuration, if it is missing
+// an error message is displayed at the top of the page.
+if (!uvConfig) {
+    window.onload = function () {
+	var body = document.getElementsByTagName('body')[0];
+	var errorDiv = document.createElement('div');
+	errorDiv.setAttribute('style', 'background-color:red; z-index:1000; position:absolute; top:0; left: 0; width: 100%; height:50px; text-align:center; font-weight:bold; padding-top: 20px;');
+	errorDiv.innerHTML = "<p>" + msg.missingConfig + "</p>";
+	body.appendChild(errorDiv);
+    }
+}
 
 /** 
  * Holds the used DOM elements. 
@@ -78,13 +89,19 @@ $(document).ready(function() {
  * Retrieves election definition from Board (asynchronously).
  * If Board is on another domain, IE9 will not be able to retrieve the data
  * IE9 does not support cross domain ajax request.
- * JSONP would be a solution, but it only allows HTTP GET and HTTP POST is required for the 
+ * JSONP would be a solution, but it only allows HTTP GET, while HTTP POST is required for the 
  * REST Service of the Board.
  */
 function retrieveElections() {
 
-    var queryJson = '{"constraint": [{"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "section" ]},"value": {"@type": "stringValue","value": ""}}, {"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "group" ]},"value": {"@type": "stringValue","value": "electionDefinition"}}]}';
+    var queryJson = '{"constraint": [{"type": "equal","identifier": {"type": "alphaIdentifier","part": [ "section" ]},"value": {"type": "stringValue","value": ""}}, {"type": "equal","identifier": {"type": "alphaIdentifier","part": [ "group" ]},"value": {"type": "stringValue","value": "electionDefinition"}}]}';
 
+    var update = setInterval(function(){$(elements.loadingElections).append("."); }, 1000);
+    
+    //For IE
+    $.support.cors = true;
+    
+    //Ajax request
     $.ajax({
 	url: uvConfig.URL_UNIBOARD_GET,
 	type: 'POST',
@@ -96,6 +113,8 @@ function retrieveElections() {
 	timeout: 10000,
 	crossDomain: true,
 	success: function(resultContainer) {
+	    clearInterval(update);
+	    
 	    var lang = document.getElementById('language').value.toLowerCase();
 
 	    //Signature of result is not verified since the data that is displayed here is not really sensitive 
@@ -137,7 +156,8 @@ function retrieveElections() {
 		$(elements.loadingElections).html(msg.noElections);
 	    }
 	},
-	error: function(msg) {
+	error: function(errormsg) {
+	    clearInterval(update);
 	    $(elements.loadingElections).html(msg.retreiveElectionDefinitionError);
 	}
     });

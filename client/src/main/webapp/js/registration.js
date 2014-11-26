@@ -13,38 +13,42 @@
  *
  */
 
-// Configuration.
-//-------------------------------------
-window.uvConfig = window.uvConfig || {};
+// Check for configuration, if it is missing
+// an error message is displayed at the top of the page.
+if (!uvConfig) {
+    window.onload = function () {
+	var body = document.getElementsByTagName('body')[0];
+	var errorDiv = document.createElement('div');
+	errorDiv.setAttribute('style', 'background-color:red; z-index:1000; position:absolute; top:0; left: 0; width: 100%; height:50px; text-align:center; font-weight:bold; padding-top: 20px;');
+	errorDiv.innerHTML = "<p>" + msg.missingConfig + "</p>";
+	body.appendChild(errorDiv);
+    }
+}
+
+var SEPARATOR = uvConfig.CONCAT_SEPARATOR;
+
+var RSA = "RSA"
+var DLOG = "DiscreteLog"
 
 /**
- * Home site.
- */
-var HOME_SITE = uvConfig.HOME_SITE || 'index.xhtml';
-var SEPARATOR = uvConfig.CONCAT_SEPARATOR || '|';
-var URL_CERTIFICATE_AUTHORITY = uvConfig.URL_CERTIFICATE_AUTHORITY || 'https://urd.bfh.ch/unicert-authentication/certificate-request/';
-//-------------------------------------
-
-
-/**
- * Holds voter data like id, email and whether it is a renewal.
+ * Holds voter data like id, email
  */
 var requester = {};
 
+/**
+ * Hold cryptographic properties
+ */
 var publickey;
 var secretKey;
 var modulo;
 var p, q, g;
-
-var type = "";
-var size;
+var keyType = "";
 
 /**
  * Holds the used DOM elements.
  */
 var elements = {};
 
-var msgName;
 
 /*********************************************************************************************************************/
 /*                                                 INITIALISATIONS                                                   */
@@ -53,8 +57,8 @@ var msgName;
 /**
  * Initialisation on document ready.
  */
-$(document).ready(function() {
-    
+$(document).ready(function () {
+
     // Block UI while processing
     $.blockUI({message: '<p id="blockui-processing">' + msg.processing + '.</p>'});
 
@@ -103,22 +107,22 @@ $(document).ready(function() {
     elements.role.disabled = true;
     elements.identity_function.disabled = true;
     elements.generateKeyButton.disabled = true;
-    
+
     //initialize fields
     secretKey = null;
     publicKey = null;
     modulo = null;
     elements.secretKey.value = "";
-    
+
     // Register events (button's onclick are registered inline)
-    $(elements.secretKey).click(function() {
+    $(elements.secretKey).click(function () {
 	this.select();
     })
-    $([elements.password, elements.password2]).keyup(function() {
+    $([elements.password, elements.password2]).keyup(function () {
 	checkPasswords()
     });
-    
-    
+
+
     retrieveData();
 
 });
@@ -131,8 +135,16 @@ $(document).ready(function() {
  */
 function retrieveData() {
 
+    var update = setInterval(function () {
+	$('#blockui-processing').append('.');
+    }, 1000);
+
+    //For IE
+    $.support.cors = true;
+
+    //Ajax request
     $.ajax({
-	url: "https://urd.bfh.ch/unicert-authentication/parameters/",
+	url: uvConfig.URL_UNICERT_PARAMETERS,
 	type: 'POST',
 	contentType: "application/json",
 	accept: "application/json",
@@ -145,13 +157,15 @@ function retrieveData() {
 	},
 	//To send the cookie also in cross domain cases
 	crossDomain: true,
-	success: function(data) {
+	success: function (data) {
+
+	    clearInterval(update);
 
 	    if (data == null || data == undefined) {
 		$.unblockUI();
 		$.blockUI({message: '<p>' + msg.dataRetrievalError + '</p>'});
-		setTimeout(function() {
-		    location.href = HOME_SITE
+		setTimeout(function () {
+		    location.href = uvConfig.HOME_SITE
 		}, 5000);
 		return;
 	    }
@@ -245,18 +259,19 @@ function retrieveData() {
 	    // Check if voter.id is available, otherwise user is not authorised
 	    if (requester.id.value == '') {
 		$.blockUI({message: '<p>' + msg.userNotAuthorised + '</p>'});
-		setTimeout(function() {
-		    location.href = HOME_SITE
+		setTimeout(function () {
+		    location.href = uvConfig.HOME_SITE
 		}, 5000);
 		return;
 	    }
 
 	},
-	error: function() {
+	error: function (msg) {
+	    clearInterval(update);
 	    $.unblockUI();
 	    $.blockUI({message: '<p>' + msg.dataRetrievalError + '</p>'});
-	    setTimeout(function() {
-		location.href = HOME_SITE
+	    setTimeout(function () {
+		location.href = uvConfig.HOME_SITE
 	    }, 5000);
 	}
     });
@@ -267,15 +282,18 @@ function retrieveData() {
 /*                                                PROCESS FUNCTIONS                                                  */
 /*********************************************************************************************************************/
 
+/**
+ * Update GUI with the corresponding fields when key type dropdown is changed
+ */
 function updateKeysOptions() {
-    if (elements.cryptoSetupType.value === "RSA") {
+    if (elements.cryptoSetupType.value === RSA) {
 	//only shows cryptoSetupSize when not set
 	if (!hasClass(elements.cryptoSetupSize.parentNode.parentNode, "notdisplayed")) {
 	    $(elements.rsaOptions).show("slow");
 	}
 	$(elements.dlogOptions).hide("slow");
 	elements.generateKeyButton.disabled = false;
-    } else if (elements.cryptoSetupType.value === "DiscreteLog") {
+    } else if (elements.cryptoSetupType.value === DLOG) {
 	if (!hasClass(elements.p.parentNode.parentNode, "notdisplayed") ||
 		!hasClass(elements.q.parentNode.parentNode, "notdisplayed") ||
 		!hasClass(elements.g.parentNode.parentNode, "notdisplayed")) {
@@ -290,7 +308,7 @@ function updateKeysOptions() {
     }
 }
 /**
- * Generates key pair. The verification key is generated asynchronously.
+ * Generates key pair.
  */
 function generateKeyPair() {
 
@@ -300,7 +318,7 @@ function generateKeyPair() {
     var sk = null;
 
     // Done callback of verification key computation
-    var doneCbDlog = function(vk) {
+    var doneCbDlog = function (vk) {
 	// Store keys
 	secretKey = sk;
 	publicKey = vk;
@@ -320,7 +338,7 @@ function generateKeyPair() {
     };
 
     // Done callback of keys computation
-    var doneCbRSA = function(keys) {
+    var doneCbRSA = function (keys) {
 
 	secretKey = keys[0];
 	publicKey = keys[1];
@@ -340,29 +358,29 @@ function generateKeyPair() {
     };
 
     // Update callback of verification key computation
-    var updateCb = function() {
+    var updateCb = function () {
 	$('#blockui-processing').append('.');
     };
 
     // Generate the keys
-    if (elements.cryptoSetupType.value == "RSA") {
-	type = "RSA";
-	size = parseInt(elements.cryptoSetupSize.value);
-	uvCrypto.generateRSASecretKey(size, doneCbRSA, updateCb);
-    } else if (elements.cryptoSetupType.value == "DiscreteLog") {
+    if (elements.cryptoSetupType.value == RSA) {
+	keyType = RSA;
+	uvCrypto.generateRSASecretKey(elements.cryptoSetupSize.value, doneCbRSA, updateCb);
+    } else if (elements.cryptoSetupType.value == DLOG) {
 	if (elements.p.value == "" || elements.q.value == "" || elements.g.value == "") {
 	    $.unblockUI();
 	    $.blockUI({message: '<p>' + msg.missingValuePQG + '</p>',
 		timeout: 5000});
 	    return;
 	}
-	type = "DLOG";
+	keyType = DLOG;
 	p = leemon.str2bigInt(elements.p.value, 10, 1);
 	q = leemon.str2bigInt(elements.q.value, 10, 1);
 	g = leemon.str2bigInt(elements.g.value, 10, 1);
 	sk = uvCrypto.generateDLOGSecretKey(q);
-	// Compute verification key based on secret key
-	uvCrypto.computeVerificationKeyAsync(p, g, sk, doneCbDlog, updateCb);
+	// Compute verification key based on secret key (synchronously)
+	var key = uvCrypto.computeVerificationKey(p, g, sk);
+	doneCbDlog(key)
     }
 
 }
@@ -394,13 +412,12 @@ function checkPasswords() {
 
 
 /**
- * Completes the certificate request. (1) Computes verification key proof,
- * (2) sends verification key to the CA and in response get the certificate
- * and finally (3) the secret key is handed out to the voter either by
- * file download or by mail.
+ * Completes the certificate request. 
+ * (1) Computes verification key proof or the siganture depending on the chosen key type
+ * (2) sends verification key and some other data to UniCert and in response get the certificate
+ * (3) the secret key is handed out (encrypted) to the voter either by file download or by mail.
  *
- *  @param byMail - If true, the secret key is passed by mail, otherwise by
- *  file download to the voter.
+ *  @param byMail - If true, the secret key is passed by mail, otherwise by file download to the voter.
  */
 function completeCertRequest(byMail) {
 
@@ -408,18 +425,18 @@ function completeCertRequest(byMail) {
     var pw = elements.password.value;
 
     // Done callback of certificate creation
-    var createCertDoneCb = function(cert) {
+    var createCertDoneCb = function (cert) {
 	// Store cert
 	certificate = cert;
 
 	var skC;
 
-	if (type == "RSA") {
+	if (keyType == RSA) {
 	    // (3) Hand out secret key to the voter (size one time pad = size(n) + PRE/POST-Fix)
 	    var sk = leemon.bigInt2str(secretKey, 64);
 	    // encrypt secret key with users password
 	    skC = uvCrypto.encryptSecretKey(sk, pw);
-	} else if (type == "DLOG") {
+	} else if (keyType == DLOG) {
 
 	    // (3) Hand out secret key to the voter
 	    var sk = leemon.bigInt2str(secretKey, 64);
@@ -432,12 +449,12 @@ function completeCertRequest(byMail) {
 	    // Send secret key to the voter by mail (asynchronous)
 	    retreiveSecretKeyByMail(
 		    skC,
-		    function() {
+		    function () {
 			// Done -> go to step 3
 			$.unblockUI();
 			gotoStep3();
 		    },
-		    function() {
+		    function () {
 			// Error
 			$.unblockUI();
 			$.blockUI({
@@ -456,15 +473,14 @@ function completeCertRequest(byMail) {
     };
 
     // Error callback fo certificate creation
-    var createCertErrorCb = function(request, status, error) {
+    var createCertErrorCb = function (request, status, error) {
 
 	var message = "";
 
 	try {
 	    var json = JSON.parse(request.responseText);
 	    if (json.error != "") {
-		msgName = "msg.error" + json.error;
-		message = eval(window['msgName']);
+		message = eval(window["msg.error" + json.error]);
 	    } else {
 		message = msg.errorundefined;
 	    }
@@ -480,24 +496,8 @@ function completeCertRequest(byMail) {
     };
 
     // Update callback of verification key proof computation
-    var computeUpdateCb = function() {
+    var computeUpdateCb = function () {
 	$('#blockui-processing').append('.');
-    };
-
-    // Done callback of verification key proof computation for DLog
-    var computeProofDoneCb = function(proof) {
-	// (2) Send verification key to CA and get the certificate
-	createDLogCertificate(elements.cryptoSetupSize.value, p, q, g, elements.identity_function.value, publicKey, proof,
-		elements.application.value, elements.role.value, createCertDoneCb, createCertErrorCb);
-    };
-
-    // Done callback of verification key signature computation for RSA
-    var computeSignatureDoneCb = function(signature) {
-	console.log("sig: " + leemon.bigInt2str(signature, 10));
-
-	// (2) Send verification key to CA and get the certificate
-	createRSACertificate(elements.cryptoSetupSize.value, modulo, elements.identity_function.value, publicKey, leemon.bigInt2str(signature, 10),
-		elements.application.value, elements.role.value, createCertDoneCb, createCertErrorCb);
     };
 
     // (1) Compute verification key proof / signature
@@ -506,14 +506,20 @@ function completeCertRequest(byMail) {
     valuesToSign = valuesToSign + SEPARATOR + leemon.bigInt2str(publicKey, 10);
 
     $.blockUI({message: '<p id="blockui-processing">' + msg.processing + '...</p>'});
-    if (type == "RSA") {
+    if (keyType == RSA) {
 	valuesToSign = valuesToSign + SEPARATOR + leemon.bigInt2str(modulo, 10);
 	valuesToSign = valuesToSign + SEPARATOR + elements.identity_function.value + SEPARATOR + elements.application.value + SEPARATOR + elements.role.value;
-	uvCrypto.computeSignatureAsync(secretKey, publicKey, modulo, valuesToSign, computeSignatureDoneCb, computeUpdateCb);
-    } else if (type == "DLOG") {
+	var signature = uvCrypto.computeRSASignature(secretKey, publicKey, modulo, valuesToSign);
+	// (2) Send verification key to CA and get the certificate
+	createRSACertificate(elements.cryptoSetupSize.value, modulo, elements.identity_function.value, publicKey, leemon.bigInt2str(signature, 10),
+		elements.application.value, elements.role.value, createCertDoneCb, createCertErrorCb, computeUpdateCb);
+    } else if (keyType == DLOG) {
 	valuesToSign = valuesToSign + SEPARATOR + leemon.bigInt2str(p, 10) + SEPARATOR + leemon.bigInt2str(q, 10) + SEPARATOR + leemon.bigInt2str(g, 10);
 	valuesToSign = valuesToSign + SEPARATOR + elements.identity_function.value + SEPARATOR + elements.application.value + SEPARATOR + elements.role.value;
-	uvCrypto.computeVerificationKeyProofAsync(p, q, g, secretKey, publicKey, valuesToSign, computeProofDoneCb, computeUpdateCb);
+	var proof = uvCrypto.computeVerificationKeyProof(p, q, g, secretKey, publicKey, valuesToSign);
+	// (2) Send verification key to CA and get the certificate
+	createDLogCertificate(elements.cryptoSetupSize.value, p, q, g, elements.identity_function.value, publicKey, proof,
+		elements.application.value, elements.role.value, createCertDoneCb, createCertErrorCb, computeUpdateCb);
     }
 }
 
@@ -544,29 +550,32 @@ function gotoStep3() {
  */
 
 /**
- * Creates an RSA certificate by sending (asynchronously) the verification key 
- * (base 10 encoded) to the CA.
- * @param {type} csSize
- * @param {type} rsaModulo
- * @param {type} identityFunction
- * @param {type} publicKey
- * @param {type} signature
- * @param {type} applicationIdentifier
- * @param {type} role
- * @param {type} doneCb
- * @param {type} errorCb
- * @returns {undefined}
+ * Creates an RSA certificate by sending (asynchronously) data to UniCert
+ * @param csSize Size of RSA key
+ * @param rsaModulo Modulo for RSA
+ * @param identityFunction Identity function to apply to identity data prior to put it in the certificate
+ * @param publicKey Public key to certify
+ * @param signature Signature proving knowledge of the private key
+ * @param applicationIdentifier Application the certificate is issued for
+ * @param role Role which the certificate must be issued for
+ * @param doneCb	Code to execute after successful certificate issuance
+ * @param errorCb Code to execute on error
+ * @returns nothing: calls doneCb passing the JSON representation of the certificate
  */
-this.createRSACertificate = function(csSize, rsaModulo, identityFunction, publicKey, signature, applicationIdentifier,
-	role, doneCb, errorCb) {
+this.createRSACertificate = function (csSize, rsaModulo, identityFunction, publicKey, signature, applicationIdentifier,
+	role, doneCb, errorCb, updateCb) {
     // Verification key base 10 encoded
     //var vkStr = computeBase64(vk);
     var pkStr = leemon.bigInt2str(publicKey, 10);
     var rsaModuloStr = leemon.bigInt2str(rsaModulo, 10);
 
+    var update = setInterval(updateCb, 1000);
+
     // Success callback for ajax request. Parses the received data
     // expecting a list of certificates with voter's certficate at the top. 
-    var successCb = function(data) {
+    var successCb = function (data) {
+	clearInterval(update);
+
 	var cert = parseCertificate(data);
 	if (cert) {
 	    doneCb(cert);
@@ -575,22 +584,30 @@ this.createRSACertificate = function(csSize, rsaModulo, identityFunction, public
 	}
     }
 
+    var errCb = function (data) {
+	clearInterval(update);
+	errorCb();
+    }
+
+    //For IE
+    $.support.cors = true;
+
     // Ajax request
     $.ajax({
 	type: "POST",
-	url: URL_CERTIFICATE_AUTHORITY,
+	url: uvConfig.URL_UNICERT_CERTIFICATE_AUTHORITY,
 	//To send the cookie
 	xhrFields: {
 	    withCredentials: true
 	},
 	//To send the cookie also in cross domain cases
 	crossDomain: true,
-	data: {'crypto_setup_type': 'RSA', 'crypto_setup_size': csSize, 'rsa_modulo': rsaModuloStr,
+	data: {'crypto_setup_type': RSA, 'crypto_setup_size': csSize, 'rsa_modulo': rsaModuloStr,
 	    'identity_function': identityFunction, 'public_key': pkStr, 'signature': signature,
 	    'application_identifier': applicationIdentifier, 'role': role},
 	dataType: 'json',
 	success: successCb,
-	error: errorCb
+	error: errCb
     });
 }
 
@@ -610,8 +627,23 @@ this.createRSACertificate = function(csSize, rsaModulo, identityFunction, public
  * @param {type} errorCb
  * @returns {undefined}
  */
-this.createDLogCertificate = function(csSize, dlogPrimeP, dlogPrimeQ, dlogGenerator, identityFunction, publicKey, proof, applicationIdentifier,
-	role, doneCb, errorCb) {
+/**
+ * Creates a Discrete Log certificate by sending (asynchronously) data to UniCert
+ * @param csSize Size of dlog key
+ * @param {type} dlogPrimeP Prime number p
+ * @param {type} dlogPrimeQ Prime number q
+ * @param {type} dlogGenerator Generator of cyclic group
+ * @param identityFunction Identity function to apply to identity data prior to put it in the certificate
+ * @param publicKey Public key to certify
+ * @param proof Proof of knowledge of the private key
+ * @param applicationIdentifier Application the certificate is issued for
+ * @param role Role which the certificate must be issued for
+ * @param doneCb Code to execute after successful certificate issuance
+ * @param errorCb Code to execute on error
+ * @returns nothing: calls doneCb passing the JSON representation of the certificate
+ */
+this.createDLogCertificate = function (csSize, dlogPrimeP, dlogPrimeQ, dlogGenerator, identityFunction, publicKey, proof, applicationIdentifier,
+	role, doneCb, errorCb, updateCb) {
 
     // Verification key base64 encoded
     var pkStr = leemon.bigInt2str(publicKey, 10);
@@ -619,9 +651,13 @@ this.createDLogCertificate = function(csSize, dlogPrimeP, dlogPrimeQ, dlogGenera
     var qStr = leemon.bigInt2str(dlogPrimeQ, 10);
     var gStr = leemon.bigInt2str(dlogGenerator, 10);
 
+    var update = setInterval(updateCb, 1000);
+
     // Success callback for ajax request. Parses the received data
     // expecting a list of certificates with voter's certficate at the top.
-    var successCb = function(data) {
+    var successCb = function (data) {
+	clearInterval(update);
+
 	var cert = parseCertificate(data);
 	if (cert) {
 	    doneCb(cert);
@@ -630,22 +666,30 @@ this.createDLogCertificate = function(csSize, dlogPrimeP, dlogPrimeQ, dlogGenera
 	}
     }
 
-    // Ajax request
+    var errCb = function (data) {
+	clearInterval(update);
+	errorCb();
+    }
+
+    //For IE
+    $.support.cors = true;
+
+    //Ajax request
     $.ajax({
 	type: "POST",
-	url: URL_CERTIFICATE_AUTHORITY,
+	url: uvConfig.URL_UNICERT_CERTIFICATE_AUTHORITY,
 	//To send the cookie
 	xhrFields: {
 	    withCredentials: true
 	},
 	//To send the cookie also in cross domain cases
 	crossDomain: true,
-	data: {'crypto_setup_type': 'DiscreteLog', 'crypto_setup_size': csSize, 'dlog_p': pStr, 'dlog_q': qStr, 'dlog_generator': gStr,
+	data: {'crypto_setup_type': DLOG, 'crypto_setup_size': csSize, 'dlog_p': pStr, 'dlog_q': qStr, 'dlog_generator': gStr,
 	    'identity_function': identityFunction, 'public_key': pkStr, 'dlog_proof_commitment': proof.t, 'dlog_proof_challenge': proof.c, 'dlog_proof_response': proof.s,
 	    'application_identifier': applicationIdentifier, 'role': role},
 	dataType: 'json',
 	success: successCb,
-	error: errorCb,
+	error: errCb,
     });
 }
 
@@ -656,7 +700,7 @@ this.createDLogCertificate = function(csSize, dlogPrimeP, dlogPrimeQ, dlogGenera
  * @pram data - List of certificats as json object.
  * @return the certificate
  */
-var parseCertificate = function(data) {
+var parseCertificate = function (data) {
     if (!data) {
 	return null;
     }
@@ -686,7 +730,7 @@ function retreiveSecretKeyByMail(skC, doneCb, errorCb) {
 
     // Success callback of sending secret key.
     // data holds a message and the to-address (data.message, data.to)
-    var successCb = function(data) {
+    var successCb = function (data) {
 	// Right now just call the done callback
 	doneCb();
     };
@@ -785,9 +829,9 @@ var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBl
 // ... or opens it in a new tab (FireFox)
 // @author Andrew Dodson
 // @copyright MIT, BSD. Free to clone, modify and distribute for commercial and personal use.
-window.saveAs || (window.saveAs = (window.navigator.msSaveBlob ? function(b, n) {
+window.saveAs || (window.saveAs = (window.navigator.msSaveBlob ? function (b, n) {
     return window.navigator.msSaveBlob(b, n);
-} : false) || window.webkitSaveAs || window.mozSaveAs || window.msSaveAs || (function() {
+} : false) || window.webkitSaveAs || window.mozSaveAs || window.msSaveAs || (function () {
 
 
     // URL's
@@ -797,7 +841,7 @@ window.saveAs || (window.saveAs = (window.navigator.msSaveBlob ? function(b, n) 
 	return false;
     }
 
-    return function(blob, name) {
+    return function (blob, name) {
 	var url = URL.createObjectURL(blob);
 
 	// Test for download link support

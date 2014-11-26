@@ -297,7 +297,6 @@ describe('mapZq2GqTest', function () {
     });
 });
 
-
 describe('pairing Tests', function () {
     it('pairing and unpairing leemon big integers', function () {
 
@@ -317,11 +316,11 @@ describe('pairing Tests', function () {
 describe('Schnorr signature tests', function () {
     it('sign and verify', function () {
 	
-	var messageHash = sha256String("Message");
+	var messageHash = sha256.hashString("Message");
 	
-	var p = leemon.str2bigInt(uvConfig.SCHNORR.P, 10, 1);
-	var q = leemon.str2bigInt(uvConfig.SCHNORR.Q, 10, 1);
-	var g = leemon.str2bigInt(uvConfig.SCHNORR.G, 10, 1);
+	var p = leemon.str2bigInt(uvConfig.SIGNATURE_SETTING.P, 10, 1);
+	var q = leemon.str2bigInt(uvConfig.SIGNATURE_SETTING.Q, 10, 1);
+	var g = leemon.str2bigInt(uvConfig.SIGNATURE_SETTING.G, 10, 1);
 	
 	//generate random secret key
 	var sk = uvCrypto.generateDLOGSecretKey(q);

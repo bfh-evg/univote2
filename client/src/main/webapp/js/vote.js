@@ -13,43 +13,26 @@
  * 
  */
 
+// Check for configuration, if it is missing
+// an error message is displayed at the top of the page.
+if (!uvConfig) {
+    window.onload = function () {
+	var body = document.getElementsByTagName('body')[0];
+	var errorDiv = document.createElement('div');
+	errorDiv.setAttribute('style', 'background-color:red; z-index:1000; position:absolute; top:0; left: 0; width: 100%; height:50px; text-align:center; font-weight:bold; padding-top: 20px;');
+	errorDiv.innerHTML = "<p>" + msg.missingConfig + "</p>";
+	body.appendChild(errorDiv);
+    }
+}
+
 // Configuration.
 //-------------------------------------
-window.uvConfig = window.uvConfig || {};
 
 var CLASS_NAME_VOTE = "Vote";
 var CLASS_NAME_CANDIDATE_ELECTION = "CandidateElection";
 var CLASS_NAME_PARTY_ELECTION = "PartyElection";
 var CLASS_NAME_SUMMATION_RULE = "SummationRule";
 var CLASS_NAME_FORALL_RULE = "ForAllRule";
-/** 
- * Home site.
- */
-var HOME_SITE = uvConfig.HOME_SITE || 'index.xhtml';
-
-
-/** 
- * Url for voting service.
- */
-var URL_UNIBOARD = uvConfig.URL_UNIBOARD || '/uniboard/messages/query';
-
-/** 
- * Url for voting service.
- */
-var URL_VOTING_SERVICE = uvConfig.URL_VOTING_SERVICE || '/VotingServiceTest/';
-
-/** 
- * Flag that inidicates whether everything should be computed asynchronously.
- * -> This is used to support old browsers (like IE7/8) to prevent script timeouts.
- */
-var COMPUTE_ASYNCHRONOUSLY = uvConfig.COMPUTE_ASYNCHRONOUSLY || false;
-
-/** 
- * Flag that indicates whether the secret key should be uploaded manually always.
- */
-var UPLOAD_SK_MANUALLY_ALWAYS = uvConfig.UPLOAD_SK_MANUALLY_ALWAYS || false;
-//-------------------------------------
-
 
 /** 
  * Holds the used DOM elements. 
@@ -125,8 +108,8 @@ var noList = false;
 /**
  * Initialisation on document ready.
  */
-$(document).ready(function() {
-    
+$(document).ready(function () {
+
     // Get DOM elements
     elements.step1 = document.getElementById('step_1');
     elements.step2 = document.getElementById('step_2');
@@ -166,7 +149,7 @@ $(document).ready(function() {
 
     // Block UI while loading election data from voting service
     $.blockUI({
-	message: '<p>' + msg.loading + '</p>',
+	message: '<p id="blockui-processing">' + msg.loading + '</p>',
 	fadeIn: 10
     });
 
@@ -174,7 +157,7 @@ $(document).ready(function() {
     setTimeout(retrieveElectionData, 50);
 
     // Switch to manually secret key upload if flag is set or the file api is not supported
-    if (UPLOAD_SK_MANUALLY_ALWAYS || !fileApiSupported()) {
+    if (uvConfig.UPLOAD_SK_MANUALLY_ALWAYS || !fileApiSupported()) {
 	$(elements.skUploadFile).hide();
 	$(elements.skUploadManually).show();
     }
@@ -204,7 +187,7 @@ function uploadSecretKey() {
     // Get password
     var pw = elements.password.value;
 
-    if (UPLOAD_SK_MANUALLY_ALWAYS || !fileApiSupported()) {
+    if (uvConfig.UPLOAD_SK_MANUALLY_ALWAYS || !fileApiSupported()) {
 	// Secret key is uploaded manually by copy/paste
 
 	// Get secret key
@@ -230,7 +213,7 @@ function uploadSecretKey() {
 	    // Start reading the file
 	    // -> Decryption of secret key starts as soon as the file is read
 	    var reader = new FileReader();
-	    reader.onload = function(e) {
+	    reader.onload = function (e) {
 		decryptSecretKey(e.target.result, pw);
 	    };
 	    reader.readAsText(files[0]);
@@ -249,9 +232,19 @@ function uploadSecretKey() {
 function decryptSecretKey(key, pw) {
 
     // Decrypt secret key using crypto library
-    var sk = uvCrypto.decryptSecretKey(key, pw, function(errorMsg) {
-	showUploadKeyError(errorMsg);
-    });
+    var sk = "";
+
+    //LEGACY SUPPORT
+    //checks if the given key is a UniVote 1 Voting key or a UniCert key
+    if (key.indexOf("UNIVOTE") > -1) {
+	sk = uvCrypto.decryptSecretKeyUniVote1(key, pw, function (errorMsg) {
+	    showUploadKeyError(errorMsg);
+	});
+    } else {
+	sk = uvCrypto.decryptSecretKey(key, pw, function (errorMsg) {
+	    showUploadKeyError(errorMsg);
+	});
+    }
 
     // On success go to step 2
     if (sk !== false) {
@@ -321,8 +314,8 @@ function processFatalError(errorMsg) {
     // Show error message
     $.blockUI({message: '<p>' + errorMsg + '</p>'});
     // Redirect to home after 5s
-    setTimeout(function() {
-	location.href = HOME_SITE;
+    setTimeout(function () {
+	location.href = uvConfig.HOME_SITE;
     }, 5000);
 }
 
@@ -341,9 +334,17 @@ function processFatalError(errorMsg) {
  */
 function retrieveElectionData() {
 
-    //TODO order by time
-    var queryJson = '{"constraint": [{"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "section" ]},"value": {"@type": "stringValue","value": "' + electionId + '"}}, {"@type": "equal","identifier": {"@type": "alphaIdentifier","part": [ "group" ]},"value": {"@type": "stringValue","value": "electionData"}}]}';
+    var update = setInterval(function () {
+	$('#blockui-processing').append('.');
+    }, 500);
 
+    //TODO order by time
+    var queryJson = '{"constraint": [{"type": "equal","identifier": {"type": "alphaIdentifier","part": [ "section" ]},"value": {"type": "stringValue","value": "' + electionId + '"}}, {"type": "equal","identifier": {"type": "alphaIdentifier","part": [ "group" ]},"value": {"type": "stringValue","value": "electionData"}}]}';
+
+    //For IE
+    $.support.cors = true;
+
+    //Ajax request
     $.ajax({
 	url: uvConfig.URL_UNIBOARD_GET,
 	type: 'POST',
@@ -354,8 +355,7 @@ function retrieveElectionData() {
 	data: queryJson,
 	timeout: 10000,
 	crossDomain: true,
-	success: function(resultContainer) {
-
+	success: function (resultContainer) {
 	    // Save election data
 	    var posts = resultContainer.result.post;
 	    var post;
@@ -377,10 +377,12 @@ function retrieveElectionData() {
 	    var elections = message.elections;
 	    if (elections.length < 0) {
 		//no data received
+		clearInterval(update);
 		processFatalError(msg.retreiveElectionDataError);
 		return;
 	    } else if (elections.length > 1) {
 		//Multiple elections received. Only one is currently supported by the current voting client.
+		clearInterval(update);
 		processFatalError(msg.tooMuchDataReceived);
 		return;
 	    }
@@ -388,26 +390,31 @@ function retrieveElectionData() {
 
 	    if (electionData.type === CLASS_NAME_VOTE) {
 		//Votes are not currently supported by the current voting client.
+		clearInterval(update);
 		processFatalError(msg.incompatibleDataReceived);
 		return;
 	    } else if (electionData.type !== CLASS_NAME_CANDIDATE_ELECTION && electionData.type !== CLASS_NAME_PARTY_ELECTION) {
 		//Unknown type of election
+		clearInterval(update);
 		processFatalError(msg.incompatibleDataReceived);
 		return;
 	    }
 	    // Check signatures of retrieved post
-	    try{
+//	    try {
 		//Signature of ResultContainer (certified read is not checked, since the one post contained in the ResultContainer
 		//is also signed)
-		var result = uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true, verifySignatureCb);
-		verifySignatureCb(result)
-	    } catch(msg) {
-		processFatalError(msg.signatureError);
-		return;
-	    }
-	},
-	error: function() {
+		var result = uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
+		verifySignature(result)
+//	    } catch (errormsg) {
+//		clearInterval(update);
+//		processFatalError(msg.signatureError);
+//		return;
+//	    }
 
+	    clearInterval(update);
+	},
+	error: function (errormsg) {
+	    clearInterval(update);
 	    processFatalError(msg.retreiveElectionDataError);
 	}
     });
@@ -421,7 +428,7 @@ function retrieveElectionData() {
  * 
  * @param success - true if the signature is correct otherwise false.
  */
-function verifySignatureCb(success) {
+function verifySignature(success) {
 
     if (!success) {
 	processFatalError(msg.signatureError);
@@ -435,79 +442,80 @@ function verifySignatureCb(success) {
     //
     var choices, rules, lists, choicesMap;
 
+    //TODO remove comments
     // Step 1: Process cryptographic parameters
-    var step1 = function() {
-	// Set Elgamal parameters, election generator and encryption key
-	uvCrypto.setElgamalParameters(electionData.encryptionSetting.p, electionData.encryptionSetting.q, electionData.encryptionSetting.g, 10);
-	uvCrypto.setSignatureParameters(electionData.signatureSetting.p, electionData.signatureSetting.q, electionData.signatureSetting.ghat, 10);
-	electionGenerator = leemon.str2bigInt(electionData.signatureSetting.ghat, 10, 1);
-	encryptionKey = leemon.str2bigInt(electionData.encryptionSetting.encryptionKey, 10, 1);
-	setTimeout(step2, 10);
-    };
+//    var step1 = function() {
+    // Set Elgamal parameters, election generator and encryption key
+    uvCrypto.setElgamalParameters(electionData.encryptionSetting.p, electionData.encryptionSetting.q, electionData.encryptionSetting.g, 10);
+    uvCrypto.setSignatureParameters(electionData.signatureSetting.p, electionData.signatureSetting.q, electionData.signatureSetting.ghat, 10);
+    electionGenerator = leemon.str2bigInt(electionData.signatureSetting.ghat, 10, 1);
+    encryptionKey = leemon.str2bigInt(electionData.encryptionSetting.encryptionKey, 10, 1);
+//	setTimeout(step2, 10);
+//    };
 
     // Step 2: Process election details like title, choices and rules
-    var step2 = function() {
-	// Set title
-	$(elements.electionTitle).html(getLocalizedText(electionData.title, lang));
+//    var step2 = function() {
+    // Set title
+    $(elements.electionTitle).html(getLocalizedText(electionData.title, lang));
 
-	// Initilize arrays for choices and rules
-	choiceIds = new Array();
-	sumRules = new Array();
-	forAllRules = new Array();
-	choicesMap = new Map();
+    // Initilize arrays for choices and rules
+    choiceIds = new Array();
+    sumRules = new Array();
+    forAllRules = new Array();
+    choicesMap = new Map();
 
-	// Get the choices and rules
-	choices = electionData.choices;
-	rules = electionData.rules;
-	lists = [];
-	if (electionData.type === CLASS_NAME_CANDIDATE_ELECTION) {
-	    lists = electionData.candidateLists === undefined ? new Array() : electionData.candidateLists;
-	} else if (electionData.type === CLASS_NAME_PARTY_ELECTION) {
-	    lists = electionData.partyLists;
-	}
+    // Get the choices and rules
+    choices = electionData.choices;
+    rules = electionData.rules;
+    lists = [];
+    if (electionData.type === CLASS_NAME_CANDIDATE_ELECTION) {
+	lists = electionData.candidateLists === undefined ? new Array() : electionData.candidateLists;
+    } else if (electionData.type === CLASS_NAME_PARTY_ELECTION) {
+	lists = electionData.partyLists;
+    }
 
-	// Add candidates to the coresponding PoliticalList
-	for (i = 0; i < choices.length; i++) {
-	    choicesMap.put(choices[i].choiceId, choices[i]);
-	}
+    // Add candidates to the coresponding PoliticalList
+    for (i = 0; i < choices.length; i++) {
+	choicesMap.put(choices[i].choiceId, choices[i]);
+    }
 
-	// If no list exists, create one and put afterwards every candidate into it
-	if (lists.length === 0) {
-	    var uniqueList = "{ \"choicesIds\": " + JSON.stringify(choicesMap.listKeys()) + "}";
-	    lists.push(JSON.parse(uniqueList));
-	    noList = true;
-	}
+    // If no list exists, create one and put afterwards every candidate into it
+    if (lists.length === 0) {
+	var uniqueList = "{ \"choicesIds\": " + JSON.stringify(choicesMap.listKeys()) + "}";
+	lists.push(JSON.parse(uniqueList));
+	noList = true;
+    }
 
-	setTimeout(step3, 10);
-    };
+//	setTimeout(step3, 10);
+//    };
 
     // Step 3: Process rules
-    var step3 = function() {
+//    var step3 = function() {
 
-	// Split different rules
-	for (i = 0; i < rules.length; i++) {
-	    var rule = rules[i];
-	    if (rule.type === CLASS_NAME_SUMMATION_RULE) {
-		sumRules.push(rule);
-	    }
-	    else if (rule.type === CLASS_NAME_FORALL_RULE) {
-		forAllRules.push(rule);
-	    }
+    // Split different rules
+    for (i = 0; i < rules.length; i++) {
+	var rule = rules[i];
+	if (rule.type === CLASS_NAME_SUMMATION_RULE) {
+	    sumRules.push(rule);
 	}
+	else if (rule.type === CLASS_NAME_FORALL_RULE) {
+	    forAllRules.push(rule);
+	}
+    }
 
-	// Figure out whether the voter can vote for candidates and a list or
-	// only for candidates
-	listsAreSelectable = electionData.type === CLASS_NAME_PARTY_ELECTION;
+    // Figure out whether the voter can vote for candidates and a list or
+    // only for candidates
+    listsAreSelectable = electionData.type === CLASS_NAME_PARTY_ELECTION;
 
-	// Render the vote view: Add lists and candidates to the view
-	renderVoteView(lists, choicesMap);
+    // Render the vote view: Add lists and candidates to the view
+    renderVoteView(lists, choicesMap);
 
-	// Finally unblock the GUI
-	$.unblockUI();
-    };
+    // Finally unblock the GUI
+    $.unblockUI();
+//    };
 
     // Start with step 1
-    setTimeout(step1, 10);
+//    setTimeout(step1, 10);
 }
 
 
@@ -550,14 +558,14 @@ function renderVoteView(lists, choicesMap) {
 
 	    //Get name of list
 	    title = getLocalizedText(list.name, lang);
-	    
+
 	    //If list.number is a number, create a string of the form 'List #'
 	    //If list.number is a string, get it as is
 	    var number = getLocalizedText(list.listNumber, lang);
-	    if(isNumber(number)){
+	    if (isNumber(number)) {
 		listNumber = msg.list + " " + number;
 	    } else {
-		listNumber=number;
+		listNumber = number;
 	    }
 	    listSubtitle = listNumber;
 	}
@@ -629,7 +637,7 @@ function getLocalizedText(localizedTexts, lang) {
 }
 
 function isNumber(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
+    return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
 //===========================================================================
