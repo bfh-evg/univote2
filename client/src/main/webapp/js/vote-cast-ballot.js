@@ -117,113 +117,13 @@ function submitVote() {
     dialogs.$confirm.dialog('open');
 }
 
-///**
-// * Finalizes the vote. After encoding, encrypting, proofing, and signing the 
-// * vote is finally casted. The confirmMap must be filled up prior to calling
-// * this function!
-// */
-//function finalizeVote2() {
-//    var encodedVote;
-//    var voteInGq;
-//
-//    var updateFunction = function () {
-//	$('#blockui-processing').append('.');
-//    }
-//
-//
-//    try {
-//	// 1 - Encode vote (BigInt)
-//	encodedVote = uvCrypto.encodeVote(confirmMap, choiceIds, forAllRules);
-//
-//	// 2 - represent encodedvote in Gq
-//	voteInGq = uvCrypto.mapZq2Gq(encodedVote);
-//
-//    } catch (error) {
-//	processExceptionInFinalizeVote(msg.encodeVoteError);   // error.message
-//	return;
-//    }
-//
-//
-//    ballotData.electionId = electionId;
-//
-//    updateFunction();
-//
-//    // 3 - Encrypt vote 
-//    ballotData.encryptedVote = uvCrypto.encryptVote(voteInGq, encryptionKey);
-//    //encrypted vote is stored in ballotData.encryptedVote.encVote
-//
-//    updateFunction();
-//
-//    // 4 - Compute anonymous verification key
-//    ballotData.verifKey = uvCrypto.computeElectionVerificationKey(electionGenerator, secretKey);
-//    //verification key is stored in ballotData.verifKey.vkString
-//
-//    updateFunction();
-//
-//    // 5 - Generate NIZKP
-//    ballotData.proof = uvCrypto.computeVoteProof(ballotData.encryptedVote.r, ballotData.encryptedVote.a, ballotData.verifKey.vk);
-//    //Proof is stored in ballotData.proof
-//
-//    updateFunction();
-//
-//    var ballot = {encryptedVote: ballotData.encryptedVote.encVote, proof: ballotData.proof.proof};
-//
-//    //6 - Sign post
-//    var post = {message: B64.encode(JSON.stringify(ballot)),
-//	alpha: {attribute: [
-//		{key: "section", value: {type: "stringValue", value: electionId}},
-//		{key: "group", value: {type: "stringValue", value: "ballot"}}
-//	    ]}
-//    };
-//
-//    ballotData.signature = uvCrypto.signPost(post, electionGenerator, secretKey);
-//
-//    updateFunction();
-//
-//    post.alpha.attribute[2] = {key: "signature", value: {type: "stringValue", value: ballotData.signature.sigString}};
-//    post.alpha.attribute[3] = {key: "publickey", value: {type: "stringValue", value: ballotData.verifKey.vkString}};
-//
-//    var postStr = JSON.stringify(post);
-//
-//    // 7 - Finally cast vote by calling webservice
-//    //If Board is on another domain, IE9 will not be able to send the post
-//    //IE9 does not support cross domain ajax request.
-//    //JSONP would be a solution, but it only allows HTTP GET and HTTP POST is required for the 
-//    //REST Service of the Board.
-//
-//    var update = setInterval(updateFunction, 1000);
-//
-//    //For IE
-//    $.support.cors = true;
-//
-//    //Ajax request
-//    $.ajax({
-//	url: uvConfig.URL_UNIBOARD_POST,
-//	type: 'POST',
-//	contentType: "application/json",
-//	accept: "application/json",
-//	cache: false,
-//	dataType: 'json',
-//	data: postStr,
-//	timeout: 10000,
-//	crossDomain: true,
-//	success: function (beta) {
-//
-//	    //TODO error management
-//	    clearInterval(update);
-//
-//	    //TODO put board timestamp and sig 
-//	    castVoteSuccessCallback({signature: {timestamp: "toto", value: "sig"}})
-//	},
-//	error: function () {
-//
-//	    clearInterval(update);
-//	    castVoteErrorCallback()
-//	}
-//    });
-//
-//}
-
+/**
+ * Finalizes the vote. After encoding, encrypting, proofing, and signing the 
+ * vote is finally casted. The confirmMap must be filled up prior to calling
+ * this function!
+ * In order to be able to give feedback to the user that something is happening, this function is implemented
+ * on an asynchronous manner
+ */
 function finalizeVote() {
     var encodedVote;
     var voteInGq;
@@ -332,93 +232,28 @@ function finalizeVote() {
 	    timeout: 10000,
 	    crossDomain: true,
 	    success: function (beta) {
-
-		//TODO error management
 		clearInterval(update);
-
-		//TODO put board timestamp and sig 
-		castVoteSuccessCallback({signature: {timestamp: "toto", value: "sig"}})
+		
+		if(beta.attribute[0].key == "rejected"){
+		    castVoteErrorCallback(beta.attribute[0].value.value);
+		    return;
+		} else if (beta.attribute[0].key == "error"){
+		    castVoteErrorCallback(beta.attribute[0].value.value);
+		    return;
+		}
+		
+		castVoteSuccessCallback({signature: {timestamp: beta.attribute[0].value.value, value: beta.attribute[2].value.value}})
 	    },
 	    error: function () {
 
 		clearInterval(update);
-		castVoteErrorCallback()
+		castVoteErrorCallback();
 	    }
 	});
     }
-    
+
     step1();
 }
-
-///**
-// * Asynchronous version of finalizeVote.
-// */
-//function finalizeVoteAsync() {
-//    var ballot;
-//
-//    // Update counter and callback
-//    var updateCounter = 0;
-//    var updateCb = function() {
-//	if (++updateCounter % 10 == 0) {
-//	    $('#blockui-processing').append('.');
-//	}
-//    }
-//
-//    var step3 = function(_voteInGq) {
-//	ballotData.voteInGq = _voteInGq;
-//	// 3 - Encrypt vote 
-//	uvCrypto.encryptVoteAsync(ballotData.voteInGq, encryptionKey, step4, updateCb);
-//    };
-//
-//    var errorStep3Cb = function() {
-//	processExceptionInFinalizeVote(msg.encodeVoteError);
-//    };
-//
-//    var step4 = function(_encryptedVote) {
-//	ballotData.encryptedVote = _encryptedVote;
-//	// 4 - Compute anonymous verification key
-//	uvCrypto.computeElectionVerificationKeyAsync(electionGenerator, secretKey, step5, updateCb);
-//    };
-//
-//    var step5 = function(_verifKey) {
-//
-//	ballotData.verifKey = _verifKey;
-//	// 5 - Generate NIZKP
-//	uvCrypto.computeVoteProofAsync(ballotData.encryptedVote.r, ballotData.encryptedVote.a, ballotData.verifKey.vk, step6, updateCb);
-//    };
-//
-//    var step6 = function(_proof) {
-//	ballotData.proof = _proof;
-//	ballot = {encryptedVote: ballotData.encryptedVote.encVote, proof: ballotData.proof.proof};
-//	//6 - Sign post
-//	//TODO create and sign post
-//	step7(1)
-//    };
-//
-//    var step7 = function(_signature) {
-//	alert("toto")
-//	ballotData.signature = {a: "toto", b: "titi"}//_signature;
-//	// 7 - Finally cast vote by calling webservice
-//	//TODO post post
-//	castVoteSuccessCallback({signature: {timestamp: "toto", value: "titi"}})
-//	//use castVoteSuccessCallback, castVoteErrorCallback
-//    };
-//
-//    // Starting finalizing asynchronously
-//    ballotData.electionId = electionId;
-//
-//    try {
-//	// 1 - Encode vote (BigInt)
-//	ballotData.encodedVote = uvCrypto.encodeVote(confirmMap, choiceIds, forAllRules);
-//    } catch (error) {
-//	processExceptionInFinalizeVote(msg.encodeVoteError);   // error.message
-//	return;
-//    }
-//
-//    // 2 - represent encodedvote in Gq
-//    uvCrypto.mapZq2GqAsync(ballotData.encodedVote, step3, updateCb, errorStep3Cb);
-//
-//}
 
 /**
  * Processes an exception during finalizing the vote. A message is displayed to 
@@ -434,7 +269,6 @@ function processExceptionInFinalizeVote(msgToDisplay) {
     });
 }
 
-//TODO
 /**
  * Error callback to handle vote casting faults.
  * 
@@ -442,51 +276,32 @@ function processExceptionInFinalizeVote(msgToDisplay) {
  *  @param httpStatusText - The http status as text.
  *  @param responseXML - The response from webservice holding the fault as XML object.
  */
-function castVoteErrorCallback(httpStatus, httpStatusText, responseXML) {
-
-    var errorCode = 0;
-    if (responseXML) {
-	// The VotingServiceFault must be parsed manually, because of cxf defact!
-	// Important: To get the responseXML passed to this callback, the error
-	// callback call must be adapted in cxf-utils and VotingService
-
-	// Get faultstring (currently not used)
-	//var faultstrings = responseXML.getElementsByTagName('faultstring');
-	//var faultstring = faultstrings.length > 0 ? faultstrings[0].textContent : '';
-
-	// Get error code
-	if (responseXML.getElementsByTagNameNS) {
-	    var errorCodes = responseXML.getElementsByTagNameNS('http://univote.bfh.ch/election', 'errorCode');
-	    errorCode = errorCodes.length > 0 ? parseInt(errorCodes[0].textContent, 10) : 0;
-	}
-	else {
-	    $(responseXML).find("*").each(function () {
-		if (this.tagName.indexOf('errorCode') > 0) {
-		    var $this = $(this);
-		    errorCode = parseInt($this.text(), 10);
-		}
-	    });
-	}
+function castVoteErrorCallback(message) {
+    
+    var errorCode = "";
+    if(message == ""){
+	errorMsg = msg.sendVoteErrorInternalServerError;
+    } else {
+	errorCode = message.substring(0,7)
     }
 
-    var errorMsg;
-    switch (errorCode) {
-	case  3:
+    //TODO error code
+    switch(errorCode){
+	case  "":
 	    errorMsg = msg.sendVoteErrorInvalidSignatureError;
 	    break;
-	case  4:
+	case  "":
 	    errorMsg = msg.sendVoteErrorInvalidElectionState;
 	    break;
-	case 16:
+	case "":
 	    errorMsg = msg.sendVoteErrorNoEligibleVoter;
 	    break;
-	case 17:
+	case "":
 	    errorMsg = msg.sendVoteErrorAllreadyVoted;
 	    break;
-	case 18:
+	case "":
 	    errorMsg = msg.sendVoteErrorVerificationKeyRevoked;
 	    break;
-
 	default:
 	    errorMsg = msg.sendVoteErrorInternalServerError;
     }
@@ -506,90 +321,55 @@ function castVoteErrorCallback(httpStatus, httpStatusText, responseXML) {
  * and the signature received from the voting service. Finally the last step is
  * displayed.
  * 
- * @param response - The response (univote_bfh_ch_election_castVoteResponse) 
- * from webservice holding the signature (univote_bfh_ch_common_signature).
+ * @param response - The response 
  */
 function castVoteSuccessCallback(response) {
 
     var blindedRandomness = uvCrypto.blindRandomization(ballotData.encryptedVote.r, secretKey);
 
-//    var createQRCode = function() {
-
     // Put content of qr-code together. The content represents an object json 
     // encoded holding the different values of ballot and signature.
     // => Do it manually, so we know exactly what's going on!
-	try {
-    var base = 64;
-    var qrContent = [];
-    qrContent.push('{');
-    qrContent.push('"eID":', '"' + ballotData.electionId + '"');
-    qrContent.push(',"eVa":', '"' + leemon.bigInt2str(ballotData.encryptedVote.a, base) + '"');		// 1024 bits
-    qrContent.push(',"eVb":', '"' + leemon.bigInt2str(ballotData.encryptedVote.b, base) + '"');		// 1024 bits
-    qrContent.push(',"rB":', '"' + leemon.bigInt2str(blindedRandomness, base) + '"');			// 1024 bits
-    qrContent.push(',"vk":', '"' + leemon.bigInt2str(ballotData.verifKey.vk, base) + '"');		// 1024 bits
-    qrContent.push(',"pC":', '"' + leemon.bigInt2str(leemon.str2bigInt(ballotData.proof.commitment, 10), base) + '"');	// 1024 bits
-    qrContent.push(',"pR":', '"' + leemon.bigInt2str(leemon.str2bigInt(ballotData.proof.response, 10), base) + '"');	// 1024 bits
-    qrContent.push(',"vS":', '"' + leemon.bigInt2str(ballotData.signature.sig, base) + '"');			//  512 bits (2x 256)
-    //TODO read signature timestamp and value returned from board
-    qrContent.push(',"sT":', '"' + response.signature.timestamp + '"');
-    qrContent.push(',"sV":', '"' + leemon.bigInt2str(leemon.str2bigInt(response.signature.value, 10, 1), base) + '"'); //512 bits
-    qrContent.push('}');
-    
-    // Create qr-code and add data
-    //To determine the size see http://blog.qr4.nl/page/QR-Code-Data-Capacity.aspx
-    //If size is to small, qr code is not generated
-    var qr = qrcode(26, 'L');
-    qr.addData(qrContent.join(''));
-    qr.make();
+    try {
+	var base = 64;
+	var qrContent = [];
+	qrContent.push('{');
+	qrContent.push('"eID":', '"' + ballotData.electionId + '"');
+	qrContent.push(',"eVa":', '"' + leemon.bigInt2str(ballotData.encryptedVote.a, base) + '"');		// 1024 bits
+	qrContent.push(',"eVb":', '"' + leemon.bigInt2str(ballotData.encryptedVote.b, base) + '"');		// 1024 bits
+	qrContent.push(',"rB":', '"' + leemon.bigInt2str(blindedRandomness, base) + '"');			// 1024 bits
+	qrContent.push(',"vk":', '"' + leemon.bigInt2str(ballotData.verifKey.vk, base) + '"');		// 1024 bits
+	qrContent.push(',"pC":', '"' + leemon.bigInt2str(leemon.str2bigInt(ballotData.proof.commitment, 10), base) + '"');	// 1024 bits
+	qrContent.push(',"pR":', '"' + leemon.bigInt2str(leemon.str2bigInt(ballotData.proof.response, 10), base) + '"');	// 1024 bits
+	qrContent.push(',"vS":', '"' + leemon.bigInt2str(ballotData.signature.sig, base) + '"');			//  512 bits (2x 256)
+	qrContent.push(',"sT":', '"' + response.signature.timestamp + '"');
+	qrContent.push(',"sV":', '"' + leemon.bigInt2str(leemon.str2bigInt(response.signature.value, 10, 1), base) + '"'); //512 bits
+	qrContent.push('}');
 
-    // Create img tag representing the qr-code
-    var $qrcode = $(qr.createImgTag());
-    // Enlarge the code a little bit, so it can be better read by smart phone
-    $qrcode.attr('height', $qrcode.attr('height') * 1.4);
-    $qrcode.attr('width', $qrcode.attr('width') * 1.4);
-    // Append qr-code
+	// Create qr-code and add data
+	//To determine the size see http://blog.qr4.nl/page/QR-Code-Data-Capacity.aspx
+	//If size is to small, qr code is not generated
+	var qr = qrcode(26, 'L');
+	qr.addData(qrContent.join(''));
+	qr.make();
 
-    $(elements.qrcodeHolder).append($qrcode);
-    // Go to step 3
-    gotoStep3();
-    $.unblockUI();
+	// Create img tag representing the qr-code
+	var $qrcode = $(qr.createImgTag());
+	// Enlarge the code a little bit, so it can be better read by smart phone
+	$qrcode.attr('height', $qrcode.attr('height') * 1.4);
+	$qrcode.attr('width', $qrcode.attr('width') * 1.4);
+	// Append qr-code
 
-//	    // The async mode is used only for IE7/8!!
-//	    qr.makeAsync(function() {
-//		// Create img tag representing the qr-code
-//		var $qrcode = $(qr.createImgTag());
-//		// Enlarge the code a little bit, so it can be better read by smart phone
-//		$qrcode.attr('height', $qrcode.attr('height') * 1.4);
-//		$qrcode.attr('width', $qrcode.attr('width') * 1.4);
-//		// Append qr-code
-//		$(elements.qrcodeHolder).append($qrcode);
-//
-//		// Go to step 3
-//		gotoStep3();
-//		$.unblockUI();
-//	    }, function() {
-//		// Go to step 3 in any case!!
-//		gotoStep3();
-//		$.unblockUI();
-//	    });
+	$(elements.qrcodeHolder).append($qrcode);
+	// Go to step 3
+	gotoStep3();
+	$.unblockUI();
 
-	} catch (e) {
-	    // Go to step 3 in any case!!
-	    alert(e)
-	    gotoStep3();
-	    $.unblockUI();
-	}
-//    }
 
-//    var blindingDone = function(_blindedRandomness) {
-//	blindedRandomness = _blindedRandomness;
-//	createQRCode();
-//    }
-//
-//    uvCrypto.blindRandomizationAsync(ballotData.encryptedVote.r, secretKey, blindingDone, function() {
-//    });
-
-//    blindedRandomness = uvCrypto.blindRandomization(ballotData.encryptedVote.r, secretKey);
-//    createQRCode();
-
+    } catch (e) {
+	// Go to step 3 in any case!!
+	alert(e)
+	gotoStep3();
+	$.unblockUI();
+    }
 }

@@ -32,14 +32,6 @@
     // Line break used in email
     final String MAIL_LB = "\n";
 
-    // Get users email address
-//    UserDataBean ud = (UserDataBean) session.getAttribute("userData");
-//    if (ud == null || ud.getEmail() == null || ud.getEmail().equals("")) {
-//        response.sendError(500, "No email address in user session!");
-//        return;
-//    }
-//    String mailTo = ud.getEmail();
-
     // Get localized messges
     LanguageDetails languageDetails = (LanguageDetails) session.getAttribute("languageDetails");
     ResourceBundle msg = ResourceBundle.getBundle("messages", new Locale(languageDetails.getLocale()));

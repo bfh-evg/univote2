@@ -299,17 +299,29 @@ describe('mapZq2GqTest', function () {
 
 describe('pairing Tests', function () {
     it('pairing and unpairing leemon big integers', function () {
-
+	
         var a = leemon.randBigInt(160);
 	var b = leemon.randBigInt(160);
 	
 	var paired = uvCrypto.pair(a,b);
 	var unpaired = uvCrypto.unpair(paired);
 	
-	expect(leemon.equals(unpaired[0],a));
-	expect(leemon.equals(unpaired[1],b));
-	expect(!leemon.equals(unpaired[1],a));
-	expect(!leemon.equals(unpaired[0],b));
+	expect(leemon.equals(unpaired[0],a)).toEqual(1);
+	expect(leemon.equals(unpaired[1],b)).toEqual(1);
+	expect(leemon.equals(unpaired[1],a)).toEqual(0);
+	expect(leemon.equals(unpaired[0],b)).toEqual(0);
+    });
+});
+
+describe('Integer square root tests', function () {
+    it('computing integer square root', function () {
+	
+        var a = leemon.str2bigInt("65133683824381501983523684796057614145070427752690897588060462960319251776021", 10);
+	
+	var b = uvCrypto.isqrt(a);
+		
+	expect(leemon.bigInt2str(b, 10)).toEqual("255213016565341944910662726780139624115");
+	
     });
 });
 
@@ -330,6 +342,6 @@ describe('Schnorr signature tests', function () {
 	var sig = uvCrypto.createSchnorrSignature(messageHash, sk, p, q, g);
 	var result = uvCrypto.verifySchnorrSignature(sig, messageHash, pk, p, q, g);
         
-	expect(result==1);
+	expect(result).toEqual(1);
     });
 });

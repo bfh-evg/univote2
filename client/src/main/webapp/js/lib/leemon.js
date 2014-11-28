@@ -194,6 +194,7 @@
 // - Added randBigIntInZq
 // - Added rightShift: encapsulation of rightShift_
 // - Added leftShift: encapsulation of leftShift_ => Be careful with overflows!!!
+// - Added divied: encapsulation of divide_
 //*************************************************************************
 
 
@@ -1862,17 +1863,31 @@
 	
 	
 	this.rightShift = function(x,n){
-	    var x2=this.dup(x)
+	    var x2=this.dup(x);
 	    this.rightShift_(x2,n);
 	    return x2;
 	}
 	
 	//be careful be overflows in x2: when x is not big enough, overflows can appear
 	this.leftShift = function(x,n){
-	    var x2=this.dup(x)
+	    var x2=this.dup(x);
 	    this.leftShift_(x2,n);
 	    return x2;
 	}
+	
+	this.divide = function(x,y){
+	    var q = this.str2bigInt("0", 10, x.length);
+	    var r = this.str2bigInt("0", 10, x.length);
+	    
+	    var x2 = this.dup(x);
+	    var y2 = this.dup(y);
+	    
+	    
+	    this.divide_(x2,y2,q,r)
+	    
+	    return q;
+	}
+	
 
 	this.init()
     }

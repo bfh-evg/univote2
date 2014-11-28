@@ -75,12 +75,12 @@ var encryptionKey;
 var choiceIds;
 
 /** 
- * Holds all summation rules (array of univote_bfh_ch_common_summationRule).
+ * Holds all summation rules (array of objects).
  */
 var sumRules;
 
 /** 
- * Holds all for all rules (array of univote_bfh_ch_common_forallRule).
+ * Holds all for all rules (array of objects).
  */
 var forAllRules;
 
@@ -400,16 +400,16 @@ function retrieveElectionData() {
 		return;
 	    }
 	    // Check signatures of retrieved post
-//	    try {
+	    try {
 		//Signature of ResultContainer (certified read is not checked, since the one post contained in the ResultContainer
 		//is also signed)
 		var result = uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
 		verifySignature(result)
-//	    } catch (errormsg) {
-//		clearInterval(update);
-//		processFatalError(msg.signatureError);
-//		return;
-//	    }
+	    } catch (errormsg) {
+		clearInterval(update);
+		processFatalError(msg.signatureError);
+		return;
+	    }
 
 	    clearInterval(update);
 	},
@@ -442,19 +442,14 @@ function verifySignature(success) {
     //
     var choices, rules, lists, choicesMap;
 
-    //TODO remove comments
     // Step 1: Process cryptographic parameters
-//    var step1 = function() {
     // Set Elgamal parameters, election generator and encryption key
     uvCrypto.setElgamalParameters(electionData.encryptionSetting.p, electionData.encryptionSetting.q, electionData.encryptionSetting.g, 10);
     uvCrypto.setSignatureParameters(electionData.signatureSetting.p, electionData.signatureSetting.q, electionData.signatureSetting.ghat, 10);
     electionGenerator = leemon.str2bigInt(electionData.signatureSetting.ghat, 10, 1);
     encryptionKey = leemon.str2bigInt(electionData.encryptionSetting.encryptionKey, 10, 1);
-//	setTimeout(step2, 10);
-//    };
 
     // Step 2: Process election details like title, choices and rules
-//    var step2 = function() {
     // Set title
     $(elements.electionTitle).html(getLocalizedText(electionData.title, lang));
 
@@ -485,13 +480,8 @@ function verifySignature(success) {
 	lists.push(JSON.parse(uniqueList));
 	noList = true;
     }
-
-//	setTimeout(step3, 10);
-//    };
-
+    
     // Step 3: Process rules
-//    var step3 = function() {
-
     // Split different rules
     for (i = 0; i < rules.length; i++) {
 	var rule = rules[i];
@@ -512,10 +502,6 @@ function verifySignature(success) {
 
     // Finally unblock the GUI
     $.unblockUI();
-//    };
-
-    // Start with step 1
-//    setTimeout(step1, 10);
 }
 
 

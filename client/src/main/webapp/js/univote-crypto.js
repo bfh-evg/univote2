@@ -292,27 +292,47 @@
 	    }
 	}
 
-	// This is a helper method to compute the integer square root of a BigInteger value.
-	this.isqrt = function (bigInt) {
-	    var one = leemon.str2bigInt("1", 10);
-	    var a = one;
-
-	    var b = leemon.add(leemon.rightShift(bigInt, 5), leemon.str2bigInt("8", 10));
-
-	    while (leemon.greater(b, a) || leemon.equals(b, a)) {
-
-		var mid = leemon.rightShift(leemon.add(a, b), 1);
-		var square = leemon.mult(mid, mid);
-
-
-		if (leemon.greater(square, bigInt)) {
-		    b = leemon.sub(mid, one);
-		} else {
-		    a = leemon.add(mid, one);
+//	//This is a helper method to compute the integer square root of a BigInteger value.
+//	this.isqrt2 = function (bigInt) {
+//	    var one = leemon.str2bigInt("1", 10);
+//	    var a = one;
+//
+//	    var b = leemon.add(leemon.rightShift(bigInt, 5), leemon.str2bigInt("8", 10));
+//
+//	    while (leemon.greater(b, a) || leemon.equals(b, a)) {
+//
+//		var mid = leemon.rightShift(leemon.add(a, b), 1);
+//		var square = leemon.mult(mid, mid);
+//
+//
+//		if (leemon.greater(square, bigInt)) {
+//		    b = leemon.sub(mid, one);
+//		} else {
+//		    a = leemon.add(mid, one);
+//		}
+//	    }
+//	    return leemon.sub(a, one);
+//	};
+	
+	// This is a helper method to compute the integer square root of a BigInteger value using Newton's algorithm
+	this.isqrt = function(bigInt) {
+		// special case
+		if (leemon.isZero(bigInt)) {
+			return leemon.str2bigInt("0", 10);
 		}
-	    }
-	    return leemon.sub(a, one);
-	};
+		
+		// first guess
+		var one = leemon.str2bigInt("1", 10, bigInt.length);
+		var current = leemon.leftShift(one, leemon.bitSize(bigInt)/2 + 1);
+		var last;
+		do {
+			last = current;
+			current = leemon.rightShift(leemon.add(last, leemon.divide(bigInt, last)),1);
+		}
+		while (leemon.greater(last, current)===1);
+		return last;
+	}
+
 
 	////////////////////////////////////////////////////////////////////////
 	// Randomization bliding functions
@@ -434,17 +454,19 @@
 //	    leemon.powModAsync(g, sk, p, progressCb, doneCb);
 //	}
 
-	/*
-	 * Computes verification key proof.
-	 *
-	 * @param sk - The secret key as bigInt.
-	 * @param vk - The verification key as bigInt.
-	 * @param voterId - Voter's id as string.
-	 * @return Proof as object containing t (commitment), c (challange) and
-	 * s (response) as string representing a bigInt to the base 10.
+	
+	/**
+	 * Compute proof of knowledge of private key
+	 * @param {type} p Value of prime p as bigInt
+	 * @param {type} q Value of prime q as bigInt
+	 * @param {type} g Value of cyclic group generator as bigInt
+	 * @param {type} sk Value of private key as bigInt
+	 * @param {type} vk Value of verification key as bigInt
+	 * @param {type} otherInput Additional data that must be hashed in proof as string
+	 * @returns Proof as object containing t (commitment), c (challange) and s (response) as base 10 string.
 	 */
-	this.computeVerificationKeyProof = function (p, q, g, sk, vk, voterId) {
-	    var proof = this.NIZKP(p, q, g, sk, vk, voterId);
+	this.computeVerificationKeyProof = function (p, q, g, sk, vk, otherInput) {
+	    var proof = this.NIZKP(p, q, g, sk, vk, otherInput);
 	    proof.t = leemon.bigInt2str(proof.t, 10);
 	    proof.c = leemon.bigInt2str(proof.c, 10);
 	    proof.s = leemon.bigInt2str(proof.s, 10);
@@ -467,7 +489,14 @@
 //	    this.NIZKPAsync(p, q, g, sk, vk, voterId, nizkpDoneCb, updateCb);
 //	}
 
-
+	/**
+	 * Compute a RSA signature proving knowledge of private key
+	 * @param {type} sk Value of private key as bigInt
+	 * @param {type} vk Value of public key as bigInt
+	 * @param {type} modulo RSA modulus as bigInt
+	 * @param {type} message Message to sign as string
+	 * @returns a bigInt representing the signature
+	 */
 	this.computeRSASignature = function (sk, vk, modulo, message) {
 	    //hash the message
 	    var hashedMessage = sha256.hashString(message); //base 16 encoded string
@@ -502,11 +531,7 @@
 	    // 1. Add pre- and postfix to key
 	    var key = uvConfig.PRIVATE_KEY_PREFIX + sk + uvConfig.PRIVATE_KEY_POSTFIX;
 
-	    // 2. Convert key into bigInt} catch (errormsg) {
-//		clearInterval(update);
-//		processFatalError(msg.signatureError);
-//		return;
-//	    }
+	    // 2. Convert key into bigInt
 	    key = leemon.str2bigInt(key, 64, 0);
 
 	    //3. Create a salt of exactly 128 bits
@@ -954,6 +979,13 @@
 	 * @return An object with the signature (univote_bfh_ch_common_voterSignature)
 	 * and the single signature values as bigInt.
 	 */
+	/**
+	 * Signs the post that will be posted on UniBoard using hte given generator (Schnorr signature)
+	 * @param post Message to be signed
+	 * @param generator Generator to be used in the signature
+	 * @param sk Private key used for signature
+	 * @returns Signature as object containing the paired value as bigInt (sig) and its base 10 string representation (sigString)
+	 */
 	this.signPost = function (post, generator, sk) {
 
 	    //Hash post
@@ -964,7 +996,14 @@
 	    return {sig: paired, sigString: leemon.bigInt2str(paired, 10)};
 	}
 
-	this.verifyResultSignature = function (resultContainer, posterSetting, verifyPosterSignature, callback) {
+	/**
+	 * Verify the (Schnorr) signature of a result received from the board
+	 * @param resultContainer The result received from the board
+	 * @param posterSetting Crypto setting of the poster
+	 * @param verifyPosterSignature True if signature of poster of the posts contained in the result, fals if not
+	 * @returns True if signature is correct, false otherwise
+	 */
+	this.verifyResultSignature = function (resultContainer, posterSetting, verifyPosterSignature) {
 	    //1. Verify ResultContainer signature
 	    //Currently this signature is not checked since most of the time, the result container contains only
 	    //one post, so checking the post signature is sufficient
@@ -987,8 +1026,8 @@
 
 	    }
 
+	    //3. Verify poster signature of each Post contained in the result
 	    if (verifyPosterSignature == true) {
-		//3. Verify poster signature of each Post
 		for (var i = 0; i < posts.length; i++) {
 		    var post = posts[i];
 
