@@ -14,10 +14,12 @@
 		},
 		"votingPeriodBegin": {
 			"type": "string",
+			"format": "date-time",
 			"description": "Date and time of beginning of the voting period"
 		},
 		"votingPeriodEnd": {
 			"type": "string",
+			"format": "date-time",
 			"description": "Date and time of the end of the voting period"
 		}
 	},
