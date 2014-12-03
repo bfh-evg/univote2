@@ -144,12 +144,11 @@ function retrieveData() {
 
     //Ajax request
     $.ajax({
-	url: uvConfig.URL_UNICERT_PARAMETERS,
+	url: uvConfig.URL_PARAMETERS,
 	type: 'POST',
-	contentType: "application/json",
 	accept: "application/json",
 	cache: false,
-	dataType: 'json',
+	data: "params="+document.getElementById('paramset').value,
 	timeout: 10000,
 	//To send the cookie
 	xhrFields: {
@@ -171,10 +170,7 @@ function retrieveData() {
 	    }
 
 	    //Fills personal fields
-	    requester.idp.value = data.idp;
-	    requester.id.value = data.uniqueUserId;
-	    requester.email.value = data.email;
-	    $(elements.mail).html(data.email);
+	    $(elements.mail).html(requester.email.value);
 
 	    //Construct with data received
 	    if (requester.idp.value == "SwitchAAI") {
@@ -311,7 +307,9 @@ function updateKeysOptions() {
  * Generates key pair.
  */
 function generateKeyPair() {
-
+    
+    var skBaseTextField = 10;
+    
     // Block UI while processing
     $.blockUI({message: '<p id="blockui-processing">' + msg.processing + '.</p>'});
 
@@ -324,7 +322,7 @@ function generateKeyPair() {
 	publicKey = vk;
 
 	// Display secret key to the voter and unblock UI
-	elements.secretKey.value = leemon.bigInt2str(secretKey, 64);
+	elements.secretKey.value = leemon.bigInt2str(secretKey, skBaseTextField);
 
 
 	$.unblockUI();
@@ -345,7 +343,7 @@ function generateKeyPair() {
 	modulo = keys[2];
 
 
-	elements.secretKey.value = leemon.bigInt2str(secretKey, 64);
+	elements.secretKey.value = leemon.bigInt2str(secretKey, skBaseTextField);
 
 	$.unblockUI();
 

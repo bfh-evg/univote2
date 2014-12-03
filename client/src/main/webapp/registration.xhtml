@@ -34,9 +34,10 @@
         <h2 class="center">#{msg.certrequest}</h2>
 
         <form name="properties">
-            <input type="hidden" id="requester-id"/>
-            <input type="hidden" id="requester-email"/>
-            <input type="hidden" id="requester-idp"/>
+            <input type="hidden" id="requester-id" value="#{param.id}"/>
+            <input type="hidden" id="requester-email" value="#{param.mail}"/>
+            <input type="hidden" id="requester-idp" value="#{param.idp}"/>
+	    <input type="hidden" id="paramset" value="#{param.params}"/>
         </form>
     </ui:define>
 

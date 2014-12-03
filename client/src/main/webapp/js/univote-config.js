@@ -20,7 +20,7 @@
 		 * The urls of the certificate authority.
 		 */
 		this.URL_UNICERT_CERTIFICATE_AUTHORITY	= 'https://urd.bfh.ch/unicert-authentication/certificate-request/';
-		this.URL_UNICERT_PARAMETERS		= 'https://urd.bfh.ch/unicert-authentication/parameters/';
+		this.URL_PARAMETERS		= 'https://urd.bfh.ch/voting-client2/parameters/';
 		
 		/**
 		 * The url of the public board.
