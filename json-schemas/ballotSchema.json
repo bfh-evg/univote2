@@ -24,16 +24,10 @@
 			"description":  "Proof of valid vote",
 			"properties" : {
 				"commitment": {
-					"type":"array",
-					"items": {
-						"type":"string"
-					}
+					"type":"string"
 				},
 				"response": {
-					"type":"array",
-					"items": {
-						"type":"string"
-					}
+					"type":"string"
 				}
 			},
 			"required": ["commitment", "response"]
