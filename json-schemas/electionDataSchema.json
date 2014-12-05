@@ -73,7 +73,7 @@
 								}
 							}
 						},
-						"required": ["type", "lowerBound", "upperBound", "choiceId"]
+						"required": ["type", "lowerBound", "upperBound", "choiceIds"]
 					}
 				},
 				"encryptionSetting": {
@@ -99,9 +99,13 @@
 							"$ref": "#/definitions/signatureECDL"
 						}
 					]
+				},
+				"hashSetting": {
+					"type": "string",
+					"description": "Hash cryptographic setting"
 				}
 			},
-			"required": ["title", "description", "rules", "encryptionSetting", "signatureSetting" ]
+			"required": ["title", "description", "rules", "encryptionSetting", "signatureSetting", "hashSetting" ]
 		},
 
 
