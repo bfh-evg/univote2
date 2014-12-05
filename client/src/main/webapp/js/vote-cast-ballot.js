@@ -179,8 +179,8 @@ function finalizeVote() {
 	ballotData.proof = uvCrypto.computeVoteProof(ballotData.encryptedVote.r, ballotData.encryptedVote.a, ballotData.verifKey.vk);
 	//Proof is stored in ballotData.proof
 
-	ballot = {encryptedVote: ballotData.encryptedVote.encVote, proof: ballotData.proof.proof};
-
+	ballot = {encryptedVote: ballotData.encryptedVote.encVote, proof: ballotData.proof};
+	
 	updateFunction();
 
 	setTimeout(step5, 100);
@@ -207,8 +207,6 @@ function finalizeVote() {
 	post.alpha.attribute[2] = {key: "signature", value: {type: "stringValue", value: ballotData.signature.sigString}};
 	post.alpha.attribute[3] = {key: "publickey", value: {type: "stringValue", value: ballotData.verifKey.vkString}};
 
-	var postStr = JSON.stringify(post);
-
 	// 7 - Finally cast vote by calling webservice
 	//If Board is on another domain, IE9 will not be able to send the post
 	//IE9 does not support cross domain ajax request.
@@ -228,7 +226,7 @@ function finalizeVote() {
 	    accept: "application/json",
 	    cache: false,
 	    dataType: 'json',
-	    data: postStr,
+	    data: JSON.stringify(post),
 	    timeout: 10000,
 	    crossDomain: true,
 	    success: function (beta) {
@@ -272,9 +270,7 @@ function processExceptionInFinalizeVote(msgToDisplay) {
 /**
  * Error callback to handle vote casting faults.
  * 
- *  @param httpStatus - The http status as number.
- *  @param httpStatusText - The http status as text.
- *  @param responseXML - The response from webservice holding the fault as XML object.
+ *  @param message - error message
  */
 function castVoteErrorCallback(message) {
     
@@ -285,22 +281,21 @@ function castVoteErrorCallback(message) {
 	errorCode = message.substring(0,7)
     }
 
-    //TODO error code
     switch(errorCode){
-	case  "":
-	    errorMsg = msg.sendVoteErrorInvalidSignatureError;
-	    break;
-	case  "":
-	    errorMsg = msg.sendVoteErrorInvalidElectionState;
-	    break;
-	case "":
+	case "BAC-002":
 	    errorMsg = msg.sendVoteErrorNoEligibleVoter;
 	    break;
-	case "":
-	    errorMsg = msg.sendVoteErrorAllreadyVoted;
+	case  "BAC-003":
+	    errorMsg = msg.sendVoteErrorInvalidSignatureError;
 	    break;
-	case "":
-	    errorMsg = msg.sendVoteErrorVerificationKeyRevoked;
+	case  "BAC-004":
+	    errorMsg = msg.sendVoteErrorInvalidElectionState;
+	    break;
+	case  "BAC-005":
+	    errorMsg = msg.sendVoteErrorInvalidElectionState;
+	    break;
+	case "BAC-007":
+	    errorMsg = msg.sendVoteErrorAllreadyVoted;
 	    break;
 	default:
 	    errorMsg = msg.sendVoteErrorInternalServerError;

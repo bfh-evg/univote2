@@ -94,7 +94,19 @@ $(document).ready(function() {
  */
 function retrieveElections() {
 
-    var queryJson = '{"constraint": [{"type": "equal","identifier": {"type": "alphaIdentifier","part": [ "section" ]},"value": {"type": "stringValue","value": ""}}, {"type": "equal","identifier": {"type": "alphaIdentifier","part": [ "group" ]},"value": {"type": "stringValue","value": "electionDefinition"}}]}';
+    //Query of election data over all sections
+    var queryJson = {constraint: [{
+		type: "equal",
+		identifier: {
+		    type: "alphaIdentifier",
+		    part: [ "group" ]
+		},
+		value: {
+		    type: "stringValue",
+		    value: "electionDefinition"
+		}
+	    }]
+    };
 
     var update = setInterval(function(){$(elements.loadingElections).append("."); }, 1000);
     
@@ -109,7 +121,7 @@ function retrieveElections() {
 	accept: "application/json",
 	cache: false,
 	dataType: 'json',
-	data: queryJson,
+	data: JSON.stringify(queryJson),
 	timeout: 10000,
 	crossDomain: true,
 	success: function(resultContainer) {

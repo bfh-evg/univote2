@@ -51,23 +51,23 @@
 
 	// Default initialization of signature setting
 	var signatureSetting = {};
-	signatureSetting.pStr = uvConfig.SIGNATURE_SETTING.P;
-	signatureSetting.qStr = uvConfig.SIGNATURE_SETTING.Q;
-	signatureSetting.gStr = uvConfig.SIGNATURE_SETTING.G;
-
-	signatureSetting.p = leemon.str2bigInt(signatureSetting.pStr, base, 1);
-	signatureSetting.q = leemon.str2bigInt(signatureSetting.qStr, base, 1);
-	signatureSetting.g = leemon.str2bigInt(signatureSetting.gStr, base, 1);
+//	signatureSetting.pStr = uvConfig.SIGNATURE_SETTING.P;
+//	signatureSetting.qStr = uvConfig.SIGNATURE_SETTING.Q;
+//	signatureSetting.gStr = uvConfig.SIGNATURE_SETTING.G;
+//
+//	signatureSetting.p = leemon.str2bigInt(signatureSetting.pStr, base, 1);
+//	signatureSetting.q = leemon.str2bigInt(signatureSetting.qStr, base, 1);
+//	signatureSetting.g = leemon.str2bigInt(signatureSetting.gStr, base, 1);
 
 	// Default initialization of encryption setting
 	var encryptionSetting = {};
-	encryptionSetting.pStr = uvConfig.ENCRYPTION_SETTING.P;
-	encryptionSetting.qStr = uvConfig.ENCRYPTION_SETTING.Q;
-	encryptionSetting.gStr = uvConfig.ENCRYPTION_SETTING.G;
-
-	encryptionSetting.p = leemon.str2bigInt(encryptionSetting.pStr, base, 1);
-	encryptionSetting.q = leemon.str2bigInt(encryptionSetting.qStr, base, 1);
-	encryptionSetting.g = leemon.str2bigInt(encryptionSetting.gStr, base, 1);
+//	encryptionSetting.pStr = uvConfig.ENCRYPTION_SETTING.P;
+//	encryptionSetting.qStr = uvConfig.ENCRYPTION_SETTING.Q;
+//	encryptionSetting.gStr = uvConfig.ENCRYPTION_SETTING.G;
+//
+//	encryptionSetting.p = leemon.str2bigInt(encryptionSetting.pStr, base, 1);
+//	encryptionSetting.q = leemon.str2bigInt(encryptionSetting.qStr, base, 1);
+//	encryptionSetting.g = leemon.str2bigInt(encryptionSetting.gStr, base, 1);
 
 	
 	/**
@@ -78,7 +78,7 @@
 	 * @param gStr - Generator as string.
 	 * @param base - The base P, Q and G are represented in.
 	 */
-	this.setElgamalParameters = function (pStr, qStr, gStr, base) {
+	this.setEncryptionParameters = function (pStr, qStr, gStr, base) {
 	    encryptionSetting.pStr = pStr;
 	    encryptionSetting.qStr = qStr;
 	    encryptionSetting.gStr = gStr;
@@ -1063,9 +1063,7 @@
 	    var message = post.message;
 	    var alpha = post.alpha.attribute;
 
-
 	    var messageHash = sha256.hashString(B64.decode(message));
-
 	    var concatenatedAlphaHashes = ""
 	    for (var i = 0; i < alpha.length; i++) {
 		var attribute = alpha[i];
@@ -1105,7 +1103,6 @@
 			//thus signature must be included
 			continue;
 		    }
-
 		    if (attribute.value.type === "stringValue") {
 			concatenatedBetaHashes += sha256.hashString(attribute.value.value);
 		    } else if (attribute.value.type === "integerValue") {

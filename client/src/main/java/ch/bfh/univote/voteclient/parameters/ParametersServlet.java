@@ -62,7 +62,7 @@ public class ParametersServlet extends HttpServlet {
 	    throws ServletException, IOException {
 
 	    String propertiesSetIdentifier = request.getParameter(PROPERTY_SET_IDENTIFIER);
-	    propertiesSetIdentifier = "/unicert/" + propertiesSetIdentifier;
+	    propertiesSetIdentifier = "/univote/" + propertiesSetIdentifier;
 	    
 	    ConfigurationHelperImpl config = new ConfigurationHelperImpl(propertiesSetIdentifier);
 

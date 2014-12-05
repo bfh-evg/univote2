@@ -338,9 +338,37 @@ function retrieveElectionData() {
 	$('#blockui-processing').append('.');
     }, 500);
 
-    //TODO order by time
-    var queryJson = '{"constraint": [{"type": "equal","identifier": {"type": "alphaIdentifier","part": [ "section" ]},"value": {"type": "stringValue","value": "' + electionId + '"}}, {"type": "equal","identifier": {"type": "alphaIdentifier","part": [ "group" ]},"value": {"type": "stringValue","value": "electionData"}}]}';
-
+    //Get election data: descendant order (newest first), limit 1
+    var queryJson = {
+	constraint: [{
+		type: "equal", 
+		identifier: {
+		    type: "alphaIdentifier",
+		    part: [ "section" ]
+		}, 
+		value: {
+		    type: "stringValue",
+		    value: electionId}
+	    }, {
+		type: "equal",
+		identifier: {
+		    type: "alphaIdentifier",
+		    part: [ "group" ]
+		},
+		value: {
+		    type: "stringValue",
+		    value: "electionData"
+		}
+	    }],
+	order:[{
+		identifier:{
+		    type: "betaIdentifier",
+		    parts:["rank"]
+		},
+		ascDesc:false
+	    }],
+	limit: 1};
+	   
     //For IE
     $.support.cors = true;
 
@@ -352,14 +380,14 @@ function retrieveElectionData() {
 	accept: "application/json",
 	cache: false,
 	dataType: 'json',
-	data: queryJson,
+	data: JSON.stringify(queryJson),
 	timeout: 10000,
 	crossDomain: true,
 	success: function (resultContainer) {
 	    // Save election data
 	    var posts = resultContainer.result.post;
 	    var post;
-	    if (posts.length < 0) {
+	    if (posts == undefined || posts.length <= 0) {
 		//no data received
 		processFatalError(msg.retreiveElectionDataError);
 		return;
@@ -444,7 +472,7 @@ function verifySignature(success) {
 
     // Step 1: Process cryptographic parameters
     // Set Elgamal parameters, election generator and encryption key
-    uvCrypto.setElgamalParameters(electionData.encryptionSetting.p, electionData.encryptionSetting.q, electionData.encryptionSetting.g, 10);
+    uvCrypto.setEncryptionParameters(electionData.encryptionSetting.p, electionData.encryptionSetting.q, electionData.encryptionSetting.g, 10);
     uvCrypto.setSignatureParameters(electionData.signatureSetting.p, electionData.signatureSetting.q, electionData.signatureSetting.ghat, 10);
     electionGenerator = leemon.str2bigInt(electionData.signatureSetting.ghat, 10, 1);
     encryptionKey = leemon.str2bigInt(electionData.encryptionSetting.encryptionKey, 10, 1);

@@ -90,7 +90,7 @@
 	 * Hashes a base 64 representation of a byte array
 	 * returns a hex representation of the hash
 	 */
-	this.hahsByteArray = function (base64ByteArray) {
+	this.hashByteArray = function (base64ByteArray) {
 
 	    var byteArray = B64.decode(base64ByteArray);
 	    return this.hashBigInt(byteArray)

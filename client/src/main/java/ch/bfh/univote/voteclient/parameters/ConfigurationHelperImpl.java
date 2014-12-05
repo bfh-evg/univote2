@@ -37,7 +37,7 @@ public class ConfigurationHelperImpl implements ConfigurationHelper {
     private String generator;
     private String applicationIdentifier;
     private String role;
-    private int identityFunctionIndex;
+    private int identityFunctionIndex = -1;
 
     private boolean showKeyTypeField = true;
     private boolean showKeySizeField = true;
