@@ -1,0 +1,197 @@
+{
+   "election": {
+         "type":"PartyElection",
+         "choices":[
+            {
+               "type":"PartyCandidate",
+               "choiceId":10,
+               "candidateNumber":"1",
+               "description":[
+                  {
+                     "languageCode":"EN",
+                     "text":"Math,Master"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"Math,Master"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"Math,Master"
+                  }
+               ],
+               "firstname":"Obama",
+               "lastname":"Barack",
+               "partyId":13
+            },
+            {
+               "type":"PartyCandidate",
+               "choiceId":11,
+               "candidateNumber":"2",
+               "description":[
+                  {
+                     "languageCode":"EN",
+                     "text":"Math,Master"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"Math,Master"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"Math,Master"
+                  }
+               ],
+               "firstname":"Bush",
+               "lastname":"Georges W.",
+               "partyId":13
+            },
+            {
+               "type":"PartyCandidate",
+               "choiceId":12,
+               "candidateNumber":"3",
+               "description":[
+                  {
+                     "languageCode":"EN",
+                     "text":"Math,Master"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"Math,Master"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"Math,Master"
+                  }
+               ],
+               "firstname":"Washington",
+               "lastname":"Georges",
+               "partyId":14
+            },
+            {
+               "type":"Party",
+               "choiceId":13,
+               "name":[
+                  {
+                     "languageCode":"EN",
+                     "text":"Presidents of the 20th century"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"Presidenten vom 20. Jahrhundert"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"Président du 20ème siècle"
+                  }
+               ]
+            },
+            {
+               "type":"Party",
+               "choiceId":14,
+               "name":[
+                  {
+                     "languageCode":"EN",
+                     "text":"Older presidents"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"Älteren Presidenten"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"Présidents plus anciens"
+                  }
+               ]
+            }
+         ],
+         
+         "rules":[
+            {
+               "type":"ForAllRule",
+               "choiceIds":[
+                  10,
+                  11,
+                  12
+               ],
+               "lowerBound":0,
+               "upperBound":1
+            }
+         ],
+         
+         "partyLists":[
+            {
+               "type":"PartyList",
+               "choicesIds":[
+                  10,
+                  10,
+                  11
+               ],
+               "listNumber":[
+                  {
+                     "languageCode":"EN",
+                     "text":"pln1en"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"pln1de"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"pln1fr"
+                  }
+               ],
+               "name":[
+                  {
+                     "languageCode":"EN",
+                     "text":"List of Presidents of the 20th century"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"Liste von Presidenten vom 20. Jahrhundert"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"Liste de Président du 20ème siècle"
+                  }
+               ],
+               "partyId":13
+            },
+            {
+               "type":"PartyList",
+               "choicesIds":[
+                  12
+               ],
+               "listNumber":[
+                  {
+                     "languageCode":"EN",
+                     "text":"pln2en"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"pln2de"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"pln2fr"
+                  }
+               ],
+               "name":[
+                  {
+                     "languageCode":"EN",
+                     "text":"List of Older presidents"
+                  },
+                  {
+                     "languageCode":"DE",
+                     "text":"Liste von Älteren Presidenten"
+                  },
+                  {
+                     "languageCode":"FR",
+                     "text":"Liste de Présidents plus anciens"
+                  }
+               ],
+               "partyId":14
+            }
+         ]
+      }
+}

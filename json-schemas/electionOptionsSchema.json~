@@ -5,10 +5,8 @@
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"properties": {
-		"elections": {
-			"type": "array",
-			"description": "List of elections for this event",
-			"items": {
+		"election": {
+			
 				"oneOf": [
 					{
 						"$ref": "#/definitions/candidateElection"
@@ -21,7 +19,7 @@
 					}
 				]
 				
-			}
+			
 		}
 	},
 	
@@ -34,14 +32,6 @@
 			"description":  "Election object",
 			"properties":{
 				
-				"title": {
-					"$ref": "#/definitions/localizedTexts",
-					"description":  "Title of the election"
-				},
-				"description": {
-					"$ref": "#/definitions/localizedTexts",
-					"description":  "Text containing a description of the election"
-				},
 				"rules": {
 					"type": "array",
 					"description": "List of rules",
@@ -75,34 +65,6 @@
 						},
 						"required": ["type", "lowerBound", "upperBound", "choiceIds"]
 					}
-				},
-				"encryptionSetting": {
-					"type": "object",
-					"description": "Encryption cryptographic setting including encryptionKey",
-					"oneOf": [
-						{
-							"$ref": "#/definitions/encryptionDL"
-						},
-						{
-							"$ref": "#/definitions/encryptionECDL"
-						}
-					]
-				},
-				"signatureSetting": {
-					"type": "object",
-					"description": "Signature cryptographic setting including g hat",
-					"oneOf": [
-						{
-							"$ref": "#/definitions/signatureDL"
-						},
-						{
-							"$ref": "#/definitions/signatureECDL"
-						}
-					]
-				},
-				"hashSetting": {
-					"type": "string",
-					"description": "Hash cryptographic setting"
 				}
 			},
 			"required": ["title", "description", "rules", "encryptionSetting", "signatureSetting", "hashSetting" ]
@@ -417,95 +379,6 @@
 				},
 				"required": ["languageCode", "text"]
 			}
-		},
-
-
-
-		"encryptionDL": {
-			"additionalProperties" : false,
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": [
-						"DL"
-					]
-				},
-				"p": {
-					"type": "string"
-				},
-				"q": {
-					"type": "string"
-				},
-				"g": {
-					"type": "string"
-				},
-				"encryptionKey": {
-					"type": "string",
-					"description": "Key used to encrypt ballot"
-				}
-			},
-			"required": ["type", "p", "q", "g", "encryptionKey"]
-		},
-		"encryptionECDL": {
-			"additionalProperties" : false,
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": [
-						"ECDL"
-					]
-				},		
-				"curve": {
-					"type": "string"
-				},
-				"encryptionKey": {
-					"type": "string",
-					"description": "Key used to encrypt ballot"
-				}
-			},
-			"required": ["type", "curve", "encryptionKey"]
-		},
-		"signatureDL": {
-			"additionalProperties" : false,
-			"properties": {
-				
-				"type": {
-					"type": "string",
-					"enum": [
-						"DL"
-					]
-				},
-				"p": {
-					"type": "string"
-				},
-				"q": {
-					"type": "string"
-				},
-				"ghat": {
-					"type": "string",
-					"description": "Modified generator g hat"
-				}
-			},
-			"required": ["type", "p", "q", "ghat"]
-		},
-		"signatureECDL": {
-			"additionalProperties" : false,
-			"properties": {
-				"type": {
-					"type": "string",
-					"enum": [
-						"ECDL"
-					]
-				},		
-				"curve": {
-					"type": "string"
-				},
-				"ghat": {
-					"type": "string",
-					"description": "Modified generator g hat"
-				}
-			},
-			"required": ["type", "curve", "ghat"]
 		}
 	}
 }
