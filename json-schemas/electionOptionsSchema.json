@@ -5,18 +5,23 @@
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"properties": {
-		"election": {
-			"oneOf": [
-				{
-					"$ref": "#/definitions/candidateElection"
-				},
-				{
-					"$ref": "#/definitions/partyElection"
-				},
-				{
-					"$ref": "#/definitions/vote"
-				}
-			]			
+		"elections": {
+			"type": "array",
+			"description": "List of elections for this event",
+			"items": {
+				"oneOf": [
+					{
+						"$ref": "#/definitions/candidateElection"
+					},
+					{
+						"$ref": "#/definitions/partyElection"
+					},
+					{
+						"$ref": "#/definitions/vote"
+					}
+				]
+				
+			}
 		}
 	},
 	

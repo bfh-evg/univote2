@@ -1,5 +1,6 @@
 {
-   "election": {
+   "elections": [
+	{
          "type":"PartyElection",
          "choices":[
             {
@@ -194,4 +195,5 @@
             }
          ]
       }
+  ]
 }
