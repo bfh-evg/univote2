@@ -9,19 +9,19 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class ManagerException extends Exception {
+public class UnivoteException extends Exception {
 
-	public ManagerException(String message) {
+	public UnivoteException(String message) {
 		super(message);
 	}
 
-	public ManagerException(String message, Throwable cause) {
+	public UnivoteException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

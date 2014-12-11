@@ -30,6 +30,7 @@ import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.component.core.data.Signer;
+import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import java.net.URL;
 import java.text.DateFormat;
@@ -59,21 +60,21 @@ public class UniBoardHelperImpl implements UniboardHelper {
 	TenantManager tenantManager;
 
 	@Override
-	public ResultContainerDTO get(QueryDTO query) throws HelperException {
+	public ResultContainerDTO get(QueryDTO query) throws UnivoteException {
 		try {
 			UniBoardService uniboard = this.getUniBoardService();
 			//TODO check signature
 			return uniboard.get(query);
 		} catch (Exception ex) {
 			//TODO Differ exceptions and do log
-			throw new HelperException();
+			throw new UnivoteException("Could not get messages from the board.", ex);
 		}
 
 	}
 
 	@Override
 	public AttributesDTO post(String section, String group, byte[] message, String tenant)
-			throws HelperException {
+			throws UnivoteException {
 		try {
 			Signer signer = this.tenantManager.getSigner(tenant);
 			AttributesDTO alpha = new AttributesDTO();
@@ -89,7 +90,7 @@ public class UniBoardHelperImpl implements UniboardHelper {
 			return uniboard.post(message, alpha);
 		} catch (Exception ex) {
 			//TODO Differ exceptions and do log
-			throw new HelperException();
+			throw new UnivoteException("Could not post message on the board", ex);
 		}
 	}
 

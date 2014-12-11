@@ -11,32 +11,20 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import java.util.List;
+import javax.ejb.Local;
+
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class NotificationData {
+@Local
+public interface InitialisationHelper {
 
-	private String action;
-	private String tenant;
-	private String section;
+	public List<String> getTenants();
 
-	public NotificationData(String action, String tenant, String section) {
-		this.action = action;
-		this.tenant = tenant;
-		this.section = section;
-	}
+	public List<String> getSections(String tenant);
 
-	public String getAction() {
-		return action;
-	}
-
-	public String getTenant() {
-		return tenant;
-	}
-
-	public String getSection() {
-		return section;
-	}
+	public String getInitialistionAction();
 
 }

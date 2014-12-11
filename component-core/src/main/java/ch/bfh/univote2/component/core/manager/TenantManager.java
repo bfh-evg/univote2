@@ -11,6 +11,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.data.Signer;
 import javax.ejb.Local;
 
@@ -21,9 +22,9 @@ import javax.ejb.Local;
 @Local
 public interface TenantManager {
 
-	public boolean unlock(String tenant, String password) throws ManagerException;
+	public boolean unlock(String tenant, String password) throws UnivoteException;
 
-	public void lock(String tenant, String password) throws ManagerException;
+	public void lock(String tenant, String password) throws UnivoteException;
 
-	public Signer getSigner(String tenant) throws ManagerException;
+	public Signer getSigner(String tenant) throws UnivoteException;
 }

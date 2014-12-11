@@ -14,6 +14,7 @@ package ch.bfh.univote2.component.core.helper;
 import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.univote2.component.core.UnivoteException;
 import javax.ejb.Local;
 
 /**
@@ -23,8 +24,8 @@ import javax.ejb.Local;
 @Local
 public interface UniboardHelper {
 
-	ResultContainerDTO get(QueryDTO query) throws HelperException;
+	ResultContainerDTO get(QueryDTO query) throws UnivoteException;
 
-	AttributesDTO post(String section, String group, byte[] message, String tennant) throws HelperException;
+	AttributesDTO post(String section, String group, byte[] message, String tennant) throws UnivoteException;
 
 }

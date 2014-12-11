@@ -9,12 +9,25 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.action;
+package ch.bfh.univote2.component.core.data;
+
+import java.util.Map;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public abstract class NotificationCondition {
+public class NCodeActionDataMapping {
 
+	private Map<String, ActionData> notificationMappings;
+	private Map<ActionData, String> actionMappings;
+
+	public ActionData findByNotificationCode(String notificationCode) {
+		return null;
+	}
+
+	public String findByActionData(ActionData actionData) {
+		return "";
+
+	}
 }

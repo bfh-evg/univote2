@@ -12,6 +12,7 @@
 package ch.bfh.univote2.component.core.helper;
 
 import ch.bfh.uniboard.data.QueryDTO;
+import ch.bfh.univote2.component.core.UnivoteException;
 import javax.ejb.Local;
 
 /**
@@ -21,7 +22,7 @@ import javax.ejb.Local;
 @Local
 public interface RegistrationHelper {
 
-	public String register(QueryDTO q);
+	public String register(QueryDTO q) throws UnivoteException;
 
-	public void unregister(String notificationCode);
+	public void unregister(String notificationCode) throws UnivoteException;
 }

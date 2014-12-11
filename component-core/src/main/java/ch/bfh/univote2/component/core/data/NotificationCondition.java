@@ -9,12 +9,12 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.helper;
+package ch.bfh.univote2.component.core.data;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class HelperException extends Exception {
+public abstract class NotificationCondition {
 
 }

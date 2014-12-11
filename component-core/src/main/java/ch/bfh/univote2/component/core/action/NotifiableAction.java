@@ -11,6 +11,7 @@
  */
 package ch.bfh.univote2.component.core.action;
 
+import ch.bfh.univote2.component.core.data.NotificationCondition;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -23,6 +24,6 @@ public interface NotifiableAction extends Action {
 
 	public List<NotificationCondition> getNotificationConditions(String tenant, String section);
 
-	public boolean notifyAction(String tenant, String section, Object notification);
+	public void notifyAction(String tenant, String section, Object notification);
 
 }

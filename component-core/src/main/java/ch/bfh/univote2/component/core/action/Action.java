@@ -20,7 +20,7 @@ import javax.ejb.Local;
 @Local
 public interface Action {
 
-	public boolean run(String tenant, String section);
+	public void run(String tenant, String section);
 
 	public boolean checkPostCondition(String tenant, String section);
 
