@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.helper;
 
 import java.util.List;
 import javax.ejb.Local;
@@ -20,8 +20,6 @@ import javax.ejb.Local;
  */
 @Local
 public interface InitialisationHelper {
-
-	public List<String> getTenants();
 
 	public List<String> getSections(String tenant);
 

@@ -11,8 +11,11 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.univote2.component.core.helper.EncryptionHelper;
 import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.data.Signer;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Set;
 import javax.ejb.Local;
 
 /**
@@ -24,7 +27,13 @@ public interface TenantManager {
 
 	public boolean unlock(String tenant, String password) throws UnivoteException;
 
-	public void lock(String tenant, String password) throws UnivoteException;
+	public boolean lock(String tenant, String password) throws UnivoteException;
 
-	public Signer getSigner(String tenant) throws UnivoteException;
+	public PublicKey getPublicKey(String tenant) throws UnivoteException;
+
+	public PrivateKey getPrivateKey(String tenant) throws UnivoteException;
+
+	public EncryptionHelper getEncrytpionHelper(String tenant) throws UnivoteException;
+
+	public Set<String> getUnlockedTenants();
 }

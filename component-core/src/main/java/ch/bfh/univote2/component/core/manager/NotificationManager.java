@@ -11,16 +11,17 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.data.ActionData;
+import ch.bfh.univote2.component.core.helper.InitialisationHelper;
 import ch.bfh.uniboard.data.PostDTO;
+import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
+import ch.bfh.univote2.component.core.data.ActionData;
+import ch.bfh.univote2.component.core.data.NotificationCodeActionDataMapping;
 import ch.bfh.univote2.component.core.data.NotificationCondition;
 import ch.bfh.univote2.component.core.data.QueryNotificationCondition;
 import ch.bfh.univote2.component.core.data.UserInputNotificationCondition;
 import ch.bfh.univote2.component.core.helper.RegistrationHelper;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -42,7 +43,7 @@ public class NotificationManager {
 	
 	static final Logger logger = Logger.getLogger(NotificationManager.class.getName());
 	private static final String CONFIGURATION_NAME = "action-list";
-	private Map<String, ActionData> notificationMappings;
+	private final NotificationCodeActionDataMapping notificationMappings;
 	private List<String> actionList;
 	
 	@Resource(name = "sessionContext")
@@ -55,7 +56,14 @@ public class NotificationManager {
 	ConfigurationManager configurationManager;
 	
 	@EJB
+	TenantManager tenantManager;
+	
+	@EJB
 	InitialisationHelper initialisationHelper;
+	
+	public NotificationManager() {
+		this.notificationMappings = new NotificationCodeActionDataMapping();
+	}
 	
 	@PostConstruct
 	public void init() {
@@ -66,20 +74,9 @@ public class NotificationManager {
 			this.actionList.add(tmp.getProperty(str));
 		}
 		//Get list of tennants
-		for (String tenant : this.initialisationHelper.getTenants()) {
+		for (String tenant : this.tenantManager.getUnlockedTenants()) {
 			for (String section : this.initialisationHelper.getSections(tenant)) {
-				//TODO Find state of the section
-				for (String actionName : this.actionList) {
-					
-					try {
-						NotifiableAction action = this.getAction(actionName);
-						if (action.checkPostCondition(tenant, section)) {
-						}
-					} catch (UnivoteException ex) {
-						this.log(ex);
-					}
-					
-				}
+				this.runSection(tenant, section);
 			}
 			try {
 				//Register this tenant for new sections
@@ -92,7 +89,7 @@ public class NotificationManager {
 	
 	@PreDestroy
 	public void cleanUp() {
-		for (String notificationCode : this.notificationMappings.keySet()) {
+		for (String notificationCode : this.notificationMappings.getAllNotificationCodes()) {
 			try {
 				this.registrationHelper.unregister(notificationCode);
 			} catch (UnivoteException ex) {
@@ -103,7 +100,7 @@ public class NotificationManager {
 	
 	public void onNotification(String notificationCode, PostDTO post) {
 		
-		if (!this.notificationMappings.containsKey(notificationCode)) {
+		if (!this.notificationMappings.containsNotificationCode(notificationCode)) {
 			logger.log(Level.INFO, "Received unknown notification code. {0}", notificationCode);
 			try {
 				this.registrationHelper.unregister(notificationCode);
@@ -112,7 +109,7 @@ public class NotificationManager {
 			}
 			return;
 		}
-		ActionData nData = this.notificationMappings.get(notificationCode);
+		ActionData nData = this.notificationMappings.findByNotificationCode(notificationCode);
 		String actionName = nData.getAction();
 		NotifiableAction action;
 		try {
@@ -126,16 +123,15 @@ public class NotificationManager {
 	
 	public void runFinished(ActionData nData) {
 		//unregister current process
-		for (Map.Entry<String, ActionData> e : this.notificationMappings.entrySet()) {
-			if (e.getValue().equals(nData)) {
-				try {
-					this.registrationHelper.unregister(e.getKey());
-				} catch (UnivoteException ex) {
-					this.log(ex);
-				}
-				this.notificationMappings.remove(e.getKey());
+		for (String notificationCode : this.notificationMappings.findByActionData(nData)) {
+			try {
+				this.registrationHelper.unregister(notificationCode);
+			} catch (UnivoteException ex) {
+				this.log(ex);
 			}
 		}
+		
+		this.notificationMappings.removeByActionData(nData);
 
 		//check if there is a next process
 		int i = this.actionList.indexOf(nData.getAction()) + 1;
@@ -176,7 +172,7 @@ public class NotificationManager {
 			if (cond instanceof QueryNotificationCondition) {
 				QueryNotificationCondition qNC = (QueryNotificationCondition) cond;
 				String newNotificationCode = this.registrationHelper.register(qNC.getQuery());
-				this.notificationMappings.put(newNotificationCode,
+				this.notificationMappings.add(newNotificationCode,
 						new ActionData(actionName, tenant, section));
 			} else if (cond instanceof UserInputNotificationCondition) {
 				//TODO
@@ -184,6 +180,24 @@ public class NotificationManager {
 				throw new UnivoteException("Unsupported notification condition " + cond.getClass());
 			}
 		}
+	}
+	
+	protected void runSection(String tenant, String section) {
+		//Find state of the section
+		try {
+			for (String actionName : this.actionList) {
+				NotifiableAction action = this.getAction(actionName);
+				if (!action.checkPostCondition(tenant, section)) {
+					this.registerAction(actionName, tenant, section);
+					this.runAction(actionName, tenant, section);
+					break;
+				}
+			}
+			
+		} catch (UnivoteException ex) {
+			this.log(ex);
+		}
+		logger.log(Level.INFO, "Tenant {0} and section {1} is finished.", new Object[]{tenant, section});
 	}
 	
 	protected void log(Exception ex) {

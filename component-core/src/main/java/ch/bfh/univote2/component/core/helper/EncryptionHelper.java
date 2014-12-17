@@ -9,25 +9,18 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.data;
+package ch.bfh.univote2.component.core.helper;
 
-import java.util.Map;
+import java.math.BigInteger;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class NCodeActionDataMapping {
+public interface EncryptionHelper {
 
-	private Map<String, ActionData> notificationMappings;
-	private Map<ActionData, String> actionMappings;
+	public BigInteger decryptBigInteger(BigInteger encBigInteger);
 
-	public ActionData findByNotificationCode(String notificationCode) {
-		return null;
-	}
+	public BigInteger encryptBigInteger(BigInteger encBigInteger);
 
-	public String findByActionData(ActionData actionData) {
-		return "";
-
-	}
 }
