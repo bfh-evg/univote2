@@ -50,7 +50,7 @@
 	    <artifactId>gson</artifactId>
 	    <version>2.3</version>
 	</dependency>
-	
+
 <!--	<dependency>
 	    <groupId>bouncycastle</groupId>
 	    <artifactId>bcprov-jdk16</artifactId>
@@ -114,9 +114,9 @@
 		    <artifactId>maven-surefire-plugin</artifactId>
 		    <version>2.13</version>
 		    <configuration>
-			
+
 						<argLine>-Xms1024m -Xmx4096m -XX:MaxPermSize=500m ${argLine}</argLine>
-			
+
 			<argLine>-Xms1024m -Xmx4096m -XX:MaxPermSize=500m</argLine>
 		    </configuration>
 		</plugin>
@@ -143,12 +143,13 @@
 			<include>lib/MapClass.js</include>
 			<include>lib/leemon.js</include>
 			<include>lib/jquery-1.7.2.min.js</include>
-
+			<include>lib/aes.js</include>
+			<include>lib/pbkdf2.js</include>
 			<include>lib/seedrandom.js</include>
 			<include>univote-config.js</include>
 			<include>univote-crypto.js</include>
 <!--<include>**/*.js</include>-->
-			
+
 		    </sourceIncludes>
 		</configuration>
 	    </plugin>
@@ -162,7 +163,7 @@
 		    <failOnMissingWebXml>false</failOnMissingWebXml>
 		</configuration>
 	    </plugin>
-	    
+
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -182,8 +183,8 @@
 					</execution>
 				</executions>
 			</plugin>
-	    
-	     
+
+
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-site-plugin</artifactId>
@@ -242,7 +243,7 @@
 				</excludeRoots>
 			    </configuration>
 			</plugin>
-			 Note: Two Checkstyle reports are generated. Don't know yet why. Eric 
+			 Note: Two Checkstyle reports are generated. Don't know yet why. Eric
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-checkstyle-plugin</artifactId>

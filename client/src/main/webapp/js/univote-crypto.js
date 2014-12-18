@@ -45,31 +45,16 @@
 	////////////////////////////////////////////////////////////////////////
 	// Configuration
 	////////////////////////////////////////////////////////////////////////
-	
+
 	// Base refers only to the bigInt representation of Schnorr, Elgamal and RSA parameters.
 	var base = uvConfig.BASE;
 
 	// Default initialization of signature setting
 	var signatureSetting = {};
-//	signatureSetting.pStr = uvConfig.SIGNATURE_SETTING.P;
-//	signatureSetting.qStr = uvConfig.SIGNATURE_SETTING.Q;
-//	signatureSetting.gStr = uvConfig.SIGNATURE_SETTING.G;
-//
-//	signatureSetting.p = leemon.str2bigInt(signatureSetting.pStr, base, 1);
-//	signatureSetting.q = leemon.str2bigInt(signatureSetting.qStr, base, 1);
-//	signatureSetting.g = leemon.str2bigInt(signatureSetting.gStr, base, 1);
 
 	// Default initialization of encryption setting
 	var encryptionSetting = {};
-//	encryptionSetting.pStr = uvConfig.ENCRYPTION_SETTING.P;
-//	encryptionSetting.qStr = uvConfig.ENCRYPTION_SETTING.Q;
-//	encryptionSetting.gStr = uvConfig.ENCRYPTION_SETTING.G;
-//
-//	encryptionSetting.p = leemon.str2bigInt(encryptionSetting.pStr, base, 1);
-//	encryptionSetting.q = leemon.str2bigInt(encryptionSetting.qStr, base, 1);
-//	encryptionSetting.g = leemon.str2bigInt(encryptionSetting.gStr, base, 1);
 
-	
 	/**
 	 * Sets the encryption parameters at runtime.
 	 *
@@ -110,15 +95,6 @@
 
 	/**
 	 * Computes a non-interactive zero-knowledge proof of knowledge of a private value.
-	 *
-	 * @param system - The system (either Schnorr or Elgamal).
-	 * @param secretInput - The secret input as bigInt.
-	 * @param publicInput - The public input as bigInt.
-	 * @param otherInput - Some other input as bigInt or string.
-	 * @return Proof as object containing t (commitment), c (challange) and s (response) as bigInt.
-	 */
-	/**
-	 * Computes a non-interactive zero-knowledge proof of knowledge of a private value.
 	 * @param p Prime p as big integer
 	 * @param q Prime q as big integer
 	 * @param g Generator as big integer
@@ -157,49 +133,6 @@
 	    return {t: t, c: c, s: s};
 	}
 
-//	/**
-//	 * Asynchronous version of NIZKP.
-//	 **/
-//	this.NIZKPAsync = function(p, q, g, secretInput, publicInput, otherInput, doneCb, updateCb) {
-//
-//	    // step 2
-//	    var step2 = function(_t) {
-//
-//		var t = _t;
-//		//3. Compute c = H(H(H(publicInput)||H(t))||H(otherInput))
-//		//3.1 Hash of public input
-//		var hashPI = sha256.hashBigInt(publicInput);
-//
-//		//3.2 Hash of commitment
-//		var hashCommitment = sha256.hashBigInt(t);
-//
-//		//3.3 Hash of the hash of public input concatenated with hash of commitment
-//		//(Steps 3.1 to 3.3 are the computation of to the recursive hash of a Pair[publicInput, Commitment] in UniCrypt)
-//		var hashPIAndCommitment = sha256.hashHexStr(hashPI + hashCommitment);
-//
-//		//3.4 Hash of other input
-//		var hashOtherInput = sha256.hashString(otherInput);
-//		//3.5 Hash of hashPIAndCommitment concatenated with hashOtherInput
-//		//(Steps 3.1 to 3.5 are the computation of to the recursive hash of a Pair[Pair[publicInput, Commitment], otherInput] in UniCrypt)
-//		var cStr = sha256.hashHexStr(hashPIAndCommitment + hashOtherInput);
-//		var c = leemon.mod(leemon.str2bigInt(cStr, 16, 1), q);
-//		//4. Compute s = omega+c*secretInput mod q
-//		var s = leemon.mod(leemon.add(omega, leemon.multMod(c, secretInput, q)), q);
-//
-//		// 5. Call callback with proof
-//		doneCb({t: t, c: c, s: s});
-//	    }
-//
-//
-//	    // Start with step 1
-//	    //1. Choose omega at random from Zq
-//	    var omega = leemon.randBigIntInZq(q);
-//
-//
-//	    //2. Compute t = g^omega mod p
-//	    leemon.powModAsync(g, omega, p, updateCb, step2);
-//	}
-
 	////////////////////////////////////////////////////////////////////////
 	// Schnorr Signature
 	////////////////////////////////////////////////////////////////////////
@@ -221,7 +154,7 @@
 	    // 2. Hash and calculate second part of signature
 	    var a2Hash = sha256.hashBigInt(a2);
 	    var aStr = sha256.hashHexStr(messageHash + a2Hash);
-	    var a = leemon.mod(leemon.str2bigInt(aStr, 16),q);
+	    var a = leemon.mod(leemon.str2bigInt(aStr, 16), q);
 
 	    var b = leemon.add(r, leemon.mult(a, privateKey));
 	    b = leemon.mod(b, q);
@@ -292,45 +225,24 @@
 	    }
 	}
 
-//	//This is a helper method to compute the integer square root of a BigInteger value.
-//	this.isqrt2 = function (bigInt) {
-//	    var one = leemon.str2bigInt("1", 10);
-//	    var a = one;
-//
-//	    var b = leemon.add(leemon.rightShift(bigInt, 5), leemon.str2bigInt("8", 10));
-//
-//	    while (leemon.greater(b, a) || leemon.equals(b, a)) {
-//
-//		var mid = leemon.rightShift(leemon.add(a, b), 1);
-//		var square = leemon.mult(mid, mid);
-//
-//
-//		if (leemon.greater(square, bigInt)) {
-//		    b = leemon.sub(mid, one);
-//		} else {
-//		    a = leemon.add(mid, one);
-//		}
-//	    }
-//	    return leemon.sub(a, one);
-//	};
-	
+
 	// This is a helper method to compute the integer square root of a BigInteger value using Newton's algorithm
-	this.isqrt = function(bigInt) {
-		// special case
-		if (leemon.isZero(bigInt)) {
-			return leemon.str2bigInt("0", 10);
-		}
-		
-		// first guess
-		var one = leemon.str2bigInt("1", 10, bigInt.length);
-		var current = leemon.leftShift(one, leemon.bitSize(bigInt)/2 + 1);
-		var last;
-		do {
-			last = current;
-			current = leemon.rightShift(leemon.add(last, leemon.divide(bigInt, last)),1);
-		}
-		while (leemon.greater(last, current)===1);
-		return last;
+	this.isqrt = function (bigInt) {
+	    // special case
+	    if (leemon.isZero(bigInt)) {
+		return leemon.str2bigInt("0", 10);
+	    }
+
+	    // first guess
+	    var one = leemon.str2bigInt("1", 10, bigInt.length);
+	    var current = leemon.leftShift(one, leemon.bitSize(bigInt) / 2 + 1);
+	    var last;
+	    do {
+		last = current;
+		current = leemon.rightShift(leemon.add(last, leemon.divide(bigInt, last)), 1);
+	    }
+	    while (leemon.greater(last, current) === 1);
+	    return last;
 	}
 
 
@@ -354,24 +266,6 @@
 	    //3. return the blinded
 	    return rB;
 	}
-
-	/**
-	 * Asynchronous version of blindRandomization.
-	 */
-//	this.blindRandomizationAsync = function(r, sk, doneCb, updateCb) {
-//
-//	    var step2 = function(_rGq) {
-//		//2. blind the mapped randomization with sk. This can be unblinded by rB^{-sk} = r^{sk/sk} = r
-//		leemon.powModAsync(_rGq, sk, encryptionSetting.p, updateCb, doneCb);
-//	    }
-//	    var errorCb = function(message) {
-//		//Schould never happen!
-//		doneCb(leemon.str2bigInt("0", 10, 1));
-//	    }
-//	    //1. map randomization into g_q
-//	    this.mapZq2GqAsync(r, step2, updateCb, errorCb);
-//	}
-
 
 	////////////////////////////////////////////////////////////////////////
 	// Secret key and verification key generation
@@ -446,15 +340,6 @@
 	    return leemon.powMod(g, sk, p);
 	}
 
-//	/**
-//	 * Asynchronous version of comupteVerificationKey.
-//	 */
-//	this.computeVerificationKeyAsync = function(p, g, sk, doneCb, progressCb) {
-//
-//	    leemon.powModAsync(g, sk, p, progressCb, doneCb);
-//	}
-
-	
 	/**
 	 * Compute proof of knowledge of private key
 	 * @param {type} p Value of prime p as bigInt
@@ -472,22 +357,6 @@
 	    proof.s = leemon.bigInt2str(proof.s, 10);
 	    return proof;
 	}
-
-//	/**
-//	 * Asynchronous version of comupteVerificationKeyProof.
-//	 */
-//	this.computeVerificationKeyProofAsync = function(p, q, g, sk, vk, voterId, doneCb, updateCb) {
-//
-//	    // done
-//	    var nizkpDoneCb = function(proof) {
-//		proof.t = leemon.bigInt2str(proof.t, 10);
-//		proof.c = leemon.bigInt2str(proof.c, 10);
-//		proof.s = leemon.bigInt2str(proof.s, 10);
-//		doneCb(proof);
-//	    };
-//
-//	    this.NIZKPAsync(p, q, g, sk, vk, voterId, nizkpDoneCb, updateCb);
-//	}
 
 	/**
 	 * Compute a RSA signature proving knowledge of private key
@@ -513,6 +382,114 @@
 
 	/**
 	 * Encrypts a secret key. The key is padded with PRIVATE_KEY_PREFIX/-POSTFIX
+	 * before it is encrypted using AES.
+	 * The key used is derived from the password.
+	 * Finally, the encrypted key (encoded in base 64) is
+	 * padded with ENC_PRIVATE_KEY_PREFIX/-POSTFIX.
+	 *
+	 * @param sk - The secret key as string (leemon base64).
+	 * @param password - The password used for encryption.
+	 * @return Encrytped and padded secret key as string.
+	 */
+	this.encryptSecretKeyAES = function (sk, password) {
+	    // 0. Transform key to base 16
+	    sk = leemon.bigInt2str(leemon.str2bigInt(sk, 64), 16)
+
+	    // 1. Add pre- and postfix to key
+	    var key = uvConfig.PRIVATE_KEY_PREFIX + sk + uvConfig.PRIVATE_KEY_POSTFIX;
+
+	    // 2. Create a salt of exactly 128 bits
+	    var salt = CryptoJS.lib.WordArray.random(128 / 8);
+	    var saltB64 = CryptoJS.enc.Base64.stringify(salt);
+
+	    // 3. Derivate key from password
+	    var symKey = CryptoJS.PBKDF2(password, salt, {keySize: uvConfig.SYM_KEY_SIZE / 32, iterations: uvConfig.PWD_KEY_DERIVATION_ITERATION});
+
+	    // 4. Create an IV of exactly 128 bits
+	    var iv = CryptoJS.lib.WordArray.random(128 / 8);
+	    var ivB64 = CryptoJS.enc.Base64.stringify(iv);
+
+	    // 5. Encrypt key
+	    var encrypted = CryptoJS.AES.encrypt(key, symKey, {iv: iv});
+	    // 7. Pad encrypted key with pre- and postfix and add salt and iv
+	    encrypted = uvConfig.ENC_PRIVATE_KEY_PREFIX + '\n' + saltB64 + ivB64 + encrypted + '\n' + uvConfig.ENC_PRIVATE_KEY_POSTFIX;
+
+	    return encrypted;
+	}
+
+	/**
+	 * Decrypts an encrypted secret key (counterpart to encryptSecretKey).
+	 * If the key is not properly padded or the password is wrong then
+	 * the error callback is called with a string denoting the error.
+	 *
+	 * @param key - Encrypted and padded secret key as string.
+	 * @param password - The password used for encryption.
+	 * @param errorCb - Callback to notify errors (type of error is passed as string).
+	 * @return Secret key as bigInt.
+	 */
+	this.decryptSecretKeyAES = function (key, password, errorCb) {
+
+	    // Cleans a string (removes all special charaters but =, -, _, +, /)
+	    function cleanStr(str) {
+		return str.replace(/[^\w=\-\+\/]/gi, '');
+	    }
+
+	    //Transform a hex string to alphabetical string
+	    function hex2a(hexx) {
+		var hex = hexx.toString();//force conversion
+		var str = '';
+		for (var i = 0; i < hex.length; i += 2)
+		    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+		return str;
+	    }
+
+//	    // 1. Check and erase pre- and postfix
+//	    // -> even \n and \r should be included in \s, only \s does not work!!!
+//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX) + "([0-9A-Za-z=_+/]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX));
+//	    var match = pattern.exec(cleanStr(key));
+//	    if (match == null || match.length != 2) {
+//		errorCb('invalidUploadedKey');
+//		return false;
+//	    }
+//
+//	    var keyC = match[1];
+
+	    // 1. Check and erase pre- and postfix
+	    var keyC = key.replace(/[-]*/g, "");
+	    keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_PREFIX.replace(/[-]*/g, ""), "");
+	    keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_POSTFIX.replace(/[-]*/g, ""), "");
+	    keyC = cleanStr(keyC);
+
+	    // 2. extract salt and iv (128 bits => 24 base64 chars)
+	    var salt = keyC.substring(0, 24);
+	    salt = CryptoJS.enc.Base64.parse(salt);
+	    var iv = keyC.substring(24, 48);
+	    iv = CryptoJS.enc.Base64.parse(iv);
+
+	    // 3. Extract encrypted key
+	    var encrypted = keyC.substring(48);
+
+	    // 4. Derivate key from password
+	    var symKey = CryptoJS.PBKDF2(password, salt, {keySize: uvConfig.SYM_KEY_SIZE / 32, iterations: uvConfig.PWD_KEY_DERIVATION_ITERATION});
+
+	    // 5. Decrypt private key with symetric key
+	    var decrypted = hex2a(CryptoJS.AES.decrypt(encrypted, symKey, {iv: iv}));
+
+	    // 6. Check and erase pre- and postfix
+	    pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX + "([0-9A-Za-z=_+/]*)" + uvConfig.PRIVATE_KEY_POSTFIX);
+	    match = pattern.exec(decrypted);
+	    if (match == null || match.length != 2) {
+		return errorCb('wrongPassword');
+	    }
+
+	    // 7. Finally return sk in leemon base 16 format
+	    return leemon.str2bigInt(match[1], 16);
+	}
+
+
+
+	/**
+	 * Encrypts a secret key. The key is padded with PRIVATE_KEY_PREFIX/-POSTFIX
 	 * before it is encrypted using a one-time-pad (of the size PRIVATE_KEY_ONE_TIME_PAD_SIZE).
 	 * The one-time-pad is a random number using the password as seed.
 	 * Finally, the encrypted key (represented as string in leemon's base 64) is
@@ -528,41 +505,42 @@
 	 */
 	this.encryptSecretKey = function (sk, password) {
 
-	    // 1. Add pre- and postfix to key
-	    var key = uvConfig.PRIVATE_KEY_PREFIX + sk + uvConfig.PRIVATE_KEY_POSTFIX;
-
-	    // 2. Convert key into bigInt
-	    key = leemon.str2bigInt(key, 64, 0);
-
-	    //3. Create a salt of exactly 128 bits
-	    var salt;
-	    do {
-		salt = leemon.randBigInt(128);
-	    } while (leemon.bitSize(salt) != 128)
-	    salt = leemon.bigInt2str(salt, 64)
-
-	    // 4. Seed rng with password and salt (save current RNG temporary to not
-	    // lose accumulated data for future randomness)
-	    var cRNG = Math.random;
-	    Math.seedrandom(password + "" + salt);
-
-	    // 5. Get one-time-pad and reassign old rng
-	    //compute the size of the pre/postfixed key
-	    var keyLength = leemon.bitSize(key);
-	    //compute the required size for one time pad, we want it to be a multiple of 16, in order
-	    //to be able to recover more easily the same size for decryption
-	    var oneTimePadSize = keyLength + (16 - keyLength % 16) + uvConfig.PRIVATE_KEY_ONE_TIME_PAD_PREPOSTFIX_SIZE;
-	    var r = leemon.randBigInt(oneTimePadSize);
-	    Math.random = cRNG;
-
-	    // 6. Encrypt key using one-time-pad
-	    var keyC = leemon.xor(key, r);
-	    // 7. Convert key to string with base 64
-	    keyC = leemon.bigInt2str(keyC, 64);
-	    // 8. Pad encrypted key with pre- and postfix and add salt
-	    keyC = uvConfig.ENC_PRIVATE_KEY_PREFIX + '\n' + salt + keyC + '\n' + uvConfig.ENC_PRIVATE_KEY_POSTFIX;
-	    // 9. Return encrypted and padded key
-	    return keyC;
+	    return this.encryptSecretKeyAES(sk, password);
+//	    // 1. Add pre- and postfix to key
+//	    var key = uvConfig.PRIVATE_KEY_PREFIX + sk + uvConfig.PRIVATE_KEY_POSTFIX;
+//
+//	    // 2. Convert key into bigInt
+//	    key = leemon.str2bigInt(key, 64, 0);
+//
+//	    //3. Create a salt of exactly 128 bits
+//	    var salt;
+//	    do {
+//		salt = leemon.randBigInt(128);
+//	    } while (leemon.bitSize(salt) != 128)
+//	    salt = leemon.bigInt2str(salt, 64)
+//
+//	    // 4. Seed rng with password and salt (save current RNG temporary to not
+//	    // lose accumulated data for future randomness)
+//	    var cRNG = Math.random;
+//	    Math.seedrandom(password + "" + salt);
+//
+//	    // 5. Get one-time-pad and reassign old rng
+//	    //compute the size of the pre/postfixed key
+//	    var keyLength = leemon.bitSize(key);
+//	    //compute the required size for one time pad, we want it to be a multiple of 16, in order
+//	    //to be able to recover more easily the same size for decryption
+//	    var oneTimePadSize = keyLength + (16 - keyLength % 16) + uvConfig.PRIVATE_KEY_ONE_TIME_PAD_PREPOSTFIX_SIZE;
+//	    var r = leemon.randBigInt(oneTimePadSize);
+//	    Math.random = cRNG;
+//
+//	    // 6. Encrypt key using one-time-pad
+//	    var keyC = leemon.xor(key, r);
+//	    // 7. Convert key to string with base 64
+//	    keyC = leemon.bigInt2str(keyC, 64);
+//	    // 8. Pad encrypted key with pre- and postfix and add salt
+//	    keyC = uvConfig.ENC_PRIVATE_KEY_PREFIX + '\n' + salt + keyC + '\n' + uvConfig.ENC_PRIVATE_KEY_POSTFIX;
+//	    // 9. Return encrypted and padded key
+//	    return keyC;
 	}
 
 	/**
@@ -581,59 +559,69 @@
 	 */
 	this.decryptSecretKey = function (key, password, errorCb) {
 
-	    // Cleans a string (removes all special charaters but =, -, _)
-	    function cleanStr(str) {
-		return str.replace(/[^\w=_\-]/gi, '');
+	    var result;
+
+	    function callback(message) {
+		return result = uvCrypto.decryptSecretKeyUniVote1(key, password, errorCb);
 	    }
 
+	    result = this.decryptSecretKeyAES(key, password, callback);
 
-	    // 1. Check and erase pre- and postfix
-	    // -> even \n and \r should be included in \s, only \s does not work!!!
-	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX) + "([0-9A-Za-z=_]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX));
-	    var match = pattern.exec(cleanStr(key));
-	    if (match == null || match.length != 2) {
-		errorCb('invalidUploadedKey');
-		return false;
-	    }
+	    return result;
 
-	    var keyC = match[1];
-
-	    //2. extract salt (128 bits => 22 base64 chars)
-	    var salt = keyC.substring(0, 22);
-	    //salt = leemon.str2bigInt(salt, 64, 0);
-	    keyC = keyC.substring(22);
-
-	    // 3. Decrypt key with password
-	    keyC = leemon.str2bigInt(keyC, 64, 0);
-	    // Save current RNG temporary to not lose accumulated data for future randomness
-	    var cRNG = Math.random;
-	    Math.seedrandom(password + "" + salt);
-	    //Compute the size of the pre/post fixed encrypted key
-	    var keyLength = leemon.bitSize(keyC);
-	    //look for a multiple of 16, since the size of the one time pad used for encryption was
-	    //also a multiple of 16
-	    var oneTimePadSize = keyLength;
-	    if (keyLength % 16 != 0) {
-		oneTimePadSize = keyLength + (16 - keyLength % 16);
-	    }
-
-	    var r = leemon.randBigInt(oneTimePadSize);
-
-	    // 4. Reassign old rng
-	    Math.random = cRNG;
-	    var keyP = leemon.xor(keyC, r);
-	    keyP = leemon.bigInt2str(keyP, 64);
-
-	    // 5. Check and erase pre- and postfix
-	    pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX + "([0-9A-Za-z=_]*)" + uvConfig.PRIVATE_KEY_POSTFIX);
-	    match = pattern.exec(keyP);
-	    if (match == null || match.length != 2) {
-		errorCb('wrongPassword');
-		return false;
-	    }
-
-	    // 6. Finally return sk
-	    return leemon.str2bigInt(match[1], 64, 1);
+//	    // Cleans a string (removes all special charaters but =, -, _)
+//	    function cleanStr(str) {
+//		return str.replace(/[^\w=_\-]/gi, '');
+//	    }
+//
+//
+//	    // 1. Check and erase pre- and postfix
+//	    // -> even \n and \r should be included in \s, only \s does not work!!!
+//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX) + "([0-9A-Za-z=_]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX));
+//	    var match = pattern.exec(cleanStr(key));
+//	    if (match == null || match.length != 2) {
+//		errorCb('invalidUploadedKey');
+//		return false;
+//	    }
+//
+//	    var keyC = match[1];
+//
+//	    //2. extract salt (128 bits => 22 base64 chars)
+//	    var salt = keyC.substring(0, 22);
+//	    //salt = leemon.str2bigInt(salt, 64, 0);
+//	    keyC = keyC.substring(22);
+//
+//	    // 3. Decrypt key with password
+//	    keyC = leemon.str2bigInt(keyC, 64, 0);
+//	    // Save current RNG temporary to not lose accumulated data for future randomness
+//	    var cRNG = Math.random;
+//	    Math.seedrandom(password + "" + salt);
+//	    //Compute the size of the pre/post fixed encrypted key
+//	    var keyLength = leemon.bitSize(keyC);
+//	    //look for a multiple of 16, since the size of the one time pad used for encryption was
+//	    //also a multiple of 16
+//	    var oneTimePadSize = keyLength;
+//	    if (keyLength % 16 != 0) {
+//		oneTimePadSize = keyLength + (16 - keyLength % 16);
+//	    }
+//
+//	    var r = leemon.randBigInt(oneTimePadSize);
+//
+//	    // 4. Reassign old rng
+//	    Math.random = cRNG;
+//	    var keyP = leemon.xor(keyC, r);
+//	    keyP = leemon.bigInt2str(keyP, 64);
+//
+//	    // 5. Check and erase pre- and postfix
+//	    pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX + "([0-9A-Za-z=_]*)" + uvConfig.PRIVATE_KEY_POSTFIX);
+//	    match = pattern.exec(keyP);
+//	    if (match == null || match.length != 2) {
+//		errorCb('wrongPassword');
+//		return false;
+//	    }
+//
+//	    // 6. Finally return sk
+//	    return leemon.str2bigInt(match[1], 64, 1);
 	}
 
 	/**
@@ -658,17 +646,22 @@
 		return str.replace(/[^\w=_\-]/gi, '');
 	    }
 
+//	    // 1. Check and erase pre- and postfix
+//	    // -> even \n and \r should be included in \s, only \s does not work!!!
+//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX_UNIVOTE_1) + "([0-9A-Za-z=_]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX_UNIVOTE_1));
+//	    var match = pattern.exec(cleanStr(key));
+//	    if (match == null || match.length != 2) {
+//		errorCb('invalidUploadedKey');
+//		return false;
+//	    }
+//
+//	    var keyC = match[1];
 
 	    // 1. Check and erase pre- and postfix
-	    // -> even \n and \r should be included in \s, only \s does not work!!!
-	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX_UNIVOTE_1) + "([0-9A-Za-z=_]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX_UNIVOTE_1));
-	    var match = pattern.exec(cleanStr(key));
-	    if (match == null || match.length != 2) {
-		errorCb('invalidUploadedKey');
-		return false;
-	    }
-
-	    var keyC = match[1];
+	    var keyC = key.replace(/[-]*/g, "");
+	    keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_PREFIX_UNIVOTE_1.replace(/[-]*/g, ""), "");
+	    keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_POSTFIX_UNIVOTE_1.replace(/[-]*/g, ""), "");
+	    keyC = cleanStr(keyC);
 
 	    // 2. Decrypt key with password
 	    keyC = leemon.str2bigInt(keyC, 64, 0);
@@ -681,12 +674,11 @@
 	    var keyP = leemon.xor(keyC, r);
 	    keyP = leemon.bigInt2str(keyP, 64);
 
-
 	    // 3. Check and erase pre- and postfix
 	    pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX_UNIVOTE_1 + "([0-9A-Za-z=_]*)" + uvConfig.PRIVATE_KEY_POSTFIX_UNIVOTE_1);
 	    match = pattern.exec(keyP);
 	    if (match == null || match.length != 2) {
-		errorCb('wrongPassword');
+		errorCb('wrongPasswordInvalidKey');
 		return false;
 	    }
 
@@ -829,33 +821,6 @@
 	    }
 	}
 
-//	/**
-//	 * Asynchronous version of mapZq2Gq.
-//	 */
-//	this.mapZq2GqAsync = function(bigIntInZq, doneCb, updateCb, errorCb) {
-//
-//	    // step 2
-//	    var step2 = function(result) {
-//		var ret;
-//		if (leemon.equals(result, one) == 1) {
-//		    ret = t1;
-//		} else {
-//		    ret = leemon.sub(encryptionSetting.p, t1);
-//		}
-//		doneCb(ret);
-//	    };
-//
-//	    // start with step 1
-//	    if (!leemon.greater(encryptionSetting.q, bigIntInZq)) {
-//		errorCb("Error: value not in Zq.");
-//		return;
-//	    }
-//
-//	    var one = leemon.str2bigInt("1", 2, 1);
-//	    var t1 = leemon.add(bigIntInZq, one);
-//	    leemon.powModAsync(t1, encryptionSetting.q, encryptionSetting.p, updateCb, step2);
-//	}
-
 	/*
 	 * Encrypts an encoded vote.
 	 *
@@ -877,32 +842,6 @@
 	    return {encVote: encVote, r: r, a: a, b: b};
 	}
 
-//	/**
-//	 * Asynchronous version of encryptVote.
-//	 **/
-//	this.encryptVoteAsync = function(vote, encryptionKey, doneCb, updateCb) {
-//
-//	    // step 2
-//	    var a;
-//	    var step2 = function(_a) {
-//		a = _a;
-//		leemon.powModAsync(encryptionKey, r, encryptionSetting.p, updateCb, step3);
-//	    };
-//
-//	    // step 3
-//	    var step3 = function(_b) {
-//		var b = leemon.multMod(_b, vote, encryptionSetting.p);
-//
-//		var encVote = {firstvalue: leemon.bigInt2str(a, 10), secondvalue: leemon.bigInt2str(b, 10)};
-//
-//		doneCb({encVote: encVote, r: r, a: a, b: b});
-//	    };
-//
-//	    // start with step 1
-//	    var r = leemon.randBigIntInZq(encryptionSetting.q);
-//	    leemon.powModAsync(encryptionSetting.g, r, encryptionSetting.p, updateCb, step2);
-//	}
-
 	/*
 	 * Computes anonymous election verification key.
 	 *
@@ -915,21 +854,6 @@
 	    var vkString = leemon.bigInt2str(vk, 10);
 	    return {vkString: vkString, vk: vk};
 	}
-
-//	/**
-//	 * Asynchronous version of computeElectionVerificationKey.
-//	 **/
-//	this.computeElectionVerificationKeyAsync = function(generator, sk, doneCb, updateCb) {
-//
-//	    // step 2
-//	    var step2 = function(_vk) {
-//		var vkString = leemon.bigInt2str(_vk, 10);
-//		doneCb({vkString: vkString, vk: _vk});
-//	    };
-//
-//	    // start with step 1
-//	    leemon.powModAsync(generator, sk, signatureSetting.p, updateCb, step2);
-//	}
 
 	/*
 	 * Computes vote proof.
@@ -948,21 +872,6 @@
 
 	    return proof;
 	}
-
-//	/**
-//	 * Asynchronous version of computeVoteProof
-//	 **/
-//	this.computeVoteProofAsync = function(r, a, vk, doneCb, updateCb) {
-//
-//	    // done
-//	    var nizkpDoneCb = function(result) {
-//		var proof = {commitment: [leemon.bigInt2str(result.t, 10)], response: [leemon.bigInt2str(result.s, 10)]};
-//
-//		doneCb(proof);
-//	    };
-//
-//	    this.NIZKPAsync(encryptionSetting.p, encryptionSetting.q, encryptionSetting.g, r, a, leemon.bigInt2str(vk, 10), nizkpDoneCb, updateCb);
-//	}
 
 	////////////////////////////////////////////////////////////////////////
 	// Post signatures crypto

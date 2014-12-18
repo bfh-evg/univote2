@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
  * Bern University of Applied Sciences, Engineering and Information Technology,
  * Research Institute for Security in the Information Society, E-Voting Group,
@@ -8,9 +8,9 @@
  *
  * Distributable under GPL license.
  * See terms of license at gnu.org.
- * 
- * This file contains the vote page specific JS. 
- * 
+ *
+ * This file contains the vote page specific JS.
+ *
  */
 
 // Check for configuration, if it is missing
@@ -34,63 +34,63 @@ var CLASS_NAME_PARTY_ELECTION = "PartyElection";
 var CLASS_NAME_SUMMATION_RULE = "SummationRule";
 var CLASS_NAME_FORALL_RULE = "ForAllRule";
 
-/** 
- * Holds the used DOM elements. 
+/**
+ * Holds the used DOM elements.
  */
 var elements = {};
 
-/** 
+/**
  * Holds the used dialogs.
  */
 var dialogs = {};
 
-/** 
+/**
  * Holds voter's secret key (bigInt).
  */
 var secretKey;
 
-/** 
+/**
  * Holds the election data received by the voting service (univote_bfh_ch_common_electionData).
  */
 var electionData;
 
-/** 
+/**
  * Holds the election id.
  */
 var electionId;
 
-/** 
+/**
  * Holds the election generator (bigInt).
  */
 var electionGenerator;
 
-/** 
+/**
  * Holds the encryption key (bigInt).
  */
 var encryptionKey;
 
-/** 
+/**
  * Holds all choice ids (used for vote encoding).
  */
 var choiceIds;
 
-/** 
+/**
  * Holds all summation rules (array of objects).
  */
 var sumRules;
 
-/** 
+/**
  * Holds all for all rules (array of objects).
  */
 var forAllRules;
 
-/** 
+/**
  * Holds all choices: key is choiceId.
  */
 var choicesMap;
 
 /**
- * Flag that is set to true if not only candidates but also list can be selected. 
+ * Flag that is set to true if not only candidates but also list can be selected.
  */
 var listsAreSelectable = false;
 
@@ -99,7 +99,7 @@ var listsAreSelectable = false;
  */
 var lang;
 
-/** 
+/**
  * Flag that is set to true if no political lists are available (only candidates).
  */
 var noList = false;
@@ -166,7 +166,7 @@ $(document).ready(function () {
 
 /**
  * Checks for file api support.
- * 
+ *
  * @return true if file api is supported.
  */
 function fileApiSupported() {
@@ -175,9 +175,9 @@ function fileApiSupported() {
 
 /**
  * Uploads (to the browser not to the server) the secret key. The secret key can
- * be uploaded either by file upload or manually by copy/paste. That depends on 
- * whether the browser supports the file api and whether the flag UPLOAD_SK_MANUALLY_ALWAYS 
- * is set.  
+ * be uploaded either by file upload or manually by copy/paste. That depends on
+ * whether the browser supports the file api and whether the flag UPLOAD_SK_MANUALLY_ALWAYS
+ * is set.
  */
 function uploadSecretKey() {
 
@@ -222,10 +222,10 @@ function uploadSecretKey() {
 }
 
 /**
- * Decrypts secret key. On success, step 2 is displayed directly, otherwise on 
- * error (wrong password, broken secret key), an error message is displayed to 
+ * Decrypts secret key. On success, step 2 is displayed directly, otherwise on
+ * error (wrong password, broken secret key), an error message is displayed to
  * the user.
- * 
+ *
  * @param key - Secret key as string.
  * @param pw - Password as string.
  */
@@ -234,29 +234,22 @@ function decryptSecretKey(key, pw) {
     // Decrypt secret key using crypto library
     var sk = "";
 
-    //LEGACY SUPPORT
-    //checks if the given key is a UniVote 1 Voting key or a UniCert key
-    if (key.indexOf("UNIVOTE") > -1) {
-	sk = uvCrypto.decryptSecretKeyUniVote1(key, pw, function (errorMsg) {
-	    showUploadKeyError(errorMsg);
-	});
-    } else {
-	sk = uvCrypto.decryptSecretKey(key, pw, function (errorMsg) {
-	    showUploadKeyError(errorMsg);
-	});
-    }
+    sk = uvCrypto.decryptSecretKey(key, pw, function (errorMsg) {
+	showUploadKeyError(errorMsg);
+    });
 
     // On success go to step 2
     if (sk !== false) {
 	secretKey = sk;
 	gotoStep2();
     }
+
 }
 
 /**
  * Shows a message to the user if anything went wrong during uploading and
  * decrypting the secret key.
- * 
+ *
  * @param message - The message to display to the user.
  */
 function showUploadKeyError(message) {
@@ -304,9 +297,9 @@ function gotoStep3() {
 /**
  * Processes a fatal error. A fatal error is an error if occuring it is impossible
  * to continue (eg. voting service not available, corrupted election data, etc.).
- * An error message is displayed to the user for about 5s, afterwards the site is 
- * redirected to home. 
- * 
+ * An error message is displayed to the user for about 5s, afterwards the site is
+ * redirected to home.
+ *
  * @param errorMsg - The error message to display.
  */
 function processFatalError(errorMsg) {
@@ -328,7 +321,7 @@ function processFatalError(errorMsg) {
  * Retrieves election data from Board (asynchronously).
  * If Board is on another domain, IE9 will not be able to retrieve the data
  * IE9 does not support cross domain ajax request.
- * JSONP would be a solution, but it only allows HTTP GET and HTTP POST is required for the 
+ * JSONP would be a solution, but it only allows HTTP GET and HTTP POST is required for the
  * REST Service of the Board.
  *
  */
@@ -341,11 +334,11 @@ function retrieveElectionData() {
     //Get election data: descendant order (newest first), limit 1
     var queryJson = {
 	constraint: [{
-		type: "equal", 
+		type: "equal",
 		identifier: {
 		    type: "alphaIdentifier",
-		    part: [ "section" ]
-		}, 
+		    part: ["section"]
+		},
 		value: {
 		    type: "stringValue",
 		    value: electionId}
@@ -353,22 +346,22 @@ function retrieveElectionData() {
 		type: "equal",
 		identifier: {
 		    type: "alphaIdentifier",
-		    part: [ "group" ]
+		    part: ["group"]
 		},
 		value: {
 		    type: "stringValue",
 		    value: "electionData"
 		}
 	    }],
-	order:[{
-		identifier:{
+	order: [{
+		identifier: {
 		    type: "betaIdentifier",
-		    parts:["rank"]
+		    parts: ["rank"]
 		},
-		ascDesc:false
+		ascDesc: false
 	    }],
 	limit: 1};
-	   
+
     //For IE
     $.support.cors = true;
 
@@ -450,10 +443,10 @@ function retrieveElectionData() {
 }
 
 /**
- * The callback for the verification of the election data signature. If the 
+ * The callback for the verification of the election data signature. If the
  * signature is correct then the election data are processed, otherwise a
- * fatal error. 
- * 
+ * fatal error.
+ *
  * @param success - true if the signature is correct otherwise false.
  */
 function verifySignature(success) {
@@ -463,9 +456,9 @@ function verifySignature(success) {
 	return;
     }
 
-    // 
+    //
     // The signature is correct, so process election data.
-    // Doing all in once is too much for IE < 9!! 
+    // Doing all in once is too much for IE < 9!!
     // So it is done in a few asynchronous steps.
     //
     var choices, rules, lists, choicesMap;
@@ -508,7 +501,7 @@ function verifySignature(success) {
 	lists.push(JSON.parse(uniqueList));
 	noList = true;
     }
-    
+
     // Step 3: Process rules
     // Split different rules
     for (i = 0; i < rules.length; i++) {
@@ -536,7 +529,7 @@ function verifySignature(success) {
 
 /**
  * Renders the vote view; lists and candidates are added to the view.
- * 
+ *
  * @param lists - Array of PoliticalList.
  * @param choicesMap - Map contaning the choices of the election (key is choiceId)
  */
@@ -608,7 +601,7 @@ function renderVoteView(lists, choicesMap) {
 	    var tooltiptext = getLocalizedText(candidate.description, lang).replace(",", "<br/>");
 
 	    contentToAppend2 += '<li class="ui-state-default">' +
-		    //'<span>' + cNumber + ' ' + cLastName + ' ' + cFirstName + 
+		    //'<span>' + cNumber + ' ' + cLastName + ' ' + cFirstName +
 		    '<span>&nbsp;' + cLastName + ' ' + cFirstName +
 		    '</span><input type="hidden" class="choiceid" value="' + cChoiceId + '"/>' +
 		    '<img class="drag_candidate icon" src="img/plus.png" alt="' + msg.add + '" title="' + msg.add + '"/>';
@@ -622,13 +615,13 @@ function renderVoteView(lists, choicesMap) {
 
     }
 
-    // Generate jquery user interface 
+    // Generate jquery user interface
     jquery_generate({'listsAreSelectable': listsAreSelectable});
 }
 
 /**
  * Helper for localized text elements of lists and candidates.
- * 
+ *
  * @param localizedTexts - Array of univote_bfh_ch_common_localizedText.
  * @param lang - Current language.
  */

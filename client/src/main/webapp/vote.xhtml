@@ -1,5 +1,5 @@
 <!--
-/* 
+/*
  * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
  * Bern University of Applied Sciences, Engineering and Information Technology,
  * Research Institute for Security in the Information Society, E-Voting Group,
@@ -9,191 +9,195 @@
  *
  * Distributable under GPL license.
  * See terms of license at gnu.org.
- * 
+ *
  * HTML structure of the GUI, voting interface
  * This file contain the upload key GUI, the voting GUI, and the confirmation GUI
  */
 -->
 <ui:composition template="template.xhtml"
-				xmlns="http://www.w3.org/1999/xhtml"
-				xmlns:f="http://java.sun.com/jsf/core"
-				xmlns:h="http://java.sun.com/jsf/html"
-				xmlns:ui="http://java.sun.com/jsf/facelets"
-				xmlns:c="http://java.sun.com/jsp/jstl/core">
+		xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-	<ui:define name="page_title">#{msg.title}</ui:define>
+    <ui:define name="page_title">#{msg.title}</ui:define>
 
-	<ui:define name="head_include_css">
-		<link rel="stylesheet" type="text/css" href="css/custom-ui/jquery-ui-1.9.2.custom.css" />
-		<link rel="stylesheet" type="text/css" href="css/elections.css" />
-	</ui:define>
-	
-	<ui:define name="head_include_js">
-		
-		<script type="text/javascript" src="js/lib/leemon.js"></script>
-		<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.min.js"></script>
-		<script type="text/javascript" src="js/lib/jquery.qtip-1.0.0-rc3.min.js"></script>
-		<script type="text/javascript" src="js/lib/qrcode.js"></script>
-		<script type="text/javascript" src="js/lib/MapClass.js"></script>
-		<script type="text/javascript" src="js/lib/base64.js"></script>
-		<script type="text/javascript" src="js/lib/sha256.js"></script>
-		
-		<script type="text/javascript" src="js/univote-random.js"></script>
-		<script type="text/javascript" src="js/univote-util.js"></script>
-		<script type="text/javascript" src="js/univote-crypto.js"></script>
-		
-		<script type="text/javascript" src="js/vote.js" />
-		<script type="text/javascript" src="js/vote-jquery-ui.js" />
-		<script type="text/javascript" src="js/vote-cast-ballot.js" />
+    <ui:define name="head_include_css">
+	<link rel="stylesheet" type="text/css" href="css/custom-ui/jquery-ui-1.9.2.custom.css" />
+	<link rel="stylesheet" type="text/css" href="css/elections.css" />
+    </ui:define>
 
-	</ui:define>
-	
-	<ui:define name="header">
-		<h2 id="election-title" class="center">&#160;</h2>
-		
-		<form name="properties">
-			<input type="hidden" id="electionid" value="#{param.electionId}" />
-			<input type="hidden" id="lang" value="#{languageDetails.locale}" />
-		</form>		
-	</ui:define>	
-	
-	
-	<ui:define name="content">
-		
-		<div class="progress-bar">
-			<div id="step_1" class="step active">#{msg.voteStep1}</div><img src="img/arrow.png" alt="Arrow" />
-			<div id="step_2" class="step">#{msg.voteStep2}</div><img src="img/arrow.png" alt="Arrow" />
-			<div id="step_3" class="step">#{msg.voteStep3}</div>
+    <ui:define name="head_include_js">
+
+	<script type="text/javascript" src="js/lib/leemon.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.qtip-1.0.0-rc3.min.js"></script>
+	<script type="text/javascript" src="js/lib/qrcode.js"></script>
+	<script type="text/javascript" src="js/lib/MapClass.js"></script>
+	<script type="text/javascript" src="js/lib/base64.js"></script>
+	<script type="text/javascript" src="js/lib/sha256.js"></script>
+	<script type="text/javascript" src="js/lib/aes.js"></script>
+	<script type="text/javascript" src="js/lib/pbkdf2.js"></script>
+
+	<script type="text/javascript" src="js/univote-random.js"></script>
+	<script type="text/javascript" src="js/univote-util.js"></script>
+	<script type="text/javascript" src="js/univote-crypto.js"></script>
+
+	<script type="text/javascript" src="js/vote.js" />
+	<script type="text/javascript" src="js/vote-jquery-ui.js" />
+	<script type="text/javascript" src="js/vote-cast-ballot.js" />
+
+    </ui:define>
+
+    <ui:define name="header">
+	<h2 id="election-title" class="center">&#160;</h2>
+
+	<form name="properties">
+	    <input type="hidden" id="electionid" value="#{param.electionId}" />
+	    <input type="hidden" id="lang" value="#{languageDetails.locale}" />
+	</form>
+    </ui:define>
+
+
+    <ui:define name="content">
+
+	<div class="progress-bar">
+	    <div id="step_1" class="step active">#{msg.voteStep1}</div><img src="img/arrow.png" alt="Arrow" />
+	    <div id="step_2" class="step">#{msg.voteStep2}</div><img src="img/arrow.png" alt="Arrow" />
+	    <div id="step_3" class="step">#{msg.voteStep3}</div>
+	</div>
+
+
+
+	<!-- STEP 1: Upload key -->
+	<div id="step_1_content">
+
+	    <p class="block">#{msg.enterKey}<br/><br/></p>
+
+	    <div class="substep clearfix">
+		<form onsubmit="return false;" id="upload_key_form">
+
+		    <div class="row clearfix" id="sk-upload-file">
+			<div class="col1 small">#{msg.yourKey}</div>
+			<div class="col2">
+			    <input type="file" name="file" id="file" style="display:none;" onchange="document.getElementById('filetextfield').value = this.value.replace(/.*\\/, '');" />
+			    <input class="text" type="text" readonly="readonly" onclick="$('#file').click();" id="filetextfield" />
+			    <input class="browse" type="button" value="#{msg.browse}" onclick="$('#file').click();" />
+			</div>
+		    </div>
+
+		    <div class="row clearfix" id="sk-upload-manually">
+			<div class="col1 small">#{msg.yourKey}<div class="tiny"><h:outputText value="#{msg.yourKeyManually}" escape="false" /></div></div>
+			<div class="col2"><textarea name="filemanually" id="filemanually" ></textarea></div>
+		    </div>
+
+		    <div class="row clearfix">
+			<div class="col1 small">#{msg.yourPassword}</div>
+			<div class="col2"><input class="text" type="password" name="password" id="password" /></div>
+		    </div>
+
+		    <div class="col2only">
+			<button id="upload_key_button" onClick="uploadSecretKey();
+							return false;" class="button">#{msg.continueStr}</button>
+		    </div>
+		</form>
+	    </div>
+
+	    <p id="upload_key_error" class="center spacer20"></p>
+
+	    <p class="center small spacer50">#{msg.noKey1} <h:outputLink value="index.xhtml">#{msg.noKey2}</h:outputLink> #{msg.noKey3}</p>
+
+	</div>
+
+	<!-- STEP 2: Vote -->
+	<div id="step_2_content" class="hidden">
+
+	    <p class="block" id="vote-text"><h:outputText value="#{msg.voteText}" escape="false" /></p>
+	    <p class="block"><h:outputText value="#{electionDetails.getVoteRules(param.electionId, languageDetails.locale)}" escape="false" /></p>
+
+	    <div id="container_elections">
+		<!-- INITIAL LISTS -->
+
+		<div id="col1">
+		    <p class="center important">#{msg.candidates}</p>
+		    <div id="candidates" class="ui-widget">
+
+			<!-- change to tabs-left/tabs-right to have the tabs on the left/right -->
+			<div id="tabs" class="tabs ui-tabs-left ui-helper-clearfix">
+			    <ul id="lists" class="connectedSortable">
+
+			    </ul>
+			    <div id="lists_content">
+
+			    </div>
+
+			    <div id="lists-footer" ></div>
+			</div>
+		    </div>
 		</div>
 
-		
+		<!-- RESULT LIST -->
 
-		<!-- STEP 1: Upload key -->
-		<div id="step_1_content">
-			
-			<p class="block">#{msg.enterKey}<br/><br/></p>
-			
-			<div class="substep clearfix">
-				<form onsubmit="return false;" id="upload_key_form">
-				
-					<div class="row clearfix" id="sk-upload-file">
-						<div class="col1 small">#{msg.yourKey}</div>
-						<div class="col2">
-							<input type="file" name="file" id="file" style="display:none;" onchange="document.getElementById('filetextfield').value = this.value.replace(/.*\\/, '');" />
-							<input class="text" type="text" readonly="readonly" onclick="$('#file').click();" id="filetextfield" />
-							<input class="browse" type="button" value="#{msg.browse}" onclick="$('#file').click();" />
-						</div>
-					</div>
-					
-					<div class="row clearfix" id="sk-upload-manually">
-						<div class="col1 small">#{msg.yourKey}<div class="tiny"><h:outputText value="#{msg.yourKeyManually}" escape="false" /></div></div>
-						<div class="col2"><textarea name="filemanually" id="filemanually" ></textarea></div>
-					</div>
-					
-					<div class="row clearfix">
-						<div class="col1 small">#{msg.yourPassword}</div>
-						<div class="col2"><input class="text" type="password" name="password" id="password" /></div>
-					</div>
-					
-					<div class="col2only">
-						<button id="upload_key_button" onClick="uploadSecretKey(); return false;" class="button">#{msg.continueStr}</button>
-					</div>
-				</form>
+		<div id="col2">
+		    <p class="center important">#{msg.ballot}</p>
+
+		    <div id="result">
+			<div id="result-scroll">
+			    <div class="buttons">
+				<input type="image" id="undo" src="img/undo.png" alt="#{msg.undo}" title="#{msg.undo}"/>
+				<input type="image" id="redo" src="img/redo.png" alt="#{msg.redo}" title="#{msg.redo}"/>
+				<input type="image" id="reset" src="img/reset.png" alt="#{msg.reset}" title="#{msg.reset}"/>
+			    </div>
+
+			    <ul id="selected-list"><li class="placeholder-item ui-state-default">#{msg.list}</li></ul>
+			    <p id="list-title"></p>
+			    <ul id="created-list"><li class="placeholder-item ui-state-default">#{msg.candidate}</li></ul>
 			</div>
-				
-			<p id="upload_key_error" class="center spacer20"></p>
-			
-			<p class="center small spacer50">#{msg.noKey1} <h:outputLink value="index.xhtml">#{msg.noKey2}</h:outputLink> #{msg.noKey3}</p>
-			
+			<div id="createdlist-footer" ></div>
+		    </div>
+		    <div id="vote_button_div"><button id="submit_vote_button" onclick="submitVote();
+						return false;" class="button">#{msg.submitvote}</button></div>
+
 		</div>
 
-		<!-- STEP 2: Vote -->
-		<div id="step_2_content" class="hidden">
-			
-			<p class="block" id="vote-text"><h:outputText value="#{msg.voteText}" escape="false" /></p>
-			<p class="block"><h:outputText value="#{electionDetails.getVoteRules(param.electionId, languageDetails.locale)}" escape="false" /></p>
-			
-			<div id="container_elections">
-				<!-- INITIAL LISTS -->
+		<!-- DIALOGS -->
 
-				<div id="col1">
-					<p class="center important">#{msg.candidates}</p>
-					<div id="candidates" class="ui-widget">
+		<div id="dialog-confirm" title="#{msg.ballot}"></div>
+		<div id="dialog-copy-list" title="#{msg.copycandidatetitle}">#{msg.copycandidate}</div>
+		<div id="dialog-too-many-candidates" title="#{msg.error}">#{msg.toomanycandidate}</div>
+		<div id="dialog-too-many-repetitions" title="#{msg.error}">#{msg.toomanyrepetitions}</div>
+		<div id="list-copied-with-modification" title="#{msg.information}">#{msg.listcopiedwithmodif}</div>
 
-						<!-- change to tabs-left/tabs-right to have the tabs on the left/right -->
-						<div id="tabs" class="tabs ui-tabs-left ui-helper-clearfix">
-							<ul id="lists" class="connectedSortable">
-
-							</ul>
-							<div id="lists_content">
-
-							</div>
-							
-							<div id="lists-footer" ></div>
-						</div>
-					</div>
-				</div>
-
-				<!-- RESULT LIST -->
-
-				<div id="col2">
-					<p class="center important">#{msg.ballot}</p>
-
-					<div id="result">
-						<div id="result-scroll">
-							<div class="buttons">
-								<input type="image" id="undo" src="img/undo.png" alt="#{msg.undo}" title="#{msg.undo}"/>
-								<input type="image" id="redo" src="img/redo.png" alt="#{msg.redo}" title="#{msg.redo}"/>
-								<input type="image" id="reset" src="img/reset.png" alt="#{msg.reset}" title="#{msg.reset}"/>
-							</div>
-						
-							<ul id="selected-list"><li class="placeholder-item ui-state-default">#{msg.list}</li></ul>
-							<p id="list-title"></p>
-							<ul id="created-list"><li class="placeholder-item ui-state-default">#{msg.candidate}</li></ul>
-						</div>
-						<div id="createdlist-footer" ></div>
-					</div>
-					<div id="vote_button_div"><button id="submit_vote_button" onclick="submitVote(); return false;" class="button">#{msg.submitvote}</button></div>
-
-				</div>
-
-				<!-- DIALOGS -->
-
-				<div id="dialog-confirm" title="#{msg.ballot}"></div>
-				<div id="dialog-copy-list" title="#{msg.copycandidatetitle}">#{msg.copycandidate}</div>
-				<div id="dialog-too-many-candidates" title="#{msg.error}">#{msg.toomanycandidate}</div>
-				<div id="dialog-too-many-repetitions" title="#{msg.error}">#{msg.toomanyrepetitions}</div>
-				<div id="list-copied-with-modification" title="#{msg.information}">#{msg.listcopiedwithmodif}</div>
-
-				<div id="dialog-video" title="#{msg.demo}">
-					<object type="application/x-shockwave-flash" data="player/player_flv_maxi.swf" width="860" height="455">
-						<param name="movie" value="player/player_flv_maxi.swf" />
-						<param name="allowFullScreen" value="true" />
-						<param name="FlashVars" value="config=player/flv_config_maxi.txt" />
-					</object>
-				</div>
-				
-			</div>
+		<div id="dialog-video" title="#{msg.demo}">
+		    <object type="application/x-shockwave-flash" data="player/player_flv_maxi.swf" width="860" height="455">
+			<param name="movie" value="player/player_flv_maxi.swf" />
+			<param name="allowFullScreen" value="true" />
+			<param name="FlashVars" value="config=player/flv_config_maxi.txt" />
+		    </object>
 		</div>
 
-		<!-- STEP 3: Confirmation -->
-		<div id="step_3_content" class="hidden">
-			<div id="send-vote-success">
-				<p class="center"><img src="img/check_big.png" /></p>
-				<p class="block">#{msg.sendVoteSuccess}</p>
+	    </div>
+	</div>
 
-				<p class="center" id="qrcode-holder"></p>
-				<p class="block">#{msg.feedbackText}</p>
-				<p class="block spacer0"><a href="https://docs.google.com/forms/d/1loD0DWA0FxQM8xnHyKJm1LiYc_fnEbGzZTZPHgaXsIY/viewform" target="_blank" class="raquo">#{msg.feedbackLink}</a></p>
-			</div>
-			
-			<div id="send-vote-error" class="hidden">
-				<p class="center"><img src="img/x_mark_red_big.png" /></p>
-				<p class="block" id="send-vote-error-message"></p>
-			</div>
-			
-			<p class="block spacer50"><h:outputLink value="index.xhtml" class="raquo">#{msg.backhome}</h:outputLink></p>
-		</div>
-	</ui:define>
+	<!-- STEP 3: Confirmation -->
+	<div id="step_3_content" class="hidden">
+	    <div id="send-vote-success">
+		<p class="center"><img src="img/check_big.png" /></p>
+		<p class="block">#{msg.sendVoteSuccess}</p>
+
+		<p class="center" id="qrcode-holder"></p>
+		<p class="block">#{msg.feedbackText}</p>
+		<p class="block spacer0"><a href="https://docs.google.com/forms/d/1loD0DWA0FxQM8xnHyKJm1LiYc_fnEbGzZTZPHgaXsIY/viewform" target="_blank" class="raquo">#{msg.feedbackLink}</a></p>
+	    </div>
+
+	    <div id="send-vote-error" class="hidden">
+		<p class="center"><img src="img/x_mark_red_big.png" /></p>
+		<p class="block" id="send-vote-error-message"></p>
+	    </div>
+
+	    <p class="block spacer50"><h:outputLink value="index.xhtml" class="raquo">#{msg.backhome}</h:outputLink></p>
+	</div>
+    </ui:define>
 
 </ui:composition>

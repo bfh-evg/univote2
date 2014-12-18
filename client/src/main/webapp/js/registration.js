@@ -611,21 +611,6 @@ this.createRSACertificate = function (csSize, rsaModulo, identityFunction, publi
 
 
 /**
- * Creates a DLOG certificate by sending (asynchronously) the verification key 
- * (base 10 encoded) to the CA.
- * @param {type} csSize
- * @param {type} dlogPrime
- * @param {type} dlogGenerator
- * @param {type} identityFunction
- * @param {type} publicKey
- * @param {type} signature
- * @param {type} applicationIdentifier
- * @param {type} role
- * @param {type} doneCb
- * @param {type} errorCb
- * @returns {undefined}
- */
-/**
  * Creates a Discrete Log certificate by sending (asynchronously) data to UniCert
  * @param csSize Size of dlog key
  * @param {type} dlogPrimeP Prime number p

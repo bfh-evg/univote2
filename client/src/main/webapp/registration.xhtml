@@ -23,6 +23,8 @@
     <ui:define name="head_include_js">
         <script type="text/javascript" src="js/lib/leemon.js"></script>
         <script type="text/javascript" src="js/lib/sha256.js"></script>
+	<script type="text/javascript" src="js/lib/aes.js"></script>
+	<script type="text/javascript" src="js/lib/pbkdf2.js"></script>
 	<script type="text/javascript" src="js/univote-util.js"></script>
         <script type="text/javascript" src="js/univote-random.js"></script>
         <script type="text/javascript" src="js/univote-crypto.js"></script>
@@ -59,10 +61,10 @@
                 <div class="row clearfix notdisplayed">
                     <div class="col1 small"><label for="crypto_setup_type">#{msg.keytype}: </label></div>
                     <div class="col2">
-                        <select id="crypto_setup_type" class="select" name="crypto_setup_type" size="1" onchange="updateKeysOptions()">	
-                            <option value="">#{msg.pleaseSelect}</option> 
-                            <option value="RSA" >RSA</option> 
-                            <option value="DiscreteLog" >Discrete Logarithm</option> 
+                        <select id="crypto_setup_type" class="select" name="crypto_setup_type" size="1" onchange="updateKeysOptions()">
+                            <option value="">#{msg.pleaseSelect}</option>
+                            <option value="RSA" >RSA</option>
+                            <option value="DiscreteLog" >Discrete Logarithm</option>
                         </select>
                     </div>
                 </div>
@@ -70,9 +72,9 @@
                     <div class="notdisplayed">
                         <div class="col1 small">#{msg.keysize}: </div>
                         <div class="col2">
-                            <select id="crypto_setup_size" class="select" name="crypto_setup_size" size="1">	
-                                <option value="1024">1024</option> 
-                                <option value="2048">2048</option> 
+                            <select id="crypto_setup_size" class="select" name="crypto_setup_size" size="1">
+                                <option value="1024">1024</option>
+                                <option value="2048">2048</option>
                             </select>
                         </div>
                     </div>
@@ -137,12 +139,12 @@
                 <div class="row clearfix notdisplayed">
                     <div class="col1 small">#{msg.identityFunction}: </div>
                     <div class="col2">
-                        <select id="identity_function" class="select" name="identity_function" size="1">	
-                            <option value="1">#{msg.idFStandardSwitch}</option> 
-                            <option value="2">#{msg.idFAnonymizedSwitch}</option> 
-                            <option value="3">#{msg.idFZurichSwitch}</option> 
-                            <option value="4">#{msg.idFStandardGoogle}</option> 
-                            <option value="5">#{msg.idFAnonymizedGoogle}</option> 
+                        <select id="identity_function" class="select" name="identity_function" size="1">
+                            <option value="1">#{msg.idFStandardSwitch}</option>
+                            <option value="2">#{msg.idFAnonymizedSwitch}</option>
+                            <option value="3">#{msg.idFZurichSwitch}</option>
+                            <option value="4">#{msg.idFStandardGoogle}</option>
+                            <option value="5">#{msg.idFAnonymizedGoogle}</option>
                         </select>
                     </div>
                 </div>
@@ -157,7 +159,7 @@
                     <table>
                         <tr><td><button id="retreive_secretkey_bu" class="button" onclick="completeCertRequest(true);">#{msg.retreiveSecretKey}</button></td><td>&#160;<span class="small">#{msg.to} <span id="mail"></span></span></td></tr>
                         <tr><td></td><td>&#160;<span class="small">#{msg.andText} </span><input type="text" id="alternate_mail" value="#{msg.optionalMail}"/></td></tr>
-                    </table>  
+                    </table>
                     <c:if test="${initParam['dev-mode'] == 'true'}">
                         <br /><br/><span class="tiny">In dev-mode: <br/>if you don't have a running SMTP Server on your localhost...<br/>
                             <button class="button" onclick="completeCertRequest(false);">Save Key</button></span>

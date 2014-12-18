@@ -185,8 +185,6 @@
 //
 // - Encapsulation to window.leemon
 //
-// - Added functions powModAsync, powMod_Async and powMod_AsyncRec to run powMod
-//   asynchronous (to prevent slow browsers running into a script timeout)
 // - Added functions randProbPrimeAsync, randProbPrime_Async, randProbPrime_AsyncRec
 //   asychronous variant of randProbPrime  (to prevent slow browsers running into a script timeout)
 // - Added xor for two bigInts
@@ -1654,86 +1652,6 @@
 		this.sub_(this.sa, n);
 	    this.copy_(x, this.sa);
 	}
-
-
-//	////////////////////////////////////
-//	// powMod asynchronous
-//
-//	this.powModAsync = function(x, y, n, cbProgress, cbDone) {
-//	    var ans = this.expand(x, n.length);
-//	    this.powMod_Async(ans, this.trim(y, 2), this.trim(n, 2), cbProgress, cbDone);  //this should work without the trim, but doesn't
-//	    //return trim(ans,1);
-//	}
-//
-//	//do x=x**y mod n, where x,y,n are bigInts and ** is exponentiation.  0**0=1.
-//	//this is faster when n is odd.  x usually needs to have as many elements as n.
-//	this.powMod_Async = function(x, y, n, cbProgress, cbDone) {
-//	    var k1, k2, kn, np;
-//	    if (this.s7.length != n.length)
-//		this.s7 = this.dup(n);
-//
-//	    //for even modulus, use a simple square-and-multiply algorithm,
-//	    //rather than using the more complex Montgomery algorithm.
-//	    if ((n[0] & 1) == 0) {
-//		this.copy_(this.s7, x);
-//		this.copyInt_(x, 1);
-//		while (!this.equalsInt(y, 0)) {
-//		    if (y[0] & 1)
-//			this.multMod_(x, this.s7, n);
-//		    this.divInt_(y, 2);
-//		    this.squareMod_(this.s7, n);
-//		}
-//		cbDone(this.trim(x, 1));
-//	    }
-//
-//	    //calculate np from n for the Montgomery multiplications
-//	    this.copyInt_(this.s7, 0);
-//	    for (kn = n.length; kn > 0 && !n[kn - 1]; kn--)
-//		;
-//	    np = this.radix - this.inverseModInt(this.modInt(n, this.radix), this.radix);
-//	    this.s7[kn] = 1;
-//	    this.multMod_(x, this.s7, n);   // x = x * 2**(kn*bp) mod n
-//
-//	    if (this.s3.length != x.length)
-//		this.s3 = this.dup(x);
-//	    else
-//		this.copy_(this.s3, x);
-//
-//	    for (k1 = y.length - 1; k1 > 0 & !y[k1]; k1--)
-//		;  //k1=first nonzero element of y
-//	    if (y[k1] == 0) {  //anything to the 0th power is 1
-//		this.copyInt_(x, 1);
-//		cbDone(this.trim(x, 1));
-//	    }
-//	    for (k2 = 1 << (this.bpe - 1); k2 && !(y[k1] & k2); k2 >>= 1)
-//		;  //k2=position of first 1 bit in y[k1]
-//
-//	    this.powMod_AsyncRec(x, y, n, cbProgress, cbDone, k1, k2, kn, np);
-//	}
-//
-//	this.powMod_AsyncRec = function(x, y, n, cbProgress, cbDone, k1, k2, kn, np) {
-//	    for (var i = 0; i < 20; i++) {
-//		if (!(k2 >>= 1)) {  //look at next bit of y
-//		    k1--;
-//		    if (k1 < 0) {
-//			this.mont_(x, this.one, n, np);
-//			cbDone(this.trim(x, 1));
-//			return;
-//		    }
-//		    k2 = 1 << (this.bpe - 1);
-//		}
-//		this.mont_(x, x, n, np);
-//
-//		if (k2 & y[k1]) //if next bit is a 1
-//		    this.mont_(x, this.s3, n, np);
-//	    }
-//	    setTimeout(function() {
-//		cbProgress();
-//		leemon.powMod_AsyncRec(x, y, n, cbProgress, cbDone, k1, k2, kn, np);
-//	    }, 1);
-//
-//	}
-
 
 	//////////////////////////////////////////////
 	// xor: return (x xor y) for bigInts x and y (the smaller bigInt is padded with zeros
