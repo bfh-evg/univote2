@@ -16,13 +16,19 @@ import ch.bfh.uniboard.data.QueryDTO;
 public class QueryNotificationCondition extends NotificationCondition {
 
 	private final QueryDTO query;
+	private final String board;
 
-	public QueryNotificationCondition(QueryDTO query) {
+	public QueryNotificationCondition(QueryDTO query, String board) {
 		this.query = query;
+		this.board = board;
 	}
 
 	public QueryDTO getQuery() {
 		return query;
+	}
+
+	public String getBoard() {
+		return board;
 	}
 
 }

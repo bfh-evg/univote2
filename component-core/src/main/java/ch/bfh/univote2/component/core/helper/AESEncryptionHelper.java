@@ -12,28 +12,35 @@
 package ch.bfh.univote2.component.core.helper;
 
 import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
+import ch.bfh.unicrypt.crypto.schemes.padding.classes.PKCSPaddingScheme;
+import ch.bfh.unicrypt.crypto.schemes.padding.interfaces.ReversiblePaddingScheme;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import java.math.BigInteger;
 
 public class AESEncryptionHelper implements EncryptionHelper {
-
+	
 	AESEncryptionScheme aes;
 	Element key;
-
+	ReversiblePaddingScheme pkcs;
+	
 	public AESEncryptionHelper(String password) {
 		aes = AESEncryptionScheme.getInstance();
+		key = aes.getSecretKeyGenerator().generateSecretKey(password);
+		pkcs = PKCSPaddingScheme.getInstance(16);
 		//key = aes.getEncryptionKeySpace().getElement(password);
 
 	}
-
+	
 	@Override
 	public BigInteger decryptBigInteger(BigInteger encBigInteger) {
-		return aes.decrypt(key, aes.getMessageSpace().getElementFrom(encBigInteger)).getBigInteger();
+		Element decryptedMessage = aes.decrypt(key, aes.getEncryptionSpace().getElementFrom(encBigInteger));
+		return pkcs.unpad(decryptedMessage).getBigInteger();
 	}
-
+	
 	@Override
 	public BigInteger encryptBigInteger(BigInteger bigInteger) {
-		return aes.encrypt(key, aes.getMessageSpace().getElementFrom(bigInteger)).getBigInteger();
+		Element paddedMessage = pkcs.pad(aes.getMessageSpace().getElementFrom(bigInteger));
+		return aes.encrypt(key, paddedMessage).getBigInteger();
 	}
-
+	
 }

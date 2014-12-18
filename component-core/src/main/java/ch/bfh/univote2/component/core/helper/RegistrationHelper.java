@@ -22,7 +22,22 @@ import javax.ejb.Local;
 @Local
 public interface RegistrationHelper {
 
-	public String register(QueryDTO q) throws UnivoteException;
+	public String register(String board, QueryDTO q) throws UnivoteException;
 
-	public void unregister(String notificationCode) throws UnivoteException;
+	/**
+	 * Unregisters the given notifcationCode on the specified board.
+	 *
+	 * @param board
+	 * @param notificationCode
+	 * @throws UnivoteException Throws an exception if the board could not be reached.
+	 */
+
+	public void unregister(String board, String notificationCode) throws UnivoteException;
+
+	/**
+	 * Tries to unregister the given notification code on every known board.
+	 *
+	 * @param notificationCode
+	 */
+	public void unregisterUnknownNotification(String notificationCode);
 }
