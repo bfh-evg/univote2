@@ -2,12 +2,6 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>ch.bfh.e-voting</groupId>
-		<artifactId>corporate-pom</artifactId>
-		<version>1.0</version>
-	</parent>
-
 	<groupId>ch.bfh.univote2</groupId>
 	<artifactId>maven-base-config</artifactId>
 	<version>1.0</version>
@@ -85,6 +79,8 @@
 			<organization>Berner Fachhochschule / RISIS</organization>
 			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
 			<roles>
+				<role>system designer</role>
+				<role>software architect</role>
 				<role>software developer</role>
 				<role>server administrator</role>
 			</roles>
@@ -113,6 +109,7 @@
 			<organizationUrl>http://www.ti.bfh.ch/risis</organizationUrl>
 			<roles>
 				<role>user interface designer</role>
+				<role>software developer</role>
 			</roles>
 			<timezone>+1</timezone>
 		</developer>
@@ -132,7 +129,7 @@
 		<dependency>
 			<groupId>org.jacoco</groupId>
 			<artifactId>org.jacoco.core</artifactId>
-			<version>0.6.0.201210061924</version>
+			<version>0.7.2.201409121644</version>
 		</dependency>
 	</dependencies>
 
@@ -144,7 +141,7 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.13</version>
 					<configuration>
-						<argLine>-Xms1024m -Xmx4096m -XX:MaxPermSize=500m ${argLine}</argLine>
+						<argLine>-Xms1024m -Xmx4096m ${argLine}</argLine>
 					</configuration>
 				</plugin>
 			</plugins>
@@ -153,7 +150,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.6.0.201210061924</version>
+				<version>0.7.2.201409121644</version>
 				<executions>
 					<execution>
 						<goals>
