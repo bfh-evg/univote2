@@ -13,7 +13,7 @@ package ch.bfh.univote2.component.core.data;
 
 import ch.bfh.uniboard.data.QueryDTO;
 
-public class QueryNotificationCondition extends NotificationCondition {
+public class QueryNotificationCondition implements NotificationCondition {
 
 	private final QueryDTO query;
 	private final String board;

@@ -11,13 +11,11 @@
  */
 package ch.bfh.univote2.component.core.data;
 
-import ch.bfh.univote2.component.core.data.UserInputRequest;
-
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class UserInputNotificationCondition extends NotificationCondition {
+public class UserInputNotificationCondition implements NotificationCondition {
 
 	private final UserInputRequest userInputRequest;
 

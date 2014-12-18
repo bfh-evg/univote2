@@ -1,4 +1,5 @@
 */target/
+*/nb-configuration.xml
 /publicboard/publicboard-ejb/target/
 /doc/report/*.aux
 /doc/report/*.out
@@ -8,3 +9,5 @@
 /doc/report/*.toc
 /doc/report/*.hst
 /doc/report/*.ver
+/trustee/election-coordinator/target/
+/trustee/tallier/target/
