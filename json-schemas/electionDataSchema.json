@@ -481,12 +481,15 @@
 				"q": {
 					"type": "string"
 				},
+				"g": {
+					"type": "string"
+				},
 				"ghat": {
 					"type": "string",
-					"description": "Modified generator g hat"
+					"description": "Election generator g hat"
 				}
 			},
-			"required": ["type", "p", "q", "ghat"]
+			"required": ["type", "p", "q", "g", "ghat"]
 		},
 		"signatureECDL": {
 			"additionalProperties" : false,
@@ -502,7 +505,7 @@
 				},
 				"ghat": {
 					"type": "string",
-					"description": "Modified generator g hat"
+					"description": "Election generator g hat"
 				}
 			},
 			"required": ["type", "curve", "ghat"]
