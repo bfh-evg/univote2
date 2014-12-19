@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
  * Bern University of Applied Sciences, Engineering and Information Technology,
  * Research Institute for Security in the Information Society, E-Voting Group,
@@ -8,7 +8,7 @@
  *
  * Distributable under GPL license.
  * See terms of license at gnu.org.
- * 
+ *
  * General page styling
 */
 
@@ -27,12 +27,12 @@ body {line-height: 1;} ol, ul, li {list-style: none;} blockquote, q {quotes: non
 
 /* G E N E R A L */
 
-html,body { 
-	font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, sans-serif;
-	font-size: 14px;
-	line-height: 16px;
-	padding: 0;
-	height: 100%;
+html,body {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 16px;
+    padding: 0;
+    height: 100%;
 }
 
 h1					{ font-size: 24px; line-height: 26px; font-weight: bold; padding-top: 20px; padding-bottom: 20px; }
@@ -66,7 +66,7 @@ a.raquo, span.raquo	{ background: url('../img/raquo.png') no-repeat 0 0; padding
 .middle				{ vertical-align: middle; }
 
 .spacer0			{ padding-top:  0px; }
-.spacer5			{ padding-top:  5px; }			
+.spacer5			{ padding-top:  5px; }
 .spacer10			{ padding-top: 10px; }
 .spacer20			{ padding-top: 20px; }
 .spacer30			{ padding-top: 30px; }
@@ -88,13 +88,13 @@ a.raquo, span.raquo	{ background: url('../img/raquo.png') no-repeat 0 0; padding
 
 
 #footer{
-	border-top: 1px solid black;
-	width:100%;
-	text-align: center;
-	font-size: 11px;
-	position: absolute;
-	bottom:0;
-	height: 20px; /* Height of the footer */
+    border-top: 1px solid black;
+    width:100%;
+    text-align: center;
+    font-size: 11px;
+    position: absolute;
+    bottom:0;
+    height: 20px; /* Height of the footer */
 }
 
 #footer .left		{ position: absolute; left: 0; top: 0; }
@@ -107,28 +107,28 @@ p#blockui-processing	{ text-align: left; }
 /* P R O G R E S S - B A R */
 
 div.progress-bar {
-	position: relative;
-	width: 100%;
-	margin-bottom: 30px;
-	padding: 0;
-	border-top: 1px black solid;
-	border-bottom: 1px black solid;
-	height: 30px;
-	background-color: #eee;
+    position: relative;
+    width: 100%;
+    margin-bottom: 30px;
+    padding: 0;
+    border-top: 1px black solid;
+    border-bottom: 1px black solid;
+    height: 30px;
+    background-color: #eee;
 }
 
 div.progress-bar div.step{
-	display: inline;
-	padding-left: 40px;
-	padding-right: 30px;
-	font-size: 16px;
-	line-height: 30px;
+    display: inline;
+    padding-left: 40px;
+    padding-right: 30px;
+    font-size: 16px;
+    line-height: 30px;
 }
 
 div.progress-bar img	{ position: absolute; top:0;}
 
 
-.substep			{ position: relative; padding: 20px 50px 0px 50px; } 
+.substep			{ position: relative; padding: 20px 50px 0px 50px; }
 .substep_nr			{ position: absolute; font-size: 60px; line-height: 60px; width: 50px; padding: 0px 55px 0 0; text-align: right; color: #ccc; border-top: 1px solid #ccc;}
 .substep p			{ padding-left: 70px }
 .substep .row		{ padding-top: 10px;}
@@ -171,9 +171,9 @@ body.index #logo img{ width: 220px; padding-top: 2px;}
 
 /* R E G I S T R A T I O N */
 
-#substep_2_1_1, 
+#substep_2_1_1,
 #substep_2_2,
-#substep_2_3, 
+#substep_2_3,
 #substep_2_4	{ opacity: 0.2; filter: alpha(opacity = 20); }
 
 textarea#secretkey_ta	{ background-color: #eee; width: 220px; height: 60px;}
@@ -188,10 +188,11 @@ textarea#secretkey_ta	{ background-color: #eee; width: 220px; height: 60px;}
 #certificate-viewer	table tr { border-bottom: 1px solid #ccc; }
 #certificate-viewer	table tr:last-child { border-bottom: none; }
 
+#pwderror		{ color: #c00;}
 
 /* V O T E */
 
-#upload_key_form table	{ width: 360px; margin-left: 300px; margin-top: 30px;} 
+#upload_key_form table	{ width: 360px; margin-left: 300px; margin-top: 30px;}
 #upload_key_form td		{ padding-bottom: 5px; }
 #upload_key_error		{ color: #c00; display: none; }
 
@@ -210,18 +211,18 @@ input.text			{ width: 132px; }
 input.browse		{ width: 60px; }
 textarea			{ font-family: Courier, serif; font-size: 14px; }
 input, textarea{
-	padding: 4px;
-	margin: 0px;
-	border: solid 1px #cf9ea2;
-	outline: 0;
-	color: black;
-	background: #FFFFFF url('') left top repeat-x;
-	background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF),
-		        color-stop(4%, #EEEEEE), to(#FFFFFF) );
-	background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
-	box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
-	-moz-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
-	-webkit-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+    padding: 4px;
+    margin: 0px;
+    border: solid 1px #cf9ea2;
+    outline: 0;
+    color: black;
+    background: #FFFFFF url('') left top repeat-x;
+    background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF),
+	color-stop(4%, #EEEEEE), to(#FFFFFF) );
+    background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
 }
 
 

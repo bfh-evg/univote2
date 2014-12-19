@@ -121,6 +121,9 @@ $(document).ready(function () {
     $([elements.password, elements.password2]).keyup(function () {
 	checkPasswords()
     });
+    $(elements.password).keyup(function () {
+	checkPwdLength()
+    });
 
 
     retrieveData();
@@ -148,7 +151,7 @@ function retrieveData() {
 	type: 'POST',
 	accept: "application/json",
 	cache: false,
-	data: "params="+document.getElementById('paramset').value,
+	data: "params=" + document.getElementById('paramset').value,
 	timeout: 10000,
 	//To send the cookie
 	xhrFields: {
@@ -307,9 +310,9 @@ function updateKeysOptions() {
  * Generates key pair.
  */
 function generateKeyPair() {
-    
+
     var skBaseTextField = 10;
-    
+
     // Block UI while processing
     $.blockUI({message: '<p id="blockui-processing">' + msg.processing + '.</p>'});
 
@@ -383,6 +386,14 @@ function generateKeyPair() {
 
 }
 
+function checkPwdLength() {
+    var pw = elements.password.value;
+    if (pw.length < 6) {
+	$('#pwderror').html(msg.pwdTooShort)
+    } else {
+	$('#pwderror').html("");
+    }
+}
 /**
  * Helper function to check equality of password and password-check.
  * If the passwords are not empty but equal, the voter gets a feedback
@@ -391,6 +402,9 @@ function generateKeyPair() {
 function checkPasswords() {
     var pw = elements.password.value;
     var pw2 = elements.password2.value;
+    if (pw.length < 6)
+	return;
+
     if (pw == pw2 && pw != '') {
 	$(elements.passwordCheckIcon).addClass('ok');
 	$(elements.substep23).stop(true, true).animate({opacity: 1}, 500);
@@ -410,7 +424,7 @@ function checkPasswords() {
 
 
 /**
- * Completes the certificate request. 
+ * Completes the certificate request.
  * (1) Computes verification key proof or the siganture depending on the chosen key type
  * (2) sends verification key and some other data to UniCert and in response get the certificate
  * (3) the secret key is handed out (encrypted) to the voter either by file download or by mail.
@@ -570,7 +584,7 @@ this.createRSACertificate = function (csSize, rsaModulo, identityFunction, publi
     var update = setInterval(updateCb, 1000);
 
     // Success callback for ajax request. Parses the received data
-    // expecting a list of certificates with voter's certficate at the top. 
+    // expecting a list of certificates with voter's certficate at the top.
     var successCb = function (data) {
 	clearInterval(update);
 
@@ -677,9 +691,9 @@ this.createDLogCertificate = function (csSize, dlogPrimeP, dlogPrimeQ, dlogGener
 }
 
 /**
- * Parses a json certificate as is is received from the CA and 
+ * Parses a json certificate as is is received from the CA and
  * returns it.
- * 
+ *
  * @pram data - List of certificats as json object.
  * @return the certificate
  */

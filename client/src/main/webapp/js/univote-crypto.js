@@ -50,7 +50,7 @@
 	var base = uvConfig.BASE;
 
 	// Default initialization of signature setting
-	var signatureSetting = {};
+	this.signatureSetting = {};
 
 	// Default initialization of encryption setting
 	var encryptionSetting = {};
@@ -80,13 +80,15 @@
 	 * @param gStr - Generator as string.
 	 * @param base - The base P, Q and G are represented in.
 	 */
-	this.setSignatureParameters = function (pStr, qStr, gStr, base) {
-	    signatureSetting.pStr = pStr;
-	    signatureSetting.qStr = qStr;
-	    signatureSetting.gStr = gStr;
-	    signatureSetting.p = leemon.str2bigInt(pStr, base, 1);
-	    signatureSetting.q = leemon.str2bigInt(qStr, base, 1);
-	    signatureSetting.g = leemon.str2bigInt(gStr, base, 1);
+	this.setSignatureParameters = function (pStr, qStr, gStr, gHatStr, base) {
+	    this.signatureSetting.pStr = pStr;
+	    this.signatureSetting.qStr = qStr;
+	    this.signatureSetting.gStr = gStr;
+	    this.signatureSetting.gHatStr = gHatStr;
+	    this.signatureSetting.p = leemon.str2bigInt(pStr, base, 1);
+	    this.signatureSetting.q = leemon.str2bigInt(qStr, base, 1);
+	    this.signatureSetting.g = leemon.str2bigInt(gStr, base, 1);
+	    this.signatureSetting.gHat = leemon.str2bigInt(gHatStr, base, 1);
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -850,7 +852,7 @@
 	 * @return Object with anonymous election verification key as string and bigInt.
 	 */
 	this.computeElectionVerificationKey = function (generator, sk) {
-	    var vk = leemon.powMod(generator, sk, signatureSetting.p);
+	    var vk = leemon.powMod(generator, sk, this.signatureSetting.p);
 	    var vkString = leemon.bigInt2str(vk, 10);
 	    return {vkString: vkString, vk: vk};
 	}
@@ -900,7 +902,7 @@
 	    //Hash post
 	    var postHash = this.hashPost(post, false, false);
 
-	    var paired = this.createSchnorrSignature(postHash, sk, signatureSetting.p, signatureSetting.q, generator)
+	    var paired = this.createSchnorrSignature(postHash, sk, this.signatureSetting.p, this.signatureSetting.q, generator)
 
 	    return {sig: paired, sigString: leemon.bigInt2str(paired, 10)};
 	}
@@ -910,7 +912,7 @@
 	 * @param resultContainer The result received from the board
 	 * @param posterSetting Crypto setting of the poster
 	 * @param verifyPosterSignature True if signature of poster of the posts contained in the result, fals if not
-	 * @returns True if signature is correct, false otherwise
+	 * @returns True if signature is correct, exception otherwise
 	 */
 	this.verifyResultSignature = function (resultContainer, posterSetting, verifyPosterSignature) {
 	    //1. Verify ResultContainer signature
