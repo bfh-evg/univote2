@@ -24,8 +24,9 @@ public interface UserInputManager {
 	/**
 	 * Allows the NotificationManager to request a new UserInput for an action.
 	 *
-	 * @param inputRequest
-	 * @return NotificationCode
+	 * @param inputRequest UserInputRequest defines an UserInput that is requested by an action.
+	 * @return NotificationCode returns the notification code set by the UserInputManager. If the matching UserInput
+	 * already exists, this method returns @null
 	 */
 	public String requestUserInput(UserInputRequest inputRequest);
 

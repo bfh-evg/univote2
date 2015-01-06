@@ -24,6 +24,13 @@ public class NotificationData {
 	private final String tenant;
 	private final String section;
 
+	/**
+	 *
+	 * @param notifictionCode
+	 * @param action
+	 * @param tenant
+	 * @param section
+	 */
 	public NotificationData(String notifictionCode, String action, String tenant, String section) {
 		this.notifictionCode = notifictionCode;
 		this.action = action;
