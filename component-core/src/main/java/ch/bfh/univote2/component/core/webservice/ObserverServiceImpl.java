@@ -35,7 +35,7 @@ public class ObserverServiceImpl implements ObserverService {
 
 	@Override
 	public void notify(String notificationCode, PostDTO post) {
-		notificationManager.onNotification(notificationCode, post);
+		notificationManager.onBoardNotification(notificationCode, post);
 	}
 
 }

@@ -13,15 +13,22 @@ package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.univote2.component.core.helper.InitialisationHelper;
 import ch.bfh.uniboard.data.PostDTO;
+import static ch.bfh.unicrypt.helper.Alphabet.UPPER_CASE;
+import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.data.ActionContext;
+import ch.bfh.univote2.component.core.data.BoardNotificationData;
 import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.NotificationDataAccessor;
 import ch.bfh.univote2.component.core.data.NotificationCondition;
 import ch.bfh.univote2.component.core.data.QueryNotificationCondition;
+import ch.bfh.univote2.component.core.data.TimerNotificationCondition;
+import ch.bfh.univote2.component.core.data.TimerNotificationData;
+import ch.bfh.univote2.component.core.data.UserInput;
 import ch.bfh.univote2.component.core.data.UserInputNotificationCondition;
 import ch.bfh.univote2.component.core.helper.RegistrationHelper;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.SortedSet;
@@ -34,6 +41,9 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
+import javax.ejb.Timeout;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
 
 /**
  *
@@ -44,29 +54,51 @@ public class NotificationManager {
 
 	static final Logger logger = Logger.getLogger(NotificationManager.class.getName());
 	private static final String CONFIGURATION_NAME = "action-list";
-	private final NotificationDataAccessor notificationMappings;
+	private final NotificationDataAccessor notificationDataAccessor;
 	private List<String> actionList;
 
+	/**
+	 * Session context. Used to locate the notifiable actions over the JNDI.
+	 */
 	@Resource(name = "sessionContext")
 	private SessionContext sctx;
 
+	/**
+	 * RegistrationHelper. Implements the ws-client for the registration on uniboard
+	 */
 	@EJB
 	RegistrationHelper registrationHelper;
 
+	/**
+	 * ConfigurationHelper. Gives access to configurations stored in the JNDI.
+	 */
 	@EJB
 	ConfigurationManager configurationManager;
 
+	/**
+	 * TenantManager. Manges all alvailable tenants on this component.
+	 */
 	@EJB
 	TenantManager tenantManager;
-
+	/**
+	 * UserInputManager. Responsible to manage GUI parts of this component.
+	 */
 	@EJB
 	UserInputManager userInputManager;
-
+	/**
+	 * InitialisationHelper. Provides the component specific initial action and query for new sections.
+	 */
 	@EJB
 	InitialisationHelper initialisationHelper;
 
+	/**
+	 * TimerService used to create java-ee timers
+	 */
+	@Resource
+	private TimerService timerService;
+
 	public NotificationManager() {
-		this.notificationMappings = new NotificationDataAccessor();
+		this.notificationDataAccessor = new NotificationDataAccessor();
 	}
 
 	@PostConstruct
@@ -93,7 +125,7 @@ public class NotificationManager {
 
 	@PreDestroy
 	public void cleanUp() {
-		for (String notificationCode : this.notificationMappings.getAllNotificationCodes()) {
+		for (String notificationCode : this.notificationDataAccessor.getAllNotificationCodes()) {
 			try {
 				//TODO
 				this.registrationHelper.unregister("", notificationCode);
@@ -103,14 +135,14 @@ public class NotificationManager {
 		}
 	}
 
-	public void onNotification(String notificationCode, PostDTO post) {
+	public void onBoardNotification(String notificationCode, PostDTO post) {
 
-		if (!this.notificationMappings.containsNotificationCode(notificationCode)) {
-			logger.log(Level.INFO, "Received unknown notification code. {0}", notificationCode);
+		if (!this.notificationDataAccessor.containsNotificationCode(notificationCode)) {
+			logger.log(Level.INFO, "Received unknown notification code for board notification. {0}", notificationCode);
 			this.registrationHelper.unregisterUnknownNotification(notificationCode);
 			return;
 		}
-		NotificationData nData = this.notificationMappings.findByNotificationCode(notificationCode);
+		NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
 		String actionName = nData.getAction();
 		NotifiableAction action;
 		try {
@@ -122,11 +154,46 @@ public class NotificationManager {
 		action.notifyAction(nData.getTenant(), nData.getSection(), post);
 	}
 
+	public void onUserInputNotification(String notificationCode, UserInput userInput) {
+		if (!this.notificationDataAccessor.containsNotificationCode(notificationCode)) {
+			logger.log(Level.INFO, "Received unknown notification code for user input. {0}", notificationCode);
+			return;
+		}
+		NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
+		String actionName = nData.getAction();
+		NotifiableAction action;
+		try {
+			action = this.getAction(actionName);
+		} catch (UnivoteException ex) {
+			this.log(ex);
+			return;
+		}
+		action.notifyAction(nData.getTenant(), nData.getSection(), userInput);
+	}
+
+	@Timeout
+	public void onTimerNotification(Timer timer) {
+		String notificationCode = (String) timer.getInfo();
+		NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
+		String actionName = nData.getAction();
+		NotifiableAction action;
+		try {
+			action = this.getAction(actionName);
+		} catch (UnivoteException ex) {
+			this.log(ex);
+			return;
+		}
+		action.notifyAction(nData.getTenant(), nData.getSection(), timer);
+	}
+
 	public void runFinished(ActionContext actionContext) {
-		//TODO What to do if its the initialisation action
+		//Check if its the initialisation action
+		if (actionContext.getAction().equals(this.initialisationHelper.getInitialistionAction())) {
+			this.runFinishedInitialisation(actionContext);
+			return;
+		}
 
 		this.unregisterAction(actionContext.getAction());
-		this.notificationMappings.removeByActionName(actionContext.getAction());
 
 		//check if there is a next process
 		int i = this.actionList.indexOf(actionContext.getAction()) + 1;
@@ -141,6 +208,16 @@ public class NotificationManager {
 			} catch (UnivoteException ex) {
 				this.log(ex);
 			}
+		}
+	}
+
+	protected void runFinishedInitialisation(ActionContext actionContext) {
+		try {
+			this.registerAction(this.actionList.get(0), actionContext.getTenant(), actionContext.getSection());
+			//run next process
+			this.runAction(this.actionList.get(0), actionContext.getTenant(), actionContext.getSection());
+		} catch (UnivoteException ex) {
+			this.log(ex);
 		}
 	}
 
@@ -167,25 +244,45 @@ public class NotificationManager {
 			if (cond instanceof QueryNotificationCondition) {
 				QueryNotificationCondition qNC = (QueryNotificationCondition) cond;
 				String newNotificationCode = this.registrationHelper.register(qNC.getBoard(), qNC.getQuery());
-				this.notificationMappings.add(new NotificationData(newNotificationCode, actionName, tenant, section));
+				this.notificationDataAccessor.add(new BoardNotificationData(qNC.getBoard(),
+						newNotificationCode, actionName, tenant, section));
 			} else if (cond instanceof UserInputNotificationCondition) {
 				UserInputNotificationCondition uiNC = (UserInputNotificationCondition) cond;
 				String newNotificationCode = this.userInputManager.requestUserInput(uiNC.getUserInputRequest());
-				this.notificationMappings.add(new NotificationData(newNotificationCode, actionName, tenant, section));
+				if (newNotificationCode != null) {
+					this.notificationDataAccessor.add(
+							new NotificationData(newNotificationCode, actionName, tenant, section));
+				}
+			} else if (cond instanceof TimerNotificationCondition) {
+				TimerNotificationCondition tNC = (TimerNotificationCondition) cond;
+				//Get a notificationCode for a timer
+				String newNotificationCode = this.createTimer(tNC);
+				this.notificationDataAccessor.add(new TimerNotificationData(
+						newNotificationCode, actionName, tenant, section));
 			} else {
 				throw new UnivoteException("Unsupported notification condition " + cond.getClass());
 			}
 		}
 	}
 
-	public void unregisterAction(String actionName) {
+	protected void unregisterAction(String actionName) {
 
 		//unregister current process
-		//TODO find by actionName
-		for (NotificationData notificationData : this.notificationMappings.findByActionName(actionName)) {
+		for (NotificationData notificationData : this.notificationDataAccessor.findByActionName(actionName)) {
+			//Remove from notificationDataAccessor
+			this.notificationDataAccessor.removeByNotificationCode(notificationData.getNotifictionCode());
 			try {
-				//TODO Has to act based on the type of the notification
-				this.registrationHelper.unregister("", "");
+				//Has to act based on the type of the notification
+				//BoardCondition: unregister on the corresponding uniboard
+				if (notificationData instanceof BoardNotificationData) {
+					BoardNotificationData bnd = (BoardNotificationData) notificationData;
+					this.registrationHelper.unregister(bnd.getBoard(), bnd.getNotifictionCode());
+				}
+				//No action required for UserInputCondition
+				//TimerCondition 
+				if (notificationData instanceof TimerNotificationData) {
+					this.cancelTimer(notificationData.getNotifictionCode());
+				}
 			} catch (UnivoteException ex) {
 				this.log(ex);
 			}
@@ -208,6 +305,25 @@ public class NotificationManager {
 			this.log(ex);
 		}
 		logger.log(Level.INFO, "Tenant {0} and section {1} is finished.", new Object[]{tenant, section});
+	}
+
+	protected String createTimer(TimerNotificationCondition timerNotificationCondition) {
+		FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
+		String notificationCode = fixedStringSet.getRandomElement().getValue();
+		this.timerService.createTimer(timerNotificationCondition.getDate(), notificationCode);
+		logger.log(Level.FINE, "Created new timer notificationCode = {0} and Date {1}",
+				new Object[]{notificationCode, timerNotificationCondition.getDate()});
+		return notificationCode;
+	}
+
+	protected void cancelTimer(String notificationCode) {
+		Collection<Timer> timers = timerService.getTimers();
+		for (Timer t : timers) {
+			String timerNC = (String) t.getInfo();
+			if (notificationCode.equals(timerNC)) {
+				t.cancel();
+			}
+		}
 	}
 
 	protected void log(Exception ex) {
