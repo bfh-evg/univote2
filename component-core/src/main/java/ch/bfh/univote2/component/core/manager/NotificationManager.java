@@ -290,7 +290,7 @@ public class NotificationManager {
 	}
 
 	protected void runSection(String tenant, String section) {
-		//Find state of the section
+		//Find state of the section and run the first unfinished action
 		try {
 			for (String actionName : this.actionList) {
 				NotifiableAction action = this.getAction(actionName);
