@@ -36,4 +36,6 @@ public interface TenantManager {
 	public EncryptionHelper getEncrytpionHelper(String tenant) throws UnivoteException;
 
 	public Set<String> getUnlockedTenants();
+
+	public Set<String> getAllTentants();
 }

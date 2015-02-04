@@ -9,12 +9,19 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.data;
+package ch.bfh.univote2.component.core.manager;
+
+import java.util.Properties;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class UserInputRequest {
+public class ConfigurationManagerMock implements ConfigurationManager {
+
+	@Override
+	public Properties getConfiguration(String key) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
 }

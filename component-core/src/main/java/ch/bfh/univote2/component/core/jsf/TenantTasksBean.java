@@ -9,22 +9,24 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.data;
+package ch.bfh.univote2.component.core.jsf;
+
+import javax.inject.Named;
+import javax.enterprise.context.SessionScoped;
+import java.io.Serializable;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class UserInputNotificationCondition implements NotificationCondition {
+@Named(value = "tenantTasksBean")
+@SessionScoped
+public class TenantTasksBean implements Serializable {
 
-	private final Task userInputRequest;
-
-	public UserInputNotificationCondition(Task userInputRequest) {
-		this.userInputRequest = userInputRequest;
-	}
-
-	public Task getUserInputRequest() {
-		return userInputRequest;
+	/**
+	 * Creates a new instance of TenantTasksBean
+	 */
+	public TenantTasksBean() {
 	}
 
 }

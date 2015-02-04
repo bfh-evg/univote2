@@ -36,6 +36,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ejb.Stateless;
@@ -86,6 +88,24 @@ public class TenantManagerImpl implements TenantManager {
 	@Override
 	public Set<String> getUnlockedTenants() {
 		return this.unlockedTentants.keySet();
+	}
+
+	@Override
+	public Set<String> getAllTentants() {
+		try {
+			CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+			CriteriaQuery<TenantEntity> query = builder.createQuery(TenantEntity.class);
+			Root<TenantEntity> dbResult = query.from(TenantEntity.class);
+			query.select(dbResult);
+			List<TenantEntity> tentantEntities = entityManager.createQuery(query).getResultList();
+			Set<String> result = new HashSet<>();
+			for (TenantEntity t : tentantEntities) {
+				result.add(t.getName());
+			}
+			return result;
+		} catch (Exception ex) {
+			return new HashSet<>();
+		}
 	}
 
 	@Override

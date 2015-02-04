@@ -9,22 +9,25 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.data;
+package ch.bfh.univote2.component.core.manager;
+
+import ch.bfh.univote2.component.core.data.Task;
+import java.util.List;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class UserInputNotificationCondition implements NotificationCondition {
+public class TaskManagerMock implements TaskManager {
 
-	private final Task userInputRequest;
-
-	public UserInputNotificationCondition(Task userInputRequest) {
-		this.userInputRequest = userInputRequest;
+	@Override
+	public String addTask(Task task) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	public Task getUserInputRequest() {
-		return userInputRequest;
+	@Override
+	public List<Task> getTasks(String tenant) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 }

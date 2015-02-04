@@ -11,20 +11,17 @@
  */
 package ch.bfh.univote2.component.core.data;
 
-/**
- *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
- */
-public class UserInputNotificationCondition implements NotificationCondition {
+public class RunActionTask extends Task {
 
-	private final Task userInputRequest;
+	private final String actionName;
 
-	public UserInputNotificationCondition(Task userInputRequest) {
-		this.userInputRequest = userInputRequest;
+	public RunActionTask(String actionName, String tenant, String section) {
+		super(tenant, section);
+		this.actionName = actionName;
 	}
 
-	public Task getUserInputRequest() {
-		return userInputRequest;
+	public String getActionName() {
+		return actionName;
 	}
 
 }

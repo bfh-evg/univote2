@@ -13,7 +13,7 @@ package ch.bfh.univote2.component.core.webservice;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.notification.ObserverService;
-import ch.bfh.univote2.component.core.manager.NotificationManager;
+import ch.bfh.univote2.component.core.manager.NotificationManagerImpl;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.jws.WebService;
@@ -31,7 +31,7 @@ import javax.jws.WebService;
 public class ObserverServiceImpl implements ObserverService {
 
 	@EJB
-	NotificationManager notificationManager;
+	NotificationManagerImpl notificationManager;
 
 	@Override
 	public void notify(String notificationCode, PostDTO post) {

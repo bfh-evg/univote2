@@ -15,16 +15,22 @@ package ch.bfh.univote2.component.core.data;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class UserInputNotificationCondition implements NotificationCondition {
+public abstract class Task {
 
-	private final Task userInputRequest;
+	private final String tenant;
+	private final String section;
 
-	public UserInputNotificationCondition(Task userInputRequest) {
-		this.userInputRequest = userInputRequest;
+	public Task(String tenant, String section) {
+		this.tenant = tenant;
+		this.section = section;
 	}
 
-	public Task getUserInputRequest() {
-		return userInputRequest;
+	public String getTenant() {
+		return tenant;
+	}
+
+	public String getSection() {
+		return section;
 	}
 
 }
