@@ -11,26 +11,24 @@
  */
 package ch.bfh.univote2.component.core.data;
 
-/**
- *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
- */
-public abstract class Task {
+import ch.bfh.uniboard.data.QueryDTO;
 
-	private final String tenant;
-	private final String section;
+public class BoardPreconditionQuery implements PreconditionQuery {
 
-	public Task(String tenant, String section) {
-		this.tenant = tenant;
-		this.section = section;
+	private final QueryDTO query;
+	private final String board;
+
+	public BoardPreconditionQuery(QueryDTO query, String board) {
+		this.query = query;
+		this.board = board;
 	}
 
-	public String getTenant() {
-		return tenant;
+	public QueryDTO getQuery() {
+		return query;
 	}
 
-	public String getSection() {
-		return section;
+	public String getBoard() {
+		return board;
 	}
 
 }

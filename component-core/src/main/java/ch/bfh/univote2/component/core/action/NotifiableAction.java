@@ -11,8 +11,7 @@
  */
 package ch.bfh.univote2.component.core.action;
 
-import ch.bfh.univote2.component.core.data.NotificationCondition;
-import java.util.List;
+import ch.bfh.univote2.component.core.data.ActionContext;
 import javax.ejb.Local;
 
 /**
@@ -20,10 +19,16 @@ import javax.ejb.Local;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Local
-public interface NotifiableAction extends Action {
+public abstract class NotifiableAction implements Action {
 
-	public List<NotificationCondition> getNotificationConditions(String tenant, String section);
+    public abstract void notifyAction(ActionContext actionContext, Object notification);
 
-	public void notifyAction(String tenant, String section, Object notification);
+    public ActionContext prepareContext(String tenant, String section) {
+        ActionContext actionContext = this.createContext(section, tenant);
+        //TODO Try to retrieve the preconditions and either store them in the context or the corresponding query
+        return actionContext;
+    }
+
+    protected abstract ActionContext createContext(String section, String tenant);
 
 }

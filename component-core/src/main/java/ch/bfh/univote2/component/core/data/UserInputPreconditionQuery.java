@@ -15,22 +15,16 @@ package ch.bfh.univote2.component.core.data;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public abstract class Task {
+public class UserInputPreconditionQuery implements PreconditionQuery {
 
-	private final String tenant;
-	private final String section;
+	private final Task userInputRequest;
 
-	public Task(String tenant, String section) {
-		this.tenant = tenant;
-		this.section = section;
+	public UserInputPreconditionQuery(Task userInputRequest) {
+		this.userInputRequest = userInputRequest;
 	}
 
-	public String getTenant() {
-		return tenant;
-	}
-
-	public String getSection() {
-		return section;
+	public Task getUserInputRequest() {
+		return userInputRequest;
 	}
 
 }

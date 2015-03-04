@@ -19,73 +19,48 @@ import java.util.Objects;
  */
 public class NotificationData {
 
-	private final String notifictionCode;
-	private final String action;
-	private final String tenant;
-	private final String section;
+    private final String notifictionCode;
+    private final ActionContext actionContext;
 
-	/**
-	 *
-	 * @param notifictionCode
-	 * @param action
-	 * @param tenant
-	 * @param section
-	 */
-	public NotificationData(String notifictionCode, String action, String tenant, String section) {
-		this.notifictionCode = notifictionCode;
-		this.action = action;
-		this.tenant = tenant;
-		this.section = section;
-	}
+    /**
+     *
+     * @param notifictionCode
+     * @param action
+     */
+    public NotificationData(String notifictionCode, ActionContext action) {
+        this.notifictionCode = notifictionCode;
+        this.actionContext = action;
+    }
 
-	public String getAction() {
-		return action;
-	}
+    public ActionContext getActionContext() {
+        return actionContext;
+    }
 
-	public String getTenant() {
-		return tenant;
-	}
+    public String getNotifictionCode() {
+        return notifictionCode;
+    }
 
-	public String getSection() {
-		return section;
-	}
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 71 * hash + Objects.hashCode(this.notifictionCode);
+        hash = 71 * hash + Objects.hashCode(this.actionContext);
+        return hash;
+    }
 
-	public String getNotifictionCode() {
-		return notifictionCode;
-	}
-
-	@Override
-	public int hashCode() {
-		int hash = 5;
-		hash = 71 * hash + Objects.hashCode(this.notifictionCode);
-		hash = 71 * hash + Objects.hashCode(this.action);
-		hash = 71 * hash + Objects.hashCode(this.tenant);
-		hash = 71 * hash + Objects.hashCode(this.section);
-		return hash;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final NotificationData other = (NotificationData) obj;
-		if (!Objects.equals(this.notifictionCode, other.notifictionCode)) {
-			return false;
-		}
-		if (!Objects.equals(this.action, other.action)) {
-			return false;
-		}
-		if (!Objects.equals(this.tenant, other.tenant)) {
-			return false;
-		}
-		if (!Objects.equals(this.section, other.section)) {
-			return false;
-		}
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NotificationData other = (NotificationData) obj;
+        if (!Objects.equals(this.notifictionCode, other.notifictionCode)) {
+            return false;
+        }
+        return Objects.equals(this.actionContext, other.actionContext);
+    }
 
 }

@@ -11,6 +11,7 @@
  */
 package ch.bfh.univote2.component.core.action;
 
+import ch.bfh.univote2.component.core.data.ActionContext;
 import javax.ejb.Local;
 
 /**
@@ -20,8 +21,8 @@ import javax.ejb.Local;
 @Local
 public interface Action {
 
-	public void run(String tenant, String section);
+    public void run(ActionContext actionContext);
 
-	public boolean checkPostCondition(String tenant, String section);
+    public boolean checkPostCondition(String tenant, String section);
 
 }

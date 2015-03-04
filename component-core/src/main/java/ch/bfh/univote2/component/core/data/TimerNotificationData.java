@@ -17,8 +17,8 @@ package ch.bfh.univote2.component.core.data;
  */
 public class TimerNotificationData extends NotificationData {
 
-	public TimerNotificationData(String notifictionCode, String action, String tenant, String section) {
-		super(notifictionCode, action, tenant, section);
-	}
+    public TimerNotificationData(String notifictionCode, ActionContext actionContext) {
+        super(notifictionCode, actionContext);
+    }
 
 }

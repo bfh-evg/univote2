@@ -11,26 +11,18 @@
  */
 package ch.bfh.univote2.component.core.data;
 
-/**
- *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
- */
-public abstract class Task {
+import java.util.Date;
 
-	private final String tenant;
-	private final String section;
+public class TimerPreconditionQuery implements PreconditionQuery {
 
-	public Task(String tenant, String section) {
-		this.tenant = tenant;
-		this.section = section;
+	private final Date date;
+
+	public TimerPreconditionQuery(Date date) {
+		this.date = date;
 	}
 
-	public String getTenant() {
-		return tenant;
-	}
-
-	public String getSection() {
-		return section;
+	public Date getDate() {
+		return date;
 	}
 
 }
