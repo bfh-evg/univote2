@@ -19,16 +19,8 @@ import javax.ejb.Local;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Local
-public abstract class NotifiableAction implements Action {
+public interface NotifiableAction extends Action {
 
-    public abstract void notifyAction(ActionContext actionContext, Object notification);
-
-    public ActionContext prepareContext(String tenant, String section) {
-        ActionContext actionContext = this.createContext(section, tenant);
-        //TODO Try to retrieve the preconditions and either store them in the context or the corresponding query
-        return actionContext;
-    }
-
-    protected abstract ActionContext createContext(String section, String tenant);
+	public void notifyAction(ActionContext actionContext, Object notification);
 
 }

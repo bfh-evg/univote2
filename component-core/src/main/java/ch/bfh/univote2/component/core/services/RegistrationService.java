@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.helper;
+package ch.bfh.univote2.component.core.services;
 
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
@@ -20,7 +20,7 @@ import javax.ejb.Local;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Local
-public interface RegistrationHelper {
+public interface RegistrationService {
 
 	public String register(String board, QueryDTO q) throws UnivoteException;
 

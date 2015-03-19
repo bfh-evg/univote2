@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.helper;
+package ch.bfh.univote2.component.core.services;
 
 import ch.bfh.uniboard.clientlib.BoardErrorException;
 import ch.bfh.uniboard.clientlib.GetException;
@@ -37,9 +37,9 @@ import javax.ejb.Stateless;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Stateless
-public class UniBoardHelperImpl implements UniboardHelper {
+public class UniBoardServiceImpl implements UniboardService {
 
-	private static final Logger logger = Logger.getLogger(UniBoardHelperImpl.class.getName());
+	private static final Logger logger = Logger.getLogger(UniBoardServiceImpl.class.getName());
 	private static final String CONFIG_NAME = "uniboard-helper";
 
 	@EJB

@@ -21,8 +21,8 @@ import javax.ejb.Local;
 @Local
 public interface Action {
 
-    public void run(ActionContext actionContext);
+	public void run(ActionContext actionContext);
 
-    public boolean checkPostCondition(String tenant, String section);
+	public ActionContext prepareContext(String tenant, String section);
 
 }

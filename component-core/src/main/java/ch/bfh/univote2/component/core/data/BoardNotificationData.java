@@ -17,15 +17,15 @@ package ch.bfh.univote2.component.core.data;
  */
 public class BoardNotificationData extends NotificationData {
 
-    private final String board;
+	private final String board;
 
-    public BoardNotificationData(String board, String notifictionCode, ActionContext actionContext) {
-        super(notifictionCode, actionContext);
-        this.board = board;
-    }
+	public BoardNotificationData(String board, String notifictionCode, ActionContextKey actionContextKey) {
+		super(notifictionCode, actionContextKey);
+		this.board = board;
+	}
 
-    public String getBoard() {
-        return board;
-    }
+	public String getBoard() {
+		return board;
+	}
 
 }

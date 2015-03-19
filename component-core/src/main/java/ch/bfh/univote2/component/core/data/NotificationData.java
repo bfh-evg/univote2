@@ -19,48 +19,48 @@ import java.util.Objects;
  */
 public class NotificationData {
 
-    private final String notifictionCode;
-    private final ActionContext actionContext;
+	private final String notifictionCode;
+	private final ActionContextKey actionContextKey;
 
-    /**
-     *
-     * @param notifictionCode
-     * @param action
-     */
-    public NotificationData(String notifictionCode, ActionContext action) {
-        this.notifictionCode = notifictionCode;
-        this.actionContext = action;
-    }
+	/**
+	 *
+	 * @param notifictionCode
+	 * @param action
+	 */
+	public NotificationData(String notifictionCode, ActionContextKey actionContextKey) {
+		this.notifictionCode = notifictionCode;
+		this.actionContextKey = actionContextKey;
+	}
 
-    public ActionContext getActionContext() {
-        return actionContext;
-    }
+	public ActionContextKey getActionContextKey() {
+		return actionContextKey;
+	}
 
-    public String getNotifictionCode() {
-        return notifictionCode;
-    }
+	public String getNotifictionCode() {
+		return notifictionCode;
+	}
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 71 * hash + Objects.hashCode(this.notifictionCode);
-        hash = 71 * hash + Objects.hashCode(this.actionContext);
-        return hash;
-    }
+	@Override
+	public int hashCode() {
+		int hash = 5;
+		hash = 71 * hash + Objects.hashCode(this.notifictionCode);
+		hash = 71 * hash + Objects.hashCode(this.actionContextKey);
+		return hash;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final NotificationData other = (NotificationData) obj;
-        if (!Objects.equals(this.notifictionCode, other.notifictionCode)) {
-            return false;
-        }
-        return Objects.equals(this.actionContext, other.actionContext);
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final NotificationData other = (NotificationData) obj;
+		if (!Objects.equals(this.notifictionCode, other.notifictionCode)) {
+			return false;
+		}
+		return Objects.equals(this.actionContextKey, other.actionContextKey);
+	}
 
 }

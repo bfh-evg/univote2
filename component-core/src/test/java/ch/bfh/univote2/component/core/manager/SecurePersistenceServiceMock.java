@@ -11,28 +11,22 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import ch.bfh.uniboard.data.QueryDTO;
-import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.helper.RegistrationHelper;
+import ch.bfh.univote2.component.core.services.SecurePersistenceService;
+import java.math.BigInteger;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class RegistrationHelperMock implements RegistrationHelper {
+public class SecurePersistenceServiceMock implements SecurePersistenceService {
 
 	@Override
-	public String register(String board, QueryDTO q) throws UnivoteException {
+	public void securePersist(String tenant, String section, Class type, BigInteger value) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void unregister(String board, String notificationCode) throws UnivoteException {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public void unregisterUnknownNotification(String notificationCode) {
+	public BigInteger secureRetrieve(String tenant, String section, Class type) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 

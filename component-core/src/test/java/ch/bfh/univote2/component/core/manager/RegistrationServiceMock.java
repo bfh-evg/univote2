@@ -11,30 +11,29 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.services.SecurePersistenceService;
-import ch.bfh.univote2.component.core.persistence.TenantEntity;
+import ch.bfh.univote2.component.core.services.RegistrationService;
+import javax.ejb.Singleton;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class NonEETestableTenantManagerImpl extends TenantManagerImpl {
-
-	TenantEntity entity;
+@Singleton
+public class RegistrationServiceMock implements RegistrationService {
 
 	@Override
-	protected TenantEntity getTenant(String tenant) throws UnivoteException {
-
-		return entity;
+	public String register(String board, QueryDTO q) throws UnivoteException {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	public void addToUnlocked(String tenant, SecurePersistenceService encHelper) {
-		super.unlockedTentants.put(tenant, encHelper);
+	@Override
+	public void unregister(String board, String notificationCode) throws UnivoteException {
 	}
 
-	public void setTenantEntity(TenantEntity entity) {
-		this.entity = entity;
+	@Override
+	public void unregisterUnknownNotification(String notificationCode) {
 	}
 
 }

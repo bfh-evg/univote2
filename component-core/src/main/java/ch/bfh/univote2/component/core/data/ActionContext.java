@@ -12,71 +12,45 @@
 package ch.bfh.univote2.component.core.data;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class ActionContext {
+public abstract class ActionContext {
 
-    private final String action;
-    private final String tenant;
-    private final String section;
-    private final List<PreconditionQuery> preconditionQueries;
+	private final ActionContextKey actionContextKey;
+	private final List<PreconditionQuery> preconditionQueries;
+	private boolean postCondition;
+	private boolean inUse = false;
 
-    public ActionContext(String action, String tenant, String section, List<PreconditionQuery> preconditionQueries) {
-        this.action = action;
-        this.tenant = tenant;
-        this.section = section;
-        this.preconditionQueries = preconditionQueries;
-    }
+	public ActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
+		this.actionContextKey = actionContextKey;
+		this.preconditionQueries = preconditionQueries;
+	}
 
-    public String getAction() {
-        return action;
-    }
+	public ActionContextKey getActionContextKey() {
+		return actionContextKey;
+	}
 
-    public String getTenant() {
-        return tenant;
-    }
+	public List<PreconditionQuery> getPreconditionQueries() {
+		return preconditionQueries;
+	}
 
-    public String getSection() {
-        return section;
-    }
+	public boolean checkPostCondition() {
+		return postCondition;
+	}
 
-    public List<PreconditionQuery> getPreconditionQueries() {
-        return preconditionQueries;
-    }
+	public void setPostCondition(boolean postCondition) {
+		this.postCondition = postCondition;
+	}
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 97 * hash + Objects.hashCode(this.action);
-        hash = 97 * hash + Objects.hashCode(this.tenant);
-        hash = 97 * hash + Objects.hashCode(this.section);
-        hash = 97 * hash + Objects.hashCode(this.preconditionQueries);
-        return hash;
-    }
+	public boolean isInUse() {
+		return inUse;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final ActionContext other = (ActionContext) obj;
-        if (!Objects.equals(this.action, other.action)) {
-            return false;
-        }
-        if (!Objects.equals(this.tenant, other.tenant)) {
-            return false;
-        }
-        if (!Objects.equals(this.section, other.section)) {
-            return false;
-        }
-        return Objects.equals(this.preconditionQueries, other.preconditionQueries);
-    }
+	public void setInUse(boolean inUse) {
+		this.inUse = inUse;
+	}
 
 }

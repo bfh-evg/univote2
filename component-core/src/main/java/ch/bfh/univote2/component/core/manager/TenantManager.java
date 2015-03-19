@@ -11,7 +11,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import ch.bfh.univote2.component.core.helper.EncryptionHelper;
+import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.UnivoteException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -33,7 +33,7 @@ public interface TenantManager {
 
 	public PrivateKey getPrivateKey(String tenant) throws UnivoteException;
 
-	public EncryptionHelper getEncrytpionHelper(String tenant) throws UnivoteException;
+	public SecurePersistenceService getEncrytpionHelper(String tenant) throws UnivoteException;
 
 	public Set<String> getUnlockedTenants();
 

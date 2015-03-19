@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.helper;
+package ch.bfh.univote2.component.core.services;
 
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.notification.NotificationService;
@@ -28,7 +28,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
 @Stateless
-public class RegistrationHelperImpl implements RegistrationHelper {
+public class RegistrationServiceImpl implements RegistrationService {
 
 	private static final String CONFIG_NAME = "registration-helper";
 	private static final String WSDL_URL = "wsdlLocation";
@@ -36,7 +36,7 @@ public class RegistrationHelperImpl implements RegistrationHelper {
 	private static final String OWN_ENDPOINT_URL = "ownEndPointUrl";
 	private Map<String, StringTuple> boards;
 
-	private static final Logger logger = Logger.getLogger(RegistrationHelperImpl.class.getName());
+	private static final Logger logger = Logger.getLogger(RegistrationServiceImpl.class.getName());
 
 	@EJB
 	ConfigurationManager configurationManager;

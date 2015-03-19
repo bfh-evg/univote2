@@ -12,15 +12,14 @@
 package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.univote2.component.core.helper.InitialisationHelper;
-import ch.bfh.univote2.component.core.helper.RegistrationHelper;
+import ch.bfh.univote2.component.core.services.InitialisationService;
+import ch.bfh.univote2.component.core.services.RegistrationService;
 import javax.ejb.EJB;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,9 +28,9 @@ import org.junit.runner.RunWith;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @RunWith(Arquillian.class)
-public class NotificationManagerImplTest {
+public class ActionManagerImplTest {
 
-	public NotificationManagerImplTest() {
+	public ActionManagerImplTest() {
 	}
 
 	/**
@@ -42,10 +41,10 @@ public class NotificationManagerImplTest {
 	@Deployment
 	public static WebArchive createDeployment() {
 		WebArchive ja = ShrinkWrap.create(WebArchive.class)
-				.addClass(NotificationManagerImpl.class)
-				.addClass(RegistrationHelperMock.class)
+				.addClass(ActionManagerImpl.class)
+				.addClass(RegistrationServiceMock.class)
 				.addClass(ConfigurationManagerMock.class)
-				.addClass(InitialisationHelperMock.class)
+				.addClass(InitialisationServiceMock.class)
 				.addClass(TaskManagerMock.class)
 				.addClass(TenantManagerMock.class)
 				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
@@ -54,16 +53,16 @@ public class NotificationManagerImplTest {
 	}
 
 	@EJB
-	NotificationManager notificationManager;
+	ActionManager actionManager;
 
 	@EJB
-	RegistrationHelper registrationHelper;
+	RegistrationService registrationHelper;
 
 	@EJB
 	ConfigurationManager configurationManager;
 
 	@EJB
-	InitialisationHelper initialisationHelper;
+	InitialisationService initialisationHelper;
 
 	@EJB
 	TenantManager tenantManager;
@@ -79,9 +78,9 @@ public class NotificationManagerImplTest {
 		System.out.println("onBoardNotification");
 		String notificationCode = "";
 		PostDTO post = null;
-		notificationManager.onBoardNotification(notificationCode, post);
+		actionManager.onBoardNotification(notificationCode, post);
 		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
+		//fail("The test case is a prototype.");
 	}
 
 }

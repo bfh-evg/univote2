@@ -9,25 +9,18 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.services;
 
-import ch.bfh.univote2.component.core.helper.EncryptionHelper;
 import java.math.BigInteger;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class EncryptionHelperMock implements EncryptionHelper {
+public interface SecurePersistenceService {
 
-	@Override
-	public BigInteger decryptBigInteger(BigInteger encBigInteger) {
-		return encBigInteger;
-	}
+	public void securePersist(String tenant, String section, Class type, BigInteger value);
 
-	@Override
-	public BigInteger encryptBigInteger(BigInteger encBigInteger) {
-		return encBigInteger;
-	}
+	public BigInteger secureRetrieve(String tenant, String section, Class type);
 
 }

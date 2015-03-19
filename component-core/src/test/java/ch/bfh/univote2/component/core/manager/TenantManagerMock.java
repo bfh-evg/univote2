@@ -12,15 +12,18 @@
 package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.helper.EncryptionHelper;
+import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.HashSet;
 import java.util.Set;
+import javax.ejb.Singleton;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
+@Singleton
 public class TenantManagerMock implements TenantManager {
 
 	@Override
@@ -44,18 +47,18 @@ public class TenantManagerMock implements TenantManager {
 	}
 
 	@Override
-	public EncryptionHelper getEncrytpionHelper(String tenant) throws UnivoteException {
+	public SecurePersistenceService getEncrytpionHelper(String tenant) throws UnivoteException {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
 	public Set<String> getUnlockedTenants() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		return new HashSet<>();
 	}
 
 	@Override
 	public Set<String> getAllTentants() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		return new HashSet<>();
 	}
 
 }

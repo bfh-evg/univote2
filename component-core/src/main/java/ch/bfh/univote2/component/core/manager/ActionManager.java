@@ -13,6 +13,7 @@ package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.univote2.component.core.data.ActionContext;
+import ch.bfh.univote2.component.core.data.ResultContext;
 import ch.bfh.univote2.component.core.data.UserInput;
 import javax.ejb.Local;
 import javax.ejb.Timeout;
@@ -23,7 +24,7 @@ import javax.ejb.Timer;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Local
-public interface NotificationManager {
+public interface ActionManager {
 
 	void onBoardNotification(String notificationCode, PostDTO post);
 
@@ -32,10 +33,6 @@ public interface NotificationManager {
 
 	void onUserInputNotification(String notificationCode, UserInput userInput);
 
-	void runFinished(ActionContext actionContext);
-
-	void runFailed(ActionContext actionContext);
-
-	void runPartlyFinished(ActionContext actionContext);
+	void runFinished(ActionContext actionContext, ResultContext resultContext);
 
 }

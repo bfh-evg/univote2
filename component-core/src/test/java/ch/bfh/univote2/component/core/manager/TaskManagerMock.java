@@ -13,11 +13,13 @@ package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.univote2.component.core.data.Task;
 import java.util.List;
+import javax.ejb.Singleton;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
+@Singleton
 public class TaskManagerMock implements TaskManager {
 
 	@Override

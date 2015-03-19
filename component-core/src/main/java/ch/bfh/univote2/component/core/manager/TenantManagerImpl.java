@@ -25,8 +25,7 @@ import ch.bfh.unicrypt.math.algebra.dualistic.classes.Z;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.helper.AESEncryptionHelper;
-import ch.bfh.univote2.component.core.helper.EncryptionHelper;
+import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.persistence.TenantEntity;
 import ch.bfh.univote2.component.core.persistence.TenantEntity_;
 import java.math.BigInteger;
@@ -61,13 +60,13 @@ public class TenantManagerImpl implements TenantManager {
 					StringToByteArray.getInstance(Charset.forName("UTF-8"))),
 			HashMethod.Mode.RECURSIVE);
 
-	protected final Map<String, EncryptionHelper> unlockedTentants = new HashMap<>();
+	protected final Map<String, SecurePersistenceService> unlockedTentants = new HashMap<>();
 
 	@Override
 	public boolean unlock(String tenant, String password) throws UnivoteException {
 		TenantEntity tentantEntity = this.getTenant(tenant);
 		if (this.checkHash(password, tentantEntity.getHashValue(), tentantEntity.getSalt())) {
-			this.unlockedTentants.put(tenant, new AESEncryptionHelper(password));
+			//this.unlockedTentants.put(tenant, new AESEncryptionHelper(password));
 			return true;
 		}
 		return false;
@@ -109,7 +108,7 @@ public class TenantManagerImpl implements TenantManager {
 	}
 
 	@Override
-	public EncryptionHelper getEncrytpionHelper(String tenant) throws UnivoteException {
+	public SecurePersistenceService getEncrytpionHelper(String tenant) throws UnivoteException {
 		if (this.unlockedTentants.containsKey(tenant)) {
 			return this.unlockedTentants.get(tenant);
 		}
@@ -133,10 +132,10 @@ public class TenantManagerImpl implements TenantManager {
 		if (this.unlockedTentants.containsKey(tenant)) {
 			try {
 				TenantEntity tenantEntity = this.getTenant(tenant);
-				BigInteger privateKey = this.unlockedTentants.get(tenant)
-						.decryptBigInteger(tenantEntity.getEncPrivateKey());
+				//BigInteger privateKey = this.unlockedTentants.get(tenant)
+				//.decryptBigInteger(tenantEntity.getEncPrivateKey());
 				return KeyHelper.createDSAPrivateKey(tenantEntity.getModulus(), tenantEntity.getOrderFactor(),
-						tenantEntity.getGenerator(), privateKey);
+						tenantEntity.getGenerator(), null);
 			} catch (InvalidKeySpecException ex) {
 				throw new UnivoteException("Could not create privateKey: " + tenant, ex);
 			}

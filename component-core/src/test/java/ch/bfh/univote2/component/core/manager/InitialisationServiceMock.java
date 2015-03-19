@@ -11,23 +11,21 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import ch.bfh.univote2.component.core.helper.InitialisationHelper;
+import ch.bfh.univote2.component.core.services.InitialisationService;
+import java.util.ArrayList;
 import java.util.List;
+import javax.ejb.Singleton;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class InitialisationHelperMock implements InitialisationHelper {
+@Singleton
+public class InitialisationServiceMock implements InitialisationService {
 
 	@Override
 	public List<String> getSections(String tenant) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public String getInitialistionAction() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		return new ArrayList<>();
 	}
 
 }

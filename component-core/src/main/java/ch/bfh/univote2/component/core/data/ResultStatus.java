@@ -9,21 +9,16 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
-
-import java.util.Properties;
-import javax.ejb.Singleton;
+package ch.bfh.univote2.component.core.data;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Singleton
-public class ConfigurationManagerMock implements ConfigurationManager {
+public enum ResultStatus {
 
-	@Override
-	public Properties getConfiguration(String key) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+	FINISHED,
+	FAILURE,
+	RUN_FINISHED
 
 }
