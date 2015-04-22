@@ -21,6 +21,12 @@ import javax.ejb.Local;
 @Local
 public interface NotifiableAction extends Action {
 
-	public void notifyAction(ActionContext actionContext, Object notification);
+    /**
+     * Make this method asynchronous
+     *
+     * @param actionContext
+     * @param notification
+     */
+    public void notifyAction(ActionContext actionContext, Object notification);
 
 }

@@ -21,8 +21,13 @@ import javax.ejb.Local;
 @Local
 public interface Action {
 
-	public void run(ActionContext actionContext);
+    /**
+     * Make this method asynchronous
+     *
+     * @param actionContext
+     */
+    public void run(ActionContext actionContext);
 
-	public ActionContext prepareContext(String tenant, String section);
+    public ActionContext prepareContext(String tenant, String section);
 
 }
