@@ -11,6 +11,7 @@
  */
 package ch.bfh.univote2.component.core.data;
 
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import java.util.Objects;
 
 /**

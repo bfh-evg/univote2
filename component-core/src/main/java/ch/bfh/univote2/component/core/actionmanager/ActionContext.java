@@ -9,9 +9,11 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.data;
+package ch.bfh.univote2.component.core.actionmanager;
 
+import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  *
@@ -21,12 +23,14 @@ public abstract class ActionContext {
 
 	private final ActionContextKey actionContextKey;
 	private final List<PreconditionQuery> preconditionQueries;
+	LinkedBlockingQueue<Object> queuedNotifications;
 	private boolean postCondition;
 	private boolean inUse = false;
 
 	public ActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
 		this.actionContextKey = actionContextKey;
 		this.preconditionQueries = preconditionQueries;
+		this.queuedNotifications = new LinkedBlockingQueue<>();
 	}
 
 	public ActionContextKey getActionContextKey() {
@@ -45,12 +49,16 @@ public abstract class ActionContext {
 		this.postCondition = postCondition;
 	}
 
-	public boolean isInUse() {
+	protected boolean isInUse() {
 		return inUse;
 	}
 
-	public void setInUse(boolean inUse) {
+	protected void setInUse(boolean inUse) {
 		this.inUse = inUse;
+	}
+
+	protected LinkedBlockingQueue<Object> getQueuedNotifications() {
+		return queuedNotifications;
 	}
 
 }

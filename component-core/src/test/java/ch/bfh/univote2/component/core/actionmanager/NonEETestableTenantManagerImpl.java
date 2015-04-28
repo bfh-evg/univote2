@@ -9,9 +9,10 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.manager.TenantManagerImpl;
 import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.persistence.TenantEntity;
 

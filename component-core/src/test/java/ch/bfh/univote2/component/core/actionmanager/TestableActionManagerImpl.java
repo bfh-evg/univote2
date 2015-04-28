@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
-import ch.bfh.univote2.component.core.data.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionManagerImpl;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import java.util.List;
 import javax.ejb.Singleton;
 

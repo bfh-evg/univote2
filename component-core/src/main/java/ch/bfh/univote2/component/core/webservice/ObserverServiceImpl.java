@@ -13,7 +13,7 @@ package ch.bfh.univote2.component.core.webservice;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.notification.ObserverService;
-import ch.bfh.univote2.component.core.manager.ActionManagerImpl;
+import ch.bfh.univote2.component.core.actionmanager.ActionManagerImpl;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.jws.WebService;

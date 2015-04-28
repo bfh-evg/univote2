@@ -9,11 +9,10 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
-import ch.bfh.univote2.component.core.services.InitialisationService;
-import java.util.ArrayList;
-import java.util.List;
+import ch.bfh.univote2.component.core.manager.ConfigurationManager;
+import java.util.Properties;
 import javax.ejb.Singleton;
 
 /**
@@ -21,11 +20,11 @@ import javax.ejb.Singleton;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Singleton
-public class InitialisationServiceMock implements InitialisationService {
+public class ConfigurationManagerMock implements ConfigurationManager {
 
 	@Override
-	public List<String> getSections(String tenant) {
-		return new ArrayList<>();
+	public Properties getConfiguration(String key) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 }

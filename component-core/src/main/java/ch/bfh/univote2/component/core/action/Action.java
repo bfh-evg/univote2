@@ -11,7 +11,7 @@
  */
 package ch.bfh.univote2.component.core.action;
 
-import ch.bfh.univote2.component.core.data.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import javax.ejb.Local;
 
 /**

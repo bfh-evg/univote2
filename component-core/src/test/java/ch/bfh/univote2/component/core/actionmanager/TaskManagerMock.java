@@ -9,24 +9,27 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
-import ch.bfh.univote2.component.core.services.SecurePersistenceService;
-import java.math.BigInteger;
+import ch.bfh.univote2.component.core.data.Task;
+import ch.bfh.univote2.component.core.manager.TaskManager;
+import java.util.List;
+import javax.ejb.Singleton;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class SecurePersistenceServiceMock implements SecurePersistenceService {
+@Singleton
+public class TaskManagerMock implements TaskManager {
 
 	@Override
-	public void securePersist(String tenant, String section, Class type, BigInteger value) {
+	public String addTask(Task task) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public BigInteger secureRetrieve(String tenant, String section, Class type) {
+	public List<Task> getTasks(String tenant) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 

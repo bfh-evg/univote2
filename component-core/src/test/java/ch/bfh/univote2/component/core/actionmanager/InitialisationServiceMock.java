@@ -9,9 +9,10 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
-import ch.bfh.univote2.component.core.data.Task;
+import ch.bfh.univote2.component.core.services.InitialisationService;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Singleton;
 
@@ -20,16 +21,11 @@ import javax.ejb.Singleton;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Singleton
-public class TaskManagerMock implements TaskManager {
+public class InitialisationServiceMock implements InitialisationService {
 
 	@Override
-	public String addTask(Task task) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public List<Task> getTasks(String tenant) {
-		throw new UnsupportedOperationException("Not supported yet.");
+	public List<String> getSections(String tenant) {
+		return new ArrayList<>();
 	}
 
 }

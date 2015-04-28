@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.univote2.component.core.action.NotifiableAction;
-import ch.bfh.univote2.component.core.data.ActionContext;
-import ch.bfh.univote2.component.core.data.ActionContextKey;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +21,7 @@ import javax.ejb.Singleton;
  */
 @Singleton
 @LocalBean
-public class SecondMockAction implements NotifiableAction {
+public class MockAction implements NotifiableAction {
 
     private final List<ActionContextKey> lastRunActionContext = new ArrayList<>();
 
@@ -41,7 +41,7 @@ public class SecondMockAction implements NotifiableAction {
 
     @Override
     public ActionContext prepareContext(String tenant, String section) {
-        return this.actionContexts.get(new ActionContextKey("SecondMockAction", tenant, section));
+        return this.actionContexts.get(new ActionContextKey("MockAction", tenant, section));
     }
 
     public boolean containsRun(ActionContextKey ack) {

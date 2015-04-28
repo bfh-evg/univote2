@@ -9,11 +9,14 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.uniboard.data.QueryDTO;
+import static ch.bfh.unicrypt.helper.Alphabet.UPPER_CASE;
+import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.services.RegistrationService;
+import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 
 /**
@@ -21,11 +24,16 @@ import javax.ejb.Singleton;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Singleton
+@LocalBean
 public class RegistrationServiceMock implements RegistrationService {
+
+	private QueryDTO lastRegistredQuery;
 
 	@Override
 	public String register(String board, QueryDTO q) throws UnivoteException {
-		throw new UnsupportedOperationException("Not supported yet.");
+		this.lastRegistredQuery = q;
+		FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
+		return fixedStringSet.getRandomElement().getValue();
 	}
 
 	@Override
@@ -34,6 +42,10 @@ public class RegistrationServiceMock implements RegistrationService {
 
 	@Override
 	public void unregisterUnknownNotification(String notificationCode) {
+	}
+
+	public QueryDTO getLastRegistredQuery() {
+		return lastRegistredQuery;
 	}
 
 }

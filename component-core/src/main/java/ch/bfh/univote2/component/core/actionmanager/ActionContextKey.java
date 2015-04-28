@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.data;
+package ch.bfh.univote2.component.core.actionmanager;
 
 import java.util.Objects;
 

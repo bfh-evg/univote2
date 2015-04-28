@@ -11,6 +11,8 @@
  */
 package ch.bfh.univote2.component.core.data;
 
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;

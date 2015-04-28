@@ -9,10 +9,10 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.univote2.component.core.data.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.data.ResultContext;
 import ch.bfh.univote2.component.core.data.UserInput;
 import javax.ejb.Local;

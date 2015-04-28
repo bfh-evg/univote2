@@ -9,20 +9,24 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.component.core.actionmanager;
 
-import java.util.Properties;
-import javax.ejb.Singleton;
+import ch.bfh.univote2.component.core.services.SecurePersistenceService;
+import java.math.BigInteger;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Singleton
-public class ConfigurationManagerMock implements ConfigurationManager {
+public class SecurePersistenceServiceMock implements SecurePersistenceService {
 
 	@Override
-	public Properties getConfiguration(String key) {
+	public void securePersist(String tenant, String section, Class type, BigInteger value) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public BigInteger secureRetrieve(String tenant, String section, Class type) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
