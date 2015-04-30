@@ -23,7 +23,7 @@ public abstract class ActionContext {
 
 	private final ActionContextKey actionContextKey;
 	private final List<PreconditionQuery> preconditionQueries;
-	LinkedBlockingQueue<Object> queuedNotifications;
+	private final LinkedBlockingQueue<Object> queuedNotifications;
 	private boolean postCondition;
 	private boolean inUse = false;
 
@@ -49,16 +49,28 @@ public abstract class ActionContext {
 		this.postCondition = postCondition;
 	}
 
-	protected boolean isInUse() {
+	boolean isInUse() {
 		return inUse;
 	}
 
-	protected void setInUse(boolean inUse) {
+	void setInUse(boolean inUse) {
 		this.inUse = inUse;
 	}
 
-	protected LinkedBlockingQueue<Object> getQueuedNotifications() {
+	LinkedBlockingQueue<Object> getQueuedNotifications() {
 		return queuedNotifications;
 	}
 
+	void purge() {
+		if (postCondition && !inUse) {
+			this.preconditionQueries.clear();
+			this.queuedNotifications.clear();
+			this.purgeData();
+		}
+	}
+
+	/**
+	 * Deletes all data which is class specific.
+	 */
+	protected abstract void purgeData();
 }

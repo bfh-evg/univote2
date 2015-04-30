@@ -28,6 +28,7 @@ import javax.ejb.Singleton;
 public class RegistrationServiceMock implements RegistrationService {
 
 	private QueryDTO lastRegistredQuery;
+	private String lastUnregistredNotificationCode;
 
 	@Override
 	public String register(String board, QueryDTO q) throws UnivoteException {
@@ -42,10 +43,15 @@ public class RegistrationServiceMock implements RegistrationService {
 
 	@Override
 	public void unregisterUnknownNotification(String notificationCode) {
+		this.lastUnregistredNotificationCode = notificationCode;
 	}
 
 	public QueryDTO getLastRegistredQuery() {
 		return lastRegistredQuery;
+	}
+
+	public String getLastUnregistredNotificationCode() {
+		return lastUnregistredNotificationCode;
 	}
 
 }
