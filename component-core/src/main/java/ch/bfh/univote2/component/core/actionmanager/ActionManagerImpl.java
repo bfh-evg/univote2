@@ -50,8 +50,8 @@ import ch.bfh.univote2.component.core.data.BoardNotificationData;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.NotificationDataAccessor;
+import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
-import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.TimerNotificationData;
 import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInput;
@@ -107,29 +107,29 @@ public class ActionManagerImpl implements ActionManager {
 	 * RegistrationHelper. Implements the ws-client for the registration on uniboard
 	 */
 	@EJB
-	RegistrationService registrationService;
+	private RegistrationService registrationService;
 
 	/**
 	 * ConfigurationHelper. Gives access to configurations stored in the JNDI.
 	 */
 	@EJB
-	ConfigurationManager configurationManager;
+	private ConfigurationManager configurationManager;
 
 	/**
 	 * TenantManager. Manages all available tenants on this component.
 	 */
 	@EJB
-	TenantManager tenantManager;
+	private TenantManager tenantManager;
 	/**
 	 * UserInputManager. Responsible to manage GUI parts of this component.
 	 */
 	@EJB
-	TaskManager userTaskManager;
+	private TaskManager userTaskManager;
 	/**
 	 * InitialisationHelper. Provides the component specific initial action and query for new sections.
 	 */
 	@EJB
-	InitialisationService initialisationService;
+	private InitialisationService initialisationService;
 
 	/**
 	 * TimerService used to create java-ee timers
