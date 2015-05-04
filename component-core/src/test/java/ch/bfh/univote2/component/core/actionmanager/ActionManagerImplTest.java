@@ -176,12 +176,33 @@ public class ActionManagerImplTest {
 		assertEquals(this.registrationHelper.getLastRegistredQuery(), query);
 	}
 
+	/**
+	 * Test of onBoardNotification with notification registered and action context existing and ready
+	 */
+	@Test
+	public void testOnBoardNotification() {
+		//Create action context
+		String tenant = "onBoardNotification";
+		String actionName = "MockAction";
+		String section = "test1";
+		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+		ActionContext ac = new ActionContextImpl(ack, null, false);
+		this.actionManager.addActionContext(ac);
+		//create notificationregistration
+		//trigger notify
+		//check that action got called
+	}
+
 	private static class ActionContextImpl extends ActionContext {
 
 		public ActionContextImpl(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries,
 				boolean postCondition) {
 			super(actionContextKey, preconditionQueries);
 			this.setPostCondition(postCondition);
+		}
+
+		@Override
+		protected void purgeData() {
 		}
 	}
 }

@@ -42,7 +42,7 @@
 package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.univote2.component.core.data.ResultContext;
+import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInput;
 import javax.ejb.Local;
 import javax.ejb.Timeout;
@@ -62,6 +62,6 @@ public interface ActionManager {
 
 	void onUserInputNotification(String notificationCode, UserInput userInput);
 
-	void runFinished(ActionContext actionContext, ResultContext resultContext);
+	void runFinished(ActionContext actionContext, ResultStatus resultStatus);
 
 }

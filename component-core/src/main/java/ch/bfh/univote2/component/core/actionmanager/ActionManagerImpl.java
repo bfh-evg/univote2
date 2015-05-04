@@ -50,8 +50,8 @@ import ch.bfh.univote2.component.core.data.BoardNotificationData;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.NotificationDataAccessor;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import ch.bfh.univote2.component.core.data.ResultContext;
+import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.TimerNotificationData;
 import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInput;
@@ -208,9 +208,16 @@ public class ActionManagerImpl implements ActionManager {
 			return;
 		}
 		NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
+		if (!this.actionContexts.containsKey(nData.getActionContextKey())) {
+			ActionManagerImpl.logger.log(Level.SEVERE,
+					"Could not find actionContext, but had a valid notificationCondidtion. action:{0} notification:{1}",
+					new Object[]{nData.getActionContextKey().getAction(), nData.getActionContextKey().getAction()});
+			return;
+		}
 		ActionContext actionContext = this.actionContexts.get(nData.getActionContextKey());
+
 		if (actionContext.isInUse()) {
-			if (!actionContext.queuedNotifications.offer(post)) {
+			if (!actionContext.getQueuedNotifications().offer(post)) {
 				this.log("Could not queue post for ac:" + actionContext);
 			}
 		} else {
@@ -232,9 +239,15 @@ public class ActionManagerImpl implements ActionManager {
 			return;
 		}
 		NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
+		if (!this.actionContexts.containsKey(nData.getActionContextKey())) {
+			ActionManagerImpl.logger.log(Level.SEVERE,
+					"Could not find actionContext, but had a valid notificationCondidtion. action:{0} notification:{1}",
+					new Object[]{nData.getActionContextKey().getAction(), nData.getActionContextKey().getAction()});
+			return;
+		}
 		ActionContext actionContext = this.actionContexts.get(nData.getActionContextKey());
 		if (actionContext.isInUse()) {
-			if (!actionContext.queuedNotifications.offer(userInput)) {
+			if (!actionContext.getQueuedNotifications().offer(userInput)) {
 				this.log("Could not queue userinput for ac:" + actionContext);
 			}
 		} else {
@@ -254,9 +267,15 @@ public class ActionManagerImpl implements ActionManager {
 	public void onTimerNotification(Timer timer) {
 		String notificationCode = (String) timer.getInfo();
 		NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
+		if (!this.actionContexts.containsKey(nData.getActionContextKey())) {
+			ActionManagerImpl.logger.log(Level.SEVERE,
+					"Could not find actionContext, but had a valid notificationCondidtion. action:{0} notification:{1}",
+					new Object[]{nData.getActionContextKey().getAction(), nData.getActionContextKey().getAction()});
+			return;
+		}
 		ActionContext actionContext = this.actionContexts.get(nData.getActionContextKey());
 		if (actionContext.isInUse()) {
-			if (!actionContext.queuedNotifications.offer(timer)) {
+			if (!actionContext.getQueuedNotifications().offer(timer)) {
 				this.log("Could not queue timer for ac:" + actionContext);
 			}
 		} else {
@@ -267,31 +286,50 @@ public class ActionManagerImpl implements ActionManager {
 				this.log(ex);
 				return;
 			}
-			//TODO Check if in use
 			action.notifyAction(actionContext, timer);
 		}
 	}
 
 	@Override
 	@Asynchronous
-	public void runFinished(ActionContext actionContext, ResultContext resultContext) {
-		//TODO Check if its the initialisation action
-		//TODO Switch ResultStatus
-		//TODO FINISHED
-		//TODO Empty context
-		//TODO Check successors
-		//
-		//TODO RUN_FINISHED
-		//TODO Save context
-		//TODO Check notificationQueue
-		//TODO Set InUse = false
-		//
-		//TODO FAILURE
-		//TODO Log error?
-		//TODO Set InUse = false
+	public void runFinished(ActionContext actionContext, ResultStatus resultStatus) {
+		//Check if its the initialisation action
+		if (actionContext.getActionContextKey().getAction().equals(this.initialAction)) {
+			this.runFinishedInitialisation(actionContext, resultStatus);
+			return;
+		}
+		switch (resultStatus) {
+			case FINISHED:
+				actionContext.setInUse(false);
+				//Empty context
+				actionContext.purge();
+				//Check successors
+				ActionContextKey ack = actionContext.getActionContextKey();
+				for (String successor : this.actionGraph.get(ack.getAction())) {
+					this.checkActionState(successor, ack.getTenant(), ack.getSection());
+				}
+			case RUN_FINISHED:
+				//TODO Save context?
+				//Check notificationQueue
+				if (!actionContext.getQueuedNotifications().isEmpty()) {
+					NotifiableAction action;
+					try {
+						action = this.getAction(actionContext.getActionContextKey().getAction());
+					} catch (UnivoteException ex) {
+						this.log(ex);
+						return;
+					}
+					action.notifyAction(actionContext, actionContext.getQueuedNotifications().poll());
+				} else {
+					actionContext.setInUse(false);
+				}
+			case FAILURE:
+				actionContext.setInUse(false);
+
+		}
 	}
 
-	protected void runFinishedInitialisation(ActionContext actionContext) {
+	protected void runFinishedInitialisation(ActionContext actionContext, ResultStatus resultStatus) {
 		//TODO
 	}
 
@@ -316,8 +354,6 @@ public class ActionManagerImpl implements ActionManager {
 			NotifiableAction action = this.getAction(actionContext.getActionContextKey().getAction());
 			actionContext.setInUse(true);
 			action.run(actionContext);
-		} else {
-			//TODO Add to queue
 		}
 	}
 

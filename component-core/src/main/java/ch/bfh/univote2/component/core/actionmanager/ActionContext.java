@@ -53,7 +53,7 @@ public abstract class ActionContext {
 
 	private final ActionContextKey actionContextKey;
 	private final List<PreconditionQuery> preconditionQueries;
-	LinkedBlockingQueue<Object> queuedNotifications;
+	private final LinkedBlockingQueue<Object> queuedNotifications;
 	private boolean postCondition;
 	private boolean inUse = false;
 
@@ -91,4 +91,16 @@ public abstract class ActionContext {
 		return queuedNotifications;
 	}
 
+	void purge() {
+		if (postCondition && !inUse) {
+			this.preconditionQueries.clear();
+			this.queuedNotifications.clear();
+			this.purgeData();
+		}
+	}
+
+	/**
+	 * Deletes all data which is class specific.
+	 */
+	protected abstract void purgeData();
 }
