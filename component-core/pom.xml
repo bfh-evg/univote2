@@ -13,7 +13,7 @@
 	<version>1.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<name>Component Core</name>
+	<name>component-core</name>
 	<dependencies>
 		<dependency>
 			<groupId>ch.bfh.uniboard</groupId>
