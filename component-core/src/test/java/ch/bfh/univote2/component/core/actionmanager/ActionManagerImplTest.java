@@ -13,8 +13,6 @@ package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.QueryDTO;
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
@@ -110,7 +108,7 @@ public class ActionManagerImplTest {
 	/**
 	 * Test of checkActionState with no actionContext but postcondition=true
 	 */
-	@Test
+	//@Test
 	public void testcheckActionState2() {
 		String tenant = "checkActionState";
 		String actionName = "MockAction";
