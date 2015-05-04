@@ -11,10 +11,12 @@
  */
 package ch.bfh.univote2.component.core.actionmanager;
 
+import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
+import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.manager.TaskManager;
@@ -61,7 +63,7 @@ public class ActionManagerImplTest {
 				.addClass(TaskManagerMock.class)
 				.addClass(TenantManagerMock.class)
 				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
-		System.out.println(ja.toString(true));
+		//System.out.println(ja.toString(true));
 		return ja;
 	}
 
@@ -69,7 +71,7 @@ public class ActionManagerImplTest {
 	TestableActionManagerImpl actionManager;
 
 	@EJB
-	RegistrationServiceMock registrationHelper;
+	RegistrationServiceMock registrationService;
 
 	@EJB
 	ConfigurationManager configurationManager;
@@ -121,12 +123,11 @@ public class ActionManagerImplTest {
 
 		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
 		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
-		ac.setPostCondition(true);
 		this.mockAction.addActionContext(ac);
 
 		ActionContextKey ack2 = new ActionContextKey(secondActionName, tenant, section);
-		ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), true);
-		ac2.setPostCondition(false);
+		ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false);
+		//this.actionManager.addActionContext(ac2);
 		this.secondMockAction.addActionContext(ac2);
 
 		this.actionManager.pubCheckActionState(actionName, tenant, section);
@@ -144,11 +145,9 @@ public class ActionManagerImplTest {
 		String tenant = "checkActionState";
 		String actionName = "MockAction";
 		String section = "test3";
-		this.actionManager.pubCheckActionState(tenant, section, actionName);
 
 		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
-		ac.setPostCondition(false);
+		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
 		this.mockAction.addActionContext(ac);
 
 		this.actionManager.pubCheckActionState(actionName, tenant, section);
@@ -169,32 +168,172 @@ public class ActionManagerImplTest {
 		List<PreconditionQuery> preconditions = new ArrayList<>();
 		QueryDTO query = new QueryDTO(new ArrayList<>(), new ArrayList<>(), 10);
 		preconditions.add(new BoardPreconditionQuery(query, "UNIVOTE"));
-		ActionContext ac = new ActionContextImpl(ack, preconditions, true);
-		ac.setPostCondition(false);
+		ActionContext ac = new ActionContextImpl(ack, preconditions, false);
 		this.mockAction.addActionContext(ac);
 
 		this.actionManager.pubCheckActionState(actionName, tenant, section);
 		assertTrue(this.mockAction.containsRun(ack));
-		assertEquals(this.registrationHelper.getLastRegistredQuery(), query);
+		assertEquals(this.registrationService.getLastRegistredQuery(), query);
 	}
 
 	/**
 	 * Test of onBoardNotification with notification registered and action context existing and ready
 	 */
 	@Test
-	public void testOnBoardNotification() {
+	public void testOnBoardNotification1() {
 		//Create action context
 		String tenant = "onBoardNotification";
 		String actionName = "MockAction";
 		String section = "test1";
+		String notificationCode = tenant + section;
 		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-		ActionContext ac = new ActionContextImpl(ack, null, false);
+		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+		this.actionManager.addActionContext(ac);
+		//create notificationregistration
+		NotificationData nData = new NotificationData(notificationCode, ack);
+		this.actionManager.addNotificationData(nData);
+		//trigger notify
+		this.actionManager.onBoardNotification(notificationCode, null);
+		//check that action got called
+		assertTrue(this.mockAction.containsNotify(ack));
+	}
+
+	/**
+	 * Test of onBoardNotification with notification not registered but action context existing and ready
+	 */
+	@Test
+	public void testOnBoardNotification2() {
+		//Create action context
+		String tenant = "onBoardNotification";
+		String actionName = "MockAction";
+		String section = "test2";
+		String notificationCode = tenant + section;
+		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
 		this.actionManager.addActionContext(ac);
 		//create notificationregistration
 		//trigger notify
+		this.actionManager.onBoardNotification(notificationCode, null);
 		//check that action got called
+		assertFalse(this.mockAction.containsNotify(ack));
+		assertTrue(this.registrationService.containsUnregistredNotificationCode(notificationCode));
 	}
 
+	/**
+	 * Test of onBoardNotification with notification registered but action context not existing
+	 */
+	@Test
+	public void testOnBoardNotification3() {
+		//Create action context
+		String tenant = "onBoardNotification";
+		String actionName = "MockAction";
+		String section = "test3";
+		String notificationCode = tenant + section;
+		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+		//create notificationregistration
+		NotificationData nData = new NotificationData(notificationCode, ack);
+		this.actionManager.addNotificationData(nData);
+		//trigger notify
+		this.actionManager.onBoardNotification(notificationCode, null);
+		//check that action got called
+		assertFalse(this.mockAction.containsNotify(ack));
+		assertFalse(this.registrationService.containsUnregistredNotificationCode(notificationCode));
+	}
+
+	/**
+	 * Test of onBoardNotification with notification registered and action context existing but in use
+	 */
+	@Test
+	public void testOnBoardNotification4() {
+		//Create action context
+		String tenant = "onBoardNotification";
+		String actionName = "MockAction";
+		String section = "test4";
+		String notificationCode = tenant + section;
+		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+		ac.setInUse(true);
+		this.actionManager.addActionContext(ac);
+		//create notificationregistration
+		NotificationData nData = new NotificationData(notificationCode, ack);
+		this.actionManager.addNotificationData(nData);
+		//trigger notify
+		byte[] msg = notificationCode.getBytes();
+		PostDTO postDTO = new PostDTO(msg, null, null);
+		this.actionManager.onBoardNotification(notificationCode, postDTO);
+		//check that action got called
+		assertFalse(this.mockAction.containsNotify(ack));
+		assertFalse(this.registrationService.containsUnregistredNotificationCode(notificationCode));
+		assertEquals(1, ac.getQueuedNotifications().size());
+		assertEquals(postDTO, ac.getQueuedNotifications().poll());
+	}
+
+//	/**
+//	 * Test of onUserInputNotification with notification registered and action context existing and ready
+//	 */
+//	@Test
+//	public void testOnUserInputNotification1() {
+//		//Create action context
+//		String tenant = "onUserInputNotification";
+//		String actionName = "MockAction";
+//		String section = "test1";
+//		String notificationCode = tenant + section;
+//		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+//		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+//		this.actionManager.addActionContext(ac);
+//		//create notificationregistration
+//		NotificationData nData = new NotificationData(notificationCode, ack);
+//		this.actionManager.addNotificationData(nData);
+//		//trigger notify
+//		this.actionManager.onUserInputNotification(notificationCode, null);
+//		//check that action got called
+////		assertTrue(this.mockAction.containsNotify(ack));
+//	}
+//
+//	/**
+//	 * Test of onUserInputNotification with notification not registered but action context existing and ready
+//	 */
+//	@Test
+//	public void testOnUserInputNotification2() {
+//		//Create action context
+//		String tenant = "onUserInputNotification";
+//		String actionName = "MockAction";
+//		String section = "test2";
+//		String notificationCode = tenant + section;
+//		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+//		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+//		this.actionManager.addActionContext(ac);
+//		//create notificationregistration
+//		//trigger notify
+//		this.actionManager.onUserInputNotification(notificationCode, null);
+//		//check that action got called
+////		assertFalse(this.mockAction.containsNotify(ack));
+////		assertTrue(this.registrationService.containsUnregistredNotificationCode(notificationCode));
+//	}
+//
+//	/**
+//	 * Test of onUserInputNotification with notification registered but action context not existing
+//	 */
+//	@Test
+//	public void testOnUserInputNotification3() {
+//		//Create action context
+//		String tenant = "onUserInputNotification";
+//		String actionName = "MockAction";
+//		String section = "test3";
+//		String notificationCode = tenant + section;
+//		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+//		ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+//		//this.actionManager.addActionContext(ac);
+//		//create notificationregistration
+//		NotificationData nData = new NotificationData(notificationCode, ack);
+//		this.actionManager.addNotificationData(nData);
+//		//trigger notify
+//		this.actionManager.onUserInputNotification(notificationCode, null);
+//		//check that action got called
+////		assertFalse(this.mockAction.containsNotify(ack));
+////		assertFalse(this.registrationService.containsUnregistredNotificationCode(notificationCode));
+//	}
 	private static class ActionContextImpl extends ActionContext {
 
 		public ActionContextImpl(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries,

@@ -5,9 +5,9 @@
  */
 package ch.bfh.univote2.component.core.actionmanager;
 
-import ch.bfh.univote2.component.core.actionmanager.ActionManagerImpl;
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.data.NotificationData;
 import java.util.List;
+import java.util.logging.Level;
 import javax.ejb.Singleton;
 
 /**
@@ -18,23 +18,31 @@ import javax.ejb.Singleton;
  */
 @Singleton
 public class TestableActionManagerImpl extends ActionManagerImpl {
-    
-    @Override
-    public void init() {
-    }
-    
-    public void pubCheckActionState(String tenant, String section, String actionName) {
-        this.checkActionState(tenant, section, actionName);
-    }
-    
-    @Override
-    public void addActionContext(ActionContext actionContext) {
-        super.addActionContext(actionContext);
-    }
-    
-    @Override
-    public void addActionGraphEntry(String actionName, List<String> successors) {
-        super.addActionGraphEntry(actionName, successors);
-    }
-    
+
+	@Override
+	public void init() {
+	}
+
+	public void pubCheckActionState(String tenant, String section, String actionName) {
+		this.checkActionState(tenant, section, actionName);
+	}
+
+	@Override
+	public void addActionContext(ActionContext actionContext) {
+		super.addActionContext(actionContext);
+	}
+
+	@Override
+	public void addActionGraphEntry(String actionName, List<String> successors) {
+		super.addActionGraphEntry(actionName, successors);
+	}
+
+	@Override
+	public void addNotificationData(NotificationData notificationData) {
+		super.addNotificationData(notificationData);
+	}
+
+	@Override
+	protected void log(String msg, Level level) {
+	}
 }

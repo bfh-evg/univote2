@@ -16,6 +16,8 @@ import static ch.bfh.unicrypt.helper.Alphabet.UPPER_CASE;
 import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.services.RegistrationService;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 
@@ -28,7 +30,7 @@ import javax.ejb.Singleton;
 public class RegistrationServiceMock implements RegistrationService {
 
 	private QueryDTO lastRegistredQuery;
-	private String lastUnregistredNotificationCode;
+	private final List<String> lastUnregistredNotificationCode = new ArrayList();
 
 	@Override
 	public String register(String board, QueryDTO q) throws UnivoteException {
@@ -43,15 +45,15 @@ public class RegistrationServiceMock implements RegistrationService {
 
 	@Override
 	public void unregisterUnknownNotification(String notificationCode) {
-		this.lastUnregistredNotificationCode = notificationCode;
+		this.lastUnregistredNotificationCode.add(notificationCode);
 	}
 
 	public QueryDTO getLastRegistredQuery() {
 		return lastRegistredQuery;
 	}
 
-	public String getLastUnregistredNotificationCode() {
-		return lastUnregistredNotificationCode;
+	public boolean containsUnregistredNotificationCode(String notificationCode) {
+		return lastUnregistredNotificationCode.remove(notificationCode);
 	}
 
 }
