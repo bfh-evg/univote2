@@ -377,10 +377,9 @@ public class ActionManagerImpl implements ActionManager {
             } else if (cond instanceof UserInputPreconditionQuery) {
                 UserInputPreconditionQuery uiNC = (UserInputPreconditionQuery) cond;
                 String newNotificationCode = this.userTaskManager.addTask(uiNC.getUserInputRequest());
-                if (newNotificationCode != null) {
-                    this.notificationDataAccessor.addNotificationData(
-                            new NotificationData(newNotificationCode, actionContext.getActionContextKey()));
-                }
+
+                this.notificationDataAccessor.addNotificationData(
+                        new NotificationData(newNotificationCode, actionContext.getActionContextKey()));
             } else if (cond instanceof TimerPreconditionQuery) {
                 TimerPreconditionQuery tNC = (TimerPreconditionQuery) cond;
                 //Get a notificationCode for a timer
@@ -461,5 +460,9 @@ public class ActionManagerImpl implements ActionManager {
 
     protected void addNotificationData(NotificationData notificationData) {
         this.notificationDataAccessor.addNotificationData(notificationData);
+    }
+
+    protected NotificationDataAccessor getNotificationDataAccessor() {
+        return this.notificationDataAccessor;
     }
 }

@@ -13,11 +13,17 @@ package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.QueryDTO;
+import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.data.BoardNotificationData;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.data.Task;
+import ch.bfh.univote2.component.core.data.TimerNotificationData;
+import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInput;
+import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import ch.bfh.univote2.component.core.manager.TenantManager;
@@ -40,7 +46,9 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -523,7 +531,7 @@ public class ActionManagerImplTest {
         //Create action context
         String tenant = "runFinished";
         String actionName = "MockAction";
-        String section = "test2";
+        String section = "test3";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
         ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
@@ -545,7 +553,7 @@ public class ActionManagerImplTest {
         //Create action context
         String tenant = "runFinished";
         String actionName = "MockAction1";
-        String section = "test2";
+        String section = "test4";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
         ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
@@ -566,7 +574,7 @@ public class ActionManagerImplTest {
         //Create action context
         String tenant = "runFinished";
         String actionName = "MockAction";
-        String section = "test2";
+        String section = "test5";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
         ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
@@ -577,6 +585,228 @@ public class ActionManagerImplTest {
         this.actionManager.runFinished(ac, ResultStatus.FAILURE);
         assertFalse(this.mockAction.containsNotify(ack));
         assertFalse(ac.isInUse());
+    }
+
+    /**
+     * Test of getAction with an existing action
+     */
+    @Test
+    public void testGetAction1() {
+        //Create action context
+        String tenant = "getAction";
+        String actionName = "MockAction";
+        String section = "test1";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        try {
+            this.actionManager.getActionTest(ac);
+        } catch (UnivoteException ex) {
+            fail();
+        }
+        assertTrue(this.mockAction.containsRun(ack));
+    }
+
+    /**
+     * Test of getAction with a non existing action
+     */
+    @Test
+    public void testGetAction2() {
+        //Create action context
+        String tenant = "getAction";
+        String actionName = "MockAction1";
+        String section = "test2";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        try {
+            this.actionManager.getActionTest(ac);
+            fail();
+        } catch (UnivoteException ex) {
+            //Ok
+        }
+    }
+
+    /**
+     * Test of runAction with an existing action
+     */
+    @Test
+    public void testRunAction1() {
+        //Create action context
+        String tenant = "runAction";
+        String actionName = "MockAction";
+        String section = "test1";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        try {
+            this.actionManager.runAction(ac);
+        } catch (UnivoteException ex) {
+            fail();
+        }
+        assertTrue(this.mockAction.containsRun(ack));
+    }
+
+    /**
+     * Test of runAction with an action in use
+     */
+    @Test
+    public void testRunAction2() {
+        //Create action context
+        String tenant = "runAction";
+        String actionName = "MockAction";
+        String section = "test2";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ac.setInUse(true);
+        try {
+            this.actionManager.runAction(ac);
+        } catch (UnivoteException ex) {
+            fail();
+        }
+        assertFalse(this.mockAction.containsRun(ack));
+    }
+
+    /**
+     * Test of registerAction with a board notification
+     */
+    @Test
+    public void testRegisterAction1() {
+        //Create action context
+        String tenant = "registerAction";
+        String actionName = "MockAction";
+        String section = "test1";
+        String board = tenant + section;
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        QueryDTO query = new QueryDTO(null, null, 1);
+        ac.getPreconditionQueries().add(new BoardPreconditionQuery(query, board));
+
+        try {
+            this.actionManager.registerAction(ac);
+        } catch (UnivoteException ex) {
+            fail();
+        }
+        assertEquals(query, this.registrationService.getLastRegistredQuery());
+        List<NotificationData> result = this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack);
+        assertEquals(1, result.size());
+        BoardNotificationData bnd = (BoardNotificationData) result.get(0);
+        assertEquals(board, bnd.getBoard());
+    }
+
+    /**
+     * Test of registerAction with an user input notification
+     */
+    @Test
+    public void testRegisterAction2() {
+        //Create action context
+        String tenant = "registerAction";
+        String actionName = "MockAction";
+        String section = "test2";
+        String board = tenant + section;
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        Task t = new Task(tenant, section) {
+        };
+        ac.getPreconditionQueries().add(new UserInputPreconditionQuery(t));
+
+        try {
+            this.actionManager.registerAction(ac);
+        } catch (UnivoteException ex) {
+            fail();
+        }
+        assertEquals(t, this.taskManager.getTasks(tenant).get(0));
+        List<NotificationData> result = this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack);
+        assertEquals(1, result.size());
+        assertEquals(result.get(0).getActionContextKey(), ack);
+    }
+
+    /**
+     * Test of registerAction with an timer notification
+     */
+    @Test
+    public void testRegisterAction3() {
+        //Create action context
+        String tenant = "registerAction";
+        String actionName = "MockAction";
+        String section = "test3";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        Date date = new Date(new Date().getTime() + 3600);
+        TimerPreconditionQuery query = new TimerPreconditionQuery(date);
+        ac.getPreconditionQueries().add(query);
+        try {
+            this.actionManager.registerAction(ac);
+        } catch (UnivoteException ex) {
+            fail();
+        }
+
+        List<NotificationData> result = this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack);
+        assertEquals(1, result.size());
+        assertEquals(result.get(0).getActionContextKey(), ack);
+    }
+
+    /**
+     * Test of registerAction with an unknown notification
+     */
+    @Test
+    public void testRegisterAction4() {
+        //Create action context
+        String tenant = "registerAction";
+        String actionName = "MockAction";
+        String section = "test4";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        UnknownPreconditionQuery query = new UnknownPreconditionQuery();
+        ac.getPreconditionQueries().add(query);
+        try {
+            this.actionManager.registerAction(ac);
+            fail();
+        } catch (UnivoteException ex) {
+
+        }
+
+        List<NotificationData> result = this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack);
+        assertNull(result);
+    }
+
+    /**
+     * Test of unregisterAction
+     */
+    @Test
+    public void testUnregisterAction1() {
+        //Create action context
+        String tenant = "registerAction";
+        String actionName = "MockAction";
+        String section = "test1";
+        String notifcationCode = tenant + section;
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+
+        this.actionManager.getNotificationDataAccessor().addNotificationData(new BoardNotificationData(tenant,
+                notifcationCode, ack));
+        this.actionManager.getNotificationDataAccessor().addNotificationData(
+                new NotificationData(notifcationCode + "1", ack));
+
+        this.actionManager.getNotificationDataAccessor().addNotificationData(new TimerNotificationData(
+                notifcationCode + "2", ack));
+
+        this.actionManager.unregisterAction(ac);
+        assertNull(this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack));
+        assertTrue(this.registrationService.containsUnregistredNotificationCode(notifcationCode));
+    }
+
+    private static class UnknownPreconditionQuery implements PreconditionQuery {
+
+        public UnknownPreconditionQuery() {
+        }
+
     }
 
     private static class ActionContextImpl extends ActionContext {

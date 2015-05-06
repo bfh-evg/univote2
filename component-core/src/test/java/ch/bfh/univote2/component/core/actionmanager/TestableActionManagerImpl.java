@@ -5,7 +5,10 @@
  */
 package ch.bfh.univote2.component.core.actionmanager;
 
+import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.action.Action;
 import ch.bfh.univote2.component.core.data.NotificationData;
+import ch.bfh.univote2.component.core.data.NotificationDataAccessor;
 import java.util.List;
 import java.util.logging.Level;
 import javax.ejb.Singleton;
@@ -19,30 +22,55 @@ import javax.ejb.Singleton;
 @Singleton
 public class TestableActionManagerImpl extends ActionManagerImpl {
 
-	@Override
-	public void init() {
-	}
+    @Override
+    public void init() {
+    }
 
-	public void pubCheckActionState(String tenant, String section, String actionName) {
-		this.checkActionState(tenant, section, actionName);
-	}
+    public void pubCheckActionState(String tenant, String section, String actionName) {
+        this.checkActionState(tenant, section, actionName);
+    }
 
-	@Override
-	public void addActionContext(ActionContext actionContext) {
-		super.addActionContext(actionContext);
-	}
+    @Override
+    public NotificationDataAccessor getNotificationDataAccessor() {
+        return super.getNotificationDataAccessor();
+    }
 
-	@Override
-	public void addActionGraphEntry(String actionName, List<String> successors) {
-		super.addActionGraphEntry(actionName, successors);
-	}
+    @Override
+    public void addActionContext(ActionContext actionContext) {
+        super.addActionContext(actionContext);
+    }
 
-	@Override
-	public void addNotificationData(NotificationData notificationData) {
-		super.addNotificationData(notificationData);
-	}
+    @Override
+    public void addActionGraphEntry(String actionName, List<String> successors) {
+        super.addActionGraphEntry(actionName, successors);
+    }
 
-	@Override
-	protected void log(String msg, Level level) {
-	}
+    @Override
+    public void addNotificationData(NotificationData notificationData) {
+        super.addNotificationData(notificationData);
+    }
+
+    public void getActionTest(ActionContext ac) throws UnivoteException {
+        Action a = this.getAction(ac.getActionContextKey().getAction());
+        a.run(ac);
+    }
+
+    @Override
+    public void runAction(ActionContext ac) throws UnivoteException {
+        super.runAction(ac);
+    }
+
+    @Override
+    public void registerAction(ActionContext actionContext) throws UnivoteException {
+        super.registerAction(actionContext);
+    }
+
+    @Override
+    public void unregisterAction(ActionContext actionContext) {
+        super.unregisterAction(actionContext);
+    }
+
+    @Override
+    protected void log(String msg, Level level) {
+    }
 }

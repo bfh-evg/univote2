@@ -11,3 +11,4 @@
 /doc/report/*.ver
 /trustee/election-coordinator/target/
 /trustee/tallier/target/
+/component-core/derby.log
