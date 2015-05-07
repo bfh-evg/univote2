@@ -71,6 +71,11 @@ public class TestableActionManagerImpl extends ActionManagerImpl {
     }
 
     @Override
+    public void setInitialAction(String action) {
+        super.setInitialAction(action);
+    }
+
+    @Override
     protected void log(String msg, Level level) {
     }
 }

@@ -61,10 +61,14 @@ import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.services.RegistrationService;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -88,6 +92,8 @@ public class ActionManagerImpl implements ActionManager {
 
     static final Logger logger = Logger.getLogger(ActionManagerImpl.class.getName());
     private static final String CONFIGURATION_NAME = "action-graph";
+    private static final String CONFIGURATION_INITIAL_ACTION = "initialAction";
+    private static final String CONFIGURATION_SEPARATOR = ";";
     //Gives easy access to the mapping between notificationData and actionContext
     private final NotificationDataAccessor notificationDataAccessor;
     //All available contexts
@@ -96,6 +102,7 @@ public class ActionManagerImpl implements ActionManager {
     private Map<String, List<String>> actionGraph = new HashMap<>();
     //Name of the intial action
     private String initialAction;
+
     /**
      * Session context. Used to locate the notifiable actions over the JNDI.
      */
@@ -144,18 +151,44 @@ public class ActionManagerImpl implements ActionManager {
     public void init() {
         //Load action graph from the configuration
         this.actionGraph = new HashMap<>();
-        //TODO load graph and invert from predecessor based to successor based as it is queried that way
-        //TODO Set init action
+        Properties config = this.configurationManager.getConfiguration(CONFIGURATION_NAME);
+
+        //Set init action
+        if (config.containsKey(CONFIGURATION_INITIAL_ACTION)) {
+            this.initialAction = config.getProperty(CONFIGURATION_INITIAL_ACTION);
+            config.remove(CONFIGURATION_INITIAL_ACTION);
+        } else {
+            this.log("Configuration error: no intial action defined.", Level.SEVERE);
+            return;
+        }
+        //load graph
+        for (Entry<Object, Object> e : config.entrySet()) {
+            try {
+                String action = (String) e.getKey();
+                String successors = (String) e.getValue();
+                List<String> successorList = new ArrayList(Arrays.asList(successors.split(CONFIGURATION_SEPARATOR)));
+                this.actionGraph.put(action, successorList);
+            } catch (ClassCastException ex) {
+                this.log("Could not load graph entry for: " + e.getKey(), Level.SEVERE);
+            }
+        }
         //Get list of tennant
         for (String tenant : this.tenantManager.getAllTentants()) {
             for (String section : this.initialisationService.getSections(tenant)) {
+                //Check all actions following the initAction
                 for (String actionName : this.actionGraph.get(this.initialAction)) {
                     this.checkActionState(actionName, tenant, section);
                 }
             }
             //Register this tenant for new sections
-            //TODO
-
+            NotifiableAction initAction;
+            try {
+                initAction = this.getAction(this.initialAction);
+                ActionContext ac = initAction.prepareContext(tenant, this.initialAction);
+                this.registerAction(ac);
+            } catch (UnivoteException ex) {
+                this.log(ex, Level.SEVERE);
+            }
         }
     }
 
@@ -190,8 +223,13 @@ public class ActionManagerImpl implements ActionManager {
     public void cleanUp() {
         for (String notificationCode : this.notificationDataAccessor.getAllNotificationCodes()) {
             try {
-                //TODO
-                this.registrationService.unregister("", notificationCode);
+                NotificationData data = this.notificationDataAccessor.findByNotificationCode(notificationCode);
+                if (data instanceof BoardNotificationData) {
+                    BoardNotificationData boardData = (BoardNotificationData) data;
+                    this.registrationService.unregister(boardData.getBoard(), notificationCode);
+                } else if (data instanceof TimerNotificationData) {
+                    this.cancelTimer(notificationCode);
+                }
             } catch (UnivoteException ex) {
                 this.log(ex, Level.WARNING);
             }
@@ -207,29 +245,7 @@ public class ActionManagerImpl implements ActionManager {
             this.registrationService.unregisterUnknownNotification(notificationCode);
             return;
         }
-        NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
-        if (!this.actionContexts.containsKey(nData.getActionContextKey())) {
-            this.log("Could not find actionContext, but had a valid notificationCondidtion. action: "
-                    + nData.getActionContextKey().getAction() + " notification: "
-                    + nData.getActionContextKey().getAction(), Level.SEVERE);
-            return;
-        }
-        ActionContext actionContext = this.actionContexts.get(nData.getActionContextKey());
-
-        if (actionContext.isInUse()) {
-            if (!actionContext.getQueuedNotifications().offer(post)) {
-                this.log("Could not queue post for ac:" + actionContext, Level.WARNING);
-            }
-        } else {
-            NotifiableAction action;
-            try {
-                action = this.getAction(actionContext.getActionContextKey().getAction());
-            } catch (UnivoteException ex) {
-                this.log(ex, Level.WARNING);
-                return;
-            }
-            action.notifyAction(actionContext, post);
-        }
+        this.onNotification(notificationCode, post);
     }
 
     @Override
@@ -239,28 +255,7 @@ public class ActionManagerImpl implements ActionManager {
                     Level.INFO);
             return;
         }
-        NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
-        if (!this.actionContexts.containsKey(nData.getActionContextKey())) {
-            this.log("Could not find actionContext, but had a valid notificationCondidtion. action: "
-                    + nData.getActionContextKey().getAction() + " notification: "
-                    + nData.getActionContextKey().getAction(), Level.SEVERE);
-            return;
-        }
-        ActionContext actionContext = this.actionContexts.get(nData.getActionContextKey());
-        if (actionContext.isInUse()) {
-            if (!actionContext.getQueuedNotifications().offer(userInput)) {
-                this.log("Could not queue userinput for ac:" + actionContext, Level.WARNING);
-            }
-        } else {
-            NotifiableAction action;
-            try {
-                action = this.getAction(actionContext.getActionContextKey().getAction());
-            } catch (UnivoteException ex) {
-                this.log(ex, Level.WARNING);
-                return;
-            }
-            action.notifyAction(actionContext, userInput);
-        }
+        this.onNotification(notificationCode, userInput);
     }
 
     @Timeout
@@ -273,6 +268,11 @@ public class ActionManagerImpl implements ActionManager {
             timer.cancel();
             return;
         }
+        this.onNotification(notificationCode, timer);
+    }
+
+    protected void onNotification(String notificationCode, Object notifciationObject) {
+
         NotificationData nData = this.notificationDataAccessor.findByNotificationCode(notificationCode);
         if (!this.actionContexts.containsKey(nData.getActionContextKey())) {
             this.log("Could not find actionContext, but had a valid notificationCondidtion. action: "
@@ -281,9 +281,9 @@ public class ActionManagerImpl implements ActionManager {
             return;
         }
         ActionContext actionContext = this.actionContexts.get(nData.getActionContextKey());
-        if (actionContext.isInUse()) {
-            if (!actionContext.getQueuedNotifications().offer(timer)) {
-                this.log("Could not queue timer for ac:" + actionContext, Level.WARNING);
+        if (!actionContext.runsInParallel() && actionContext.isInUse()) {
+            if (!actionContext.getQueuedNotifications().offer(notifciationObject)) {
+                this.log("Could not queue notification for ac:" + actionContext, Level.WARNING);
             }
         } else {
             NotifiableAction action;
@@ -293,7 +293,7 @@ public class ActionManagerImpl implements ActionManager {
                 this.log(ex, Level.WARNING);
                 return;
             }
-            action.notifyAction(actionContext, timer);
+            action.notifyAction(actionContext, notifciationObject);
         }
     }
 
@@ -306,7 +306,9 @@ public class ActionManagerImpl implements ActionManager {
         }
         switch (resultStatus) {
             case FINISHED:
-                actionContext.setInUse(false);
+                if (!actionContext.runsInParallel()) {
+                    actionContext.setInUse(false);
+                }
                 //Empty context
                 actionContext.purge();
                 //Check successors
@@ -323,22 +325,40 @@ public class ActionManagerImpl implements ActionManager {
                         action = this.getAction(actionContext.getActionContextKey().getAction());
                     } catch (UnivoteException ex) {
                         this.log(ex, Level.SEVERE);
-                        actionContext.setInUse(false);
+                        if (!actionContext.runsInParallel()) {
+                            actionContext.setInUse(false);
+                        }
                         return;
                     }
                     action.notifyAction(actionContext, actionContext.getQueuedNotifications().poll());
-                } else {
+                } else if (!actionContext.runsInParallel()) {
                     actionContext.setInUse(false);
                 }
                 break;
             case FAILURE:
-                actionContext.setInUse(false);
-
+                if (!actionContext.runsInParallel()) {
+                    actionContext.setInUse(false);
+                }
         }
     }
 
     protected void runFinishedInitialisation(ActionContext actionContext, ResultStatus resultStatus) {
-        //TODO
+        //For the intial action FINISHED and RUN_FINISHED are threated the same
+        //Only for the FAILURE case we want a differnt behaviour
+        switch (resultStatus) {
+            case FAILURE:
+                this.log("Aborted new context due initial error" + actionContext, Level.WARNING);
+                break;
+            default:
+                //If no error happend start all successor with the new section
+                ActionContextKey ack = actionContext.getActionContextKey();
+                for (String successor : this.actionGraph.get(ack.getAction())) {
+                    this.checkActionState(successor, ack.getTenant(), ack.getSection());
+                }
+                //Notifications of the initial action wont get removed
+                break;
+        }
+
     }
 
     protected NotifiableAction getAction(String actionName) throws UnivoteException {
@@ -358,7 +378,7 @@ public class ActionManagerImpl implements ActionManager {
     }
 
     protected void runAction(ActionContext actionContext) throws UnivoteException {
-        if (!actionContext.isInUse()) {
+        if (actionContext.runsInParallel() || !actionContext.isInUse()) {
             NotifiableAction action = this.getAction(actionContext.getActionContextKey().getAction());
             actionContext.setInUse(true);
             action.run(actionContext);
@@ -464,5 +484,9 @@ public class ActionManagerImpl implements ActionManager {
 
     protected NotificationDataAccessor getNotificationDataAccessor() {
         return this.notificationDataAccessor;
+    }
+
+    protected void setInitialAction(String action) {
+        this.initialAction = action;
     }
 }

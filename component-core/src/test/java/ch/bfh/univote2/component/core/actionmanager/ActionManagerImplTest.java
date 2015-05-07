@@ -116,7 +116,7 @@ public class ActionManagerImplTest {
         String actionName = "MockAction";
         String section = "test1";
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, null, false);
+        ActionContext ac = new ActionContextImpl(ack, null, false, false);
         this.actionManager.addActionContext(ac);
         this.actionManager.pubCheckActionState(actionName, tenant, section);
         assertFalse(this.mockAction.containsRun(ack));
@@ -126,7 +126,7 @@ public class ActionManagerImplTest {
     /**
      * Test of checkActionState with no actionContext but postcondition=true
      */
-    //@Test
+    @Test
     public void testcheckActionState2() {
         String tenant = "checkActionState";
         String actionName = "MockAction";
@@ -138,11 +138,11 @@ public class ActionManagerImplTest {
         this.actionManager.addActionGraphEntry(actionName, succesors);
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
         this.mockAction.addActionContext(ac);
 
         ActionContextKey ack2 = new ActionContextKey(secondActionName, tenant, section);
-        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false);
+        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false, false);
         this.secondMockAction.addActionContext(ac2);
 
         this.actionManager.pubCheckActionState(actionName, tenant, section);
@@ -162,7 +162,7 @@ public class ActionManagerImplTest {
         String section = "test3";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         this.mockAction.addActionContext(ac);
 
         this.actionManager.pubCheckActionState(actionName, tenant, section);
@@ -183,7 +183,7 @@ public class ActionManagerImplTest {
         List<PreconditionQuery> preconditions = new ArrayList<>();
         QueryDTO query = new QueryDTO(new ArrayList<>(), new ArrayList<>(), 10);
         preconditions.add(new BoardPreconditionQuery(query, "UNIVOTE"));
-        ActionContext ac = new ActionContextImpl(ack, preconditions, false);
+        ActionContext ac = new ActionContextImpl(ack, preconditions, false, false);
         this.mockAction.addActionContext(ac);
 
         this.actionManager.pubCheckActionState(actionName, tenant, section);
@@ -202,7 +202,7 @@ public class ActionManagerImplTest {
         String section = "test1";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
         NotificationData nData = new NotificationData(notificationCode, ack);
@@ -224,7 +224,7 @@ public class ActionManagerImplTest {
         String section = "test2";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
         //trigger notify
@@ -245,7 +245,7 @@ public class ActionManagerImplTest {
         String section = "test3";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         //create notificationregistration
         NotificationData nData = new NotificationData(notificationCode, ack);
         this.actionManager.addNotificationData(nData);
@@ -267,7 +267,7 @@ public class ActionManagerImplTest {
         String section = "test4";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         ac.setInUse(true);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
@@ -295,7 +295,7 @@ public class ActionManagerImplTest {
         String section = "test1";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
         NotificationData nData = new NotificationData(notificationCode, ack);
@@ -317,7 +317,7 @@ public class ActionManagerImplTest {
         String section = "test2";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
         //trigger notify
@@ -337,7 +337,7 @@ public class ActionManagerImplTest {
         String section = "test3";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         //create notificationregistration
         NotificationData nData = new NotificationData(notificationCode, ack);
         this.actionManager.addNotificationData(nData);
@@ -358,7 +358,7 @@ public class ActionManagerImplTest {
         String section = "test4";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         ac.setInUse(true);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
@@ -386,7 +386,7 @@ public class ActionManagerImplTest {
         String section = "test1";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
         NotificationData nData = new NotificationData(notificationCode, ack);
@@ -409,7 +409,7 @@ public class ActionManagerImplTest {
         String section = "test2";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
         //trigger notify
@@ -431,7 +431,7 @@ public class ActionManagerImplTest {
         String section = "test3";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         //create notificationregistration
         NotificationData nData = new NotificationData(notificationCode, ack);
         this.actionManager.addNotificationData(nData);
@@ -453,7 +453,7 @@ public class ActionManagerImplTest {
         String section = "test4";
         String notificationCode = tenant + section;
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         ac.setInUse(true);
         this.actionManager.addActionContext(ac);
         //create notificationregistration
@@ -470,7 +470,7 @@ public class ActionManagerImplTest {
     }
 
     /**
-     * Test of runFinished for an existing actionContext and resultStatus = finished
+     * Test of runFinished for an existing actionContext, resultStatus = finished and parallel = false
      */
     @Test
     public void testRunFinished1() {
@@ -481,12 +481,13 @@ public class ActionManagerImplTest {
         String section = "test1";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
         ac.getPreconditionQueries().add(new BoardPreconditionQuery(null, tenant));
         ac.getQueuedNotifications().add(section);
+        ac.setInUse(true);
 
         ActionContextKey ack2 = new ActionContextKey(secondActionName, tenant, section);
-        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false);
+        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false, false);
         this.secondMockAction.addActionContext(ac2);
 
         List<String> succesors = new ArrayList<>();
@@ -503,6 +504,41 @@ public class ActionManagerImplTest {
     }
 
     /**
+     * Test of runFinished for an existing actionContext, resultStatus = finished and parallel = true
+     */
+    @Test
+    public void testRunFinished11() {
+        //Create action context
+        String tenant = "runFinished";
+        String actionName = "MockAction";
+        String secondActionName = "SecondMockAction";
+        String section = "test11";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true, true);
+        ac.getPreconditionQueries().add(new BoardPreconditionQuery(null, tenant));
+        ac.getQueuedNotifications().add(section);
+        ac.setInUse(true);
+
+        ActionContextKey ack2 = new ActionContextKey(secondActionName, tenant, section);
+        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false, false);
+        this.secondMockAction.addActionContext(ac2);
+
+        List<String> succesors = new ArrayList<>();
+        succesors.add(secondActionName);
+        this.actionManager.addActionGraphEntry(actionName, succesors);
+        //Run finished
+        this.actionManager.runFinished(ac, ResultStatus.FINISHED);
+        //Check that context gets purged
+        assertTrue(ac.getPreconditionQueries().isEmpty());
+        assertTrue(ac.getPreconditionQueries().isEmpty());
+        //Check that checkActionState gets called for the successors
+        assertTrue(this.secondMockAction.containsRun(ack2));
+        //Check that inUse didnt get changed(should not be used at all in parallel mode)
+        assertTrue(ac.isInUse());
+    }
+
+    /**
      * Test of runFinished for an existing actionContext and resultStatus = run_finished and no queued notifications
      */
     @Test
@@ -513,13 +549,35 @@ public class ActionManagerImplTest {
         String section = "test2";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         ac.setInUse(true);
 
         //Run finished
         this.actionManager.runFinished(ac, ResultStatus.RUN_FINISHED);
         //Check that context gets purged
         assertFalse(ac.isInUse());
+        assertFalse(this.mockAction.containsNotify(ack));
+    }
+
+    /**
+     * Test of runFinished for an existing actionContext and resultStatus = run_finished, no queued notifications and
+     * parallel = true
+     */
+    @Test
+    public void testRunFinished21() {
+        //Create action context
+        String tenant = "runFinished";
+        String actionName = "MockAction";
+        String section = "test21";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true, false);
+        ac.setInUse(true);
+
+        //Run finished
+        this.actionManager.runFinished(ac, ResultStatus.RUN_FINISHED);
+        //Check that inuse doesnt get changed
+        assertTrue(ac.isInUse());
         assertFalse(this.mockAction.containsNotify(ack));
     }
 
@@ -534,7 +592,7 @@ public class ActionManagerImplTest {
         String section = "test3";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         ac.setInUse(true);
         ac.getQueuedNotifications().add(section);
 
@@ -556,7 +614,7 @@ public class ActionManagerImplTest {
         String section = "test4";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         ac.setInUse(true);
         ac.getQueuedNotifications().add(section);
 
@@ -567,7 +625,29 @@ public class ActionManagerImplTest {
     }
 
     /**
-     * Test of runFinished for an existing actionContext and resultStatus = failure
+     * Test of runFinished for an existing actionContext and resultStatus = run_finished and queued notifications but
+     * wrong action name and parallel = true
+     */
+    @Test
+    public void testRunFinished41() {
+        //Create action context
+        String tenant = "runFinished";
+        String actionName = "MockAction1";
+        String section = "test41";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true, false);
+        ac.setInUse(true);
+        ac.getQueuedNotifications().add(section);
+
+        //Run finished
+        this.actionManager.runFinished(ac, ResultStatus.RUN_FINISHED);
+        assertFalse(this.mockAction.containsNotify(ack));
+        assertTrue(ac.isInUse());
+    }
+
+    /**
+     * Test of runFinished for an existing actionContext, resultStatus = failure and parallel = false
      */
     @Test
     public void testRunFinished5() {
@@ -577,7 +657,7 @@ public class ActionManagerImplTest {
         String section = "test5";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         ac.setInUse(true);
         ac.getQueuedNotifications().add(section);
 
@@ -585,6 +665,120 @@ public class ActionManagerImplTest {
         this.actionManager.runFinished(ac, ResultStatus.FAILURE);
         assertFalse(this.mockAction.containsNotify(ack));
         assertFalse(ac.isInUse());
+    }
+
+    /**
+     * Test of runFinished for an existing actionContext, resultStatus = failure and parallel = true
+     */
+    @Test
+    public void testRunFinished51() {
+        //Create action context
+        String tenant = "runFinished";
+        String actionName = "MockAction";
+        String section = "test51";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true, false);
+        ac.setInUse(true);
+        ac.getQueuedNotifications().add(section);
+
+        //Run finished
+        this.actionManager.runFinished(ac, ResultStatus.FAILURE);
+        assertFalse(this.mockAction.containsNotify(ack));
+        assertTrue(ac.isInUse());
+    }
+
+    /**
+     * Test of runFinished for the intialAction and result status FINISHED
+     */
+    @Test
+    public void testRunFinished6() {
+        //Create action context
+        String tenant = "runFinished";
+        String actionName = "intialAction";
+        String mockActionName = "MockAction";
+        String section = "test6";
+
+        this.actionManager.setInitialAction(actionName);
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
+
+        ActionContextKey ack2 = new ActionContextKey(mockActionName, tenant, section);
+        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false, false);
+        this.mockAction.addActionContext(ac2);
+
+        List<String> succesors = new ArrayList<>();
+        succesors.add(mockActionName);
+        this.actionManager.addActionGraphEntry(actionName, succesors);
+
+        //Run finished
+        this.actionManager.runFinished(ac, ResultStatus.FINISHED);
+        assertFalse(this.mockAction.containsRun(ack));
+        assertFalse(ac.isInUse());
+        assertTrue(this.mockAction.containsRun(ack2));
+    }
+
+    /**
+     * Test of runFinished for the intialAction and result status RUN_FINISHED
+     */
+    @Test
+    public void testRunFinished7() {
+        //Create action context
+        String tenant = "runFinished";
+        String actionName = "intialAction";
+        String mockActionName = "MockAction";
+        String section = "test7";
+
+        this.actionManager.setInitialAction(actionName);
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
+
+        ActionContextKey ack2 = new ActionContextKey(mockActionName, tenant, section);
+        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false, false);
+        this.mockAction.addActionContext(ac2);
+
+        List<String> succesors = new ArrayList<>();
+        succesors.add(mockActionName);
+        this.actionManager.addActionGraphEntry(actionName, succesors);
+
+        //Run finished
+        this.actionManager.runFinished(ac, ResultStatus.RUN_FINISHED);
+        assertFalse(this.mockAction.containsRun(ack));
+        assertFalse(ac.isInUse());
+        assertTrue(this.mockAction.containsRun(ack2));
+    }
+
+    /**
+     * Test of runFinished for the intialAction and result status FAILRUE
+     */
+    @Test
+    public void testRunFinished8() {
+        //Create action context
+        String tenant = "runFinished";
+        String actionName = "intialAction";
+        String mockActionName = "MockAction";
+        String section = "test7";
+
+        this.actionManager.setInitialAction(actionName);
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
+
+        ActionContextKey ack2 = new ActionContextKey(mockActionName, tenant, section);
+        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), false, false);
+        this.mockAction.addActionContext(ac2);
+
+        List<String> succesors = new ArrayList<>();
+        succesors.add(mockActionName);
+        this.actionManager.addActionGraphEntry(actionName, succesors);
+
+        //Run finished
+        this.actionManager.runFinished(ac, ResultStatus.FAILURE);
+        assertFalse(this.mockAction.containsRun(ack));
+        assertFalse(ac.isInUse());
+        assertFalse(this.mockAction.containsRun(ack2));
     }
 
     /**
@@ -598,7 +792,7 @@ public class ActionManagerImplTest {
         String section = "test1";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         try {
             this.actionManager.getActionTest(ac);
         } catch (UnivoteException ex) {
@@ -618,7 +812,7 @@ public class ActionManagerImplTest {
         String section = "test2";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         try {
             this.actionManager.getActionTest(ac);
             fail();
@@ -638,7 +832,7 @@ public class ActionManagerImplTest {
         String section = "test1";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         try {
             this.actionManager.runAction(ac);
         } catch (UnivoteException ex) {
@@ -658,7 +852,7 @@ public class ActionManagerImplTest {
         String section = "test2";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, false);
         ac.setInUse(true);
         try {
             this.actionManager.runAction(ac);
@@ -680,7 +874,7 @@ public class ActionManagerImplTest {
         String board = tenant + section;
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
         QueryDTO query = new QueryDTO(null, null, 1);
         ac.getPreconditionQueries().add(new BoardPreconditionQuery(query, board));
 
@@ -708,7 +902,7 @@ public class ActionManagerImplTest {
         String board = tenant + section;
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
         Task t = new Task(tenant, section) {
         };
         ac.getPreconditionQueries().add(new UserInputPreconditionQuery(t));
@@ -735,7 +929,7 @@ public class ActionManagerImplTest {
         String section = "test3";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
         Date date = new Date(new Date().getTime() + 3600);
         TimerPreconditionQuery query = new TimerPreconditionQuery(date);
         ac.getPreconditionQueries().add(query);
@@ -761,7 +955,7 @@ public class ActionManagerImplTest {
         String section = "test4";
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
         UnknownPreconditionQuery query = new UnknownPreconditionQuery();
         ac.getPreconditionQueries().add(query);
         try {
@@ -787,7 +981,7 @@ public class ActionManagerImplTest {
         String notifcationCode = tenant + section;
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
-        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
 
         this.actionManager.getNotificationDataAccessor().addNotificationData(new BoardNotificationData(tenant,
                 notifcationCode, ack));
@@ -812,8 +1006,8 @@ public class ActionManagerImplTest {
     private static class ActionContextImpl extends ActionContext {
 
         public ActionContextImpl(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries,
-                boolean postCondition) {
-            super(actionContextKey, preconditionQueries);
+                boolean runsInParallel, boolean postCondition) {
+            super(actionContextKey, preconditionQueries, runsInParallel);
             this.setPostCondition(postCondition);
         }
 
