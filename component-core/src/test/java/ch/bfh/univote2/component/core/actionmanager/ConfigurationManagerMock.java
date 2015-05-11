@@ -13,6 +13,7 @@ package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import java.util.Properties;
+import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 
 /**
@@ -20,11 +21,18 @@ import javax.ejb.Singleton;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Singleton
+@LocalBean
 public class ConfigurationManagerMock implements ConfigurationManager {
 
-	@Override
-	public Properties getConfiguration(String key) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    private Properties p;
+
+    @Override
+    public Properties getConfiguration(String key) {
+        return p;
+    }
+
+    public void setProperties(Properties p) {
+        this.p = p;
+    }
 
 }

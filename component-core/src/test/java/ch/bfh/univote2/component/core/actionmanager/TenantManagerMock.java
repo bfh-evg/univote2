@@ -18,6 +18,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.HashSet;
 import java.util.Set;
+import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 
 /**
@@ -25,41 +26,48 @@ import javax.ejb.Singleton;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Singleton
+@LocalBean
 public class TenantManagerMock implements TenantManager {
 
-	@Override
-	public boolean unlock(String tenant, String password) throws UnivoteException {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    private Set<String> tenants = new HashSet<>();
 
-	@Override
-	public boolean lock(String tenant, String password) throws UnivoteException {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    @Override
+    public boolean unlock(String tenant, String password) throws UnivoteException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	@Override
-	public PublicKey getPublicKey(String tenant) throws UnivoteException {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    @Override
+    public boolean lock(String tenant, String password) throws UnivoteException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	@Override
-	public PrivateKey getPrivateKey(String tenant) throws UnivoteException {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    @Override
+    public PublicKey getPublicKey(String tenant) throws UnivoteException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	@Override
-	public SecurePersistenceService getEncrytpionHelper(String tenant) throws UnivoteException {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    @Override
+    public PrivateKey getPrivateKey(String tenant) throws UnivoteException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	@Override
-	public Set<String> getUnlockedTenants() {
-		return new HashSet<>();
-	}
+    @Override
+    public SecurePersistenceService getEncrytpionHelper(String tenant) throws UnivoteException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	@Override
-	public Set<String> getAllTentants() {
-		return new HashSet<>();
-	}
+    @Override
+    public Set<String> getUnlockedTenants() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public Set<String> getAllTentants() {
+        return tenants;
+    }
+
+    public void setTenants(Set<String> tenants) {
+        this.tenants = tenants;
+    }
 
 }

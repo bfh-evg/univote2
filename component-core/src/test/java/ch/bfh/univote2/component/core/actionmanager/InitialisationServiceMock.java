@@ -12,8 +12,8 @@
 package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.univote2.component.core.services.InitialisationService;
-import java.util.ArrayList;
 import java.util.List;
+import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 
 /**
@@ -21,11 +21,19 @@ import javax.ejb.Singleton;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Singleton
+@LocalBean
 public class InitialisationServiceMock implements InitialisationService {
 
-	@Override
-	public List<String> getSections(String tenant) {
-		return new ArrayList<>();
-	}
+    private List<String> sections;
+
+    @Override
+    public List<String> getSections(String tenant) {
+
+        return sections;
+    }
+
+    public void setSections(List<String> sections) {
+        this.sections = sections;
+    }
 
 }

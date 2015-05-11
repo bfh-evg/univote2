@@ -74,6 +74,7 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.ejb.DependsOn;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
@@ -88,6 +89,7 @@ import javax.ejb.TimerService;
  */
 @Singleton
 @Startup
+@DependsOn("ConfigurationManagerImpl")
 public class ActionManagerImpl implements ActionManager {
 
     static final Logger logger = Logger.getLogger(ActionManagerImpl.class.getName());
@@ -309,6 +311,8 @@ public class ActionManagerImpl implements ActionManager {
                 if (!actionContext.runsInParallel()) {
                     actionContext.setInUse(false);
                 }
+                //Remove existing notifications
+                this.unregisterAction(actionContext);
                 //Empty context
                 actionContext.purge();
                 //Check successors
@@ -415,24 +419,26 @@ public class ActionManagerImpl implements ActionManager {
     protected void unregisterAction(ActionContext actionContext) {
 
         //unregister current process
-        for (NotificationData notificationData : this.notificationDataAccessor.findByActionContextKey(
-                actionContext.getActionContextKey())) {
-            //Remove from notificationDataAccessor
-            this.notificationDataAccessor.removeByNotificationCode(notificationData.getNotifictionCode());
-            try {
-                //Has to act based on the type of the notification
-                //BoardCondition: unregister on the corresponding uniboard
-                if (notificationData instanceof BoardNotificationData) {
-                    BoardNotificationData bnd = (BoardNotificationData) notificationData;
-                    this.registrationService.unregister(bnd.getBoard(), bnd.getNotifictionCode());
+        if (this.notificationDataAccessor.containsActionContextKey(actionContext.getActionContextKey())) {
+            for (NotificationData notificationData : this.notificationDataAccessor.findByActionContextKey(
+                    actionContext.getActionContextKey())) {
+                //Remove from notificationDataAccessor
+                this.notificationDataAccessor.removeByNotificationCode(notificationData.getNotifictionCode());
+                try {
+                    //Has to act based on the type of the notification
+                    //BoardCondition: unregister on the corresponding uniboard
+                    if (notificationData instanceof BoardNotificationData) {
+                        BoardNotificationData bnd = (BoardNotificationData) notificationData;
+                        this.registrationService.unregister(bnd.getBoard(), bnd.getNotifictionCode());
+                    }
+                    //No action required for UserInputCondition
+                    //TimerCondition
+                    if (notificationData instanceof TimerNotificationData) {
+                        this.cancelTimer(notificationData.getNotifictionCode());
+                    }
+                } catch (UnivoteException ex) {
+                    this.log(ex, Level.WARNING);
                 }
-                //No action required for UserInputCondition
-                //TimerCondition
-                if (notificationData instanceof TimerNotificationData) {
-                    this.cancelTimer(notificationData.getNotifictionCode());
-                }
-            } catch (UnivoteException ex) {
-                this.log(ex, Level.WARNING);
             }
         }
     }
@@ -476,6 +482,10 @@ public class ActionManagerImpl implements ActionManager {
 
     protected void addActionGraphEntry(String actionName, List<String> successors) {
         this.actionGraph.put(actionName, successors);
+    }
+
+    protected Map<String, List<String>> getActionGraph() {
+        return this.actionGraph;
     }
 
     protected void addNotificationData(NotificationData notificationData) {

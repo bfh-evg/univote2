@@ -24,14 +24,15 @@ import ch.bfh.univote2.component.core.data.TimerNotificationData;
 import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInput;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
-import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.manager.TaskManager;
-import ch.bfh.univote2.component.core.manager.TenantManager;
-import ch.bfh.univote2.component.core.services.InitialisationService;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.NoMoreTimeoutsException;
@@ -90,13 +91,13 @@ public class ActionManagerImplTest {
     RegistrationServiceMock registrationService;
 
     @EJB
-    ConfigurationManager configurationManager;
+    ConfigurationManagerMock configurationManager;
 
     @EJB
-    InitialisationService initialisationHelper;
+    InitialisationServiceMock initialisationHelper;
 
     @EJB
-    TenantManager tenantManager;
+    TenantManagerMock tenantManager;
 
     @EJB
     TaskManager taskManager;
@@ -189,6 +190,7 @@ public class ActionManagerImplTest {
         this.actionManager.pubCheckActionState(actionName, tenant, section);
         assertTrue(this.mockAction.containsRun(ack));
         assertEquals(this.registrationService.getLastRegistredQuery(), query);
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -211,6 +213,7 @@ public class ActionManagerImplTest {
         this.actionManager.onBoardNotification(notificationCode, null);
         //check that action got called
         assertTrue(this.mockAction.containsNotify(ack));
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -232,6 +235,7 @@ public class ActionManagerImplTest {
         //check that action got called
         assertFalse(this.mockAction.containsNotify(ack));
         assertTrue(this.registrationService.containsUnregistredNotificationCode(notificationCode));
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -254,6 +258,7 @@ public class ActionManagerImplTest {
         //check that action got called
         assertFalse(this.mockAction.containsNotify(ack));
         assertFalse(this.registrationService.containsUnregistredNotificationCode(notificationCode));
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -282,6 +287,7 @@ public class ActionManagerImplTest {
         assertFalse(this.registrationService.containsUnregistredNotificationCode(notificationCode));
         assertEquals(1, ac.getQueuedNotifications().size());
         assertEquals(postDTO, ac.getQueuedNotifications().poll());
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -304,6 +310,7 @@ public class ActionManagerImplTest {
         this.actionManager.onUserInputNotification(notificationCode, null);
         //check that action got called
         assertTrue(this.mockAction.containsNotify(ack));
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -324,6 +331,7 @@ public class ActionManagerImplTest {
         this.actionManager.onUserInputNotification(notificationCode, null);
         //check that action got called
         assertFalse(this.mockAction.containsNotify(ack));
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -345,6 +353,7 @@ public class ActionManagerImplTest {
         this.actionManager.onUserInputNotification(notificationCode, null);
         //check that action got called
         assertFalse(this.mockAction.containsNotify(ack));
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -373,6 +382,7 @@ public class ActionManagerImplTest {
         assertFalse(this.registrationService.containsUnregistredNotificationCode(notificationCode));
         assertEquals(1, ac.getQueuedNotifications().size());
         assertEquals(userInput, ac.getQueuedNotifications().poll());
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -418,6 +428,7 @@ public class ActionManagerImplTest {
         //check that action got called
         assertFalse(this.mockAction.containsNotify(ack));
         assertTrue(timer.isCanceled());
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -440,6 +451,7 @@ public class ActionManagerImplTest {
         this.actionManager.onTimerNotification(timer);
         //check that action got called
         assertFalse(this.mockAction.containsNotify(ack));
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -467,6 +479,7 @@ public class ActionManagerImplTest {
         assertFalse(this.registrationService.containsUnregistredNotificationCode(notificationCode));
         assertEquals(1, ac.getQueuedNotifications().size());
         assertEquals(timer, ac.getQueuedNotifications().poll());
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -499,6 +512,7 @@ public class ActionManagerImplTest {
         assertFalse(ac.isInUse());
         assertTrue(ac.getPreconditionQueries().isEmpty());
         assertTrue(ac.getPreconditionQueries().isEmpty());
+        assertFalse(this.actionManager.getNotificationDataAccessor().containsActionContextKey(ack));
         //Check that checkActionState gets called for the successors
         assertTrue(this.secondMockAction.containsRun(ack2));
     }
@@ -534,6 +548,7 @@ public class ActionManagerImplTest {
         assertTrue(ac.getPreconditionQueries().isEmpty());
         //Check that checkActionState gets called for the successors
         assertTrue(this.secondMockAction.containsRun(ack2));
+        assertFalse(this.actionManager.getNotificationDataAccessor().containsActionContextKey(ack));
         //Check that inUse didnt get changed(should not be used at all in parallel mode)
         assertTrue(ac.isInUse());
     }
@@ -888,6 +903,7 @@ public class ActionManagerImplTest {
         assertEquals(1, result.size());
         BoardNotificationData bnd = (BoardNotificationData) result.get(0);
         assertEquals(board, bnd.getBoard());
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -916,6 +932,7 @@ public class ActionManagerImplTest {
         List<NotificationData> result = this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack);
         assertEquals(1, result.size());
         assertEquals(result.get(0).getActionContextKey(), ack);
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -942,6 +959,7 @@ public class ActionManagerImplTest {
         List<NotificationData> result = this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack);
         assertEquals(1, result.size());
         assertEquals(result.get(0).getActionContextKey(), ack);
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -967,6 +985,7 @@ public class ActionManagerImplTest {
 
         List<NotificationData> result = this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack);
         assertNull(result);
+        this.actionManager.getNotificationDataAccessor().purge();
     }
 
     /**
@@ -975,7 +994,7 @@ public class ActionManagerImplTest {
     @Test
     public void testUnregisterAction1() {
         //Create action context
-        String tenant = "registerAction";
+        String tenant = "unregisterAction";
         String actionName = "MockAction";
         String section = "test1";
         String notifcationCode = tenant + section;
@@ -994,6 +1013,150 @@ public class ActionManagerImplTest {
         this.actionManager.unregisterAction(ac);
         assertNull(this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack));
         assertTrue(this.registrationService.containsUnregistredNotificationCode(notifcationCode));
+    }
+
+    /**
+     * Test of unregisterAction with nothing to unregister
+     */
+    @Test
+    public void testUnregisterAction2() {
+        //Create action context
+        String tenant = "unregisterAction";
+        String actionName = "MockAction";
+        String section = "test1";
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
+
+        this.actionManager.unregisterAction(ac);
+        assertNull(this.actionManager.getNotificationDataAccessor().findByActionContextKey(ack));
+    }
+
+    /**
+     * Test of cleanUp
+     */
+    @Test
+    public void testCleanUp() {
+        //Create action context
+        String tenant = "cleanUp";
+        String actionName = "MockAction";
+        String secondActionName = "SecondMockAction";
+        String section = "test1";
+        String notifcationCode = tenant + section + actionName;
+        String notifcationCode2 = tenant + section + secondActionName;
+
+        ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+
+        ActionContextKey ack2 = new ActionContextKey(secondActionName, tenant, section);
+
+        this.actionManager.getNotificationDataAccessor().addNotificationData(new BoardNotificationData(tenant,
+                notifcationCode, ack));
+        this.actionManager.getNotificationDataAccessor().addNotificationData(new BoardNotificationData(tenant,
+                notifcationCode2, ack2));
+        this.actionManager.getNotificationDataAccessor().addNotificationData(
+                new NotificationData(notifcationCode + "1", ack));
+
+        this.actionManager.getNotificationDataAccessor().addNotificationData(new TimerNotificationData(
+                notifcationCode2 + "1", ack2));
+
+        this.actionManager.cleanUp();
+
+        assertTrue(this.registrationService.containsUnregistredNotificationCode(notifcationCode));
+        assertTrue(this.registrationService.containsUnregistredNotificationCode(notifcationCode2));
+
+    }
+
+    /**
+     * Test of init
+     */
+    @Test
+    public void testInit() {
+        String initAction = "MockInitAction";
+        String successor = "MockAction";
+        String successor2 = "SecondMockAction";
+        String tenant1 = "Tenant1";
+        String tenant2 = "Tenant2";
+        String section1 = "init1";
+        String section2 = "init11";
+        Properties p = new Properties();
+        p.setProperty("initialAction", initAction);
+        p.setProperty(initAction, successor + ";" + successor2);
+
+        this.configurationManager.setProperties(p);
+        Set<String> tenants = new HashSet<>();
+        tenants.add(tenant1);
+        tenants.add(tenant2);
+        this.tenantManager.setTenants(tenants);
+
+        List<String> sections = new ArrayList();
+        sections.add(section1);
+        sections.add(section2);
+        this.initialisationHelper.setSections(sections);
+
+        ActionContextKey ack = new ActionContextKey(successor, tenant1, section1);
+        ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true, false);
+        this.mockAction.addActionContext(ac);
+        ActionContextKey ack2 = new ActionContextKey(successor, tenant1, section2);
+        ActionContext ac2 = new ActionContextImpl(ack2, new ArrayList<>(), true, false);
+        this.mockAction.addActionContext(ac2);
+        ActionContextKey ack3 = new ActionContextKey(successor, tenant2, section1);
+        ActionContext ac3 = new ActionContextImpl(ack3, new ArrayList<>(), true, false);
+        this.mockAction.addActionContext(ac3);
+        ActionContextKey ack4 = new ActionContextKey(successor, tenant2, section2);
+        ActionContext ac4 = new ActionContextImpl(ack4, new ArrayList<>(), true, false);
+        this.mockAction.addActionContext(ac4);
+        ActionContextKey ack5 = new ActionContextKey(successor2, tenant1, section1);
+        ActionContext ac5 = new ActionContextImpl(ack5, new ArrayList<>(), true, false);
+        this.secondMockAction.addActionContext(ac5);
+        ActionContextKey ack6 = new ActionContextKey(successor2, tenant1, section2);
+        ActionContext ac6 = new ActionContextImpl(ack6, new ArrayList<>(), true, false);
+        this.secondMockAction.addActionContext(ac6);
+        ActionContextKey ack7 = new ActionContextKey(successor2, tenant2, section1);
+        ActionContext ac7 = new ActionContextImpl(ack7, new ArrayList<>(), true, false);
+        this.secondMockAction.addActionContext(ac7);
+        ActionContextKey ack8 = new ActionContextKey(successor2, tenant2, section2);
+        ActionContext ac8 = new ActionContextImpl(ack8, new ArrayList<>(), true, false);
+        this.secondMockAction.addActionContext(ac8);
+
+        this.actionManager.testInit();
+
+        Map<String, List<String>> actionGraph = this.actionManager.getActionGraph();
+        assertTrue(actionGraph.containsKey(initAction));
+        List<String> successors = actionGraph.get(initAction);
+        assertEquals(2, successors.size());
+        assertTrue(successors.contains(successor));
+        assertTrue(successors.contains(successor2));
+
+        assertTrue(this.mockAction.containsRun(ack));
+        assertTrue(this.mockAction.containsRun(ack2));
+        assertTrue(this.mockAction.containsRun(ack3));
+        assertTrue(this.mockAction.containsRun(ack4));
+
+        assertTrue(this.secondMockAction.containsRun(ack5));
+        assertTrue(this.secondMockAction.containsRun(ack6));
+        assertTrue(this.secondMockAction.containsRun(ack7));
+        assertTrue(this.secondMockAction.containsRun(ack8));
+
+    }
+
+    /**
+     * Test of init with no initial action defined
+     */
+    @Test
+    public void testInit2() {
+        String initAction = "MockInitAction";
+        String successor = "MockAction";
+        String successor2 = "SecondMockAction";
+        Properties p = new Properties();
+        p.setProperty(initAction, successor + ";" + successor2);
+
+        this.configurationManager.setProperties(p);
+
+        this.actionManager.testInit();
+
+        Map<String, List<String>> actionGraph = this.actionManager.getActionGraph();
+        assertTrue(actionGraph.isEmpty());
+
     }
 
     private static class UnknownPreconditionQuery implements PreconditionQuery {

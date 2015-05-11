@@ -10,7 +10,9 @@ import ch.bfh.univote2.component.core.action.Action;
 import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.NotificationDataAccessor;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 
 /**
@@ -20,10 +22,15 @@ import javax.ejb.Singleton;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Singleton
+@DependsOn("ConfigurationManagerMock")
 public class TestableActionManagerImpl extends ActionManagerImpl {
 
     @Override
     public void init() {
+    }
+
+    public void testInit() {
+        super.init();
     }
 
     public void pubCheckActionState(String tenant, String section, String actionName) {
@@ -43,6 +50,11 @@ public class TestableActionManagerImpl extends ActionManagerImpl {
     @Override
     public void addActionGraphEntry(String actionName, List<String> successors) {
         super.addActionGraphEntry(actionName, successors);
+    }
+
+    @Override
+    public Map<String, List<String>> getActionGraph() {
+        return super.getActionGraph();
     }
 
     @Override
