@@ -41,33 +41,29 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import ch.bfh.univote2.component.core.UnivoteException;
 import java.math.BigInteger;
 import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.Set;
-import javax.ejb.Local;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Local
-public interface TenantManager {
+public class UnlockedTenant {
 
-    public boolean unlock(String tenant, String password) throws UnivoteException;
+    private final BigInteger aesKey;
+    private final PrivateKey privateKey;
 
-    public boolean lock(String tenant, String password) throws UnivoteException;
+    public UnlockedTenant(BigInteger aesKey, PrivateKey privateKey) {
+        this.aesKey = aesKey;
+        this.privateKey = privateKey;
+    }
 
-    public boolean isLocked(String tenant);
+    public BigInteger getAESKey() {
+        return aesKey;
+    }
 
-    public PublicKey getPublicKey(String tenant) throws UnivoteException;
+    public PrivateKey getPrivateKey() {
+        return privateKey;
+    }
 
-    public PrivateKey getPrivateKey(String tenant) throws UnivoteException;
-
-    public BigInteger getAESKey(String tenant) throws UnivoteException;
-
-    public Set<String> getUnlockedTenants();
-
-    public Set<String> getAllTentants();
 }

@@ -49,8 +49,8 @@ import java.math.BigInteger;
  */
 public interface SecurePersistenceService {
 
-	public void securePersist(String tenant, String section, Class type, BigInteger value);
+    public void persist(String tenant, String section, String type, BigInteger value);
 
-	public BigInteger secureRetrieve(String tenant, String section, Class type);
+    public BigInteger retrieve(String tenant, String section, String type);
 
 }

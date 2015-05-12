@@ -77,6 +77,7 @@ public class ActionManagerImplTest {
                 .addClass(InitialisationServiceMock.class)
                 .addClass(MockAction.class)
                 .addClass(SecondMockAction.class)
+                .addClass(MockInitAction.class)
                 .addClass(TaskManagerMock.class)
                 .addClass(TenantManagerMock.class)
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
@@ -108,10 +109,14 @@ public class ActionManagerImplTest {
     @EJB
     SecondMockAction secondMockAction;
 
+    @EJB
+    MockInitAction mockInitAction;
+
     /**
      * Test of checkActionState with an existing actionContext
      */
     @Test
+
     public void testcheckActionState1() {
         String tenant = "checkActionState";
         String actionName = "MockAction";
@@ -1092,6 +1097,14 @@ public class ActionManagerImplTest {
         sections.add(section1);
         sections.add(section2);
         this.initialisationHelper.setSections(sections);
+
+        ActionContextKey ackInit = new ActionContextKey(initAction, tenant1, initAction);
+        ActionContext acInit = new ActionContextImpl(ackInit, new ArrayList<>(), true, false);
+        this.mockInitAction.addActionContext(acInit);
+
+        ActionContextKey ackInit2 = new ActionContextKey(initAction, tenant2, initAction);
+        ActionContext acInit2 = new ActionContextImpl(ackInit2, new ArrayList<>(), true, false);
+        this.mockInitAction.addActionContext(acInit2);
 
         ActionContextKey ack = new ActionContextKey(successor, tenant1, section1);
         ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), true, false);

@@ -9,11 +9,11 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.actionmanager;
+package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TenantManagerImpl;
-import ch.bfh.univote2.component.core.services.SecurePersistenceService;
+import ch.bfh.univote2.component.core.manager.UnlockedTenant;
 import ch.bfh.univote2.component.core.persistence.TenantEntity;
 
 /**
@@ -22,20 +22,20 @@ import ch.bfh.univote2.component.core.persistence.TenantEntity;
  */
 public class NonEETestableTenantManagerImpl extends TenantManagerImpl {
 
-	TenantEntity entity;
+    TenantEntity entity;
 
-	@Override
-	protected TenantEntity getTenant(String tenant) throws UnivoteException {
+    @Override
+    protected TenantEntity getTenant(String tenant) throws UnivoteException {
 
-		return entity;
-	}
+        return entity;
+    }
 
-	public void addToUnlocked(String tenant, SecurePersistenceService encHelper) {
-		super.unlockedTentants.put(tenant, encHelper);
-	}
+    public void addToUnlocked(String tenant, UnlockedTenant unlockedTenant) {
+        super.unlockedTentants.put(tenant, unlockedTenant);
+    }
 
-	public void setTenantEntity(TenantEntity entity) {
-		this.entity = entity;
-	}
+    public void setTenantEntity(TenantEntity entity) {
+        this.entity = entity;
+    }
 
 }

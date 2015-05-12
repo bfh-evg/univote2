@@ -13,7 +13,7 @@ package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TenantManager;
-import ch.bfh.univote2.component.core.services.SecurePersistenceService;
+import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.HashSet;
@@ -52,11 +52,6 @@ public class TenantManagerMock implements TenantManager {
     }
 
     @Override
-    public SecurePersistenceService getEncrytpionHelper(String tenant) throws UnivoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public Set<String> getUnlockedTenants() {
         return new HashSet<>();
     }
@@ -68,6 +63,16 @@ public class TenantManagerMock implements TenantManager {
 
     public void setTenants(Set<String> tenants) {
         this.tenants = tenants;
+    }
+
+    @Override
+    public boolean isLocked(String tenant) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public BigInteger getAESKey(String tenant) throws UnivoteException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }
