@@ -29,5 +29,5 @@ public interface InformationService {
 	 * @param section - section the information belongs to
 	 * @param information - information to be shown to the tenant
 	 */
-	public void showInfo(String actionName, String tenant, String section, String information);
+	public void informTenant(String actionName, String tenant, String section, String information);
 }
