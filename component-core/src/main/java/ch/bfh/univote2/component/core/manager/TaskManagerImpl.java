@@ -109,6 +109,8 @@ public class TaskManagerImpl implements TaskManager {
             if (task instanceof RunActionTask) {
                 RunActionTask rATask = (RunActionTask) task;
                 this.actionManager.runAction(rATask.getActionName(), rATask.getTenant(), rATask.getSection());
+            } else {
+                throw new UnivoteException("Is not an RunActionTask. Notification code: " + notificationCode);
             }
         } else {
             throw new UnivoteException("Unknown notification code: " + notificationCode);

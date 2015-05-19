@@ -41,8 +41,11 @@
  */
 package ch.bfh.univote2.component.core.jsf;
 
+import ch.bfh.univote2.component.core.manager.TaskManager;
+import ch.bfh.univote2.component.core.services.OutcomeRoutingService;
 import java.io.Serializable;
 import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
@@ -53,10 +56,16 @@ import javax.inject.Named;
 @SessionScoped
 public class TenantTasksBean implements Serializable {
 
-	/**
-	 * Creates a new instance of TenantTasksBean
-	 */
-	public TenantTasksBean() {
-	}
+    @Inject
+    TaskManager taskManager;
+
+    @Inject
+    OutcomeRoutingService outcomeRoutingService;
+
+    /**
+     * Creates a new instance of TenantTasksBean
+     */
+    public TenantTasksBean() {
+    }
 
 }

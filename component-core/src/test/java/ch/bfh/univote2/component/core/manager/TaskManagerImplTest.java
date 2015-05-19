@@ -260,10 +260,36 @@ public class TaskManagerImplTest {
     }
 
     /**
-     * Test of runAction(String actionName, String tenant, String section)
+     * Test of runAction(String notificationCode) method with correct notification code but wrong task
      */
     @Test
     public void testRunAction3() {
+        String tenantToTest = "runAction1";
+        String actionName1 = "actionName1";
+        String section1 = "section1";
+        String notificationCode = tenantToTest + section1;
+
+        UserInputTask userInputTask1 = new UserInputTask(actionName1, tenantToTest, section1);
+
+        Map<String, Task> tasks = this.taskManager.getTasks();
+        tasks.put(notificationCode, userInputTask1);
+
+        try {
+            this.taskManager.runAction(notificationCode + "1");
+            fail();
+        } catch (UnivoteException ex) {
+
+        }
+
+        assertTrue(tasks.containsKey(notificationCode));
+        tasks.clear();
+    }
+
+    /**
+     * Test of runAction(String actionName, String tenant, String section)
+     */
+    @Test
+    public void testRunAction4() {
         String tenantToTest = "runAction3";
         String actionName1 = "actionName1";
         String section1 = "section1";
