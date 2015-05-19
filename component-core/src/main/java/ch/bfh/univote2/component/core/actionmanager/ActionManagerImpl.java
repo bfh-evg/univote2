@@ -300,6 +300,14 @@ public class ActionManagerImpl implements ActionManager {
     }
 
     @Override
+    public void runAction(String actionName, String tenant, String section) {
+        //TODO
+        if (this.actionContexts.containsKey(new ActionContextKey(actionName, tenant, section))) {
+
+        }
+    }
+
+    @Override
     public void runFinished(ActionContext actionContext, ResultStatus resultStatus) {
         //Check if its the initialisation action
         if (actionContext.getActionContextKey().getAction().equals(this.initialAction)) {
@@ -343,6 +351,7 @@ public class ActionManagerImpl implements ActionManager {
                 if (!actionContext.runsInParallel()) {
                     actionContext.setInUse(false);
                 }
+            //TODO Register a RunActionTask
         }
     }
 
@@ -384,7 +393,9 @@ public class ActionManagerImpl implements ActionManager {
     protected void runAction(ActionContext actionContext) throws UnivoteException {
         if (actionContext.runsInParallel() || !actionContext.isInUse()) {
             NotifiableAction action = this.getAction(actionContext.getActionContextKey().getAction());
-            actionContext.setInUse(true);
+            if (!actionContext.runsInParallel()) {
+                actionContext.setInUse(true);
+            }
             action.run(actionContext);
         }
     }
@@ -400,7 +411,7 @@ public class ActionManagerImpl implements ActionManager {
                         newNotificationCode, actionContext.getActionContextKey()));
             } else if (cond instanceof UserInputPreconditionQuery) {
                 UserInputPreconditionQuery uiNC = (UserInputPreconditionQuery) cond;
-                String newNotificationCode = this.userTaskManager.addTask(uiNC.getUserInputRequest());
+                String newNotificationCode = this.userTaskManager.addUserInputTask(uiNC.getUserInputTask());
 
                 this.notificationDataAccessor.addNotificationData(
                         new NotificationData(newNotificationCode, actionContext.getActionContextKey()));
@@ -499,4 +510,5 @@ public class ActionManagerImpl implements ActionManager {
     protected void setInitialAction(String action) {
         this.initialAction = action;
     }
+
 }

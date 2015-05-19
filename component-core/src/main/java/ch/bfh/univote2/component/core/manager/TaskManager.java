@@ -41,7 +41,10 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.univote2.component.core.data.RunActionTask;
 import ch.bfh.univote2.component.core.data.Task;
+import ch.bfh.univote2.component.core.data.UserInput;
+import ch.bfh.univote2.component.core.data.UserInputTask;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -53,20 +56,52 @@ import javax.ejb.Local;
 @Local
 public interface TaskManager {
 
-	/**
-	 * Allows the NotificationManager to request a new task for an action.
-	 *
-	 * @param task defines an task that needs to be done by a tenant.
-	 * @return NotificationCode returns the notification code set by the TaskManager.
-	 */
-	public String addTask(Task task);
+    /**
+     * Allows the ActionManager to request a new user input task for an action.
+     *
+     * @param userInputTask defines an user input task that needs to be done by a tenant.
+     * @return NotificationCode returns the notification code set by the TaskManager.
+     */
+    public String addUserInputTask(UserInputTask userInputTask);
 
-	/**
-	 * Returns all task available for a specified tenant
-	 *
-	 * @param tenant tenant the tasks returned are for
-	 * @return a list of tasks for the specified tenant
-	 */
-	public List<Task> getTasks(String tenant);
+    /**
+     * Allows the ActionManager to request a manual started run for an action. Does not require to return an
+     * notification code, as such a task can not be a precondition to an action
+     *
+     * @param runActionTask defines a run action task that needs to be done by a tenant.
+     */
+    public void addRunActionTask(RunActionTask runActionTask);
+
+    /**
+     * Returns all task available for a specified tenant
+     *
+     * @param tenant tenant the tasks returned are for
+     * @return a list of tasks for the specified tenant
+     */
+    public List<Task> getTasks(String tenant);
+
+    /**
+     * Allows the TenantBean to notify the TaskManager that the tenant has finished a task
+     *
+     * @param notificationCode notification code of the corresponding task
+     * @param userInput input the tenant provided to full fill the task
+     */
+    public void userInputReceived(String notificationCode, UserInput userInput);
+
+    /**
+     * Allows the tenant to run an action which was requested by the action manager for a run
+     *
+     * @param notificationCode notification code of the corresponding task
+     */
+    public void runAction(String notificationCode);
+
+    /**
+     * Allows the tenant to run any action
+     *
+     * @param actionName name of the action to run
+     * @param tenant tenant to run the action
+     * @param section section to run the action
+     */
+    public void runAction(String actionName, String tenant, String section);
 
 }

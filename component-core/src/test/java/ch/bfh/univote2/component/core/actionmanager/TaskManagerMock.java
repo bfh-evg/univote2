@@ -13,7 +13,10 @@ package ch.bfh.univote2.component.core.actionmanager;
 
 import static ch.bfh.unicrypt.helper.Alphabet.UPPER_CASE;
 import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
+import ch.bfh.univote2.component.core.data.RunActionTask;
 import ch.bfh.univote2.component.core.data.Task;
+import ch.bfh.univote2.component.core.data.UserInput;
+import ch.bfh.univote2.component.core.data.UserInputTask;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,10 +34,10 @@ public class TaskManagerMock implements TaskManager {
     Map<String, List<Task>> tasks = new HashMap<>();
 
     @Override
-    public String addTask(Task task) {
+    public String addUserInputTask(UserInputTask userInputTask) {
         List<Task> t = new ArrayList<>();
-        t.add(task);
-        this.tasks.put(task.getTenant(), t);
+        t.add(userInputTask);
+        this.tasks.put(userInputTask.getTenant(), t);
         FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
         return fixedStringSet.getRandomElement().getValue();
     }
@@ -42,6 +45,26 @@ public class TaskManagerMock implements TaskManager {
     @Override
     public List<Task> getTasks(String tenant) {
         return this.tasks.get(tenant);
+    }
+
+    @Override
+    public void addRunActionTask(RunActionTask runActionTask) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void userInputReceived(String notificationCode, UserInput userInput) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void runAction(String notificationCode) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void runAction(String actionName, String tenant, String section) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

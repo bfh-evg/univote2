@@ -45,16 +45,15 @@ package ch.bfh.univote2.component.core.data;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class Task {
+public abstract class Task {
 
     private final String tenant;
     private final String section;
-    private final String type;
+    private String notificationCode;
 
-    public Task(String tenant, String section, String type) {
+    public Task(String tenant, String section) {
         this.tenant = tenant;
         this.section = section;
-        this.type = type;
     }
 
     public String getTenant() {
@@ -65,8 +64,12 @@ public class Task {
         return section;
     }
 
-    public String getType() {
-        return type;
+    public String getNotificationCode() {
+        return notificationCode;
+    }
+
+    public void setNotificationCode(String notificationCode) {
+        this.notificationCode = notificationCode;
     }
 
 }

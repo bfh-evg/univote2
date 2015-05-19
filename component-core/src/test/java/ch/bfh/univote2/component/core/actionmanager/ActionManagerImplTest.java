@@ -19,11 +19,11 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
-import ch.bfh.univote2.component.core.data.Task;
 import ch.bfh.univote2.component.core.data.TimerNotificationData;
 import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInput;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
+import ch.bfh.univote2.component.core.data.UserInputTask;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -924,7 +924,7 @@ public class ActionManagerImplTest {
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
         ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
-        Task t = new Task(tenant, section) {
+        UserInputTask t = new UserInputTask(tenant, section, section) {
         };
         ac.getPreconditionQueries().add(new UserInputPreconditionQuery(t));
 

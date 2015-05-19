@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.uniboard.data.PostDTO;
+import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInput;
 import javax.ejb.Local;
@@ -55,13 +56,15 @@ import javax.ejb.Timer;
 @Local
 public interface ActionManager {
 
-	void onBoardNotification(String notificationCode, PostDTO post);
+    public void onBoardNotification(String notificationCode, PostDTO post);
 
-	@Timeout
-	void onTimerNotification(Timer timer);
+    @Timeout
+    public void onTimerNotification(Timer timer);
 
-	void onUserInputNotification(String notificationCode, UserInput userInput);
+    public void onUserInputNotification(String notificationCode, UserInput userInput);
 
-	void runFinished(ActionContext actionContext, ResultStatus resultStatus);
+    public void runAction(String actionName, String tenant, String section) throws UnivoteException;
+
+    public void runFinished(ActionContext actionContext, ResultStatus resultStatus);
 
 }
