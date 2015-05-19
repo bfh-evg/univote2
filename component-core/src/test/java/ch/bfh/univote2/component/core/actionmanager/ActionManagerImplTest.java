@@ -920,11 +920,10 @@ public class ActionManagerImplTest {
         String tenant = "registerAction";
         String actionName = "MockAction";
         String section = "test2";
-        String board = tenant + section;
 
         ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
         ActionContext ac = new ActionContextImpl(ack, new ArrayList<>(), false, true);
-        UserInputTask t = new UserInputTask(tenant, section, section) {
+        UserInputTask t = new UserInputTask(tenant, tenant, section) {
         };
         ac.getPreconditionQueries().add(new UserInputPreconditionQuery(t));
 

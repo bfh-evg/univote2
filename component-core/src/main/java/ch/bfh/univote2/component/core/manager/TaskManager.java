@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.data.RunActionTask;
 import ch.bfh.univote2.component.core.data.Task;
 import ch.bfh.univote2.component.core.data.UserInput;
@@ -85,15 +86,17 @@ public interface TaskManager {
      *
      * @param notificationCode notification code of the corresponding task
      * @param userInput input the tenant provided to full fill the task
+     * @throws ch.bfh.univote2.component.core.UnivoteException Throws an exception in case of an unknown notificatonCode
      */
-    public void userInputReceived(String notificationCode, UserInput userInput);
+    public void userInputReceived(String notificationCode, UserInput userInput) throws UnivoteException;
 
     /**
      * Allows the tenant to run an action which was requested by the action manager for a run
      *
      * @param notificationCode notification code of the corresponding task
+     * @throws ch.bfh.univote2.component.core.UnivoteException Throws an exception
      */
-    public void runAction(String notificationCode);
+    public void runAction(String notificationCode) throws UnivoteException;
 
     /**
      * Allows the tenant to run any action
@@ -101,7 +104,8 @@ public interface TaskManager {
      * @param actionName name of the action to run
      * @param tenant tenant to run the action
      * @param section section to run the action
+     * @throws ch.bfh.univote2.component.core.UnivoteException Throws an exception
      */
-    public void runAction(String actionName, String tenant, String section);
+    public void runAction(String actionName, String tenant, String section) throws UnivoteException;
 
 }
