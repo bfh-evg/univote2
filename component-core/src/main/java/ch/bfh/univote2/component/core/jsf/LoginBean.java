@@ -39,19 +39,74 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.services;
+package ch.bfh.univote2.component.core.jsf;
 
-import ch.bfh.univote2.component.core.UnivoteException;
-import java.math.BigInteger;
+import ch.bfh.univote2.component.core.manager.TenantManager;
+import java.io.Serializable;
+import javax.inject.Named;
+import javax.enterprise.context.SessionScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public interface SecurePersistenceService {
+@Named(value = "loginBean")
+@SessionScoped
+public class LoginBean implements Serializable {
 
-    public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException;
+    private boolean loggedIn = false;
+    private String username;
+    private String password;
+    @Inject
+    TenantManager tenantManager;
 
-    public BigInteger retrieve(String tenant, String section, String type) throws UnivoteException;
+    /**
+     * Creates a new instance of LoginBean
+     */
+    public LoginBean() {
+    }
+
+    public String doLogin() {
+        if (tenantManager.checkLogin(username, password)) {
+            this.loggedIn = true;
+            return "welcome";
+        }
+        FacesMessage msg = new FacesMessage("Login error!", "ERROR MSG");
+        msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+        return "login";
+    }
+
+    public String doLogout() {
+        this.loggedIn = false;
+        FacesMessage msg = new FacesMessage("Logout success!", "INFO MSG");
+        msg.setSeverity(FacesMessage.SEVERITY_INFO);
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+        return "login";
+
+    }
+
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
 }

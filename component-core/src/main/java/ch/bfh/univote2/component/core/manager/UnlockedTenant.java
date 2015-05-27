@@ -41,7 +41,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import java.math.BigInteger;
+import ch.bfh.unicrypt.helper.array.classes.ByteArray;
 import java.security.PrivateKey;
 
 /**
@@ -50,15 +50,15 @@ import java.security.PrivateKey;
  */
 public class UnlockedTenant {
 
-    private final BigInteger aesKey;
+    private final ByteArray aesKey;
     private final PrivateKey privateKey;
 
-    public UnlockedTenant(BigInteger aesKey, PrivateKey privateKey) {
+    public UnlockedTenant(ByteArray aesKey, PrivateKey privateKey) {
         this.aesKey = aesKey;
         this.privateKey = privateKey;
     }
 
-    public BigInteger getAESKey() {
+    public ByteArray getAESKey() {
         return aesKey;
     }
 

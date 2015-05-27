@@ -41,17 +41,43 @@
  */
 package ch.bfh.univote2.component.core.services;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.unicrypt.helper.array.classes.ByteArray;
 import java.math.BigInteger;
+import org.junit.Test;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public interface SecurePersistenceService {
+public class SecurePersistenceServiceImplTest {
 
-    public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException;
+    public SecurePersistenceServiceImplTest() {
+    }
 
-    public BigInteger retrieve(String tenant, String section, String type) throws UnivoteException;
+    @Test
+    public void testPersist() throws Exception {
+        String tenant = "";
+        String section = "";
+        String type = "";
+        ByteArray aesKey = ByteArray.getInstance("AA");
+        TenantManagerMock tenantManager = new TenantManagerMock();
+        tenantManager.setAesKey(aesKey);
+        BigInteger bigInteger = new BigInteger("10");
+
+        NoEETestableSecurePersistenceServiceImpl securePersistenceServiceImpl
+                = new NoEETestableSecurePersistenceServiceImpl();
+        securePersistenceServiceImpl.setTenantManager(tenantManager);
+
+        securePersistenceServiceImpl.persist(tenant, section, type, bigInteger);
+
+    }
+
+    @Test
+    public void testRetrieve() throws Exception {
+    }
+
+    @Test
+    public void testGetEncryptedBigInteger() {
+    }
 
 }

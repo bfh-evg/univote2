@@ -41,8 +41,8 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.unicrypt.helper.array.classes.ByteArray;
 import ch.bfh.univote2.component.core.UnivoteException;
-import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Set;
@@ -55,9 +55,11 @@ import javax.ejb.Local;
 @Local
 public interface TenantManager {
 
-    public boolean unlock(String tenant, String password) throws UnivoteException;
+    public boolean checkLogin(String tenant, String password);
 
-    public boolean lock(String tenant, String password) throws UnivoteException;
+    public boolean unlock(String tenant, String password);
+
+    public boolean lock(String tenant, String password);
 
     public boolean isLocked(String tenant);
 
@@ -65,7 +67,7 @@ public interface TenantManager {
 
     public PrivateKey getPrivateKey(String tenant) throws UnivoteException;
 
-    public BigInteger getAESKey(String tenant) throws UnivoteException;
+    public ByteArray getAESKey(String tenant) throws UnivoteException;
 
     public Set<String> getUnlockedTenants();
 

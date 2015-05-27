@@ -45,6 +45,7 @@ import ch.bfh.uniboard.clientlib.KeyHelper;
 import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
 import ch.bfh.unicrypt.crypto.schemes.hashing.classes.FixedByteArrayHashingScheme;
 import ch.bfh.unicrypt.helper.Alphabet;
+import ch.bfh.unicrypt.helper.array.classes.ByteArray;
 import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.ByteArrayToByteArray;
@@ -53,6 +54,7 @@ import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.helper.hash.HashMethod;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
 import ch.bfh.unicrypt.math.algebra.dualistic.classes.Z;
+import ch.bfh.unicrypt.math.algebra.general.classes.FiniteByteArrayElement;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.component.core.UnivoteException;
@@ -61,6 +63,7 @@ import ch.bfh.univote2.component.core.persistence.TenantEntity_;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -69,6 +72,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -92,35 +97,50 @@ public class TenantManagerImpl implements TenantManager {
 
     protected final Map<String, UnlockedTenant> unlockedTentants = new HashMap<>();
 
+    private static final Logger logger = Logger.getLogger(TenantManagerImpl.class.getName());
+
     @Override
-    public boolean unlock(String tenant, String password) throws UnivoteException {
-        TenantEntity tentantEntity = this.getTenant(tenant);
-        if (this.checkHash(password, tentantEntity.getHashValue(), tentantEntity.getSalt())) {
+    public boolean unlock(String tenant, String password) {
+        TenantEntity tenantEntity;
+        try {
+            tenantEntity = this.getTenant(tenant);
+        } catch (UnivoteException ex) {
+            return false;
+        }
+        if (this.checkHash(password, tenantEntity.getHashValue(), tenantEntity.getSalt())) {
             try {
-                //TODO Compute aes key
-                BigInteger aesKey = new BigInteger("1");
-                //Load tenant from persistence
-                TenantEntity tenantEntity = this.getTenant(tenant);
-                //Decrypt the private key
                 AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
+                FiniteByteArrayElement aesKey = aes.getPasswordBasedKey(password);
+                //TODO Compute aes key
+                Element encPrivKey = aes.getMessageSpace().getElement(tenantEntity.getEncPrivateKey());
+                //Load tenant from persistence
+                BigInteger dsaPrivKey = aes.decrypt(aesKey, encPrivKey).getBigInteger();
+                //Decrypt the private key
 
                 //Create the private key
                 PrivateKey privKey = KeyHelper.createDSAPrivateKey(tenantEntity.getModulus(),
-                        tenantEntity.getOrderFactor(), tenantEntity.getGenerator(), null);
+                        tenantEntity.getOrderFactor(), tenantEntity.getGenerator(), dsaPrivKey);
                 //Add tenant
-                this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey, privKey));
+                this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey.getByteArray(), privKey));
                 return true;
-            } catch (InvalidKeySpecException ex) {
-                throw new UnivoteException("Could not retrieve privateKey: " + tenant, ex);
+            } catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
+                //throw new UnivoteException("Could not retrieve privateKey: " + tenant, ex);
+                logger.log(Level.WARNING, ex.getMessage());
+                return false;
             }
         }
         return false;
     }
 
     @Override
-    public boolean lock(String tenant, String password) throws UnivoteException {
+    public boolean lock(String tenant, String password) {
         if (this.unlockedTentants.containsKey(tenant)) {
-            TenantEntity tentantEntity = this.getTenant(tenant);
+            TenantEntity tentantEntity;
+            try {
+                tentantEntity = this.getTenant(tenant);
+            } catch (UnivoteException ex) {
+                return false;
+            }
             if (this.checkHash(password, tentantEntity.getHashValue(), tentantEntity.getSalt())) {
                 this.unlockedTentants.remove(tenant);
                 return true;
@@ -158,7 +178,7 @@ public class TenantManagerImpl implements TenantManager {
             TenantEntity tenantEntity = this.getTenant(tenant);
             return KeyHelper.createDSAPublicKey(tenantEntity.getModulus(), tenantEntity.getOrderFactor(),
                     tenantEntity.getGenerator(), tenantEntity.getPublicKey());
-        } catch (InvalidKeySpecException ex) {
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
             throw new UnivoteException("Could not create publicKey: " + tenant, ex);
         }
 
@@ -205,11 +225,23 @@ public class TenantManagerImpl implements TenantManager {
     }
 
     @Override
-    public BigInteger getAESKey(String tenant) throws UnivoteException {
+    public ByteArray getAESKey(String tenant) throws UnivoteException {
         if (this.unlockedTentants.containsKey(tenant)) {
             return this.unlockedTentants.get(tenant).getAESKey();
         }
         throw new UnivoteException("Tenant locked: " + tenant);
+    }
+
+    @Override
+    public boolean checkLogin(String tenant, String password) {
+        TenantEntity tenantEntity;
+        try {
+            tenantEntity = this.getTenant(tenant);
+        } catch (UnivoteException ex) {
+            logger.log(Level.WARNING, ex.getMessage());
+            return false;
+        }
+        return this.checkHash(password, tenantEntity.getHashValue(), tenantEntity.getSalt());
     }
 
 }

@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote2.component.core.actionmanager;
+package ch.bfh.univote2.component.core.services;
 
 import ch.bfh.unicrypt.helper.array.classes.ByteArray;
 import ch.bfh.univote2.component.core.UnivoteException;
@@ -30,6 +30,7 @@ import javax.ejb.Singleton;
 public class TenantManagerMock implements TenantManager {
 
     private Set<String> tenants = new HashSet<>();
+    private ByteArray aesKey;
 
     @Override
     public boolean unlock(String tenant, String password) {
@@ -72,7 +73,11 @@ public class TenantManagerMock implements TenantManager {
 
     @Override
     public ByteArray getAESKey(String tenant) throws UnivoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.aesKey;
+    }
+
+    public void setAesKey(ByteArray aesKey) {
+        this.aesKey = aesKey;
     }
 
     @Override

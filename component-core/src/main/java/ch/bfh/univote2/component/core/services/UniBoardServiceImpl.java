@@ -55,6 +55,7 @@ import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Properties;
@@ -119,7 +120,7 @@ public class UniBoardServiceImpl implements UniboardService {
         BigInteger g = new BigInteger(config.getProperty("g"));
         try {
             return KeyHelper.createDSAPublicKey(p, q, g, y);
-        } catch (InvalidKeySpecException ex) {
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
             throw new UnivoteException("Could not create publicKey for UniBoard", ex);
         }
     }

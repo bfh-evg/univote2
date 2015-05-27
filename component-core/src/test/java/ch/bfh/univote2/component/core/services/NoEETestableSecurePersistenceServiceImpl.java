@@ -41,17 +41,52 @@
  */
 package ch.bfh.univote2.component.core.services;
 
-import ch.bfh.univote2.component.core.UnivoteException;
-import java.math.BigInteger;
+import ch.bfh.univote2.component.core.manager.TenantManager;
+import ch.bfh.univote2.component.core.persistence.EncryptedBigIntEntity;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 
-/**
- *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
- */
-public interface SecurePersistenceService {
+public class NoEETestableSecurePersistenceServiceImpl extends SecurePersistenceServiceImpl {
 
-    public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException;
+    private EncryptedBigIntEntity bigIntegerEntity;
+    private boolean noResult = false;
+    private boolean nonUnique = false;
 
-    public BigInteger retrieve(String tenant, String section, String type) throws UnivoteException;
+    @Override
+    protected EncryptedBigIntEntity getEncryptedBigInteger(String tenant, String section, String type)
+            throws NonUniqueResultException, NoResultException {
+        if (noResult) {
+            throw new NoResultException();
+        } else if (nonUnique) {
+            throw new NonUniqueResultException();
+        }
+        return bigIntegerEntity;
+    }
+
+    @Override
+    protected void persist(EncryptedBigIntEntity encBigIntEntity) {
+        this.bigIntegerEntity = encBigIntEntity;
+    }
+
+    @Override
+    public void setTenantManager(TenantManager tenantManager) {
+        super.setTenantManager(tenantManager);
+    }
+
+    public void setBigIntegerEntity(EncryptedBigIntEntity bigIntegerEntity) {
+        this.bigIntegerEntity = bigIntegerEntity;
+    }
+
+    public EncryptedBigIntEntity getBigIntegerEntity() {
+        return bigIntegerEntity;
+    }
+
+    public void setNoResult(boolean noResult) {
+        this.noResult = noResult;
+    }
+
+    public void setNonUnique(boolean nonUnique) {
+        this.nonUnique = nonUnique;
+    }
 
 }

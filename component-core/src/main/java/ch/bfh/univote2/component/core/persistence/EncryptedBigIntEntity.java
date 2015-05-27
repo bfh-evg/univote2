@@ -39,19 +39,64 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.services;
+package ch.bfh.univote2.component.core.persistence;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import java.io.Serializable;
 import java.math.BigInteger;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public interface SecurePersistenceService {
+@Entity
+public class EncryptedBigIntEntity implements Serializable {
 
-    public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException;
+    private static final long serialVersionUID = 1L;
+    private static final int BASE = 10;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private String tenant;
+    private String sectionName;
+    private String type;
+    @Column(length = 2000)
+    private String bigInteger;
 
-    public BigInteger retrieve(String tenant, String section, String type) throws UnivoteException;
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
+    }
+
+    public String getSection() {
+        return sectionName;
+    }
+
+    public void setSection(String section) {
+        this.sectionName = section;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public BigInteger getBigInteger() {
+        return new BigInteger(bigInteger, BASE);
+    }
+
+    public void setBigInteger(BigInteger bigInteger) {
+        this.bigInteger = bigInteger.toString(BASE);
+    }
 
 }
