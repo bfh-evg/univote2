@@ -12,3 +12,6 @@
 /trustee/election-coordinator/target/
 /trustee/tallier/target/
 /component-core/derby.log
+/example-component/example-component/target/
+/example-component/example-component-ejb (copy)/target/
+/example-component/example-component-war/target/
