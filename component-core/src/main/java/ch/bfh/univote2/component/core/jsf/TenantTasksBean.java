@@ -44,7 +44,7 @@ package ch.bfh.univote2.component.core.jsf;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import ch.bfh.univote2.component.core.services.OutcomeRoutingService;
 import java.io.Serializable;
-import javax.enterprise.context.SessionScoped;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -53,7 +53,7 @@ import javax.inject.Named;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Named(value = "tenantTasksBean")
-@SessionScoped
+@ViewScoped
 public class TenantTasksBean implements Serializable {
 
     @Inject

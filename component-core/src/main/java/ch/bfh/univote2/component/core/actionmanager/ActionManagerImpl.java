@@ -258,6 +258,8 @@ public class ActionManagerImpl implements ActionManager {
             return;
         }
         this.onNotification(notificationCode, userInput);
+        //remove nc
+        this.notificationDataAccessor.removeByNotificationCode(notificationCode);
     }
 
     @Timeout

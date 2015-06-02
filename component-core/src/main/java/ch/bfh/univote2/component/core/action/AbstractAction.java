@@ -42,28 +42,26 @@
 package ch.bfh.univote2.component.core.action;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.List;
 
 public abstract class AbstractAction implements Action {
 
-	@Override
-	public ActionContext prepareContext(String tenant, String section) {
-		ActionContext actionContext = this.createContext(tenant, section);
-		if (this.checkPostCondition(actionContext)) {
-			actionContext.setPostCondition(true);
-			return actionContext;
-		}
-		actionContext.setPostCondition(false);
+    @Override
+    public ActionContext prepareContext(String tenant, String section) {
+        ActionContext actionContext = this.createContext(tenant, section);
+        if (this.checkPostCondition(actionContext)) {
+            actionContext.setPostCondition(true);
+            return actionContext;
+        }
+        actionContext.setPostCondition(false);
 
-		this.definePreconditions(actionContext);
+        this.definePreconditions(actionContext);
 
-		return actionContext;
-	}
+        return actionContext;
+    }
 
-	protected abstract ActionContext createContext(String tenant, String section);
+    protected abstract ActionContext createContext(String tenant, String section);
 
-	protected abstract boolean checkPostCondition(ActionContext actionContext);
+    protected abstract boolean checkPostCondition(ActionContext actionContext);
 
-	protected abstract List<PreconditionQuery> definePreconditions(ActionContext actionContext);
+    protected abstract void definePreconditions(ActionContext actionContext);
 }

@@ -68,8 +68,7 @@ public class SecurePersistenceServiceImplTest {
                 = new NoEETestableSecurePersistenceServiceImpl();
         securePersistenceServiceImpl.setTenantManager(tenantManager);
 
-        securePersistenceServiceImpl.persist(tenant, section, type, bigInteger);
-
+        //securePersistenceServiceImpl.persist(tenant, section, type, bigInteger);
     }
 
     @Test
