@@ -13,33 +13,33 @@ import javax.ejb.Singleton;
 @LocalBean
 public class InformationServiceMock implements InformationService {
 
-    private String actionName;
-    private String tenant;
-    private String section;
-    private String information;
+	private String actionName;
+	private String tenant;
+	private String section;
+	private String information;
 
-    @Override
-    public void informTenant(String actionName, String tenant, String section, String information) {
-        this.actionName = actionName;
-        this.information = information;
-        this.tenant = tenant;
-        this.section = section;
-    }
+	@Override
+	public void informTenant(String actionName, String tenant, String section, String information) {
+		this.actionName = actionName;
+		this.information = information;
+		this.tenant = tenant;
+		this.section = section;
+	}
 
-    public String getActionName() {
-        return actionName;
-    }
+	public String getActionName() {
+		return actionName;
+	}
 
-    public String getTenant() {
-        return tenant;
-    }
+	public String getTenant() {
+		return tenant;
+	}
 
-    public String getSection() {
-        return section;
-    }
+	public String getSection() {
+		return section;
+	}
 
-    public String getInformation() {
-        return information;
-    }
+	public String getInformation() {
+		return information;
+	}
 
 }

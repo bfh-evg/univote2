@@ -19,35 +19,35 @@ import javax.ejb.Singleton;
 @DependsOn("ConfigurationManagerImpl")
 public class OutcomeRoutingServiceImpl implements OutcomeRoutingService {
 
-    private static final String CONFIGURATION_NAME = "outcome-routing";
+	private static final String CONFIGURATION_NAME = "outcome-routing";
 
-    private final Map<String, String> routing = new HashMap<>();
+	private final Map<String, String> routing = new HashMap<>();
 
-    /**
-     * ConfigurationHelper. Gives access to configurations stored in the JNDI.
-     */
-    @EJB
-    private ConfigurationManager configurationManager;
+	/**
+	 * ConfigurationHelper. Gives access to configurations stored in the JNDI.
+	 */
+	@EJB
+	private ConfigurationManager configurationManager;
 
-    @PostConstruct
-    public void init() {
-        Properties config = this.configurationManager.getConfiguration(CONFIGURATION_NAME);
-        for (String userInputname : config.stringPropertyNames()) {
-            this.routing.put(userInputname, config.getProperty(userInputname));
-        }
-    }
+	@PostConstruct
+	public void init() {
+		Properties config = this.configurationManager.getConfiguration(CONFIGURATION_NAME);
+		for (String userInputname : config.stringPropertyNames()) {
+			this.routing.put(userInputname, config.getProperty(userInputname));
+		}
+	}
 
-    @Override
-    public String getRoutingForUserInput(String userInputName) throws UnivoteException {
-        if (this.routing.containsKey(userInputName)) {
-            return this.routing.get(userInputName);
-        }
-        throw new UnivoteException("Unknown user input name: " + userInputName);
-    }
-    // Methods for testing
+	@Override
+	public String getRoutingForUserInput(String userInputName) throws UnivoteException {
+		if (this.routing.containsKey(userInputName)) {
+			return this.routing.get(userInputName);
+		}
+		throw new UnivoteException("Unknown user input name: " + userInputName);
+	}
+	// Methods for testing
 
-    protected Map<String, String> getRouting() {
-        return this.routing;
-    }
+	protected Map<String, String> getRouting() {
+		return this.routing;
+	}
 
 }

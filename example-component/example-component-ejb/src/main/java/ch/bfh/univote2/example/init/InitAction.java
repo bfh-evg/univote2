@@ -63,7 +63,7 @@ import javax.ejb.Stateless;
 @Stateless
 public class InitAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "ExampleInitAction";
+	private static final String ACTION_NAME = "InitAction";
 	private static final String INPUT_NAME = "InitInput";
 
 	@EJB

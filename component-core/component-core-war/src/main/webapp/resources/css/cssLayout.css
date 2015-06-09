@@ -1,0 +1,34 @@
+header {
+	position: relative;
+	background-color: #036fab;
+	color: white;
+	padding: 5px;
+	margin: 0px 0px 10px 0px;
+}
+
+footer {
+	position: relative;
+	background-color: #c2dfef;
+	padding: 5px;
+	margin: 10px 0px 0px 0px;
+	text-align:center;
+}
+
+nav {
+	float: left;
+	background-color: #ece3a5;
+	line-height:20px;
+	padding: 5px;
+	width: 150px;
+	height: 100px;
+}
+
+main {
+	position: relative;
+	background-color: #dddddd;
+	padding: 5px;
+	margin-left: 170px;
+	min-height: 100px;
+}
+
+

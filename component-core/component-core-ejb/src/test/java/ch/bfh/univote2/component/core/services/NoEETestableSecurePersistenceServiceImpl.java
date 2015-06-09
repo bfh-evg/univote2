@@ -48,45 +48,45 @@ import javax.persistence.NonUniqueResultException;
 
 public class NoEETestableSecurePersistenceServiceImpl extends SecurePersistenceServiceImpl {
 
-    private EncryptedBigIntEntity bigIntegerEntity;
-    private boolean noResult = false;
-    private boolean nonUnique = false;
+	private EncryptedBigIntEntity bigIntegerEntity;
+	private boolean noResult = false;
+	private boolean nonUnique = false;
 
-    @Override
-    protected EncryptedBigIntEntity getEncryptedBigInteger(String tenant, String section, String type)
-            throws NonUniqueResultException, NoResultException {
-        if (noResult) {
-            throw new NoResultException();
-        } else if (nonUnique) {
-            throw new NonUniqueResultException();
-        }
-        return bigIntegerEntity;
-    }
+	@Override
+	protected EncryptedBigIntEntity getEncryptedBigInteger(String tenant, String section, String type)
+			throws NonUniqueResultException, NoResultException {
+		if (noResult) {
+			throw new NoResultException();
+		} else if (nonUnique) {
+			throw new NonUniqueResultException();
+		}
+		return bigIntegerEntity;
+	}
 
-    @Override
-    protected void persist(EncryptedBigIntEntity encBigIntEntity) {
-        this.bigIntegerEntity = encBigIntEntity;
-    }
+	@Override
+	protected void persist(EncryptedBigIntEntity encBigIntEntity) {
+		this.bigIntegerEntity = encBigIntEntity;
+	}
 
-    @Override
-    public void setTenantManager(TenantManager tenantManager) {
-        super.setTenantManager(tenantManager);
-    }
+	@Override
+	public void setTenantManager(TenantManager tenantManager) {
+		super.setTenantManager(tenantManager);
+	}
 
-    public void setBigIntegerEntity(EncryptedBigIntEntity bigIntegerEntity) {
-        this.bigIntegerEntity = bigIntegerEntity;
-    }
+	public void setBigIntegerEntity(EncryptedBigIntEntity bigIntegerEntity) {
+		this.bigIntegerEntity = bigIntegerEntity;
+	}
 
-    public EncryptedBigIntEntity getBigIntegerEntity() {
-        return bigIntegerEntity;
-    }
+	public EncryptedBigIntEntity getBigIntegerEntity() {
+		return bigIntegerEntity;
+	}
 
-    public void setNoResult(boolean noResult) {
-        this.noResult = noResult;
-    }
+	public void setNoResult(boolean noResult) {
+		this.noResult = noResult;
+	}
 
-    public void setNonUnique(boolean nonUnique) {
-        this.nonUnique = nonUnique;
-    }
+	public void setNonUnique(boolean nonUnique) {
+		this.nonUnique = nonUnique;
+	}
 
 }

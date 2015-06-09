@@ -61,7 +61,8 @@ import javax.naming.NamingException;
 public class ConfigurationManagerImpl implements ConfigurationManager {
 
 	private static final Logger logger = Logger.getLogger(ConfigurationManagerImpl.class.getName());
-	@Resource(name = "JNDI_URL")
+
+	@Resource(name = "JNDI_URI")
 	private String JNDI_URI;
 
 	public Map<String, Properties> configurations;

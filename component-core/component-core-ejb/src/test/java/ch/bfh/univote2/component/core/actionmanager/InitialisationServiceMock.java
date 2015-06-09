@@ -24,16 +24,16 @@ import javax.ejb.Singleton;
 @LocalBean
 public class InitialisationServiceMock implements InitialisationService {
 
-    private List<String> sections;
+	private List<String> sections;
 
-    @Override
-    public List<String> getSections(String tenant) {
+	@Override
+	public List<String> getSections(String tenant) {
 
-        return sections;
-    }
+		return sections;
+	}
 
-    public void setSections(List<String> sections) {
-        this.sections = sections;
-    }
+	public void setSections(List<String> sections) {
+		this.sections = sections;
+	}
 
 }

@@ -13,17 +13,17 @@ import javax.ejb.Stateless;
 @LocalBean
 public class TestableOutcomeRoutingServiceImpl extends OutcomeRoutingServiceImpl {
 
-    @Override
-    public void init() {
-    }
+	@Override
+	public void init() {
+	}
 
-    public void runInit() {
-        super.init();
-    }
+	public void runInit() {
+		super.init();
+	}
 
-    @Override
-    public Map<String, String> getRouting() {
-        return super.getRouting();
-    }
+	@Override
+	public Map<String, String> getRouting() {
+		return super.getRouting();
+	}
 
 }

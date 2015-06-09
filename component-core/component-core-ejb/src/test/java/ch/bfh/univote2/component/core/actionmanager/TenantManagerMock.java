@@ -29,55 +29,55 @@ import javax.ejb.Singleton;
 @LocalBean
 public class TenantManagerMock implements TenantManager {
 
-    private Set<String> tenants = new HashSet<>();
+	private Set<String> tenants = new HashSet<>();
 
-    @Override
-    public boolean unlock(String tenant, String password) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public boolean unlock(String tenant, String password) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public boolean lock(String tenant, String password) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public boolean lock(String tenant, String password) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public PublicKey getPublicKey(String tenant) throws UnivoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public PublicKey getPublicKey(String tenant) throws UnivoteException {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public PrivateKey getPrivateKey(String tenant) throws UnivoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public PrivateKey getPrivateKey(String tenant) throws UnivoteException {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public Set<String> getUnlockedTenants() {
-        return new HashSet<>();
-    }
+	@Override
+	public Set<String> getUnlockedTenants() {
+		return new HashSet<>();
+	}
 
-    @Override
-    public Set<String> getAllTentants() {
-        return tenants;
-    }
+	@Override
+	public Set<String> getAllTentants() {
+		return tenants;
+	}
 
-    public void setTenants(Set<String> tenants) {
-        this.tenants = tenants;
-    }
+	public void setTenants(Set<String> tenants) {
+		this.tenants = tenants;
+	}
 
-    @Override
-    public boolean isLocked(String tenant) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public boolean isLocked(String tenant) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public ByteArray getAESKey(String tenant) throws UnivoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public ByteArray getAESKey(String tenant) throws UnivoteException {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public boolean checkLogin(String tenant, String password) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public boolean checkLogin(String tenant, String password) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
 }

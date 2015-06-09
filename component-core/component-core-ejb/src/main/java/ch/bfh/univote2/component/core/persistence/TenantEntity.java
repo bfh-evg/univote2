@@ -56,97 +56,97 @@ import javax.persistence.Id;
 @Entity
 public class TenantEntity implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    private static final int BASE = 10;
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    private String name;
-    @Column(length = 2000)
-    private String salt;
-    @Column(length = 2000)
-    private String hashValue;
-    @Column(length = 2000)
-    private String publicKey;
-    @Column(length = 2000)
-    private String encPrivateKey;
-    @Column(length = 2000)
-    private String modulus;
-    @Column(length = 2000)
-    private String orderFactor;
-    @Column(length = 2000)
-    private String generator;
+	private static final long serialVersionUID = 1L;
+	private static final int BASE = 10;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+	private String name;
+	@Column(length = 2000)
+	private String salt;
+	@Column(length = 2000)
+	private String hashValue;
+	@Column(length = 2000)
+	private String publicKey;
+	@Column(length = 2000)
+	private String encPrivateKey;
+	@Column(length = 2000)
+	private String modulus;
+	@Column(length = 2000)
+	private String orderFactor;
+	@Column(length = 2000)
+	private String generator;
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public BigInteger getSalt() {
-        return new BigInteger(salt, BASE);
-    }
+	public BigInteger getSalt() {
+		return new BigInteger(salt, BASE);
+	}
 
-    public void setSalt(BigInteger salt) {
-        this.salt = salt.toString(BASE);
-    }
+	public void setSalt(BigInteger salt) {
+		this.salt = salt.toString(BASE);
+	}
 
-    public BigInteger getHashValue() {
-        return new BigInteger(hashValue, BASE);
-    }
+	public BigInteger getHashValue() {
+		return new BigInteger(hashValue, BASE);
+	}
 
-    public void setHashValue(BigInteger hashValue) {
-        this.hashValue = hashValue.toString(BASE);
-    }
+	public void setHashValue(BigInteger hashValue) {
+		this.hashValue = hashValue.toString(BASE);
+	}
 
-    public BigInteger getPublicKey() {
-        return new BigInteger(publicKey);
-    }
+	public BigInteger getPublicKey() {
+		return new BigInteger(publicKey);
+	}
 
-    public void setPublicKey(BigInteger publicKey) {
-        this.publicKey = publicKey.toString(BASE);
-    }
+	public void setPublicKey(BigInteger publicKey) {
+		this.publicKey = publicKey.toString(BASE);
+	}
 
-    public String getEncPrivateKey() {
-        return encPrivateKey;
-    }
+	public String getEncPrivateKey() {
+		return encPrivateKey;
+	}
 
-    public void setEncPrivateKey(String encPrivateKey) {
-        this.encPrivateKey = encPrivateKey;
-    }
+	public void setEncPrivateKey(String encPrivateKey) {
+		this.encPrivateKey = encPrivateKey;
+	}
 
-    public BigInteger getModulus() {
-        return new BigInteger(modulus, BASE);
-    }
+	public BigInteger getModulus() {
+		return new BigInteger(modulus, BASE);
+	}
 
-    public void setModulus(BigInteger modulus) {
-        this.modulus = modulus.toString(BASE);
-    }
+	public void setModulus(BigInteger modulus) {
+		this.modulus = modulus.toString(BASE);
+	}
 
-    public BigInteger getOrderFactor() {
-        return new BigInteger(orderFactor);
-    }
+	public BigInteger getOrderFactor() {
+		return new BigInteger(orderFactor);
+	}
 
-    public void setOrderFactor(BigInteger orderFactor) {
-        this.orderFactor = orderFactor.toString(BASE);
-    }
+	public void setOrderFactor(BigInteger orderFactor) {
+		this.orderFactor = orderFactor.toString(BASE);
+	}
 
-    public BigInteger getGenerator() {
-        return new BigInteger(generator);
-    }
+	public BigInteger getGenerator() {
+		return new BigInteger(generator);
+	}
 
-    public void setGenerator(BigInteger generator) {
-        this.generator = generator.toString(BASE);
-    }
+	public void setGenerator(BigInteger generator) {
+		this.generator = generator.toString(BASE);
+	}
 
 }

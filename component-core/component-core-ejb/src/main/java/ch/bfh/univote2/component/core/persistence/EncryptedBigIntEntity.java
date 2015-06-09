@@ -56,47 +56,47 @@ import javax.persistence.Id;
 @Entity
 public class EncryptedBigIntEntity implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    private static final int BASE = 10;
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    private String tenant;
-    private String sectionName;
-    private String type;
-    @Column(length = 2000)
-    private String bigInteger;
+	private static final long serialVersionUID = 1L;
+	private static final int BASE = 10;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+	private String tenant;
+	private String sectionName;
+	private String type;
+	@Column(length = 2000)
+	private String bigInteger;
 
-    public String getTenant() {
-        return tenant;
-    }
+	public String getTenant() {
+		return tenant;
+	}
 
-    public void setTenant(String tenant) {
-        this.tenant = tenant;
-    }
+	public void setTenant(String tenant) {
+		this.tenant = tenant;
+	}
 
-    public String getSection() {
-        return sectionName;
-    }
+	public String getSection() {
+		return sectionName;
+	}
 
-    public void setSection(String section) {
-        this.sectionName = section;
-    }
+	public void setSection(String section) {
+		this.sectionName = section;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public void setType(String type) {
-        this.type = type;
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
 
-    public BigInteger getBigInteger() {
-        return new BigInteger(bigInteger, BASE);
-    }
+	public BigInteger getBigInteger() {
+		return new BigInteger(bigInteger, BASE);
+	}
 
-    public void setBigInteger(BigInteger bigInteger) {
-        this.bigInteger = bigInteger.toString(BASE);
-    }
+	public void setBigInteger(BigInteger bigInteger) {
+		this.bigInteger = bigInteger.toString(BASE);
+	}
 
 }

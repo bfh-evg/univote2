@@ -61,117 +61,117 @@ import javax.xml.ws.BindingProvider;
 @Stateless
 public class RegistrationServiceImpl implements RegistrationService {
 
-    private static final String CONFIG_NAME = "registration-helper";
-    private static final String WSDL_URL = "wsdlLocation";
-    private static final String ENDPOINT_URL = "endPointUrl";
-    private static final String OWN_ENDPOINT_URL = "ownEndPointUrl";
-    private final Map<String, StringTuple> boards = new HashMap<>();
-    private String ownEndPointURL;
+	private static final String CONFIG_NAME = "registration-helper";
+	private static final String WSDL_URL = "wsdlLocation";
+	private static final String ENDPOINT_URL = "endPointUrl";
+	private static final String OWN_ENDPOINT_URL = "ownEndPointUrl";
+	private final Map<String, StringTuple> boards = new HashMap<>();
+	private String ownEndPointURL;
 
-    private static final Logger logger = Logger.getLogger(RegistrationServiceImpl.class.getName());
+	private static final Logger logger = Logger.getLogger(RegistrationServiceImpl.class.getName());
 
-    @EJB
-    ConfigurationManager configurationManager;
+	@EJB
+	ConfigurationManager configurationManager;
 
-    @PostConstruct
-    public void init() {
-        if (!this.configurationManager.getConfiguration(CONFIG_NAME).containsKey(OWN_ENDPOINT_URL)) {
-            logger.log(Level.SEVERE, "Own endpoint URL is not configured. Cant register.");
-            return;
-        }
-        this.ownEndPointURL = (String) this.configurationManager.getConfiguration(CONFIG_NAME).remove(OWN_ENDPOINT_URL);
-        Set<String> boardCandidates = this.configurationManager.getConfiguration(CONFIG_NAME).stringPropertyNames();
+	@PostConstruct
+	public void init() {
+		if (!this.configurationManager.getConfiguration(CONFIG_NAME).containsKey(OWN_ENDPOINT_URL)) {
+			logger.log(Level.SEVERE, "Own endpoint URL is not configured. Cant register.");
+			return;
+		}
+		this.ownEndPointURL = (String) this.configurationManager.getConfiguration(CONFIG_NAME).remove(OWN_ENDPOINT_URL);
+		Set<String> boardCandidates = this.configurationManager.getConfiguration(CONFIG_NAME).stringPropertyNames();
 
-        for (String boardCandidate : boardCandidates) {
-            String[] split = boardCandidate.split("\\.");
-            if (split.length == 2) {
-                String name = split[0];
-                String urlType = split[1];
-                if (urlType.equals(WSDL_URL)) {
-                    String boardCandidate2 = name + "." + ENDPOINT_URL;
-                    if (boardCandidates.contains(boardCandidate2)) {
-                        this.boards.put(name, new StringTuple(
-                                this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate),
-                                this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate2)
-                        ));
-                    }
-                } else if (urlType.equals(ENDPOINT_URL)) {
-                    String boardCandidate2 = name + "." + WSDL_URL;
-                    if (boardCandidates.contains(boardCandidate2)) {
-                        this.boards.put(name, new StringTuple(
-                                this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate),
-                                this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate2)
-                        ));
-                    }
-                } else {
-                    logger.log(Level.SEVERE, "Unknown property {0}", urlType);
-                }
-            }
-        }
-    }
+		for (String boardCandidate : boardCandidates) {
+			String[] split = boardCandidate.split("\\.");
+			if (split.length == 2) {
+				String name = split[0];
+				String urlType = split[1];
+				if (urlType.equals(WSDL_URL)) {
+					String boardCandidate2 = name + "." + ENDPOINT_URL;
+					if (boardCandidates.contains(boardCandidate2)) {
+						this.boards.put(name, new StringTuple(
+								this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate),
+								this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate2)
+						));
+					}
+				} else if (urlType.equals(ENDPOINT_URL)) {
+					String boardCandidate2 = name + "." + WSDL_URL;
+					if (boardCandidates.contains(boardCandidate2)) {
+						this.boards.put(name, new StringTuple(
+								this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate),
+								this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate2)
+						));
+					}
+				} else {
+					logger.log(Level.SEVERE, "Unknown property {0}", urlType);
+				}
+			}
+		}
+	}
 
-    @Override
-    public String register(String board, QueryDTO q) throws UnivoteException {
-        return this.getNotificationService(board).register(ownEndPointURL, q);
-    }
+	@Override
+	public String register(String board, QueryDTO q) throws UnivoteException {
+		return this.getNotificationService(board).register(ownEndPointURL, q);
+	}
 
-    @Override
-    public void unregister(String board, String notificationCode) throws UnivoteException {
-        this.getNotificationService(board).unregister(notificationCode);
-    }
+	@Override
+	public void unregister(String board, String notificationCode) throws UnivoteException {
+		this.getNotificationService(board).unregister(notificationCode);
+	}
 
-    @Override
-    public void unregisterUnknownNotification(String notificationCode
-    ) {
-        for (String board : this.boards.keySet()) {
-            try {
-                this.unregister(board, notificationCode);
-            } catch (UnivoteException ex) {
-                logger.log(Level.WARNING, ex.getMessage());
-                if (ex.getCause() != null) {
-                    logger.log(Level.WARNING, ex.getCause().getMessage());
-                }
-            }
-        }
-    }
+	@Override
+	public void unregisterUnknownNotification(String notificationCode
+	) {
+		for (String board : this.boards.keySet()) {
+			try {
+				this.unregister(board, notificationCode);
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, ex.getMessage());
+				if (ex.getCause() != null) {
+					logger.log(Level.WARNING, ex.getCause().getMessage());
+				}
+			}
+		}
+	}
 
-    private NotificationService getNotificationService(String board) throws UnivoteException {
-        StringTuple boardUrls = this.boards.get(board);
-        try {
+	private NotificationService getNotificationService(String board) throws UnivoteException {
+		StringTuple boardUrls = this.boards.get(board);
+		try {
 
-            URL wsdlLocation = new URL(boardUrls.getWdslUrl());
-            QName qname = new QName("http://uniboard.bfh.ch/", "UniBoardService");
-            NotificationService_Service ubService = new NotificationService_Service(wsdlLocation, qname);
-            NotificationService notificationService = ubService.getNotificationServicePort();
-            BindingProvider bp = (BindingProvider) notificationService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, boardUrls.getEndPointUrl());
-            return notificationService;
-        } catch (Exception ex) {
-            throw new UnivoteException("Unable to connect to UniBoard service: " + boardUrls.getEndPointUrl(), ex);
-        }
-    }
+			URL wsdlLocation = new URL(boardUrls.getWdslUrl());
+			QName qname = new QName("http://uniboard.bfh.ch/", "UniBoardService");
+			NotificationService_Service ubService = new NotificationService_Service(wsdlLocation, qname);
+			NotificationService notificationService = ubService.getNotificationServicePort();
+			BindingProvider bp = (BindingProvider) notificationService;
+			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, boardUrls.getEndPointUrl());
+			return notificationService;
+		} catch (Exception ex) {
+			throw new UnivoteException("Unable to connect to UniBoard service: " + boardUrls.getEndPointUrl(), ex);
+		}
+	}
 
-    protected Map<String, StringTuple> getBoards() {
-        return this.boards;
-    }
+	protected Map<String, StringTuple> getBoards() {
+		return this.boards;
+	}
 
-    protected class StringTuple {
+	protected class StringTuple {
 
-        private final String wdslUrl;
-        private final String endPointUrl;
+		private final String wdslUrl;
+		private final String endPointUrl;
 
-        public StringTuple(String wdslUrl, String endPointUrl) {
-            this.wdslUrl = wdslUrl;
-            this.endPointUrl = endPointUrl;
-        }
+		public StringTuple(String wdslUrl, String endPointUrl) {
+			this.wdslUrl = wdslUrl;
+			this.endPointUrl = endPointUrl;
+		}
 
-        public String getWdslUrl() {
-            return wdslUrl;
-        }
+		public String getWdslUrl() {
+			return wdslUrl;
+		}
 
-        public String getEndPointUrl() {
-            return endPointUrl;
-        }
+		public String getEndPointUrl() {
+			return endPointUrl;
+		}
 
-    }
+	}
 }

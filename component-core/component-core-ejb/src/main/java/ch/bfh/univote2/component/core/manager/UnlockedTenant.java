@@ -50,20 +50,20 @@ import java.security.PrivateKey;
  */
 public class UnlockedTenant {
 
-    private final ByteArray aesKey;
-    private final PrivateKey privateKey;
+	private final ByteArray aesKey;
+	private final PrivateKey privateKey;
 
-    public UnlockedTenant(ByteArray aesKey, PrivateKey privateKey) {
-        this.aesKey = aesKey;
-        this.privateKey = privateKey;
-    }
+	public UnlockedTenant(ByteArray aesKey, PrivateKey privateKey) {
+		this.aesKey = aesKey;
+		this.privateKey = privateKey;
+	}
 
-    public ByteArray getAESKey() {
-        return aesKey;
-    }
+	public ByteArray getAESKey() {
+		return aesKey;
+	}
 
-    public PrivateKey getPrivateKey() {
-        return privateKey;
-    }
+	public PrivateKey getPrivateKey() {
+		return privateKey;
+	}
 
 }

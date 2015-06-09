@@ -22,20 +22,20 @@ import ch.bfh.univote2.component.core.persistence.TenantEntity;
  */
 public class NonEETestableTenantManagerImpl extends TenantManagerImpl {
 
-    TenantEntity entity;
+	TenantEntity entity;
 
-    @Override
-    protected TenantEntity getTenant(String tenant) throws UnivoteException {
+	@Override
+	protected TenantEntity getTenant(String tenant) throws UnivoteException {
 
-        return entity;
-    }
+		return entity;
+	}
 
-    public void addToUnlocked(String tenant, UnlockedTenant unlockedTenant) {
-        super.unlockedTentants.put(tenant, unlockedTenant);
-    }
+	public void addToUnlocked(String tenant, UnlockedTenant unlockedTenant) {
+		super.unlockedTentants.put(tenant, unlockedTenant);
+	}
 
-    public void setTenantEntity(TenantEntity entity) {
-        this.entity = entity;
-    }
+	public void setTenantEntity(TenantEntity entity) {
+		this.entity = entity;
+	}
 
 }

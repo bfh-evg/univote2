@@ -59,68 +59,68 @@ import javax.persistence.criteria.Root;
 
 public class SecurePersistenceServiceImpl implements SecurePersistenceService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+	@PersistenceContext(unitName = "ComponentPU")
+	private EntityManager entityManager;
 
-    @EJB
-    private TenantManager tenantManager;
+	@EJB
+	private TenantManager tenantManager;
 
-    @Override
-    public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException {
-        EncryptedBigIntEntity encBigInt;
-        try {
-            encBigInt = this.getEncryptedBigInteger(tenant, section, type);
+	@Override
+	public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException {
+		EncryptedBigIntEntity encBigInt;
+		try {
+			encBigInt = this.getEncryptedBigInteger(tenant, section, type);
 
-        } catch (NoResultException ex) {
-            encBigInt = new EncryptedBigIntEntity();
-            encBigInt.setTenant(tenant);
-            encBigInt.setSection(section);
-            encBigInt.setType(type);
-        } catch (NonUniqueResultException ex) {
-            throw new UnivoteException("Multiple values stored for this tenant " + tenant + ", section " + section
-                    + ", type " + type + ".", ex);
-        }
-        AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
-        Element aesKey = aes.getEncryptionKeySpace().getElement(this.tenantManager.getAESKey(tenant));
-        Element bigInt = aes.getMessageSpace().getElementFrom(value);
-        Element encBigIntElement = aes.encrypt(aesKey, bigInt);
-        encBigInt.setBigInteger(encBigIntElement.getBigInteger());
-        this.persist(encBigInt);
-    }
+		} catch (NoResultException ex) {
+			encBigInt = new EncryptedBigIntEntity();
+			encBigInt.setTenant(tenant);
+			encBigInt.setSection(section);
+			encBigInt.setType(type);
+		} catch (NonUniqueResultException ex) {
+			throw new UnivoteException("Multiple values stored for this tenant " + tenant + ", section " + section
+					+ ", type " + type + ".", ex);
+		}
+		AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
+		Element aesKey = aes.getEncryptionKeySpace().getElement(this.tenantManager.getAESKey(tenant));
+		Element bigInt = aes.getMessageSpace().getElementFrom(value);
+		Element encBigIntElement = aes.encrypt(aesKey, bigInt);
+		encBigInt.setBigInteger(encBigIntElement.getBigInteger());
+		this.persist(encBigInt);
+	}
 
-    @Override
-    public BigInteger retrieve(String tenant, String section, String type) throws UnivoteException {
-        EncryptedBigIntEntity encBigIntEntity;
-        try {
-            encBigIntEntity = this.getEncryptedBigInteger(tenant, section, type);
-        } catch (NoResultException | NonUniqueResultException ex) {
-            throw new UnivoteException("Unknown entry.");
-        }
-        AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
-        Element aesKey = aes.getEncryptionKeySpace().getElement(this.tenantManager.getAESKey(tenant));
-        Element encBigInt = aes.getMessageSpace().getElementFrom(encBigIntEntity.getBigInteger());
-        Element bigInt = aes.decrypt(aesKey, encBigInt);
-        return bigInt.getBigInteger();
-    }
+	@Override
+	public BigInteger retrieve(String tenant, String section, String type) throws UnivoteException {
+		EncryptedBigIntEntity encBigIntEntity;
+		try {
+			encBigIntEntity = this.getEncryptedBigInteger(tenant, section, type);
+		} catch (NoResultException | NonUniqueResultException ex) {
+			throw new UnivoteException("Unknown entry.");
+		}
+		AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
+		Element aesKey = aes.getEncryptionKeySpace().getElement(this.tenantManager.getAESKey(tenant));
+		Element encBigInt = aes.getMessageSpace().getElementFrom(encBigIntEntity.getBigInteger());
+		Element bigInt = aes.decrypt(aesKey, encBigInt);
+		return bigInt.getBigInteger();
+	}
 
-    protected EncryptedBigIntEntity getEncryptedBigInteger(String tenant, String section, String type)
-            throws NonUniqueResultException, NoResultException {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<EncryptedBigIntEntity> query = builder.createQuery(EncryptedBigIntEntity.class);
-        Root<EncryptedBigIntEntity> result = query.from(EncryptedBigIntEntity.class);
-        query.select(result);
-        query.where(builder.equal(result.get(EncryptedBigIntEntity_.tenant), tenant),
-                builder.equal(result.get(EncryptedBigIntEntity_.sectionName), section),
-                builder.equal(result.get(EncryptedBigIntEntity_.type), type));
-        return entityManager.createQuery(query).getSingleResult();
-    }
+	protected EncryptedBigIntEntity getEncryptedBigInteger(String tenant, String section, String type)
+			throws NonUniqueResultException, NoResultException {
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<EncryptedBigIntEntity> query = builder.createQuery(EncryptedBigIntEntity.class);
+		Root<EncryptedBigIntEntity> result = query.from(EncryptedBigIntEntity.class);
+		query.select(result);
+		query.where(builder.equal(result.get(EncryptedBigIntEntity_.tenant), tenant),
+				builder.equal(result.get(EncryptedBigIntEntity_.sectionName), section),
+				builder.equal(result.get(EncryptedBigIntEntity_.type), type));
+		return entityManager.createQuery(query).getSingleResult();
+	}
 
-    protected void persist(EncryptedBigIntEntity encBigIntEntity) {
-        entityManager.persist(encBigIntEntity);
-    }
+	protected void persist(EncryptedBigIntEntity encBigIntEntity) {
+		entityManager.persist(encBigIntEntity);
+	}
 
-    void setTenantManager(TenantManager tenantManager) {
-        this.tenantManager = tenantManager;
-    }
+	void setTenantManager(TenantManager tenantManager) {
+		this.tenantManager = tenantManager;
+	}
 
 }

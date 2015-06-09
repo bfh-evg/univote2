@@ -55,8 +55,8 @@ import javax.jws.WebService;
 @WebService(serviceName = "ObserverService",
 		portName = "ObserverServicePort",
 		endpointInterface = "ch.bfh.uniboard.notification.ObserverService",
-		targetNamespace = "http://uniboard.bfh.ch/notification",
-		wsdlLocation = "META-INF/wsdl/ObserverService.wsdl")
+		targetNamespace = "http://uniboard.bfh.ch/notification/",
+		wsdlLocation = "WEB-INF/wsdl/ObserverService.wsdl")
 @Stateless
 public class ObserverServiceImpl implements ObserverService {
 

@@ -26,6 +26,18 @@
 			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>eclipselink</artifactId>
+			<version>2.5.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>org.eclipse.persistence.jpa.modelgen.processor</artifactId>
+			<version>2.5.2</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -45,7 +57,34 @@
 							<artifactId>component-core-war</artifactId>
 						</overlay>
 					</overlays>
+					<webResources>
+						<resource>
+							<directory>${project.build.directory}/wsdl/META-INF/wsdl</directory>
+							<includes>
+								<include>*</include>
+							</includes>
+							<targetPath>WEB-INF/wsdl</targetPath>
+						</resource>
+					</webResources>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.10</version>
+				<executions>
+					<execution>
+						<id>unpack-dependencies</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeArtifactIds>bfh-wsdl</includeArtifactIds>
+							<outputDirectory>${project.build.directory}/wsdl</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

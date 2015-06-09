@@ -51,9 +51,9 @@ import javax.ejb.Local;
 @Local
 public interface Action {
 
-    public void run(ActionContext actionContext);
+	public void run(ActionContext actionContext);
 
-    // If postcondition is true purge the context to keep memory usage at a minium
-    public ActionContext prepareContext(String tenant, String section);
+	// If postcondition is true purge the context to keep memory usage at a minium
+	public ActionContext prepareContext(String tenant, String section);
 
 }

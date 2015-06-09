@@ -44,6 +44,7 @@ package ch.bfh.univote2.example.parallel;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,12 +53,20 @@ import java.util.List;
  */
 public class ParallelActionContext extends ActionContext {
 
+	private Date timeOut;
+
 	public ParallelActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
 		super(actionContextKey, preconditionQueries, true);
+		this.timeOut = new Date();
 	}
 
 	@Override
 	protected void purgeData() {
+		this.timeOut = null;
+	}
+
+	public Date getTimeOut() {
+		return timeOut;
 	}
 
 }

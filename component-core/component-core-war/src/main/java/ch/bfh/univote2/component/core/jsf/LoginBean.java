@@ -57,56 +57,60 @@ import javax.inject.Inject;
 @SessionScoped
 public class LoginBean implements Serializable {
 
-    private boolean loggedIn = false;
-    private String username;
-    private String password;
-    @Inject
-    TenantManager tenantManager;
+	private boolean loggedIn = false;
+	private String username;
+	private String password;
+	@Inject
+	TenantManager tenantManager;
 
-    /**
-     * Creates a new instance of LoginBean
-     */
-    public LoginBean() {
-    }
+	/**
+	 * Creates a new instance of LoginBean
+	 */
+	public LoginBean() {
+	}
 
-    public String doLogin() {
-        if (tenantManager.checkLogin(username, password)) {
-            this.loggedIn = true;
-            return "welcome";
-        }
-        FacesMessage msg = new FacesMessage("Login error!", "ERROR MSG");
-        msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-        FacesContext.getCurrentInstance().addMessage(null, msg);
-        return "login";
-    }
+	public String doLogin() {
+		if (tenantManager.checkLogin(username, password)) {
+			this.loggedIn = true;
+			return "welcome";
+		}
+		FacesMessage msg = new FacesMessage("Login error!", "ERROR MSG");
+		msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+		FacesContext.getCurrentInstance().addMessage(null, msg);
+		return "login";
+	}
 
-    public String doLogout() {
-        this.loggedIn = false;
-        FacesMessage msg = new FacesMessage("Logout success!", "INFO MSG");
-        msg.setSeverity(FacesMessage.SEVERITY_INFO);
-        FacesContext.getCurrentInstance().addMessage(null, msg);
-        return "login";
+	public String doLogout() {
+		this.loggedIn = false;
+		FacesMessage msg = new FacesMessage("Logout success!", "INFO MSG");
+		msg.setSeverity(FacesMessage.SEVERITY_INFO);
+		FacesContext.getCurrentInstance().addMessage(null, msg);
+		return "login";
 
-    }
+	}
 
-    public boolean isLoggedIn() {
-        return loggedIn;
-    }
+	public boolean isLoggedIn() {
+		return loggedIn;
+	}
 
-    public String getUsername() {
-        return username;
-    }
+	public boolean isLocked() {
+		return this.tenantManager.isLocked(username);
+	}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	public String getUsername() {
+		return username;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
 }

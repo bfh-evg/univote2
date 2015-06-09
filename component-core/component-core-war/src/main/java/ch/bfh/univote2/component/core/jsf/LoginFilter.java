@@ -58,31 +58,31 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class LoginFilter implements Filter {
 
-    @Inject
-    private LoginBean loginBean;
+	@Inject
+	private LoginBean loginBean;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        //No action
-    }
+	@Override
+	public void init(FilterConfig filterConfig) throws ServletException {
+		//No action
+	}
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 
-        // For the first application request there is no loginBean in the session so user needs to log in
-        // For other requests loginBean is present but we need to check if user has logged in successfully
-        if (loginBean == null || !loginBean.isLoggedIn()) {
-            String contextPath = ((HttpServletRequest) request).getContextPath();
-            ((HttpServletResponse) response).sendRedirect(contextPath + "/login.xhtml");
-        }
+		// For the first application request there is no loginBean in the session so user needs to log in
+		// For other requests loginBean is present but we need to check if user has logged in successfully
+		if (loginBean == null || !loginBean.isLoggedIn()) {
+			String contextPath = ((HttpServletRequest) request).getContextPath();
+			((HttpServletResponse) response).sendRedirect(contextPath + "/login.xhtml");
+		}
 
-        chain.doFilter(request, response);
-    }
+		chain.doFilter(request, response);
+	}
 
-    @Override
-    public void destroy() {
-        //No action
-    }
+	@Override
+	public void destroy() {
+		//No action
+	}
 
 }

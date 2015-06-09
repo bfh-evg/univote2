@@ -14,9 +14,9 @@ import javax.ejb.Singleton;
 @LocalBean
 public class TestableTaskManagerImpl extends TaskManagerImpl {
 
-    @Override
-    public Map<String, Task> getTasks() {
-        return super.getTasks();
-    }
+	@Override
+	public Map<String, Task> getTasks() {
+		return super.getTasks();
+	}
 
 }

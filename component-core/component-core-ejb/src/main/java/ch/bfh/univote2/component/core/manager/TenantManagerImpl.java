@@ -84,164 +84,165 @@ import javax.persistence.criteria.Root;
 @Stateless
 public class TenantManagerImpl implements TenantManager {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+	@PersistenceContext(unitName = "ComponentPU")
+	private EntityManager entityManager;
 
-    protected static final HashMethod HASH_METHOD = HashMethod.getInstance(
-            HashAlgorithm.SHA256,
-            ConvertMethod.getInstance(
-                    BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-                    ByteArrayToByteArray.getInstance(false),
-                    StringToByteArray.getInstance(Charset.forName("UTF-8"))),
-            HashMethod.Mode.RECURSIVE);
+	protected static final HashMethod HASH_METHOD = HashMethod.getInstance(
+			HashAlgorithm.SHA256,
+			ConvertMethod.getInstance(
+					BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+					ByteArrayToByteArray.getInstance(false),
+					StringToByteArray.getInstance(Charset.forName("UTF-8"))),
+			HashMethod.Mode.RECURSIVE);
 
-    protected final Map<String, UnlockedTenant> unlockedTentants = new HashMap<>();
+	protected final Map<String, UnlockedTenant> unlockedTentants = new HashMap<>();
 
-    private static final Logger logger = Logger.getLogger(TenantManagerImpl.class.getName());
+	private static final Logger logger = Logger.getLogger(TenantManagerImpl.class.getName());
 
-    @Override
-    public boolean unlock(String tenant, String password) {
-        TenantEntity tenantEntity;
-        try {
-            tenantEntity = this.getTenant(tenant);
-        } catch (UnivoteException ex) {
-            return false;
-        }
-        if (this.checkHash(password, tenantEntity.getHashValue(), tenantEntity.getSalt())) {
-            try {
-                AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
-                FiniteByteArrayElement aesKey = aes.getPasswordBasedKey(password);
-                //TODO Compute aes key
-                Element encPrivKey = aes.getMessageSpace().getElement(tenantEntity.getEncPrivateKey());
-                //Load tenant from persistence
-                BigInteger dsaPrivKey = aes.decrypt(aesKey, encPrivKey).getBigInteger();
+	@Override
+	public boolean unlock(String tenant, String password) {
+		TenantEntity tenantEntity;
+		try {
+			tenantEntity = this.getTenant(tenant);
+		} catch (UnivoteException ex) {
+			return false;
+		}
+		if (this.checkHash(password, tenantEntity.getHashValue(), tenantEntity.getSalt())) {
+			try {
+				AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
+				FiniteByteArrayElement aesKey = aes.getPasswordBasedKey(password);
+				//TODO Compute aes key
+				Element encPrivKey = aes.getMessageSpace().getElement(tenantEntity.getEncPrivateKey());
+				//Load tenant from persistence
+				BigInteger dsaPrivKey = aes.decrypt(aesKey, encPrivKey).getBigInteger();
                 //Decrypt the private key
 
-                //Create the private key
-                PrivateKey privKey = KeyHelper.createDSAPrivateKey(tenantEntity.getModulus(),
-                        tenantEntity.getOrderFactor(), tenantEntity.getGenerator(), dsaPrivKey);
-                //Add tenant
-                this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey.getByteArray(), privKey));
-                return true;
-            } catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
-                //throw new UnivoteException("Could not retrieve privateKey: " + tenant, ex);
-                logger.log(Level.WARNING, ex.getMessage());
-                return false;
-            }
-        }
-        return false;
-    }
+				//Create the private key
+				PrivateKey privKey = KeyHelper.createDSAPrivateKey(tenantEntity.getModulus(),
+						tenantEntity.getOrderFactor(), tenantEntity.getGenerator(), dsaPrivKey);
+				//Add tenant
+				this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey.getByteArray(), privKey));
+				return true;
+			} catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
+				//throw new UnivoteException("Could not retrieve privateKey: " + tenant, ex);
+				logger.log(Level.WARNING, ex.getMessage());
+				return false;
+			}
+		}
+		return false;
+	}
 
-    @Override
-    public boolean lock(String tenant, String password) {
-        if (this.unlockedTentants.containsKey(tenant)) {
-            TenantEntity tentantEntity;
-            try {
-                tentantEntity = this.getTenant(tenant);
-            } catch (UnivoteException ex) {
-                return false;
-            }
-            if (this.checkHash(password, tentantEntity.getHashValue(), tentantEntity.getSalt())) {
-                this.unlockedTentants.remove(tenant);
-                return true;
-            }
-        }
-        return false;
-    }
+	@Override
+	public boolean lock(String tenant, String password) {
+		if (this.unlockedTentants.containsKey(tenant)) {
+			TenantEntity tentantEntity;
+			try {
+				tentantEntity = this.getTenant(tenant);
+			} catch (UnivoteException ex) {
+				return false;
+			}
+			if (this.checkHash(password, tentantEntity.getHashValue(), tentantEntity.getSalt())) {
+				this.unlockedTentants.remove(tenant);
+				return true;
+			}
+		}
+		return false;
+	}
 
-    @Override
-    public Set<String> getUnlockedTenants() {
-        return this.unlockedTentants.keySet();
-    }
+	@Override
+	public Set<String> getUnlockedTenants() {
+		return this.unlockedTentants.keySet();
+	}
 
-    @Override
-    public Set<String> getAllTentants() {
-        try {
-            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<TenantEntity> query = builder.createQuery(TenantEntity.class);
-            Root<TenantEntity> dbResult = query.from(TenantEntity.class);
-            query.select(dbResult);
-            List<TenantEntity> tentantEntities = entityManager.createQuery(query).getResultList();
-            Set<String> result = new HashSet<>();
-            for (TenantEntity t : tentantEntities) {
-                result.add(t.getName());
-            }
-            return result;
-        } catch (Exception ex) {
-            return new HashSet<>();
-        }
-    }
+	@Override
+	public Set<String> getAllTentants() {
+		try {
+			CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+			CriteriaQuery<TenantEntity> query = builder.createQuery(TenantEntity.class);
+			Root<TenantEntity> dbResult = query.from(TenantEntity.class);
+			query.select(dbResult);
+			List<TenantEntity> tentantEntities = entityManager.createQuery(query).getResultList();
+			Set<String> result = new HashSet<>();
+			for (TenantEntity t : tentantEntities) {
+				result.add(t.getName());
+			}
+			return result;
+		} catch (Exception ex) {
+			return new HashSet<>();
+		}
+	}
 
-    @Override
-    public PublicKey getPublicKey(String tenant) throws UnivoteException {
-        try {
-            TenantEntity tenantEntity = this.getTenant(tenant);
-            return KeyHelper.createDSAPublicKey(tenantEntity.getModulus(), tenantEntity.getOrderFactor(),
-                    tenantEntity.getGenerator(), tenantEntity.getPublicKey());
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
-            throw new UnivoteException("Could not create publicKey: " + tenant, ex);
-        }
+	@Override
+	public PublicKey getPublicKey(String tenant) throws UnivoteException {
+		try {
+			TenantEntity tenantEntity = this.getTenant(tenant);
+			return KeyHelper.createDSAPublicKey(tenantEntity.getModulus(), tenantEntity.getOrderFactor(),
+					tenantEntity.getGenerator(), tenantEntity.getPublicKey());
+		} catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
+			throw new UnivoteException("Could not create publicKey: " + tenant, ex);
+		}
 
-    }
+	}
 
-    @Override
-    public PrivateKey getPrivateKey(String tenant) throws UnivoteException {
-        if (this.unlockedTentants.containsKey(tenant)) {
-            return this.unlockedTentants.get(tenant).getPrivateKey();
-        }
-        throw new UnivoteException("Tenant locked: " + tenant);
-    }
+	@Override
+	public PrivateKey getPrivateKey(String tenant) throws UnivoteException {
+		if (this.unlockedTentants.containsKey(tenant)) {
+			return this.unlockedTentants.get(tenant).getPrivateKey();
+		}
+		throw new UnivoteException("Tenant locked: " + tenant);
+	}
 
-    protected TenantEntity getTenant(String tenant) throws UnivoteException {
-        try {
-            CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<TenantEntity> query = builder.createQuery(TenantEntity.class);
-            Root<TenantEntity> result = query.from(TenantEntity.class);
-            query.select(result);
-            query.where(builder.equal(result.get(TenantEntity_.name), tenant));
-            return entityManager.createQuery(query).getSingleResult();
-        } catch (Exception ex) {
-            throw new UnivoteException("Could not find tenant in db: " + tenant, ex);
-        }
-    }
+	protected TenantEntity getTenant(String tenant) throws UnivoteException {
+		try {
+			CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+			CriteriaQuery<TenantEntity> query = builder.createQuery(TenantEntity.class);
+			Root<TenantEntity> result = query.from(TenantEntity.class);
+			query.select(result);
+			query.where(builder.equal(result.get(TenantEntity_.name), tenant));
+			return entityManager.createQuery(query).getSingleResult();
+		} catch (Exception ex) {
+			throw new UnivoteException("Could not find tenant in db: " + tenant, ex);
+		}
+	}
 
-    protected boolean checkHash(String password, BigInteger hash, BigInteger salt) {
-        StringMonoid stringSet = StringMonoid.getInstance(Alphabet.PRINTABLE_ASCII);
-        Z z = Z.getInstance();
+	protected boolean checkHash(String password, BigInteger hash, BigInteger salt) {
+		StringMonoid stringSet = StringMonoid.getInstance(Alphabet.PRINTABLE_ASCII);
+		Z z = Z.getInstance();
 
-        Element passwordElement = stringSet.getElement(password);
-        Element saltElement = z.getElement(salt);
+		Element passwordElement = stringSet.getElement(password);
+		Element saltElement = z.getElement(salt);
 
-        Pair pair = Pair.getInstance(passwordElement, saltElement);
-        FixedByteArrayHashingScheme scheme = FixedByteArrayHashingScheme.getInstance(pair.getSet());
-        Element hashElement = scheme.getHashSpace().getElementFrom(hash);
+		Pair pair = Pair.getInstance(passwordElement, saltElement);
+		FixedByteArrayHashingScheme scheme = FixedByteArrayHashingScheme.getInstance(pair.getSet());
+		Element hashElement = scheme.getHashSpace().getElementFrom(hash);
 
-        return scheme.check(pair, hashElement).getValue();
-    }
+		return scheme.check(pair, hashElement).getValue();
+	}
 
-    @Override
-    public boolean isLocked(String tenant) {
-        return this.unlockedTentants.containsKey(tenant);
-    }
+	@Override
+	public boolean isLocked(String tenant) {
+		return this.unlockedTentants.containsKey(tenant);
+	}
 
-    @Override
-    public ByteArray getAESKey(String tenant) throws UnivoteException {
-        if (this.unlockedTentants.containsKey(tenant)) {
-            return this.unlockedTentants.get(tenant).getAESKey();
-        }
-        throw new UnivoteException("Tenant locked: " + tenant);
-    }
+	@Override
+	public ByteArray getAESKey(String tenant) throws UnivoteException {
+		if (this.unlockedTentants.containsKey(tenant)) {
+			return this.unlockedTentants.get(tenant).getAESKey();
+		}
+		throw new UnivoteException("Tenant locked: " + tenant);
+	}
 
-    @Override
-    public boolean checkLogin(String tenant, String password) {
-        TenantEntity tenantEntity;
-        try {
-            tenantEntity = this.getTenant(tenant);
-        } catch (UnivoteException ex) {
-            logger.log(Level.WARNING, ex.getMessage());
-            return false;
-        }
-        return this.checkHash(password, tenantEntity.getHashValue(), tenantEntity.getSalt());
-    }
+	@Override
+	public boolean checkLogin(String tenant, String password) {
+		TenantEntity tenantEntity;
+		try {
+			tenantEntity = this.getTenant(tenant);
+		} catch (UnivoteException ex) {
+			logger.log(Level.WARNING, ex.getMessage());
+			logger.log(Level.WARNING, ex.getCause().getMessage());
+			return false;
+		}
+		return this.checkHash(password, tenantEntity.getHashValue(), tenantEntity.getSalt());
+	}
 
 }

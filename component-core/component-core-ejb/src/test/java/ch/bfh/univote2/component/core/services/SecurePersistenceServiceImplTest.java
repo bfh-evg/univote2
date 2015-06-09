@@ -51,32 +51,32 @@ import org.junit.Test;
  */
 public class SecurePersistenceServiceImplTest {
 
-    public SecurePersistenceServiceImplTest() {
-    }
+	public SecurePersistenceServiceImplTest() {
+	}
 
-    @Test
-    public void testPersist() throws Exception {
-        String tenant = "";
-        String section = "";
-        String type = "";
-        ByteArray aesKey = ByteArray.getInstance("AA");
-        TenantManagerMock tenantManager = new TenantManagerMock();
-        tenantManager.setAesKey(aesKey);
-        BigInteger bigInteger = new BigInteger("10");
+	@Test
+	public void testPersist() throws Exception {
+		String tenant = "";
+		String section = "";
+		String type = "";
+		ByteArray aesKey = ByteArray.getInstance("AA");
+		TenantManagerMock tenantManager = new TenantManagerMock();
+		tenantManager.setAesKey(aesKey);
+		BigInteger bigInteger = new BigInteger("10");
 
-        NoEETestableSecurePersistenceServiceImpl securePersistenceServiceImpl
-                = new NoEETestableSecurePersistenceServiceImpl();
-        securePersistenceServiceImpl.setTenantManager(tenantManager);
+		NoEETestableSecurePersistenceServiceImpl securePersistenceServiceImpl
+				= new NoEETestableSecurePersistenceServiceImpl();
+		securePersistenceServiceImpl.setTenantManager(tenantManager);
 
-        //securePersistenceServiceImpl.persist(tenant, section, type, bigInteger);
-    }
+		//securePersistenceServiceImpl.persist(tenant, section, type, bigInteger);
+	}
 
-    @Test
-    public void testRetrieve() throws Exception {
-    }
+	@Test
+	public void testRetrieve() throws Exception {
+	}
 
-    @Test
-    public void testGetEncryptedBigInteger() {
-    }
+	@Test
+	public void testGetEncryptedBigInteger() {
+	}
 
 }

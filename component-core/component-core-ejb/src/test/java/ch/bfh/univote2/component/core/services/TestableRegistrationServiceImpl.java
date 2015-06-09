@@ -17,17 +17,17 @@ import javax.ejb.Stateless;
 @LocalBean
 public class TestableRegistrationServiceImpl extends RegistrationServiceImpl {
 
-    @Override
-    public void init() {
-    }
+	@Override
+	public void init() {
+	}
 
-    public void runInit() {
-        super.init();
-    }
+	public void runInit() {
+		super.init();
+	}
 
-    @Override
-    public Map<String, StringTuple> getBoards() {
-        return super.getBoards();
-    }
+	@Override
+	public Map<String, StringTuple> getBoards() {
+		return super.getBoards();
+	}
 
 }

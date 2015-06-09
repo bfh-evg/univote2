@@ -41,9 +41,17 @@
  */
 package ch.bfh.univote2.component.core.jsf;
 
+import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.data.RunActionTask;
+import ch.bfh.univote2.component.core.data.Task;
+import ch.bfh.univote2.component.core.data.UserInputTask;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import ch.bfh.univote2.component.core.services.OutcomeRoutingService;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -56,16 +64,65 @@ import javax.inject.Named;
 @ViewScoped
 public class TenantTasksBean implements Serializable {
 
-    @Inject
-    TaskManager taskManager;
+	@Inject
+	TaskManager taskManager;
 
-    @Inject
-    OutcomeRoutingService outcomeRoutingService;
+	@Inject
+	OutcomeRoutingService outcomeRoutingService;
 
-    /**
-     * Creates a new instance of TenantTasksBean
-     */
-    public TenantTasksBean() {
-    }
+	@Inject
+	LoginBean loginBean;
+
+	private List<UserInputTask> userInputTasks;
+	private List<RunActionTask> runActionTasks;
+
+	/**
+	 * Creates a new instance of TenantTasksBean
+	 */
+	public TenantTasksBean() {
+		this.getTasks();
+	}
+
+	public String runTask(String notificationCode) {
+		try {
+			this.taskManager.runAction(notificationCode);
+			//TODO outcome
+			return "";
+		} catch (UnivoteException ex) {
+			//TODO Log
+			Logger.getLogger(TenantTasksBean.class.getName()).log(Level.SEVERE, null, ex);
+			return "";
+		}
+	}
+
+	public String goToInputForm(String inputName) {
+		try {
+			return this.outcomeRoutingService.getRoutingForUserInput(inputName);
+		} catch (UnivoteException ex) {
+			//TODO
+			Logger.getLogger(TenantTasksBean.class.getName()).log(Level.SEVERE, null, ex);
+			return "";
+		}
+	}
+
+	public List<UserInputTask> getUserInputTasks() {
+		return userInputTasks;
+	}
+
+	public List<RunActionTask> getRunActionTasks() {
+		return runActionTasks;
+	}
+
+	private void getTasks() {
+		this.userInputTasks = new ArrayList<>();
+		this.runActionTasks = new ArrayList<>();
+		for (Task t : this.taskManager.getTasks(this.loginBean.getUsername())) {
+			if (t instanceof UserInputTask) {
+				this.userInputTasks.add((UserInputTask) t);
+			} else if (t instanceof RunActionTask) {
+				this.runActionTasks.add((RunActionTask) t);
+			}
+		}
+	}
 
 }

@@ -15,5 +15,5 @@ import javax.ejb.Local;
 @Local
 public interface OutcomeRoutingService {
 
-    public String getRoutingForUserInput(String userInputName) throws UnivoteException;
+	public String getRoutingForUserInput(String userInputName) throws UnivoteException;
 }

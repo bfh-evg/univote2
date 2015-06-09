@@ -55,21 +55,21 @@ import javax.ejb.Local;
 @Local
 public interface TenantManager {
 
-    public boolean checkLogin(String tenant, String password);
+	public boolean checkLogin(String tenant, String password);
 
-    public boolean unlock(String tenant, String password);
+	public boolean unlock(String tenant, String password);
 
-    public boolean lock(String tenant, String password);
+	public boolean lock(String tenant, String password);
 
-    public boolean isLocked(String tenant);
+	public boolean isLocked(String tenant);
 
-    public PublicKey getPublicKey(String tenant) throws UnivoteException;
+	public PublicKey getPublicKey(String tenant) throws UnivoteException;
 
-    public PrivateKey getPrivateKey(String tenant) throws UnivoteException;
+	public PrivateKey getPrivateKey(String tenant) throws UnivoteException;
 
-    public ByteArray getAESKey(String tenant) throws UnivoteException;
+	public ByteArray getAESKey(String tenant) throws UnivoteException;
 
-    public Set<String> getUnlockedTenants();
+	public Set<String> getUnlockedTenants();
 
-    public Set<String> getAllTentants();
+	public Set<String> getAllTentants();
 }

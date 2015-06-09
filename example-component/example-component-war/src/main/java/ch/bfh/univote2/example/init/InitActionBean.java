@@ -43,6 +43,7 @@ package ch.bfh.univote2.example.init;
 
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TaskManager;
+import java.io.Serializable;
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -53,7 +54,7 @@ import javax.inject.Inject;
  */
 @Named(value = "initActionBean")
 @ViewScoped
-public class InitActionBean {
+public class InitActionBean implements Serializable {
 
 	private String notificationCode;
 	private String section;

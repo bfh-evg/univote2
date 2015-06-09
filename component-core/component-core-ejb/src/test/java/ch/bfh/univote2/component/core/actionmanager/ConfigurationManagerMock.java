@@ -24,15 +24,15 @@ import javax.ejb.Singleton;
 @LocalBean
 public class ConfigurationManagerMock implements ConfigurationManager {
 
-    private Properties p;
+	private Properties p;
 
-    @Override
-    public Properties getConfiguration(String key) {
-        return p;
-    }
+	@Override
+	public Properties getConfiguration(String key) {
+		return p;
+	}
 
-    public void setProperties(Properties p) {
-        this.p = p;
-    }
+	public void setProperties(Properties p) {
+		this.p = p;
+	}
 
 }

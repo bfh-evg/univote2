@@ -51,6 +51,6 @@ import javax.ejb.Local;
 @Local
 public interface NotifiableAction extends Action {
 
-    public void notifyAction(ActionContext actionContext, Object notification);
+	public void notifyAction(ActionContext actionContext, Object notification);
 
 }

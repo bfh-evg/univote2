@@ -8,7 +8,7 @@
 	-->
     <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
         <!--
-		Properties that influence various parts of the IDE, especially code formatting and the like. 
+		Properties that influence various parts of the IDE, especially code formatting and the like.
 		You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
 		That way multiple projects can share the same settings (useful for formatting rules for example).
 		Any value defined here will override the pom.xml file value but is only applicable to the current project.
@@ -19,5 +19,13 @@
         <netbeans.compile.on.save>none</netbeans.compile.on.save>
         <netbeans.checkstyle.format>true</netbeans.checkstyle.format>
         <org-netbeans-modules-projectapi.jsf_2e_language>Facelets</org-netbeans-modules-projectapi.jsf_2e_language>
+        <org-netbeans-modules-editor-indent.CodeStyle.project.text-limit-width>120</org-netbeans-modules-editor-indent.CodeStyle.project.text-limit-width>
+        <org-netbeans-modules-editor-indent.CodeStyle.project.expand-tabs>false</org-netbeans-modules-editor-indent.CodeStyle.project.expand-tabs>
+        <org-netbeans-modules-editor-indent.CodeStyle.project.text-line-wrap>words</org-netbeans-modules-editor-indent.CodeStyle.project.text-line-wrap>
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.tab-size>4</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.tab-size>
+        <org-netbeans-modules-editor-indent.text.x-json.CodeStyle.project.wrapProperties>WRAP_ALWAYS</org-netbeans-modules-editor-indent.text.x-json.CodeStyle.project.wrapProperties>
+        <org-netbeans-modules-editor-indent.text.x-json.CodeStyle.project.wrapArrayInit>WRAP_ALWAYS</org-netbeans-modules-editor-indent.text.x-json.CodeStyle.project.wrapArrayInit>
+        <org-netbeans-modules-editor-indent.text.x-json.CodeStyle.project.wrapArrayInitItems>WRAP_ALWAYS</org-netbeans-modules-editor-indent.text.x-json.CodeStyle.project.wrapArrayInitItems>
+        <org-netbeans-modules-editor-indent.text.x-json.CodeStyle.project.wrapObjects>WRAP_ALWAYS</org-netbeans-modules-editor-indent.text.x-json.CodeStyle.project.wrapObjects>
     </properties>
 </project-shared-configuration>

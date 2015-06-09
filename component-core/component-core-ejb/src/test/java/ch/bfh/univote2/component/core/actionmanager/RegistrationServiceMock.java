@@ -29,32 +29,32 @@ import javax.ejb.Singleton;
 @LocalBean
 public class RegistrationServiceMock implements RegistrationService {
 
-    private QueryDTO lastRegistredQuery;
-    private final List<String> lastUnregistredNotificationCode = new ArrayList();
+	private QueryDTO lastRegistredQuery;
+	private final List<String> lastUnregistredNotificationCode = new ArrayList();
 
-    @Override
-    public String register(String board, QueryDTO q) throws UnivoteException {
-        this.lastRegistredQuery = q;
-        FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
-        return fixedStringSet.getRandomElement().getValue();
-    }
+	@Override
+	public String register(String board, QueryDTO q) throws UnivoteException {
+		this.lastRegistredQuery = q;
+		FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
+		return fixedStringSet.getRandomElement().getValue();
+	}
 
-    @Override
-    public void unregister(String board, String notificationCode) throws UnivoteException {
-        this.lastUnregistredNotificationCode.add(notificationCode);
-    }
+	@Override
+	public void unregister(String board, String notificationCode) throws UnivoteException {
+		this.lastUnregistredNotificationCode.add(notificationCode);
+	}
 
-    @Override
-    public void unregisterUnknownNotification(String notificationCode) {
-        this.lastUnregistredNotificationCode.add(notificationCode);
-    }
+	@Override
+	public void unregisterUnknownNotification(String notificationCode) {
+		this.lastUnregistredNotificationCode.add(notificationCode);
+	}
 
-    public QueryDTO getLastRegistredQuery() {
-        return lastRegistredQuery;
-    }
+	public QueryDTO getLastRegistredQuery() {
+		return lastRegistredQuery;
+	}
 
-    public boolean containsUnregistredNotificationCode(String notificationCode) {
-        return lastUnregistredNotificationCode.remove(notificationCode);
-    }
+	public boolean containsUnregistredNotificationCode(String notificationCode) {
+		return lastUnregistredNotificationCode.remove(notificationCode);
+	}
 
 }

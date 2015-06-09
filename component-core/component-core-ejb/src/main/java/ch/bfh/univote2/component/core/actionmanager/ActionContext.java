@@ -51,64 +51,64 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public abstract class ActionContext {
 
-    private final ActionContextKey actionContextKey;
-    private final List<PreconditionQuery> preconditionQueries;
-    private final LinkedBlockingQueue<Object> queuedNotifications;
-    private boolean postCondition;
-    private boolean inUse = false;
-    private final boolean runsInParallel;
+	private final ActionContextKey actionContextKey;
+	private final List<PreconditionQuery> preconditionQueries;
+	private final LinkedBlockingQueue<Object> queuedNotifications;
+	private boolean postCondition;
+	private boolean inUse = false;
+	private final boolean runsInParallel;
 
-    public ActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries,
-            boolean runsInParallel) {
-        this.actionContextKey = actionContextKey;
-        this.preconditionQueries = preconditionQueries;
-        this.queuedNotifications = new LinkedBlockingQueue<>();
-        this.runsInParallel = runsInParallel;
-    }
+	public ActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries,
+			boolean runsInParallel) {
+		this.actionContextKey = actionContextKey;
+		this.preconditionQueries = preconditionQueries;
+		this.queuedNotifications = new LinkedBlockingQueue<>();
+		this.runsInParallel = runsInParallel;
+	}
 
-    public ActionContextKey getActionContextKey() {
-        return actionContextKey;
-    }
+	public ActionContextKey getActionContextKey() {
+		return actionContextKey;
+	}
 
-    public List<PreconditionQuery> getPreconditionQueries() {
-        return preconditionQueries;
-    }
+	public List<PreconditionQuery> getPreconditionQueries() {
+		return preconditionQueries;
+	}
 
-    public boolean checkPostCondition() {
-        return postCondition;
-    }
+	public boolean checkPostCondition() {
+		return postCondition;
+	}
 
-    public void setPostCondition(boolean postCondition) {
-        this.postCondition = postCondition;
-    }
+	public void setPostCondition(boolean postCondition) {
+		this.postCondition = postCondition;
+	}
 
-    boolean runsInParallel() {
-        return runsInParallel;
-    }
+	boolean runsInParallel() {
+		return runsInParallel;
+	}
 
-    boolean isInUse() {
-        return inUse;
-    }
+	boolean isInUse() {
+		return inUse;
+	}
 
-    void setInUse(boolean inUse) {
-        this.inUse = inUse;
-    }
+	void setInUse(boolean inUse) {
+		this.inUse = inUse;
+	}
 
-    LinkedBlockingQueue<Object> getQueuedNotifications() {
-        return queuedNotifications;
-    }
+	LinkedBlockingQueue<Object> getQueuedNotifications() {
+		return queuedNotifications;
+	}
 
-    void purge() {
-        if (postCondition && (runsInParallel || !inUse)) {
-            this.preconditionQueries.clear();
-            this.queuedNotifications.clear();
-            this.purgeData();
-        }
-    }
+	void purge() {
+		if (postCondition && (runsInParallel || !inUse)) {
+			this.preconditionQueries.clear();
+			this.queuedNotifications.clear();
+			this.purgeData();
+		}
+	}
 
-    /**
-     * Deletes all data which is class specific.
-     */
-    protected abstract void purgeData();
+	/**
+	 * Deletes all data which is class specific.
+	 */
+	protected abstract void purgeData();
 
 }

@@ -54,60 +54,60 @@ import java.util.Set;
  */
 public class NotificationDataAccessor {
 
-    private final Map<String, NotificationData> notificationMappings;
-    private final Map<ActionContextKey, List<NotificationData>> actionMappings;
+	private final Map<String, NotificationData> notificationMappings;
+	private final Map<ActionContextKey, List<NotificationData>> actionMappings;
 
-    public NotificationDataAccessor() {
-        this.notificationMappings = new HashMap<>();
-        this.actionMappings = new HashMap<>();
-    }
+	public NotificationDataAccessor() {
+		this.notificationMappings = new HashMap<>();
+		this.actionMappings = new HashMap<>();
+	}
 
-    public NotificationData findByNotificationCode(String notificationCode) {
-        return this.notificationMappings.get(notificationCode);
-    }
+	public NotificationData findByNotificationCode(String notificationCode) {
+		return this.notificationMappings.get(notificationCode);
+	}
 
-    public List<NotificationData> findByActionContextKey(ActionContextKey actionContext) {
-        return this.actionMappings.get(actionContext);
+	public List<NotificationData> findByActionContextKey(ActionContextKey actionContext) {
+		return this.actionMappings.get(actionContext);
 
-    }
+	}
 
-    public void removeByNotificationCode(String notificationCode) {
-        NotificationData notificationData = this.notificationMappings.remove(notificationCode);
-        this.actionMappings.remove(notificationData.getActionContextKey());
-    }
+	public void removeByNotificationCode(String notificationCode) {
+		NotificationData notificationData = this.notificationMappings.remove(notificationCode);
+		this.actionMappings.remove(notificationData.getActionContextKey());
+	}
 
-    public void removeByActionContextKey(ActionContextKey actionContext) {
-        List<NotificationData> notificationData = this.actionMappings.remove(actionContext);
-        for (NotificationData nd : notificationData) {
-            this.notificationMappings.remove(nd.getNotifictionCode());
-        }
-    }
+	public void removeByActionContextKey(ActionContextKey actionContext) {
+		List<NotificationData> notificationData = this.actionMappings.remove(actionContext);
+		for (NotificationData nd : notificationData) {
+			this.notificationMappings.remove(nd.getNotifictionCode());
+		}
+	}
 
-    public void addNotificationData(NotificationData notificationData) {
-        this.notificationMappings.put(notificationData.getNotifictionCode(), notificationData);
-        if (this.actionMappings.containsKey(notificationData.getActionContextKey())) {
-            this.actionMappings.get(notificationData.getActionContextKey()).add(notificationData);
-        } else {
-            List<NotificationData> newNotificaitonData = new ArrayList<>();
-            newNotificaitonData.add(notificationData);
-            this.actionMappings.put(notificationData.getActionContextKey(), newNotificaitonData);
-        }
-    }
+	public void addNotificationData(NotificationData notificationData) {
+		this.notificationMappings.put(notificationData.getNotifictionCode(), notificationData);
+		if (this.actionMappings.containsKey(notificationData.getActionContextKey())) {
+			this.actionMappings.get(notificationData.getActionContextKey()).add(notificationData);
+		} else {
+			List<NotificationData> newNotificaitonData = new ArrayList<>();
+			newNotificaitonData.add(notificationData);
+			this.actionMappings.put(notificationData.getActionContextKey(), newNotificaitonData);
+		}
+	}
 
-    public boolean containsNotificationCode(String notificationCode) {
-        return this.notificationMappings.containsKey(notificationCode);
-    }
+	public boolean containsNotificationCode(String notificationCode) {
+		return this.notificationMappings.containsKey(notificationCode);
+	}
 
-    public boolean containsActionContextKey(ActionContextKey actionContext) {
-        return this.actionMappings.containsKey(actionContext);
-    }
+	public boolean containsActionContextKey(ActionContextKey actionContext) {
+		return this.actionMappings.containsKey(actionContext);
+	}
 
-    public Set<String> getAllNotificationCodes() {
-        return this.notificationMappings.keySet();
-    }
+	public Set<String> getAllNotificationCodes() {
+		return this.notificationMappings.keySet();
+	}
 
-    public void purge() {
-        this.actionMappings.clear();
-        this.notificationMappings.clear();
-    }
+	public void purge() {
+		this.actionMappings.clear();
+		this.notificationMappings.clear();
+	}
 }

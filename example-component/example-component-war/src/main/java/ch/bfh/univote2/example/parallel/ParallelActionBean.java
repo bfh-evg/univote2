@@ -44,6 +44,7 @@ package ch.bfh.univote2.example.parallel;
 import ch.bfh.univote2.example.init.*;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TaskManager;
+import java.io.Serializable;
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -52,9 +53,9 @@ import javax.inject.Inject;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Named(value = "initActionBean")
+@Named(value = "parallelActionBean")
 @ViewScoped
-public class ParallelActionBean {
+public class ParallelActionBean implements Serializable {
 
 	private String notificationCode;
 	private String parallelValue;

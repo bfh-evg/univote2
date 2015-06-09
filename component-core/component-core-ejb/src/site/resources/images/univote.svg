@@ -40,12 +40,12 @@
 	<clipPath id="SVGID_4_">
 		<use xlink:href="#SVGID_3_"  overflow="visible"/>
 	</clipPath>
-	
+
 		<linearGradient id="SVGID_5_" gradientUnits="userSpaceOnUse" x1="-89.1694" y1="135.7891" x2="-88.1694" y2="135.7891" gradientTransform="matrix(111.31 -22.8993 -22.8993 -111.31 13120.1602 13118.8096)">
 		<stop  offset="0" style="stop-color:#E3002B"/>
 		<stop  offset="1" style="stop-color:#922436"/>
 	</linearGradient>
-	<polygon clip-path="url(#SVGID_4_)" fill="url(#SVGID_5_)" points="71.458,3.869 197.147,-21.988 214.906,64.335 89.217,90.192 	
+	<polygon clip-path="url(#SVGID_4_)" fill="url(#SVGID_5_)" points="71.458,3.869 197.147,-21.988 214.906,64.335 89.217,90.192
 		"/>
 </g>
 </svg>

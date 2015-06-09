@@ -56,15 +56,15 @@ import javax.ejb.Timer;
 @Local
 public interface ActionManager {
 
-    public void onBoardNotification(String notificationCode, PostDTO post);
+	public void onBoardNotification(String notificationCode, PostDTO post);
 
-    @Timeout
-    public void onTimerNotification(Timer timer);
+	@Timeout
+	public void onTimerNotification(Timer timer);
 
-    public void onUserInputNotification(String notificationCode, UserInput userInput);
+	public void onUserInputNotification(String notificationCode, UserInput userInput);
 
-    public void runAction(String actionName, String tenant, String section) throws UnivoteException;
+	public void runAction(String actionName, String tenant, String section) throws UnivoteException;
 
-    public void runFinished(ActionContext actionContext, ResultStatus resultStatus);
+	public void runFinished(ActionContext actionContext, ResultStatus resultStatus);
 
 }

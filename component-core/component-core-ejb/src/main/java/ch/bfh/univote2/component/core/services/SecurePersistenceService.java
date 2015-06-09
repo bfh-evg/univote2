@@ -50,8 +50,8 @@ import java.math.BigInteger;
  */
 public interface SecurePersistenceService {
 
-    public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException;
+	public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException;
 
-    public BigInteger retrieve(String tenant, String section, String type) throws UnivoteException;
+	public BigInteger retrieve(String tenant, String section, String type) throws UnivoteException;
 
 }

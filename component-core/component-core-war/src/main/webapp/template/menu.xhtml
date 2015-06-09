@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+	<h:body>
+		<ui:composition>
+			<h:link outcome="home" value="Home" rendered="#{!loginBean.loggedIn}"/>
+			<h:panelGroup rendered="#{!loginBean.loggedIn}"><br/></h:panelGroup>
+			<h:link outcome="welcome" value="Home" rendered="#{loginBean.loggedIn}"/>
+			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
+			<h:link outcome="login" value="Login" rendered="#{!loginBean.loggedIn}"/>
+			<h:panelGroup rendered="#{!loginBean.loggedIn}"><br /></h:panelGroup>
+			<h:link outcome="lock" value="Lock/Unlock" rendered="#{loginBean.loggedIn}"/>
+			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
+			<h:link outcome="tasks" value="Tasks" rendered="#{loginBean.loggedIn}"/>
+		</ui:composition>
+	</h:body>
+</html>
+

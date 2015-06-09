@@ -25,69 +25,69 @@ import javax.ejb.Singleton;
 @DependsOn("ConfigurationManagerMock")
 public class TestableActionManagerImpl extends ActionManagerImpl {
 
-    @Override
-    public void init() {
-    }
+	@Override
+	public void init() {
+	}
 
-    public void testInit() {
-        super.init();
-    }
+	public void testInit() {
+		super.init();
+	}
 
-    public void pubCheckActionState(String tenant, String section, String actionName) {
-        this.checkActionState(tenant, section, actionName);
-    }
+	public void pubCheckActionState(String tenant, String section, String actionName) {
+		this.checkActionState(tenant, section, actionName);
+	}
 
-    @Override
-    public NotificationDataAccessor getNotificationDataAccessor() {
-        return super.getNotificationDataAccessor();
-    }
+	@Override
+	public NotificationDataAccessor getNotificationDataAccessor() {
+		return super.getNotificationDataAccessor();
+	}
 
-    @Override
-    public void addActionContext(ActionContext actionContext) {
-        super.addActionContext(actionContext);
-    }
+	@Override
+	public void addActionContext(ActionContext actionContext) {
+		super.addActionContext(actionContext);
+	}
 
-    @Override
-    public void addActionGraphEntry(String actionName, List<String> successors) {
-        super.addActionGraphEntry(actionName, successors);
-    }
+	@Override
+	public void addActionGraphEntry(String actionName, List<String> successors) {
+		super.addActionGraphEntry(actionName, successors);
+	}
 
-    @Override
-    public Map<String, List<String>> getActionGraph() {
-        return super.getActionGraph();
-    }
+	@Override
+	public Map<String, List<String>> getActionGraph() {
+		return super.getActionGraph();
+	}
 
-    @Override
-    public void addNotificationData(NotificationData notificationData) {
-        super.addNotificationData(notificationData);
-    }
+	@Override
+	public void addNotificationData(NotificationData notificationData) {
+		super.addNotificationData(notificationData);
+	}
 
-    public void getActionTest(ActionContext ac) throws UnivoteException {
-        Action a = this.getAction(ac.getActionContextKey().getAction());
-        a.run(ac);
-    }
+	public void getActionTest(ActionContext ac) throws UnivoteException {
+		Action a = this.getAction(ac.getActionContextKey().getAction());
+		a.run(ac);
+	}
 
-    @Override
-    public void runAction(ActionContext ac) throws UnivoteException {
-        super.runAction(ac);
-    }
+	@Override
+	public void runAction(ActionContext ac) throws UnivoteException {
+		super.runAction(ac);
+	}
 
-    @Override
-    public void registerAction(ActionContext actionContext) throws UnivoteException {
-        super.registerAction(actionContext);
-    }
+	@Override
+	public void registerAction(ActionContext actionContext) throws UnivoteException {
+		super.registerAction(actionContext);
+	}
 
-    @Override
-    public void unregisterAction(ActionContext actionContext) {
-        super.unregisterAction(actionContext);
-    }
+	@Override
+	public void unregisterAction(ActionContext actionContext) {
+		super.unregisterAction(actionContext);
+	}
 
-    @Override
-    public void setInitialAction(String action) {
-        super.setInitialAction(action);
-    }
+	@Override
+	public void setInitialAction(String action) {
+		super.setInitialAction(action);
+	}
 
-    @Override
-    protected void log(String msg, Level level) {
-    }
+	@Override
+	protected void log(String msg, Level level) {
+	}
 }

@@ -51,13 +51,13 @@ import javax.ejb.Local;
 @Local
 public interface InformationService {
 
-    /**
-     * Shows the provided information to the corresponding tenant
-     *
-     * @param actionName - name of the action providing the information(caller of the method)
-     * @param tenant - tenant the information is for
-     * @param section - section the information belongs to
-     * @param information - information to be shown to the tenant
-     */
-    public void informTenant(String actionName, String tenant, String section, String information);
+	/**
+	 * Shows the provided information to the corresponding tenant
+	 *
+	 * @param actionName - name of the action providing the information(caller of the method)
+	 * @param tenant - tenant the information is for
+	 * @param section - section the information belongs to
+	 * @param information - information to be shown to the tenant
+	 */
+	public void informTenant(String actionName, String tenant, String section, String information);
 }

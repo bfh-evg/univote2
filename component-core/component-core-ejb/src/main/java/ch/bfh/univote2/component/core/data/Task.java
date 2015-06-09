@@ -47,29 +47,29 @@ package ch.bfh.univote2.component.core.data;
  */
 public abstract class Task {
 
-    private final String tenant;
-    private final String section;
-    private String notificationCode;
+	private final String tenant;
+	private final String section;
+	private String notificationCode;
 
-    public Task(String tenant, String section) {
-        this.tenant = tenant;
-        this.section = section;
-    }
+	public Task(String tenant, String section) {
+		this.tenant = tenant;
+		this.section = section;
+	}
 
-    public String getTenant() {
-        return tenant;
-    }
+	public String getTenant() {
+		return tenant;
+	}
 
-    public String getSection() {
-        return section;
-    }
+	public String getSection() {
+		return section;
+	}
 
-    public String getNotificationCode() {
-        return notificationCode;
-    }
+	public String getNotificationCode() {
+		return notificationCode;
+	}
 
-    public void setNotificationCode(String notificationCode) {
-        this.notificationCode = notificationCode;
-    }
+	public void setNotificationCode(String notificationCode) {
+		this.notificationCode = notificationCode;
+	}
 
 }

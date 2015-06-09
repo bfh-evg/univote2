@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+	<h:body>
+		<ui:composition template="../template/layout.xhtml">
+
+			<ui:define name="title">
+				<h2>Tasks</h2>
+			</ui:define>
+
+			<ui:define name="content">
+				<h:dataTable value="#{tenantTasksBean.runActionTasks}" var="t">
+
+					<h:column>
+						<f:facet name="header">Section</f:facet>
+							#{t.section}
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">Notification Code</f:facet>
+							#{t.notificationCode}
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">Run</f:facet>
+						<h:commandLink value="Run"
+							       action="#{tenantTasksBean.runTask(t.notificationCode)}"/>
+					</h:column>
+				</h:dataTable>
+				<h:dataTable value="#{tenantTasksBean.userInputTasks}" var="t">
+
+					<h:column>
+						<f:facet name="header">Section</f:facet>
+							#{t.section}
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">Input Name</f:facet>
+							#{t.inputName}
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">Notification Code</f:facet>
+							#{t.notificationCode}
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">Link</f:facet>
+						<h:commandLink value="Enter"
+							       action="#{tenantTasksBean.goToInputForm(t.inputName)}"/>
+					</h:column>
+				</h:dataTable>
+			</ui:define>
+		</ui:composition>
+	</h:body>
+</html>
+

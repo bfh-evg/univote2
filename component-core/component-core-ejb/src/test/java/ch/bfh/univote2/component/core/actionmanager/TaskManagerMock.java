@@ -31,40 +31,40 @@ import javax.ejb.Singleton;
 @Singleton
 public class TaskManagerMock implements TaskManager {
 
-    Map<String, List<Task>> tasks = new HashMap<>();
+	Map<String, List<Task>> tasks = new HashMap<>();
 
-    @Override
-    public String addUserInputTask(UserInputTask userInputTask) {
-        List<Task> t = new ArrayList<>();
-        t.add(userInputTask);
-        this.tasks.put(userInputTask.getTenant(), t);
-        FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
-        return fixedStringSet.getRandomElement().getValue();
-    }
+	@Override
+	public String addUserInputTask(UserInputTask userInputTask) {
+		List<Task> t = new ArrayList<>();
+		t.add(userInputTask);
+		this.tasks.put(userInputTask.getTenant(), t);
+		FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
+		return fixedStringSet.getRandomElement().getValue();
+	}
 
-    @Override
-    public List<Task> getTasks(String tenant) {
-        return this.tasks.get(tenant);
-    }
+	@Override
+	public List<Task> getTasks(String tenant) {
+		return this.tasks.get(tenant);
+	}
 
-    @Override
-    public void addRunActionTask(RunActionTask runActionTask) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public void addRunActionTask(RunActionTask runActionTask) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public void userInputReceived(String notificationCode, UserInput userInput) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public void userInputReceived(String notificationCode, UserInput userInput) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public void runAction(String notificationCode) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public void runAction(String notificationCode) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public void runAction(String actionName, String tenant, String section) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	@Override
+	public void runAction(String actionName, String tenant, String section) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
 }

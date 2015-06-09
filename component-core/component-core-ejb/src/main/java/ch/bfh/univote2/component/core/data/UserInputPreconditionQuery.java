@@ -47,14 +47,14 @@ package ch.bfh.univote2.component.core.data;
  */
 public class UserInputPreconditionQuery implements PreconditionQuery {
 
-    private final UserInputTask userInputTast;
+	private final UserInputTask userInputTast;
 
-    public UserInputPreconditionQuery(UserInputTask userInputTask) {
-        this.userInputTast = userInputTask;
-    }
+	public UserInputPreconditionQuery(UserInputTask userInputTask) {
+		this.userInputTast = userInputTask;
+	}
 
-    public UserInputTask getUserInputTask() {
-        return userInputTast;
-    }
+	public UserInputTask getUserInputTask() {
+		return userInputTast;
+	}
 
 }

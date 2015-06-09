@@ -44,11 +44,13 @@ package ch.bfh.univote2.example.init;
 import ch.bfh.univote2.component.core.services.InitialisationService;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ejb.Stateless;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
+@Stateless
 public class InitialisationServiceImpl implements InitialisationService {
 
 	@Override
