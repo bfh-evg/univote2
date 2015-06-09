@@ -105,8 +105,9 @@ public class TaskManagerImpl implements TaskManager {
 	@Override
 	public void runAction(String notificationCode) throws UnivoteException {
 		if (this.tasks.containsKey(notificationCode)) {
-			Task task = this.tasks.remove(notificationCode);
+			Task task = this.tasks.get(notificationCode);
 			if (task instanceof RunActionTask) {
+				this.tasks.remove(notificationCode);
 				RunActionTask rATask = (RunActionTask) task;
 				this.actionManager.runAction(rATask.getActionName(), rATask.getTenant(), rATask.getSection());
 			} else {

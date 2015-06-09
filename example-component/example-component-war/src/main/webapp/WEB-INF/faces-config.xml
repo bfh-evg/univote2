@@ -13,6 +13,10 @@
 			<from-outcome>home</from-outcome>
 			<to-view-id>/index.xhtml</to-view-id>
 		</navigation-case>
+		<navigation-case>
+			<from-outcome>tasks</from-outcome>
+			<to-view-id>/secured/tasks.xhtml</to-view-id>
+		</navigation-case>
 	</navigation-rule>
 	<navigation-rule>
 		<from-view-id>/login.xhtml</from-view-id>
@@ -29,4 +33,24 @@
 			<to-view-id>/index.xhtml</to-view-id>
 		</navigation-case>
 	</navigation-rule>init
+
+	<navigation-rule>
+		<from-view-id>/secured/welcome.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>login</from-outcome>
+			<to-view-id>/login.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>tasks</from-outcome>
+			<to-view-id>/secured/tasks.xhtml</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+
+	<navigation-rule>
+		<from-view-id>/secured/tasks.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>login</from-outcome>
+			<to-view-id>/login.xhtml</to-view-id>
+		</navigation-case>
+	</navigation-rule>
 </faces-config>

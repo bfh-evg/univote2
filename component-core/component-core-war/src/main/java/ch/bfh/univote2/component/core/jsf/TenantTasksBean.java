@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -80,18 +81,17 @@ public class TenantTasksBean implements Serializable {
 	 * Creates a new instance of TenantTasksBean
 	 */
 	public TenantTasksBean() {
-		this.getTasks();
 	}
 
 	public String runTask(String notificationCode) {
 		try {
 			this.taskManager.runAction(notificationCode);
 			//TODO outcome
-			return "";
+			return "tasks.xhtml";
 		} catch (UnivoteException ex) {
 			//TODO Log
 			Logger.getLogger(TenantTasksBean.class.getName()).log(Level.SEVERE, null, ex);
-			return "";
+			return "tasks.xhtml";
 		}
 	}
 
@@ -113,6 +113,7 @@ public class TenantTasksBean implements Serializable {
 		return runActionTasks;
 	}
 
+	@PostConstruct
 	private void getTasks() {
 		this.userInputTasks = new ArrayList<>();
 		this.runActionTasks = new ArrayList<>();

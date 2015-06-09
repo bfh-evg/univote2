@@ -25,8 +25,7 @@
 
 					<h:column>
 						<f:facet name="header">Run</f:facet>
-						<h:commandLink value="Run"
-							       action="#{tenantTasksBean.runTask(t.notificationCode)}"/>
+						<h:link value="Run" outcome="#{tenantTasksBean.runTask(t.notificationCode)}"/>
 					</h:column>
 				</h:dataTable>
 				<h:dataTable value="#{tenantTasksBean.userInputTasks}" var="t">
@@ -48,8 +47,8 @@
 
 					<h:column>
 						<f:facet name="header">Link</f:facet>
-						<h:commandLink value="Enter"
-							       action="#{tenantTasksBean.goToInputForm(t.inputName)}"/>
+						<h:link value="Enter"
+								outcome="#{tenantTasksBean.goToInputForm(t.inputName)}"/>
 					</h:column>
 				</h:dataTable>
 			</ui:define>
