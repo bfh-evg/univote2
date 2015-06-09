@@ -89,9 +89,10 @@ public class InitActionBean implements Serializable {
 		try {
 			this.taskManager.userInputReceived(notificationCode, userInput);
 		} catch (UnivoteException ex) {
+			System.out.println(ex.getMessage());
 			return "";
 		}
-		return "";
+		return "tasks.xhtml";
 	}
 
 }
