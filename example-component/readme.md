@@ -9,6 +9,7 @@ Copy this folder to the location of your new component.
 * Change the JNDI_URI resource in the ejb-jar.xml in the war project to link your custom JNDI entry
 * Change the faces-config.xml to fit your input forms.
 * Configure the peristence.xml in the war project to use the right persistence.
+
 ## JNDI_CUSTOM Resources
 * Entry for the configuration manager to find the other configurations
 * Entry for the action manager providing the init action and the dependency graph of the your actions
