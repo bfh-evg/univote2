@@ -12,5 +12,32 @@ Copy this folder to the location of your new component.
 
 ## JNDI_CUSTOM Resources
 * Entry for the configuration manager to find the other configurations
+
+| name  | value  |
+|---|---|
+| outcome-routing  | univote2/outcome-routing  |
+| uniboard-helper  | univote2/uniboard-helper  |
+| action-graph  | univote2/action-graph  |
 * Entry for the action manager providing the init action and the dependency graph of the your actions
+ 
+| name  | value  |
+|---|---|
+| InitAction  | ParallelAction,OtherAction  |
+| initialAction  | InitAction |
 * Entry for the outcome manager defining the input forms for user input you defined
+
+| name  | value  |
+|---|---|
+| InitInput | initActionInput  |
+| ParallelValue  | parallelActionInput  |
+
+* Entry for the uniboard helper containing urls and the board certificate
+
+| name  | value  |
+|---|---|
+| g | 7  |
+| q | 11  |
+| p | 29  |
+| y | 3  |
+| endPointUrl | http://localhost/andSoOn  |
+| wsdlLocation | http://localhost/andSoOn   |
