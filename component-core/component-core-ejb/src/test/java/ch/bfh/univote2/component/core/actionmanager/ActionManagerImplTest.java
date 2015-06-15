@@ -182,7 +182,7 @@ public class ActionManagerImplTest {
 	public void testcheckActionState4() {
 		String tenant = "checkActionState";
 		String actionName = "MockAction";
-		String section = "test3";
+		String section = "test4";
 		this.actionManager.pubCheckActionState(tenant, section, actionName);
 
 		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
