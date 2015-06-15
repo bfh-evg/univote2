@@ -192,6 +192,7 @@ public class ActionManagerImpl implements ActionManager {
 			try {
 				initAction = this.getAction(this.initialAction);
 				ActionContext ac = initAction.prepareContext(tenant, this.initialAction);
+				this.actionContexts.put(ac.getActionContextKey(), ac);
 				this.registerAction(ac);
 			} catch (UnivoteException ex) {
 				this.log(ex, Level.SEVERE);
