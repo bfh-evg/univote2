@@ -5,7 +5,9 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
 import ch.bfh.univote2.component.core.services.InformationService;
+import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 
@@ -40,6 +42,16 @@ public class InformationServiceMock implements InformationService {
 
 	public String getInformation() {
 		return information;
+	}
+
+	@Override
+	public List<TenantInformationEntity> getTenantInforationEntities(String tenant, int limit) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public List<TenantInformationEntity> getTenantInforationEntities(String tenant, int limit, int start) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 }

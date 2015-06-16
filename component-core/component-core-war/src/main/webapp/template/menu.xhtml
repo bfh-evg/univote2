@@ -7,13 +7,19 @@
 		<ui:composition>
 			<h:link outcome="home" value="Home" rendered="#{!loginBean.loggedIn}"/>
 			<h:panelGroup rendered="#{!loginBean.loggedIn}"><br/></h:panelGroup>
-			<h:link outcome="welcome" value="Home" rendered="#{loginBean.loggedIn}"/>
+			<h:link outcome="/secured/welcome" value="Home" rendered="#{loginBean.loggedIn}"/>
 			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
 			<h:link outcome="login" value="Login" rendered="#{!loginBean.loggedIn}"/>
 			<h:panelGroup rendered="#{!loginBean.loggedIn}"><br /></h:panelGroup>
-			<h:link outcome="lock" value="Lock/Unlock" rendered="#{loginBean.loggedIn}"/>
+			<h:form>
+				<h:commandLink action="#{loginBean.doLogout}" value="Logout" rendered="#{loginBean.loggedIn}"/>
+			</h:form>
 			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
-			<h:link outcome="tasks" value="Tasks" rendered="#{loginBean.loggedIn}"/>
+			<h:link outcome="/secured/lock" value="Lock/Unlock" rendered="#{loginBean.loggedIn}"/>
+			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
+			<h:link outcome="/secured/logs" value="Logs" rendered="#{loginBean.loggedIn}"/>
+			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
+			<h:link outcome="/secured/tasks" value="Tasks" rendered="#{loginBean.loggedIn}"/>
 		</ui:composition>
 	</h:body>
 </html>

@@ -39,59 +39,95 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.parallel;
+package ch.bfh.univote2.component.core.persistence;
 
-import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.manager.TaskManager;
 import java.io.Serializable;
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Temporal;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Named(value = "parallelActionBean")
-@ViewScoped
-public class ParallelActionBean implements Serializable {
+@Entity
+public class TenantInformationEntity implements Serializable {
 
-	private String notificationCode;
-	private String parallelValue;
+	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+	private String actionName;
+	private String tenant;
+	private String sectionName;
+	private String information;
+	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
+	@Column(name = "time_stamp")
+	private Date timestamp;
 
-	@Inject
-	TaskManager taskManager;
+	public TenantInformationEntity() {
 
-	/**
-	 * Creates a new instance of InitActionBean
-	 */
-	public ParallelActionBean() {
+		this.timestamp = new Date();
 	}
 
-	public String getNotificationCode() {
-		return notificationCode;
+	public TenantInformationEntity(String actionName, String tenant, String sectionName, String information) {
+		this.actionName = actionName;
+		this.tenant = tenant;
+		this.sectionName = sectionName;
+		this.information = information;
+		this.timestamp = new Date();
 	}
 
-	public void setNotificationCode(String notificationCode) {
-		this.notificationCode = notificationCode;
+	public Long getId() {
+		return id;
 	}
 
-	public String getParallelValue() {
-		return parallelValue;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
-	public void setParallelValue(String parallelValue) {
-		this.parallelValue = parallelValue;
+	public String getActionName() {
+		return actionName;
 	}
 
-	public String sendInput() {
-		ParallelUserInput userInput = new ParallelUserInput(parallelValue);
-		try {
-			this.taskManager.userInputReceived(notificationCode, userInput);
-		} catch (UnivoteException ex) {
-			return "";
-		}
-		return "/secured/tasks";
+	public void setActionName(String actionName) {
+		this.actionName = actionName;
+	}
+
+	public String getTenant() {
+		return tenant;
+	}
+
+	public void setTenant(String tenant) {
+		this.tenant = tenant;
+	}
+
+	public String getSectionName() {
+		return sectionName;
+	}
+
+	public void setSectionName(String sectionName) {
+		this.sectionName = sectionName;
+	}
+
+	public String getInformation() {
+		return information;
+	}
+
+	public void setInformation(String information) {
+		this.information = information;
+	}
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
 	}
 
 }

@@ -50,6 +50,7 @@ import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputTask;
+import ch.bfh.univote2.component.core.services.InformationService;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Asynchronous;
@@ -69,6 +70,9 @@ public class InitAction extends AbstractAction implements NotifiableAction {
 	@EJB
 	ActionManager actionManager;
 
+	@EJB
+	InformationService informationService;
+
 	@Override
 	@Asynchronous
 	public void notifyAction(ActionContext actionContext, Object notification) {
@@ -79,6 +83,8 @@ public class InitAction extends AbstractAction implements NotifiableAction {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
 				userInput.getSection());
 		ActionContext newContext = new InitActionContext(ack, null);
+		this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
+				userInput.getSection(), "New Section created.");
 		this.actionManager.runFinished(newContext, ResultStatus.FINISHED);
 	}
 

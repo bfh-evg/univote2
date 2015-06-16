@@ -41,6 +41,8 @@
  */
 package ch.bfh.univote2.component.core.services;
 
+import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
+import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -60,4 +62,23 @@ public interface InformationService {
 	 * @param information - information to be shown to the tenant
 	 */
 	public void informTenant(String actionName, String tenant, String section, String information);
+
+	/**
+	 * Returns all the last received TenantInformationEntities limited by limit
+	 *
+	 * @param tenant the information only for this tenant is returned
+	 * @param limit limits the amount of information entities.
+	 * @return
+	 */
+	public List<TenantInformationEntity> getTenantInforationEntities(String tenant, int limit);
+
+	/**
+	 * Returns all the last received TenantInformationEntities limited by limit starting at start
+	 *
+	 * @param tenant the information only for this tenant is returned
+	 * @param limit limits the amount of information entities.
+	 * @param start defines the first entry returned
+	 * @return
+	 */
+	public List<TenantInformationEntity> getTenantInforationEntities(String tenant, int limit, int start);
 }

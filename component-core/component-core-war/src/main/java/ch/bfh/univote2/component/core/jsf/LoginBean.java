@@ -72,21 +72,43 @@ public class LoginBean implements Serializable {
 	public String doLogin() {
 		if (tenantManager.checkLogin(username, password)) {
 			this.loggedIn = true;
-			return "welcome";
+			this.password = null;
+			return "/secured/welcome";
 		}
 		FacesMessage msg = new FacesMessage("Login error!", "ERROR MSG");
 		msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 		FacesContext.getCurrentInstance().addMessage(null, msg);
-		return "login";
+		return "/login";
 	}
 
 	public String doLogout() {
 		this.loggedIn = false;
+		this.password = null;
 		FacesMessage msg = new FacesMessage("Logout success!", "INFO MSG");
 		msg.setSeverity(FacesMessage.SEVERITY_INFO);
 		FacesContext.getCurrentInstance().addMessage(null, msg);
-		return "login";
+		return "/index";
 
+	}
+
+	public String doLock() {
+		if (!this.tenantManager.lock(username, password)) {
+			FacesMessage msg = new FacesMessage("Can not lock!", "INFO MSG");
+			msg.setSeverity(FacesMessage.SEVERITY_INFO);
+			FacesContext.getCurrentInstance().addMessage(null, msg);
+		}
+		this.password = null;
+		return null;
+	}
+
+	public String doUnlock() {
+		if (!this.tenantManager.unlock(username, password)) {
+			FacesMessage msg = new FacesMessage("Can not unlock!", "INFO MSG");
+			msg.setSeverity(FacesMessage.SEVERITY_INFO);
+			FacesContext.getCurrentInstance().addMessage(null, msg);
+		}
+		this.password = null;
+		return null;
 	}
 
 	public boolean isLoggedIn() {

@@ -39,59 +39,37 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.parallel;
+package ch.bfh.univote2.component.core.jsf;
 
-import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.manager.TaskManager;
+import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
+import ch.bfh.univote2.component.core.services.InformationService;
 import java.io.Serializable;
-import javax.inject.Named;
+import java.util.List;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Named(value = "parallelActionBean")
+@Named(value = "informationBean")
 @ViewScoped
-public class ParallelActionBean implements Serializable {
-
-	private String notificationCode;
-	private String parallelValue;
+public class InformationBean implements Serializable {
 
 	@Inject
-	TaskManager taskManager;
+	LoginBean loginBean;
 
-	/**
-	 * Creates a new instance of InitActionBean
-	 */
-	public ParallelActionBean() {
+	@Inject
+	InformationService informationService;
+
+	private static final int DEFAULT_LIMIT = 100;
+
+	public InformationBean() {
 	}
 
-	public String getNotificationCode() {
-		return notificationCode;
-	}
-
-	public void setNotificationCode(String notificationCode) {
-		this.notificationCode = notificationCode;
-	}
-
-	public String getParallelValue() {
-		return parallelValue;
-	}
-
-	public void setParallelValue(String parallelValue) {
-		this.parallelValue = parallelValue;
-	}
-
-	public String sendInput() {
-		ParallelUserInput userInput = new ParallelUserInput(parallelValue);
-		try {
-			this.taskManager.userInputReceived(notificationCode, userInput);
-		} catch (UnivoteException ex) {
-			return "";
-		}
-		return "/secured/tasks";
+	public List<TenantInformationEntity> getInformationEntities() {
+		return this.informationService.getTenantInforationEntities(this.loginBean.getUsername(), DEFAULT_LIMIT);
 	}
 
 }

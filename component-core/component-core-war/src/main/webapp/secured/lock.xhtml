@@ -5,15 +5,24 @@
 	<h:body>		<ui:composition template="/template/layout.xhtml">
 
 			<ui:define name="title">
-				UniVote Secured Site
+				Lock/Unlock
 			</ui:define>
 
 			<ui:define name="content">
-				<h3>Welcome #{loginBean.username}</h3>
-				<br/>
-				<h:outputText value="This is a secured welcome page!"/>
-				<br/>
-				<h:link outcome="#{loginBean.doLogout}" value="Logout"/>
+				<h:panelGroup rendered="#{loginBean.locked}">
+					<h:form>
+						<h:outputText value="password:"/>
+						<h:inputSecret value="#{loginBean.password}" id="password"/>
+						<h:commandLink action="#{loginBean.doUnlock()}" value="Unlock"/>
+					</h:form>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{!loginBean.locked}">
+					<h:form>
+						<h:outputText value="password:"/>
+						<h:inputSecret value="#{loginBean.password}" id="password"/>
+						<h:commandLink action="#{loginBean.doLock()}" value="Lock"/>
+					</h:form>
+				</h:panelGroup>
 			</ui:define>
 
 		</ui:composition>
