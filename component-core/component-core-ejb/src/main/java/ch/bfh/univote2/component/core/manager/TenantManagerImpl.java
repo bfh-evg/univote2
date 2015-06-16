@@ -46,10 +46,7 @@ import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
 import ch.bfh.unicrypt.crypto.schemes.hashing.classes.FixedByteArrayHashingScheme;
 import ch.bfh.unicrypt.helper.Alphabet;
 import ch.bfh.unicrypt.helper.array.classes.ByteArray;
-import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
-import ch.bfh.unicrypt.helper.converter.classes.bytearray.ByteArrayToByteArray;
-import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
 import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.helper.hash.HashMethod;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
@@ -62,7 +59,6 @@ import ch.bfh.univote2.component.core.persistence.TenantEntity;
 import ch.bfh.univote2.component.core.persistence.TenantEntity_;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -87,13 +83,15 @@ public class TenantManagerImpl implements TenantManager {
 	@PersistenceContext(unitName = "ComponentPU")
 	private EntityManager entityManager;
 
-	protected static final HashMethod HASH_METHOD = HashMethod.getInstance(
-			HashAlgorithm.SHA256,
-			ConvertMethod.getInstance(
-					BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-					ByteArrayToByteArray.getInstance(false),
-					StringToByteArray.getInstance(Charset.forName("UTF-8"))),
-			HashMethod.Mode.RECURSIVE);
+	protected static final HashMethod HASH_METHOD = HashMethod.getInstance(HashAlgorithm.SHA256,
+			BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN));
+//			HashMethod.getInstance(
+//			HashAlgorithm.SHA256,
+//			ConvertMethod.getInstance(
+//					BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+//					ByteArrayToByteArray.getInstance(false),
+//					StringToByteArray.getInstance(Charset.forName("UTF-8"))),
+//			HashMethod.Mode.RECURSIVE);
 
 	protected final Map<String, UnlockedTenant> unlockedTentants = new HashMap<>();
 
