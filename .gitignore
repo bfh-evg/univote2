@@ -1,9 +1,6 @@
 **/target/
-/doc/report/*.aux
-/doc/report/*.out
-/doc/report/*.gz
-/doc/report/*.log
-/doc/report/*.toc
-/doc/report/*.hst
-/doc/report/*.ver
+/doc/report/*
+!/doc/report/*.tex
+!/doc/report/*.pdf
 **/derby.log
+
