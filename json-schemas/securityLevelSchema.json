@@ -1,12 +1,11 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"title": "Schema for a UniVote security level",
-	"description": "This JSON schema describes the format of the security level in the UniVote system",
+	"title": "UniVote2: Schema of a security level message",
 	"type": "object",
 	"properties": {
 		"securityLevel": {
-			"enum": [1, 2, 3],
-			"description": "Security level of an election"
+			"description": "Security level of the election",
+			"type": "integer"
 		}
 	},
 	"required": ["securityLevel"]

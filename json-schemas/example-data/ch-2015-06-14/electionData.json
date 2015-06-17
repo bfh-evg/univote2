@@ -1,0 +1,173 @@
+{
+	"definition": {
+		"title": {
+				"de": "Volksabstimmung 14. Juni 2015",
+				"fr": "Votation populaire du 14 juin 2015",
+				"it": "Votazione del 14 giugno 2015",
+				"rm": "Votaziun dal pievel dals 14 da zercladur 2015"
+		},
+		"votingPeriodBegin": "2015-06-01T23:00:00Z",
+		"votingPeriodEnd": "2015-06-14T11:00:00Z"
+	},
+	"issues": [
+		{
+			"id": 1,
+			"type": "vote",
+			"title": {
+				"de": "Präimplantationsdiagnostik",
+				"fr": "Diagnostic préimplantatoire",
+				"it": "Diagnosi preimpianto",
+				"rm": "Diagnostica da preimplantaziun"
+			},
+			"question": {
+				"de": "Wollen Sie den Bundesbeschluss vom 12. Dezember 2014 über die Änderung der Verfassungsbestimmung zur Fortpflanzungsmedizin und Gentechnologie im Humanbereich annehmen?",
+				"fr": "Acceptez-vous l’arrêté fédéral du 12 décembre 2014 concernant la modification de l’article constitutionnel relatif à la procréation médicalement assistée et au génie génétique dans le domaine humain?",
+				"it": "Volete accettare il decreto federale del 12 dicembre 2014 concernente la modifica dell’articolo costituzionale relativo alla medicina riproduttiva e all’ingegneria genetica in ambito umano?",
+				"rm": "Vulais Vus acceptar il Conclus federal dals 12 da december 2014 davart la midada da l’artitgel constituziunal concernent la medischina da reproducziun e la tecnologia da gens sin il sectur uman?"
+			},
+			"options": [
+				{ "id": 1, "type": "yes" },
+				{ "id": 2, "type": "no" },
+				{ "id": 3, "type": "abstain" }
+			],
+			"rules": [
+				{
+					"id": 1,
+					"type": "summation",
+					"optionIds": [1, 2, 3],
+					"lowerBound": 0,
+					"upperBound": 1
+				},
+				{
+					"id": 1,
+					"type": "cumulation",
+					"optionIds": [1, 2, 3],
+					"lowerBound": 0,
+					"upperBound": 1
+				}
+			],
+			"ballotEncoding": "BR"
+		},
+		{
+			"id": 2,
+			"type": "vote",
+			"title": {
+				"de": "Stipendieninitiative",
+				"fr": "Initiative sur les bourses d'études",
+				"it": "Iniziativa sulle borse di studio",
+				"rm": "Iniziativa davart ils stipendis"
+			},
+			"question": {
+				"de": "Wollen Sie die Volksinitiative «Stipendieninitiative» annehmen?",
+				"fr": "Acceptez-vous l’initiative populaire «Initiative sur les bourses d’études»?",
+				"it": "Volete accettare l’iniziativa popolare «Sulle borse di studio»?",
+				"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Iniziativa davart ils stipendis»?"
+			},
+			"options": [
+				{ "id": 1, "type": "yes" },
+				{ "id": 2, "type": "no" },
+				{ "id": 3, "type": "abstain" }
+			],
+			"rules": [
+				{
+					"id": 1,
+					"type": "summation",
+					"optionIds": [1, 2, 3],
+					"lowerBound": 0,
+					"upperBound": 1
+				},
+				{
+					"id": 1,
+					"type": "cumulation",
+					"optionIds": [1, 2, 3],
+					"lowerBound": 0,
+					"upperBound": 1
+				}
+			],
+			"ballotEncoding": "BR"
+		},
+		{
+			"id": 3,
+			"type": "vote",
+			"title": {
+				"de": "Erbschaftssteuerreform",
+				"fr": "Réforme de la fiscalité successorale",
+				"it": "Riforma dell'imposta sulle successioni",
+				"rm": "Refurma da la taglia sin l'ierta"
+			},
+			"question": {
+				"de": "Wollen Sie die Volksinitiative «Millionen-Erbschaften besteuern für unsere AHV (Erbschaftssteuerreform)» annehmen?",
+				"fr": "Acceptez-vous l’initiative populaire «Imposer les successions de plusieurs millions pour financer notre AVS (Réforme de la fiscalité successorale)»?",
+				"it": "Volete accettare l’iniziativa popolare «Tassare le eredità milionarie per finanziare la nostra AVS (Riforma dell’impostasulle successioni)»?",
+				"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Far pajar taglias sin iertas da milliuns per finanziar nossa AVS (Refurma da la tagliasin l’ierta)»?"
+			},
+			"options": [
+				{ "id": 1, "type": "yes" },
+				{ "id": 2, "type": "no" },
+				{ "id": 3, "type": "abstain" }
+			],
+			"rules": [
+				{
+					"id": 1,
+					"type": "summation",
+					"optionIds": [1, 2, 3],
+					"lowerBound": 0,
+					"upperBound": 1
+				},
+				{
+					"id": 1,
+					"type": "cumulation",
+					"optionIds": [1, 2, 3],
+					"lowerBound": 0,
+					"upperBound": 1
+				}
+			],
+			"ballotEncoding": "BR"
+		},
+		{
+			"id": 4,
+			"type": "vote",
+			"title": {
+				"de": "Bundesgesetz über Radio und Fernsehen",
+				"fr": "Loi fédérale sur la radio et la télévision",
+				"it": "Legge federale sulla radiotelevisione (LRTV)",
+				"rm": "Lescha federala davart radio e televisiun"
+			},
+			"question": {
+				"de": "Wollen Sie die Änderung vom 26. September 2014 des Bundesgesetzes über Radio und Fernsehen (RTVG) annehmen?",
+				"fr": "Acceptez-vous la modification du 26 septembre 2014 de la loi fédérale sur la radio et la télévision (LRTV)?",
+				"it": "Volete accettare la modifica del 26 settembre 2014 della legge federale sulla radiotelevisione (LRTV)?",
+				"rm": "Vulais Vus acceptar la midada dals 26 da settember 2014 da la Lescha federala davart radio e televisiun (LRTV)?"
+			},
+			"options": [
+				{ "id": 1, "type": "yes" },
+				{ "id": 2, "type": "no" },
+				{ "id": 3, "type": "abstain" }
+			],
+			"rules": [
+				{
+					"id": 1,
+					"type": "summation",
+					"optionIds": [1, 2, 3],
+					"lowerBound": 0,
+					"upperBound": 1
+				},
+				{
+					"id": 1,
+					"type": "cumulation",
+					"optionIds": [1, 2, 3],
+					"lowerBound": 0,
+					"upperBound": 1
+				}
+			],
+			"ballotEncoding": "BR"
+		}
+	],
+	"cryptoSetting": {
+		"encryptionSetting": "RC2",
+		"signatureSetting": "RC2s",
+		"hashSetting": "H2"
+	},
+	"encryptionKey": "91119287387482810725299284597751730297358595357967339129245557319362300326317603349124577759531942586879523260357064133075657405043421423278179218133399049314945190759226487413938851037528971806505834896476263628153957882527151512135458357322989509505305049487723315898812780201104384863495612707468258957878",
+	"signatureGenerator": "107109962631870964694631290572616741684259433534913193717696669627034744183712064532843948178840692685135901742106546031184882792684386296417476646866306748317314750581351545212887046296410227653636832554555991359342552427316273176036531855263497569544312481810013296540896767718156533429912241745106756662354"
+}	

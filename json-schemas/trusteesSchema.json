@@ -1,22 +1,17 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"title": "Schema for a UniVote trustees",
-	"description": "This JSON schema describes the format of the trustees definition in the UniVote system",
+	"title": "UniVote2: Schema of a trustees message",
 	"type": "object",
 	"properties": {
 		"mixerIds": {
-			"type": "array",
 			"description": "Identifiers of the mixers",
-			"items": {
-				"type":"string"
-			}
+			"type": "array",
+			"items": { "type": "string" }
 		},
 		"tallierIds": {
-			"type": "array",
 			"description": "Identifiers of the talliers",
-			"items": {
-				"type":"string"
-			}
+			"type": "array",
+			"items": { "type": "string" }
 		}
 	},
 	"required": ["mixerIds", "tallierIds"]

@@ -1,0 +1,20 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a crypto setting",
+	"type": "object",
+	"properties": {
+		"encryptionSetting": {
+			"description": "Identifier of the encryption setting",
+			"type": "string"
+		},
+		"signatureSetting": {
+			"description": "Identifier of the signature setting",
+			"type": "string"
+		},
+		"hashSetting": {
+			"description": "Identifier of the hash setting",
+			"type": "string"
+		}
+	},
+	"required": ["encryptionSetting", "signatureSetting", "hashSetting"]
+}

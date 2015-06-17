@@ -1,34 +1,23 @@
 {
-	"title": "Schema for UniVote ballots",
-	"description": "This schema describes the format of a ballot in UniVote in JSON format",
-	"type":"object",
 	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a ballot",
+	"type": "object",
 	"properties": {
 		"encryptedVote": {
+			"description": "ElGamal encryption of a vote",
 			"type": "object",
-			"description": "Vote encrypted",
-			"properties" : {
-				"firstvalue": {
-					"type":"string",
-					"description": "Left part of ElGamal encryption"
-				},
-				"secondvalue": {
-					"type":"string",
-					"description": "Right part of ElGamal encryption"
-				}
+			"properties": {
+				"firstValue":  { "type": "string" },
+				"secondValue": { "type": "string" }
 			},
-			"required": ["firstvalue", "secondvalue"]
+			"required": ["firstValue", "secondValue"]
 		},	
 		"proof": {
+			"description": "Encryption proof",
 			"type": "object",
-			"description":  "Proof of valid vote",
-			"properties" : {
-				"commitment": {
-					"type":"string"
-				},
-				"response": {
-					"type":"string"
-				}
+			"properties": {
+				"commitment": { "type": "string" },
+				"response":   { "type": "string" }
 			},
 			"required": ["commitment", "response"]
 		}

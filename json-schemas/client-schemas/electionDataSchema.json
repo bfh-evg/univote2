@@ -9,7 +9,14 @@
 		},
 		"issues": {
 			"description": "Election issues",
-			"$ref": "electionIssuesSchema.json"
+			"type": "array",
+			"items": {
+				"oneOf":[
+					{ "$ref": "votingIssueSchema.json" },
+					{ "$ref": "simpleElectionIssueSchema.json" },
+					{ "$ref": "listElectionIssueSchema.json" }
+				]
+			}
 		},
 		"cryptoSetting": {
 			"description": "Crypto setting",
