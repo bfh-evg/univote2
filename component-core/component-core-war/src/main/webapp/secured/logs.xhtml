@@ -6,7 +6,8 @@
 	<h:body>		<ui:composition template="/template/layout.xhtml">
 
 			<ui:define name="title">
-				UniVote Logs
+				<h:outputText value="#{core.logs_title}"/>
+
 			</ui:define>
 
 			<ui:define name="content">
@@ -17,24 +18,22 @@
 							 >
 
 					<h:column>
-						<!-- column header -->
-						<f:facet name="header">Section</f:facet>
-						<!-- row record -->
-						#{l.sectionName}
+						<f:facet name="header">#{core.logs_section}</f:facet>
+							#{l.sectionName}
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Action</f:facet>
+						<f:facet name="header">#{core.logs_action}</f:facet>
 							#{l.actionName}
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Date</f:facet>
+						<f:facet name="header">#{core.logs_date}</f:facet>
 							#{l.timestamp}
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Information</f:facet>
+						<f:facet name="header">#{core.logs_information}</f:facet>
 							#{l.information}
 					</h:column>
 

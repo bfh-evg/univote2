@@ -5,21 +5,21 @@
 
 	<h:body>
 		<ui:composition>
-			<h:link outcome="home" value="Home" rendered="#{!loginBean.loggedIn}"/>
+			<h:link outcome="/index" value="#{core.menu_home}" rendered="#{!loginBean.loggedIn}"/>
 			<h:panelGroup rendered="#{!loginBean.loggedIn}"><br/></h:panelGroup>
-			<h:link outcome="/secured/welcome" value="Home" rendered="#{loginBean.loggedIn}"/>
+			<h:link outcome="/secured/welcome" value="#{core.menu_home}" rendered="#{loginBean.loggedIn}"/>
 			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
-			<h:link outcome="login" value="Login" rendered="#{!loginBean.loggedIn}"/>
+			<h:link outcome="/login" value="#{core.menu_login}" rendered="#{!loginBean.loggedIn}"/>
 			<h:panelGroup rendered="#{!loginBean.loggedIn}"><br /></h:panelGroup>
 			<h:form>
-				<h:commandLink action="#{loginBean.doLogout}" value="Logout" rendered="#{loginBean.loggedIn}"/>
+				<h:commandLink action="#{loginBean.doLogout}" value="#{core.menu_logout}" rendered="#{loginBean.loggedIn}"/>
 			</h:form>
 			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
-			<h:link outcome="/secured/lock" value="Lock/Unlock" rendered="#{loginBean.loggedIn}"/>
+			<h:link outcome="/secured/lock" value="#{core.menu_lock}" rendered="#{loginBean.loggedIn}"/>
 			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
-			<h:link outcome="/secured/logs" value="Logs" rendered="#{loginBean.loggedIn}"/>
+			<h:link outcome="/secured/logs" value="#{core.menu_logs}" rendered="#{loginBean.loggedIn}"/>
 			<h:panelGroup rendered="#{loginBean.loggedIn}"><br /></h:panelGroup>
-			<h:link outcome="/secured/tasks" value="Tasks" rendered="#{loginBean.loggedIn}"/>
+			<h:link outcome="/secured/tasks" value="#{core.menu_tasks}" rendered="#{loginBean.loggedIn}"/>
 		</ui:composition>
 	</h:body>
 </html>

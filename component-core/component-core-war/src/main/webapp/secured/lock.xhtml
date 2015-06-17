@@ -5,22 +5,23 @@
 	<h:body>		<ui:composition template="/template/layout.xhtml">
 
 			<ui:define name="title">
-				Lock/Unlock
+				<h:outputText value="#{core.lock_title}"/>
+
 			</ui:define>
 
 			<ui:define name="content">
 				<h:panelGroup rendered="#{loginBean.locked}">
 					<h:form>
-						<h:outputText value="password:"/>
+						<h:outputText value="#{core.lock_password}"/>
 						<h:inputSecret value="#{loginBean.password}" id="password"/>
-						<h:commandLink action="#{loginBean.doUnlock()}" value="Unlock"/>
+						<h:commandLink action="#{loginBean.doUnlock()}" value="#{core.lock_unlock_button}"/>
 					</h:form>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{!loginBean.locked}">
 					<h:form>
-						<h:outputText value="password:"/>
+						<h:outputText value="#{core.lock_password}"/>
 						<h:inputSecret value="#{loginBean.password}" id="password"/>
-						<h:commandLink action="#{loginBean.doLock()}" value="Lock"/>
+						<h:commandLink action="#{loginBean.doLock()}" value="#{core.lock_lock_button}"/>
 					</h:form>
 				</h:panelGroup>
 			</ui:define>
