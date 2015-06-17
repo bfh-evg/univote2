@@ -3,7 +3,6 @@
 /publicboard/publicboard-ejb/target/
 /doc/report/*.aux
 /doc/report/*.out
-/doc/report/*.pdf
 /doc/report/*.gz
 /doc/report/*.log
 /doc/report/*.toc
@@ -15,3 +14,4 @@
 /example-component/example-component/target/
 /example-component/example-component-ejb (copy)/target/
 /example-component/example-component-war/target/
+/component-core/component-core-ejb/target/
