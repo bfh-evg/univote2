@@ -1,17 +1,6 @@
-*/target/
-*/nb-configuration.xml
-/publicboard/publicboard-ejb/target/
-/doc/report/*.aux
-/doc/report/*.out
-/doc/report/*.pdf
-/doc/report/*.gz
-/doc/report/*.log
-/doc/report/*.toc
-/doc/report/*.hst
-/doc/report/*.ver
-/trustee/election-coordinator/target/
-/trustee/tallier/target/
-/component-core/derby.log
-/example-component/example-component/target/
-/example-component/example-component-ejb (copy)/target/
-/example-component/example-component-war/target/
+**/target/
+/doc/report/*
+!/doc/report/*.tex
+!/doc/report/*.pdf
+**/derby.log
+

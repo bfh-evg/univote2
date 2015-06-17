@@ -41,7 +41,6 @@
  */
 package ch.bfh.univote2.example.parallel;
 
-import ch.bfh.univote2.example.init.*;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import java.io.Serializable;
@@ -86,13 +85,13 @@ public class ParallelActionBean implements Serializable {
 	}
 
 	public String sendInput() {
-		InitUserInput userInput = new InitUserInput(parallelValue);
+		ParallelUserInput userInput = new ParallelUserInput(parallelValue);
 		try {
 			this.taskManager.userInputReceived(notificationCode, userInput);
 		} catch (UnivoteException ex) {
 			return "";
 		}
-		return "";
+		return "/secured/tasks";
 	}
 
 }

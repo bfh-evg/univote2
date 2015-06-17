@@ -39,92 +39,95 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.jsf;
+package ch.bfh.univote2.component.core.persistence;
 
-import ch.bfh.univote2.component.core.manager.TenantManager;
 import java.io.Serializable;
-import javax.inject.Named;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Temporal;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Named(value = "loginBean")
-@SessionScoped
-public class LoginBean implements Serializable {
+@Entity
+public class TenantInformationEntity implements Serializable {
 
-	private boolean loggedIn = false;
-	private String username;
-	private String password;
-	@Inject
-	TenantManager tenantManager;
+	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+	private String actionName;
+	private String tenant;
+	private String sectionName;
+	private String information;
+	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
+	@Column(name = "time_stamp")
+	private Date timestamp;
 
-	/**
-	 * Creates a new instance of LoginBean
-	 */
-	public LoginBean() {
+	public TenantInformationEntity() {
+
+		this.timestamp = new Date();
 	}
 
-	public String doLogin() {
-		if (tenantManager.checkLogin(username, password)) {
-			this.loggedIn = true;
-			this.password = null;
-			return "/secured/welcome";
-		}
-		MessageFactory.error("core", "login_error");
-		return "/login";
+	public TenantInformationEntity(String actionName, String tenant, String sectionName, String information) {
+		this.actionName = actionName;
+		this.tenant = tenant;
+		this.sectionName = sectionName;
+		this.information = information;
+		this.timestamp = new Date();
 	}
 
-	public String doLogout() {
-		this.loggedIn = false;
-		this.password = null;
-		MessageFactory.info("core", "logout_success");
-		return "/index";
-
+	public Long getId() {
+		return id;
 	}
 
-	public String doLock() {
-		if (!this.tenantManager.lock(username, password)) {
-			MessageFactory.error("core", "locking_error");
-		}
-		this.password = null;
-		MessageFactory.info("core", "locking_success");
-		return null;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
-	public String doUnlock() {
-		if (!this.tenantManager.unlock(username, password)) {
-			MessageFactory.error("core", "unlocking_error");
-		}
-		this.password = null;
-		MessageFactory.info("core", "unlocking_success");
-		return null;
+	public String getActionName() {
+		return actionName;
 	}
 
-	public boolean isLoggedIn() {
-		return loggedIn;
+	public void setActionName(String actionName) {
+		this.actionName = actionName;
 	}
 
-	public boolean isLocked() {
-		return this.tenantManager.isLocked(username);
+	public String getTenant() {
+		return tenant;
 	}
 
-	public String getUsername() {
-		return username;
+	public void setTenant(String tenant) {
+		this.tenant = tenant;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public String getSectionName() {
+		return sectionName;
 	}
 
-	public String getPassword() {
-		return password;
+	public void setSectionName(String sectionName) {
+		this.sectionName = sectionName;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public String getInformation() {
+		return information;
+	}
+
+	public void setInformation(String information) {
+		this.information = information;
+	}
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
 	}
 
 }

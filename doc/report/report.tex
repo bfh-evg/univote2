@@ -14,6 +14,8 @@
 %\usepackage[enable]{easy-todo}
 \usepackage{cleveref}
 \usepackage{lscape}
+\usepackage{multirow}
+\usepackage{seqsplit}
 
 \setcounter{secnumdepth}{4}
 \renewcommand{\thesubsubsection}{\alph{subsubsection}}
@@ -1885,31 +1887,79 @@ The issued certificate are published on UniBoard. In order to allow UniBoard to 
 
 
 \begin{landscape}
-\section{EC Setup Actions}
+\section{EC Setup Phase Actions}
 \subsection{Initial}
-\begin{tabular}{|c|c|c|c|c|}
-\hline Notification & Action & Unregister & Register & Post \\ 
-\hline new Section & Define EA & - & EA defined & - \\ 
+\begin{tabular}{|c|c|c|c|}
+\hline Notification & Action & Post & Successors\\ 
+\hline accessRight & Start the new election & -  & DefineEA \\ 
 \hline 
 \end{tabular} 
+
 \subsection{DefineEA}
-\begin{tabular}{|c|c|c|c|c|}
-\hline EA defined & Set cert for EA & - &  & administrationCertificate : $Z_{EA}$ \\ 
- & Grant access for electionDefinition &  &  & accessRight : $vk_{EA} , electionDefinition  ,1 $  \\ 
- & Grant access for trustees &  & trustees & accessRight : $vk_{EA} , trustees, 1 $  \\ 
- & Grant access for securityLevel &  & securityLevel & accessRight : $vk_{EA} , securityLevel, 1 $  \\ 
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\ 
+\hline EA defined & Search and set cert for EA & administrationCertificate : $Z_{EA}$ & GrantElectionDefinition, GrantTrustees, GrantSecurityLevel, GrantElectionDefinition, GrantElectoralRoll, GrantElectionIssues \\ 
 \hline 
-\end{tabular} 
+\end{tabularx} 
 
-\subsection{PrepareTrustees}
-\begin{tabular}{|c|c|c|c|c|}
-\hline Notification & Action & Unregister & Register & Post \\ 
-\hline trustees & Get Trustee Certificates & trustees & - & trusteeCertificates : $\mathcal{Z}_T , \mathcal{Z}_M$ \\ 
-\hline securityLevel & Set cryptoSetting & securityLevel &  & cryptoSetting : $settings$ \\ 
-\hline & Grant access for keyshares &  & encrytptionKeyShare & accessRight : $vk_t, encrytptionKeyShare , 1 $  \\ 
+\subsection{GrantElectionDefinition}
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\ 
+\hline - & Grant EA access to electionDefinition & accessRight : $vk_{EA} , electionDefinition  ,1 $ & - \\ 
 \hline 
-\end{tabular}
+\end{tabularx}
 
+\subsection{GrantTrustees}
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\ 
+\hline - & Grant EA access to trustees & accessRight : $vk_{EA} , trustees, 1 $ & PublishTrusteeCerts \\  
+\hline 
+\end{tabularx}
+
+\subsection{GrantSecurityLevel}
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\ 
+\hline - & Grant EA access to securityLevel & accessRight : $vk_{EA} , securityLevel, 1 $ & SetCryptoSetting \\ 
+\hline 
+\end{tabularx}
+
+\subsection{GrantElectionDefinition}
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\ 
+\hline - & Grant EA access to electionDefinition & accessRight : $vk_{EA} , electionDefinition, 1 $ & - \\ 
+\hline 
+\end{tabularx}
+
+\subsection{PublishTrusteeCerts}
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\ 
+\hline trustees & Get Trustee certificates and publish them & trusteeCertificates : $\mathcal{Z}_T , \mathcal{Z}_M$ & GrantEncyptionKeyShares \\ 
+\hline 
+\end{tabularx}
+
+
+\subsection{SetCryptoSetting}
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\  
+\hline securityLevel & Set cryptoSetting & cryptoSetting : $settings$  & GrantEncyptionKeyShares \\  
+\hline 
+\end{tabularx}
+
+\subsection{GrantEncyptionKeyShares}
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\  
+\hline  - & Grant Trustees access to keyshares & accessRight : $vk_t, encrytptionKeyShare , 1 $ &   \\ 
+\hline 
+\end{tabularx}
+
+\subsection{CombineEncryptionKeyShares}
+\begin{tabularx}{\linewidth}{|c|c|c|X|}
+\hline Notification & Action & Post & Successors\\  
+\hline  encryptionKeyShare & Validate keyshare and if all keyshare are published combine them & encyptionKey : $y_j, \pi_j $ &   \\ 
+\hline 
+\end{tabularx}
+
+\section{EC Perparation Phase Actions}
 \subsection{GrantEAAccess}
 \begin{tabular}{|c|c|c|c|c|}
 \hline Notification & Action & Unregister & Register & Post \\ 

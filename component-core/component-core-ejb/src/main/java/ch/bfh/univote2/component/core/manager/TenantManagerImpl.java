@@ -121,7 +121,7 @@ public class TenantManagerImpl implements TenantManager {
 				//Add tenant
 				this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey.getByteArray(), privKey));
 				return true;
-			} catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
+			} catch (InvalidKeySpecException | NoSuchAlgorithmException | IllegalArgumentException ex) {
 				//throw new UnivoteException("Could not retrieve privateKey: " + tenant, ex);
 				logger.log(Level.WARNING, ex.getMessage());
 				return false;
@@ -219,7 +219,7 @@ public class TenantManagerImpl implements TenantManager {
 
 	@Override
 	public boolean isLocked(String tenant) {
-		return this.unlockedTentants.containsKey(tenant);
+		return !this.unlockedTentants.containsKey(tenant);
 	}
 
 	@Override

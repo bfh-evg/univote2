@@ -41,90 +41,35 @@
  */
 package ch.bfh.univote2.component.core.jsf;
 
-import ch.bfh.univote2.component.core.manager.TenantManager;
+import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
+import ch.bfh.univote2.component.core.services.InformationService;
 import java.io.Serializable;
-import javax.inject.Named;
-import javax.enterprise.context.SessionScoped;
+import java.util.List;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Named(value = "loginBean")
-@SessionScoped
-public class LoginBean implements Serializable {
+@Named(value = "informationBean")
+@ViewScoped
+public class InformationBean implements Serializable {
 
-	private boolean loggedIn = false;
-	private String username;
-	private String password;
 	@Inject
-	TenantManager tenantManager;
+	LoginBean loginBean;
 
-	/**
-	 * Creates a new instance of LoginBean
-	 */
-	public LoginBean() {
+	@Inject
+	InformationService informationService;
+
+	private static final int DEFAULT_LIMIT = 100;
+
+	public InformationBean() {
 	}
 
-	public String doLogin() {
-		if (tenantManager.checkLogin(username, password)) {
-			this.loggedIn = true;
-			this.password = null;
-			return "/secured/welcome";
-		}
-		MessageFactory.error("core", "login_error");
-		return "/login";
-	}
-
-	public String doLogout() {
-		this.loggedIn = false;
-		this.password = null;
-		MessageFactory.info("core", "logout_success");
-		return "/index";
-
-	}
-
-	public String doLock() {
-		if (!this.tenantManager.lock(username, password)) {
-			MessageFactory.error("core", "locking_error");
-		}
-		this.password = null;
-		MessageFactory.info("core", "locking_success");
-		return null;
-	}
-
-	public String doUnlock() {
-		if (!this.tenantManager.unlock(username, password)) {
-			MessageFactory.error("core", "unlocking_error");
-		}
-		this.password = null;
-		MessageFactory.info("core", "unlocking_success");
-		return null;
-	}
-
-	public boolean isLoggedIn() {
-		return loggedIn;
-	}
-
-	public boolean isLocked() {
-		return this.tenantManager.isLocked(username);
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
+	public List<TenantInformationEntity> getInformationEntities() {
+		return this.informationService.getTenantInforationEntities(this.loginBean.getUsername(), DEFAULT_LIMIT);
 	}
 
 }

@@ -6,16 +6,16 @@
 		<ui:composition template="/template/layout.xhtml">
 
 			<ui:define name="title">
-				UniVote Component Login
+				<h:outputText value="#{core.login_title}"/>
 			</ui:define>
 
 			<ui:define name="content">
 				<h:form id="login-form">
-					<h:outputText value="username:"/>
+					<h:outputText value="#{core.login_username}"/>
 					<h:inputText value="#{loginBean.username}" id="username"/>
-					<h:outputText value="password:"/>
+					<h:outputText value="#{core.login_password}"/>
 					<h:inputSecret value="#{loginBean.password}" id="password"/>
-					<h:commandButton id="button" value="Login" action="#{loginBean.doLogin}"/>
+					<h:commandButton id="button" value="#{core.login_button}" action="#{loginBean.doLogin}"/>
 					<h:messages />
 				</h:form>
 			</ui:define>

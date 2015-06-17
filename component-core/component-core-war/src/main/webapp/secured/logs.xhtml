@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core">
+	<h:body>		<ui:composition template="/template/layout.xhtml">
+
+			<ui:define name="title">
+				<h:outputText value="#{core.logs_title}"/>
+
+			</ui:define>
+
+			<ui:define name="content">
+				<h:dataTable value="#{informationBean.informationEntities}" var="l"
+							 styleClass="order-table"
+							 headerClass="order-table-header"
+							 rowClasses="order-table-odd-row,order-table-even-row"
+							 >
+
+					<h:column>
+						<f:facet name="header">#{core.logs_section}</f:facet>
+							#{l.sectionName}
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">#{core.logs_action}</f:facet>
+							#{l.actionName}
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">#{core.logs_date}</f:facet>
+							#{l.timestamp}
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">#{core.logs_information}</f:facet>
+							#{l.information}
+					</h:column>
+
+				</h:dataTable>
+			</ui:define>
+
+		</ui:composition>
+	</h:body>
+</html>
+

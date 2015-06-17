@@ -86,12 +86,11 @@ public class TenantTasksBean implements Serializable {
 	public String runTask(String notificationCode) {
 		try {
 			this.taskManager.runAction(notificationCode);
-			//TODO outcome
-			return "tasks.xhtml";
+			return "/secured/tasks";
 		} catch (UnivoteException ex) {
 			//TODO Log
 			Logger.getLogger(TenantTasksBean.class.getName()).log(Level.SEVERE, null, ex);
-			return "tasks.xhtml";
+			return "/secured/tasks";
 		}
 	}
 
@@ -99,9 +98,8 @@ public class TenantTasksBean implements Serializable {
 		try {
 			return this.outcomeRoutingService.getRoutingForUserInput(inputName);
 		} catch (UnivoteException ex) {
-			//TODO
 			Logger.getLogger(TenantTasksBean.class.getName()).log(Level.SEVERE, null, ex);
-			return "";
+			return "/secured/tasks";
 		}
 	}
 

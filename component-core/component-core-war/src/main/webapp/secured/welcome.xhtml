@@ -5,13 +5,13 @@
 	<h:body>		<ui:composition template="/template/layout.xhtml">
 
 			<ui:define name="title">
-				UniVote Secured Site
+				<h:outputText value="#{core.welcome_title}"/>
 			</ui:define>
 
 			<ui:define name="content">
 				<h3>Welcome #{loginBean.username}</h3>
 				<br/>
-				<h:outputText value="This is a secured welcome page!"/>
+				<h:outputText value="#{core.welcome_text}"/>
 				<br/>
 				<h:form>
 

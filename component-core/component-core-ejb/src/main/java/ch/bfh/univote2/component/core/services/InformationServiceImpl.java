@@ -41,14 +41,54 @@
  */
 package ch.bfh.univote2.component.core.services;
 
+import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
+import ch.bfh.univote2.component.core.persistence.TenantInformationEntity_;
+import java.util.List;
 import javax.ejb.Singleton;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 @Singleton
 public class InformationServiceImpl implements InformationService {
 
+	@PersistenceContext(unitName = "ComponentPU")
+	private EntityManager entityManager;
+
 	@Override
 	public void informTenant(String actionName, String tenant, String section, String information) {
 
+		TenantInformationEntity informationEntity
+				= new TenantInformationEntity(actionName, tenant, section, information);
+		this.entityManager.persist(informationEntity);
 	}
 
+	@Override
+	public List<TenantInformationEntity> getTenantInforationEntities(String tenant, int limit) {
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<TenantInformationEntity> query = builder.createQuery(TenantInformationEntity.class);
+		Root<TenantInformationEntity> result = query.from(TenantInformationEntity.class);
+		query.select(result);
+		query.where(builder.equal(result.get(TenantInformationEntity_.tenant), tenant));
+		query.orderBy(builder.desc(result.get(TenantInformationEntity_.timestamp)));
+		List<TenantInformationEntity> informationEntities = entityManager.createQuery(query)
+				.setMaxResults(limit).getResultList();
+		return informationEntities;
+
+	}
+
+	@Override
+	public List<TenantInformationEntity> getTenantInforationEntities(String tenant, int limit, int start) {
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<TenantInformationEntity> query = builder.createQuery(TenantInformationEntity.class);
+		Root<TenantInformationEntity> result = query.from(TenantInformationEntity.class);
+		query.select(result);
+		query.where(builder.equal(result.get(TenantInformationEntity_.tenant), tenant));
+		query.orderBy(builder.desc(result.get(TenantInformationEntity_.timestamp)));
+		List<TenantInformationEntity> informationEntities = entityManager.createQuery(query)
+				.setMaxResults(limit).setFirstResult(start).getResultList();
+		return informationEntities;
+	}
 }

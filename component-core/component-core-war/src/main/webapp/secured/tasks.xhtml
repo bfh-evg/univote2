@@ -7,46 +7,46 @@
 		<ui:composition template="../template/layout.xhtml">
 
 			<ui:define name="title">
-				<h2>Tasks</h2>
+				<h:outputText value="#{core.tasks_title}"/>
 			</ui:define>
 
 			<ui:define name="content">
 				<h:dataTable value="#{tenantTasksBean.runActionTasks}" var="t">
 
 					<h:column>
-						<f:facet name="header">Section</f:facet>
+						<f:facet name="header">#{core.tasks_section}</f:facet>
 							#{t.section}
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Notification Code</f:facet>
+						<f:facet name="header">#{core.tasks_notification_code}</f:facet>
 							#{t.notificationCode}
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Run</f:facet>
+						<f:facet name="header">#{core.tasks_run}</f:facet>
 						<h:link value="Run" outcome="#{tenantTasksBean.runTask(t.notificationCode)}"/>
 					</h:column>
 				</h:dataTable>
 				<h:dataTable value="#{tenantTasksBean.userInputTasks}" var="t">
 
 					<h:column>
-						<f:facet name="header">Section</f:facet>
+						<f:facet name="header">#{core.tasks_section}</f:facet>
 							#{t.section}
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Input Name</f:facet>
+						<f:facet name="header">#{core.tasks_inputname}</f:facet>
 							#{t.inputName}
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Notification Code</f:facet>
+						<f:facet name="header">#{core.tasks_notification_code}</f:facet>
 							#{t.notificationCode}
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">Link</f:facet>
+						<f:facet name="header">#{core.tasks_enter}</f:facet>
 						<h:link value="Enter"
 								outcome="#{tenantTasksBean.goToInputForm(t.inputName)}">
 							<f:param name="nc" value="#{t.notificationCode}" />

@@ -6,11 +6,11 @@
 		<ui:composition template="/template/layout.xhtml">
 
 			<ui:define name="title">
-				UniVote Component
+				<h:outputText value="#{core.index_title}"/>
 			</ui:define>
 
 			<ui:define name="content">
-				<h:link value="Login page" outcome="login" />
+				<h:link value="#{core.index_login}" outcome="/login" />
 			</ui:define>
 
 		</ui:composition>
