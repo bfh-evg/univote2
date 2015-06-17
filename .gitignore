@@ -1,6 +1,4 @@
-*/target/
-*/nb-configuration.xml
-/publicboard/publicboard-ejb/target/
+**/target/
 /doc/report/*.aux
 /doc/report/*.out
 /doc/report/*.gz
@@ -8,10 +6,4 @@
 /doc/report/*.toc
 /doc/report/*.hst
 /doc/report/*.ver
-/trustee/election-coordinator/target/
-/trustee/tallier/target/
-/component-core/derby.log
-/example-component/example-component/target/
-/example-component/example-component-ejb (copy)/target/
-/example-component/example-component-war/target/
-/component-core/component-core-ejb/target/
+**/derby.log
