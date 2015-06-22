@@ -1906,98 +1906,100 @@
 		\subsection{GrantElectionDefinition}
 		\begin{tabularx}{\linewidth}{|c|c|c|X|}
 			\hline Notification & Work & Post & Successors\\ 
-			\hline - & Grant EA access to electionDefinition & accessRight : $vk_{EA} , electionDefinition  ,1 $ & - \\ 
+			\hline administrationCertificate & Grant EA access to electionDefinition & accessRight : $vk_{EA} , electionDefinition  ,1 $ & CreateElectionData \\ 
 			\hline 
 		\end{tabularx}
 		\subsection{GrantTrustees}
 		\begin{tabularx}{\linewidth}{|c|c|c|X|}
 			\hline Notification & Work & Post & Successors\\ 
-			\hline - & Grant EA access to trustees & accessRight : $vk_{EA} , trustees, 1 $ & PublishTrusteeCerts \\  
+			\hline administrationCertificate & Grant EA access to trustees & accessRight : $vk_{EA} , trustees, 1 $ & PublishTrusteeCerts \\  
 			\hline 
-			\end{tabularx}
+		\end{tabularx}
 		
 		\subsection{GrantSecurityLevel}
 		\begin{tabularx}{\linewidth}{|c|c|c|X|}
 			\hline Notification & Work & Post & Successors\\ 
-			\hline - & Grant EA access to securityLevel & accessRight : $vk_{EA} , securityLevel, 1 $ & SetCryptoSetting \\ 
+			\hline administrationCertificate & Grant EA access to securityLevel & accessRight : $vk_{EA} , securityLevel, 1 $ & SetCryptoSetting \\ 
 			\hline 
-			\end{tabularx}
-		
-		\subsection{GrantElectionDefinition}
-		\begin{tabularx}{\linewidth}{|c|c|c|X|}
-			\hline Notification & Work & Post & Successors\\ 
-			\hline - & Grant EA access to electionDefinition & accessRight : $vk_{EA} , electionDefinition, 1 $ & - \\ 
-			\hline 
-			\end{tabularx}
+		\end{tabularx}
 		
 		\subsection{PublishTrusteeCerts}
 		\begin{tabularx}{\linewidth}{|c|c|c|X|}
 			\hline Notification & Work & Post & Successors\\ 
 			\hline trustees & Get Trustee certificates and publish them & trusteeCertificates : $\mathcal{Z}_T , \mathcal{Z}_M$ & GrantEncyptionKeyShares \\ 
 			\hline 
-			\end{tabularx}
+		\end{tabularx}
 		
 		\subsection{SetCryptoSetting}
 		\begin{tabularx}{\linewidth}{|c|c|c|X|}
 			\hline Notification & Work & Post & Successors\\  
-			\hline securityLevel & Set cryptoSetting & cryptoSetting : $settings$  & GrantEncyptionKeyShares \\  
+			\hline securityLevel & Publish the crypto setting for this election &cryptoSetting : $settings$  & GrantEncyptionKeyShares \\
+			
 			\hline 
-			\end{tabularx}
+		\end{tabularx}
 		
 		\subsection{GrantEncyptionKeyShares}
 		\begin{tabularx}{\linewidth}{|c|c|c|X|}
 			\hline Notification & Work & Post & Successors\\  
-			\hline  - & Grant Trustees access to keyshares & accessRight : $vk_t, encrytptionKeyShare , 1 $ &   \\ 
+			\hline  trusteeCertificates & Grant Trustees access to keyshares & accessRight : $vk_t, encrytptionKeyShare , 1 $ & CombineEncryptionKeyShares  \\  
 			\hline 
-			\end{tabularx}
+		\end{tabularx}
 		
 		\subsection{CombineEncryptionKeyShares}
 		\begin{tabularx}{\linewidth}{|c|c|c|X|}
 			\hline Notification & Work & Post & Successors\\  
-			\hline  encryptionKeyShare & Validate keyshare and if all keyshare are published combine them & encyptionKey : $y_j, \pi_j $ &   \\ 
+			\hline  encryptionKeyShare & Validate keyshare and if all keyshare are published combine them & encyptionKey : $y$ & CreateElectionData \\ 
 			\hline 
-			\end{tabularx}
+		\end{tabularx}
 			
 			
 		
 		\section{EC Perparation Phase Actions}
 		
-		
-		\subsection{GrantEAAccess}
-		\begin{tabular}{|c|c|c|c|c|}
-			\hline Notification & Action & Unregister & Register & Post \\ 
-			\hline encrytptionKeyShare & Check keyShare & & & \\ 
-			\hline & Post encryptionKey & encrytptionKeyShare & & encryptionKey : $y$  \\ 
-			& Grant access for EO & & & accessRight : $vk_{EA}, electionOptions , 1 $ \\
-			& Grant access for ER & & electoralRoll & accessRight : $vk_{EA}, electoralRoll , 1 $ \\ 
+		\subsection{GrantElectionIssues}
+		\begin{tabularx}{\linewidth}{|c|c|c|X|}
+			\hline Notification & Work & Post & Successors\\
+			administrationCertificate & Grant EA access for EI & accessRight : $vk_{EA}, electionIssues , 1 $ & CreateElectionData \\
 			\hline 
-		\end{tabular}
+		\end{tabularx}
 		
-		\subsection{InitiateKeyMixing (Trustee: Mixer)}
-		\begin{tabular}{|c|c|c|c|c|}
-			\hline Notification & Action & Unregister & Register & Post \\ 
-			\hline electoralRoll & Retrieve voter certs & electoralRoll &  & voterCertificates : $\mathcal{Z}_V$ \\ 
-			& Post keyMixingRequest & & & keyMixingRequest : $M_1,g_0, VK_0 $  \\
-			& Grant access for keyMixingResult & & keyMixingResult & accessRight : $vk_1, keyMixingResult , 1 $  \\
-			\hline 
-		\end{tabular}
+		\subsection{GrantElectoralRoll}
+			\begin{tabularx}{\linewidth}{|c|c|c|X|}
+				\hline Notification & Work & Post & Successors\\
+				administrationCertificate & Grant EA access for ER & accessRight : $vk_{EA}, electoralRoll , 1 $ & KeyMixing \\ 
+				\hline 
+			\end{tabularx}
 		
-		\subsection{MixKeys (Trustee: Mixer)}
-		\begin{tabular}{|c|c|c|c|c|}
-			\hline Notification & Action & Unregister & Register & Post \\  
-			\hline keyMixingResult & Post keyMixingRequest &  & & keyMixingRequest : $M_k,g_{k-1}, VK_{k-1} $  \\
-			& Grant access for keyMixingResult & & & accessRight : $vk_k, keyMixingResult , 1 $  \\
+		\subsection{KeyMixing}
+		\begin{tabularx}{\linewidth}{|c|c|c|X|}
+			\hline Notification & Work & Post & Successors\\
+			\hline electoralRoll & Retrieve voter certs and create the first mixing request & voterCertificates : $\mathcal{Z}_V$ & \multirow{6}{*}{GrantBallot, CreateElectionData} \\ 
+			& & keyMixingRequest : $M_1,g_0, VK_0 $ &   \\ 
+			& & accessRight : $vk_1, keyMixingResult , 1 $ & \\ \cline{1-3}
+			keyMixingRequest & Create next request or publish mixed keys & keyMixingRequest : $M_k,g_k, VK_k $ & \\ 
+			& & accessRight : $vk_k, keyMixingResult , 1 $ & \\
+			& & mixedKeys : $\hat{\mathit{VK}}$ &  \\
 			\hline 
-		\end{tabular}
+		\end{tabularx}
 		
-		\subsection{FinishSetup}
-		\begin{tabular}{|c|c|c|c|c|}
-			\hline Notification & Action & Unregister & Register & Post \\
-			\hline & Post mixedKey & keyMixingResult & & mixedKeys : $\hat{VK} $  \\
-			\hline & Post electionData & & & electionData : $data$ \\ 
-			\hline & Grant access for Ballots & &  & accessRight : $\hat{vk}_i, ballot,1, period$ \\ 
+		\subsection{GrantBallot}
+		\begin{tabularx}{\linewidth}{|c|c|c|X|}
+			\hline Notification & Work & Post & Successors\\
+			\hline mixedKeys & Grant all registered voters access for Ballot & accessRight : $\hat{vk}_i, ballot,1, period$ & - \\ 
 			\hline 
-		\end{tabular}
+		\end{tabularx}
+		
+		\subsection{CreateElectionData}
+		\begin{tabularx}{\linewidth}{|c|c|X|c|}
+			\hline Notification & Work & Post & Successors\\
+			\hline electionDefinition & \multirow{5}{*}{Create the election data when all parts available and publish it.} & \multirow{5}{*}{$\begin{aligned}[t]\mathit{electionData}:\descrElection, \period,\\ C, R, \descrOptions,\\ \mathit{encSetting},\mathit{sigSetting},\\ \mathit{hashSetting},y, \hat{g}\end{aligned}$ } & \multirow{5}{*}{-} \\ 
+			encyptionKey &&& \\
+			electionIssues &&& \\
+			electoralRoll &&& \\
+			mixedKeys &&& \\
+			\hline 
+		\end{tabularx}
+		
 		\section{Trustees}
 		\subsection{Tallier: CreateSharedKey}
 		\begin{tabular}{|l|l|l|l|}
