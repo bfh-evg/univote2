@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="#{languageDetails.locale}"
+<html class="no-js" lang="#{languageDetails.locale}"
 	  xmlns="http://www.w3.org/1999/xhtml"
 	  xmlns:h="http://java.sun.com/jsf/html"
 	  xmlns:f="http://java.sun.com/jsf/core"
 	  xmlns:ui="http://java.sun.com/jsf/facelets">
 	<!--
-	/* 
+	/*
 	 * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
 	 * Bern University of Applied Sciences, Engineering and Information Technology,
 	 * Research Institute for Security in the Information Society, E-Voting Group,
@@ -15,50 +15,88 @@
 	 *
 	 * Distributable under GPL license.
 	 * See terms of license at gnu.org.
-	 * 
+	 *
 	 * HTML structure of the HTML pages
 	 */
 	-->
 	<h:head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="shortcut icon" href="favicon.ico" />
 		<link rel="icon" href="favicon.ico" type="image/x-icon" />
 		<title><ui:insert name="page_title">UniVote</ui:insert></title>
-		
-		<link rel="stylesheet" type="text/css" href="css/main.css" />
-		<h:outputText value="&lt;!--[if lte IE 7]&gt;&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;css/main_ie7.css&quot;/&gt;&lt;![endif]--&gt;" escape="false" />
+
+		<link rel="stylesheet" type="text/css" href="stylesheets/app.css" />
+		<h:outputText value="&lt;!--[if gte IE 9]&gt;&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;stylesheets/app_ie9.css&quot;/&gt;&lt;![endif]--&gt;" escape="false" />
 		<ui:insert name="head_include_css"></ui:insert>
-		
-		<script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
-		<script type="text/javascript" src="js/lib/jquery.blockUI-2.1.1.js"></script>
-		<script type="text/javascript" src="js/univote-config.js"></script>
-		<script type="text/javascript" src="js/univote-messages.jsp"></script>
-		
+
+		<script src="js/lib/modernizr.js"></script>
+		<script src="js/lib/jquery-1.7.2.min.js"></script>
+		<script src="js/lib/foundation.min.js"></script>
+		<script src="js/app.js"></script>
+
+		<script src="js/lib/jquery.blockUI-2.1.1.js"></script>
+		<script src="js/univote-config.js"></script>
+		<script src="js/univote-messages.jsp"></script>
+
 		<ui:insert name="head_include_js"></ui:insert>
-		
+
 	</h:head>
-	<!-- 
+	<!--
 	 *
 	 *
 	-->
 	<h:body class="locale_#{languageDetails.locale} #{bodyClass}">
 		<f:view locale="#{languageDetails.locale}">
-			<div id="wrapper">
-				<div id="header">
-					<div id="logo"><h:outputLink value="index.xhtml"><img src="img/logo.png" alt="UNI-Vote"/></h:outputLink></div>
-					<ui:insert name="header"></ui:insert>
+			<div class="wrapper">
+				<header class="row">
+					<div class="small-8 columns">
+						<img src="images/univote.svg" alt="UniVote Logo" />
+					</div>
+					<div class="small-4 columns">
+						<h:form>
+							<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'en' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('en')}">E</h:commandLink></div></div>
+							<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'fr' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('fr')}">F</h:commandLink></div></div>
+							<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'de' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('de')}">D</h:commandLink></div></div>
+						</h:form>
+					</div>
+					<form name="properties">
+						<input type="hidden" id="language" value="#{languageDetails.locale}" />
+					</form>
+					<hr />
+				</header>
+
+
+				<ui:insert name="content">Default content</ui:insert>
+
+			</div>
+
+			<footer class="gradient">
+				<div class="row">
+					<div class="small-12 columns arrow">
+						<img src="images/arrow_down.svg" alt="" />
+					</div>
 				</div>
 
-				<div id="container">
-					<ui:insert name="content">Default content</ui:insert>
+				<div class="row">
+					<div class="large-4 medium-4 columns">
+						<a class="button radius icon-right-dir">Projektseite</a>
+					</div>
+					<div class="large-4 medium-4 columns">
+						<a href="#" class="button radius icon-right-dir">Zur Kurzanleitung</a>
+					</div>
+					<div class="large-4 medium-4 columns">
+						<a href="#" class="button radius icon-right-dir">Support/Hilfe</a>
+					</div>
 				</div>
 
-				<div id="footer" class="center">
-					<div class="left">UniVote</div>
-					 #{msg.about}
-					<div class="right">© <h:outputText value="#{languageDetails.currentDate}"><f:convertDateTime pattern="yyyy" type="date" /></h:outputText></div>
+				<div class="row">
+					<div class="small-12 columns copyright">
+						<strong>UniVote</strong> | Berner Fachhochschule BFH | ©&#160;2014
+					</div>
 				</div>
-			</div> 
+			</footer>
+
 		</f:view>
 	</h:body>
 </html>
