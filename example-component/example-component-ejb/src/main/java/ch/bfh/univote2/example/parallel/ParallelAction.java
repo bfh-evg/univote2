@@ -52,10 +52,10 @@ import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputTask;
 import ch.bfh.univote2.component.core.services.InformationService;
-import ch.bfh.univote2.example.init.InitActionContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.Timer;
@@ -79,7 +79,7 @@ public class ParallelAction extends AbstractAction implements NotifiableAction {
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
 		List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
-		return new InitActionContext(ack, preconditionsQuerys);
+		return new ParallelActionContext(ack, preconditionsQuerys);
 	}
 
 	@Override
@@ -107,6 +107,7 @@ public class ParallelAction extends AbstractAction implements NotifiableAction {
 	}
 
 	@Override
+	@Asynchronous
 	public void run(ActionContext actionContext) {
 		if (actionContext instanceof ParallelActionContext) {
 			ParallelActionContext para = (ParallelActionContext) actionContext;
@@ -119,6 +120,7 @@ public class ParallelAction extends AbstractAction implements NotifiableAction {
 	}
 
 	@Override
+	@Asynchronous
 	public void notifyAction(ActionContext actionContext, Object notification) {
 		if (notification instanceof ParallelUserInput) {
 			ParallelUserInput para = (ParallelUserInput) notification;

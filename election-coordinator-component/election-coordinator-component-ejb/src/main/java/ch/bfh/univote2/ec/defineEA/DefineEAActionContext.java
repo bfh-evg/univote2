@@ -39,24 +39,36 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.parallel;
+package ch.bfh.univote2.ec.defineEA;
 
-import ch.bfh.univote2.component.core.data.UserInput;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import ch.bfh.univote2.component.core.data.PreconditionQuery;
+import java.util.List;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class ParallelUserInput implements UserInput {
+public class DefineEAActionContext extends ActionContext {
 
-	private final String parallelValue;
+	private String name;
 
-	public ParallelUserInput(String parallelValue) {
-		this.parallelValue = parallelValue;
+	public DefineEAActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
+		super(actionContextKey, preconditionQueries, true);
 	}
 
-	public String getParallelValue() {
-		return parallelValue;
+	@Override
+	protected void purgeData() {
+		this.name = null;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }

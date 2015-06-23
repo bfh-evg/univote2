@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.services;
 
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
 import ch.bfh.univote2.component.core.persistence.TenantInformationEntity_;
 import java.util.List;
@@ -63,6 +64,12 @@ public class InformationServiceImpl implements InformationService {
 		TenantInformationEntity informationEntity
 				= new TenantInformationEntity(actionName, tenant, section, information);
 		this.entityManager.persist(informationEntity);
+	}
+
+	@Override
+	public void informTenant(ActionContextKey actionContextKey, String information) {
+		this.informTenant(actionContextKey.getAction(), actionContextKey.getTenant(), actionContextKey.getSection(),
+				information);
 	}
 
 	@Override

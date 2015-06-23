@@ -70,6 +70,19 @@ public abstract class ActionContext {
 		return actionContextKey;
 	}
 
+	//To shorten often used code
+	public String getAction() {
+		return this.actionContextKey.getAction();
+	}
+
+	public String getSection() {
+		return this.actionContextKey.getSection();
+	}
+
+	public String getTenant() {
+		return this.actionContextKey.getTenant();
+	}
+
 	public List<PreconditionQuery> getPreconditionQueries() {
 		return preconditionQueries;
 	}

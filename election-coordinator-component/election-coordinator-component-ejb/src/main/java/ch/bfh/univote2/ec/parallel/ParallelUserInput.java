@@ -39,23 +39,24 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.init;
+package ch.bfh.univote2.ec.parallel;
 
-import ch.bfh.univote2.component.core.services.InitialisationService;
-import java.util.ArrayList;
-import java.util.List;
-import javax.ejb.Stateless;
+import ch.bfh.univote2.component.core.data.UserInput;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Stateless
-public class InitialisationServiceImpl implements InitialisationService {
+public class ParallelUserInput implements UserInput {
 
-	@Override
-	public List<String> getSections(String tenant) {
-		return new ArrayList<>();
+	private final String parallelValue;
+
+	public ParallelUserInput(String parallelValue) {
+		this.parallelValue = parallelValue;
+	}
+
+	public String getParallelValue() {
+		return parallelValue;
 	}
 
 }

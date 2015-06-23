@@ -39,7 +39,7 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.init;
+package ch.bfh.univote2.ec.parallel;
 
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -48,51 +48,32 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputTask;
 import ch.bfh.univote2.component.core.services.InformationService;
+import ch.bfh.univote2.ec.init.InitActionContext;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.Timer;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Stateless
-public class InitAction extends AbstractAction implements NotifiableAction {
+public class ParallelAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "InitAction";
-	private static final String INPUT_NAME = "InitInput";
+	private static final String ACTION_NAME = "ParallelAction";
+	private static final String INPUT_NAME = "ParallelValue";
 
 	@EJB
 	ActionManager actionManager;
-
 	@EJB
 	InformationService informationService;
-
-	@Override
-	@Asynchronous
-	public void notifyAction(ActionContext actionContext, Object notification) {
-		if (!(notification instanceof InitUserInput)) {
-			//TODO error
-		}
-		InitUserInput userInput = (InitUserInput) notification;
-		ActionContextKey ack = new ActionContextKey(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-				userInput.getSection());
-		ActionContext newContext = new InitActionContext(ack, null);
-		this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-				userInput.getSection(), "New Section created.");
-		this.actionManager.runFinished(newContext, ResultStatus.FINISHED);
-	}
-
-	@Override
-	@Asynchronous
-	public void run(ActionContext actionContext) {
-		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	}
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -103,15 +84,53 @@ public class InitAction extends AbstractAction implements NotifiableAction {
 
 	@Override
 	protected boolean checkPostCondition(ActionContext actionContext) {
+		if (actionContext instanceof ParallelActionContext) {
+			ParallelActionContext para = (ParallelActionContext) actionContext;
+			if (para.getTimeOut().before(new Date())) {
+				return true;
+			}
+		}
 		return false;
 	}
 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
-		UserInputPreconditionQuery query = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
+		//Add UserInput
+		UserInputPreconditionQuery uiQuery = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
 				actionContext.getActionContextKey().getTenant(),
 				actionContext.getActionContextKey().getSection()));
-		actionContext.getPreconditionQueries().add(query);
+		actionContext.getPreconditionQueries().add(uiQuery);
+		//Add Timer
+		TimerPreconditionQuery timerQuery = new TimerPreconditionQuery(
+				new Date(System.currentTimeMillis() + (5 * 60000)));
+		actionContext.getPreconditionQueries().add(timerQuery);
+	}
+
+	@Override
+	public void run(ActionContext actionContext) {
+		if (actionContext instanceof ParallelActionContext) {
+			ParallelActionContext para = (ParallelActionContext) actionContext;
+			if (para.getTimeOut().before(new Date())) {
+				this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+			}
+			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+		}
+		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	}
+
+	@Override
+	public void notifyAction(ActionContext actionContext, Object notification) {
+		if (notification instanceof ParallelUserInput) {
+			ParallelUserInput para = (ParallelUserInput) notification;
+			this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
+					actionContext.getActionContextKey().getSection(), "Entred value: " + para.getParallelValue());
+
+			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+		} else if (notification instanceof Timer) {
+			this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
+					actionContext.getActionContextKey().getSection(), "Time did run out.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+		}
 	}
 
 }
