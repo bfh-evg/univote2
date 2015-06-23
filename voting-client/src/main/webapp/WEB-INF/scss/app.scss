@@ -65,6 +65,10 @@ header {
 	hr { margin-left: rem-calc(15); margin-right: rem-calc(15); }
 }
 
+.hidden	{
+	display: none;
+}
+
 .round-button {
 	width: 1.5em;
 	margin-right: rem-calc(5);
