@@ -28,13 +28,12 @@ if (!uvConfig) {
  * Holds the used DOM elements.
  */
 var elements = {};
-
 /**
  * Check cookie support and browser version on document ready.
  */
 $(document).ready(function () {
 
-	// 1. Check cookie support
+// 1. Check cookie support
 	if (!uvUtilCookie.areSupported()) {
 		$.blockUI({
 			message: '<div id="browser-check">' +
@@ -47,10 +46,10 @@ $(document).ready(function () {
 	}
 
 
-	// 2. Check browser version
-	// In the current version, the js file api is not needed. But for checking
-	// for an actual version of FF, Safari and Chrome the file api can be used.
-	// IE is checked by version as IE9 is fine but does not support the file api.
+// 2. Check browser version
+// In the current version, the js file api is not needed. But for checking
+// for an actual version of FF, Safari and Chrome the file api can be used.
+// IE is checked by version as IE9 is fine but does not support the file api.
 	if (($.browser.msie && $.browser.version < 9)) {
 		$.blockUI({
 			message: '<div id="browser-check">' +
@@ -74,17 +73,15 @@ $(document).ready(function () {
 		});
 	}
 
-	// Get DOM elements
+// Get DOM elements
 	elements.currentElectionsDiv = document.getElementById('currentElections');
 	elements.pastElectionsDiv = document.getElementById('pastElections');
 	elements.currentElectionsList = document.getElementById('currentElectionsList');
 	elements.pastElectionsList = document.getElementById('pastElectionsList');
 	elements.loadingElections = document.getElementById('loadingElections');
 	elements.noElections = document.getElementById('noElections');
-
 	retrieveElections();
 });
-
 /**
  * Retrieves election definition from Board (asynchronously).
  * If Board is on another domain, IE9 will not be able to retrieve the data
@@ -107,14 +104,11 @@ function retrieveElections() {
 				}
 			}]
 	};
-
 	var update = setInterval(function () {
 		$(elements.loadingElections).append(".");
 	}, 1000);
-
 	//For IE
 	$.support.cors = true;
-
 	//Ajax request
 	$.ajax({
 		url: uvConfig.URL_UNIBOARD_GET,
@@ -128,9 +122,7 @@ function retrieveElections() {
 		crossDomain: true,
 		success: function (resultContainer) {
 			clearInterval(update);
-
 			var lang = document.getElementById('language').value.toLowerCase();
-
 			//Signature of result is not verified since the data that is displayed here is not really sensitive
 			//More over, the posts are signed by EA whose key should be retrieved from the Board
 
@@ -143,21 +135,22 @@ function retrieveElections() {
 				if (new Date(message.votingPeriodBegin).getTime() <= now) {
 					if (new Date(message.votingPeriodEnd).getTime() >= now) {
 						//Current election
-						$(elements.currentElectionsList).append('<li><span class="votingevent-title">' + getLocalizedText(message.title, lang) + '</span><span class="votingevent-link"><a href="vote.xhtml?electionId=' + electionId + '" class="raquo">' + msg.goVote + '</a></span></li>');
+						$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="wahl_schluessel.html" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + getLocalizedText(message.title, lang) + '</span><br />' + getLocalizedText(message.description, lang) + '</div></div>');
 					} else {
 						//Past election
-						$(elements.pastElectionsList).append('<dd><i class="red icon-right-dir"></i>' + getLocalizedText(message.title, lang) + '</dd>');
+						$(elements.pastElectionsList).append('<dd><i class="red icon-right-dir"></i>' + getLocalizedText(message.title, lang) + ': ' + getLocalizedText(message.description, lang) + '</dd>');
 					}
 				} else {
 					//Future election
-					$(elements.currentElectionsList).append('<li><span class="votingevent-title">' + getLocalizedText(message.title, lang) + '</span><span class="votingevent-link"><a class="inactive raquo">' + msg.goVote + '</a></span></li>');
+					$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + getLocalizedText(message.title, lang) + '</span><br />' + getLocalizedText(message.description, lang) + '</div></div>');
 				}
 			}
 
 			//Hide container if there is no election of this type
-			if ($(elements.currentElectionsList).find("li").length > 0) {
+			if ($(elements.currentElectionsList).find("div").length > 0) {
 				$(elements.loadingElections).hide();
 				$(elements.currentElectionsDiv).show();
+				$(elements.currentElectionsList).show();
 			}
 
 			if ($(elements.pastElectionsList).find("dd").length > 0) {
@@ -187,7 +180,6 @@ function retrieveElections() {
 function getLocalizedText(localizedTexts, lang) {
 	if (localizedTexts == undefined)
 		return '';
-
 	var text = '';
 	for (var index in localizedTexts) {
 		if (localizedTexts[index].languageCode == lang.toUpperCase()) {
@@ -199,7 +191,6 @@ function getLocalizedText(localizedTexts, lang) {
 		text = localizedTexts[0].text;
 	}
 	return text;
-
 }
 
 /**
@@ -215,7 +206,6 @@ function showBriefInstruction() {
 		css: {top: '20%', left: '20%', width: '60%'}
 
 	});
-
 }
 
 /**
@@ -246,7 +236,6 @@ function submitHelpForm(email, message) {
 	$.blockUI({
 		message: '<p>' + msg.helpBoxWait + '</p>'
 	});
-
 	$.ajax({
 		type: "POST",
 		url: "supportRequest.jsp",
