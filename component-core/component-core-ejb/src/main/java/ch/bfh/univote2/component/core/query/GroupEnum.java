@@ -39,25 +39,24 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.init;
-
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.List;
+package ch.bfh.univote2.component.core.query;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class InitActionContext extends ActionContext {
+public enum GroupEnum {
 
-	public InitActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, true);
+	ADMIN_CERT("administrationCertificate");
+
+	private final String value;
+
+	GroupEnum(String value) {
+		this.value = value;
 	}
 
-	@Override
-	protected void purgeData() {
+	public String getValue() {
+		return value;
 	}
 
 }

@@ -39,34 +39,24 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.parallel;
+package ch.bfh.univote2.ec.defineEA;
 
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.Date;
-import java.util.List;
+import ch.bfh.univote2.component.core.data.UserInput;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class ParallelActionContext extends ActionContext {
+public class EANameUserInput implements UserInput {
 
-	private Date timeOut;
+	private final String name;
 
-	public ParallelActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, true);
-		this.timeOut = new Date();
+	public EANameUserInput(String name) {
+		this.name = name;
 	}
 
-	@Override
-	protected void purgeData() {
-		this.timeOut = null;
-	}
-
-	public Date getTimeOut() {
-		return timeOut;
+	public String getName() {
+		return name;
 	}
 
 }
