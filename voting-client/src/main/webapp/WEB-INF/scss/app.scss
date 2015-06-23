@@ -1,0 +1,214 @@
+@import "museo_slab";
+@import "univote_icons";
+@import "settings";
+@import "compass";
+//@import "foundation";
+
+// Or selectively include components
+@import
+//   "foundation/components/accordion",
+//   "foundation/components/alert-boxes",
+//   "foundation/components/block-grid",
+//   "foundation/components/breadcrumbs",
+//   "foundation/components/button-groups",
+"foundation/components/buttons",
+//   "foundation/components/clearing",
+//   "foundation/components/dropdown",
+//   "foundation/components/dropdown-buttons",
+//   "foundation/components/flex-video",
+"foundation/components/forms",
+"foundation/components/grid",
+//   "foundation/components/inline-lists",
+//   "foundation/components/joyride",
+//   "foundation/components/keystrokes",
+//   "foundation/components/labels",
+//   "foundation/components/magellan",
+//   "foundation/components/orbit",
+//   "foundation/components/pagination",
+//   "foundation/components/panels",
+//   "foundation/components/pricing-tables",
+//   "foundation/components/progress-bars",
+//   "foundation/components/reveal",
+//   "foundation/components/side-nav",
+//   "foundation/components/split-buttons",
+//   "foundation/components/sub-nav",
+//   "foundation/components/switches",
+//   "foundation/components/tables",
+//   "foundation/components/tabs",
+//   "foundation/components/thumbs",
+//   "foundation/components/tooltips",
+//   "foundation/components/top-bar",
+"foundation/components/type",
+//   "foundation/components/offcanvas",
+"foundation/components/visibility";
+
+// mixins
+@mixin gradient {
+	// needs latest Compass
+	background-color: $red; // Old browsers, fallback
+	// IE9 SVG, needs conditional override of 'filter' to 'none'
+	$experimental-support-for-svg: true;
+	@include background-image(linear-gradient(left,  $red 0%, $darkred 100%));
+}
+
+body {
+	@include gradient;
+}
+
+.wrapper {
+	background-color: $white;
+}
+
+// header stuff
+header {
+	padding-top: 0.5em;
+	hr { margin-left: rem-calc(15); margin-right: rem-calc(15); }
+}
+
+.round-button {
+	width: 1.5em;
+	margin-right: rem-calc(5);
+	float: right;
+}
+.round-button-circle {
+	width: 100%;
+	height:0;
+	padding-bottom: 100%;
+	border-radius: 50%;
+	overflow:hidden;
+	background: $primary-color;
+	&:hover, &.active { background-color: $black; }
+}
+
+.round-button a {
+	display:block;
+	float:left;
+	width:100%;
+	padding-top:50%;
+	padding-bottom:50%;
+	line-height:1em;
+	margin-top:-0.4em;
+	color: $white;
+	text-align:center;
+	font-family: MuseoSlab-700;
+	font-weight: normal;
+	text-decoration:none;
+}
+
+
+// inline sytling
+.registration p a.red { margin-left:-10px; }
+.black, a { color: $black; }
+.grey { background-color: $primary-color; }
+.red, a.vote { color: $red; }
+.mockup img { margin-bottom: 1.5em; }
+.upcoming {
+	padding:0; margin-top:0; padding-bottom: rem-calc(10);
+	a.button { margin-top: rem-calc(5); margin-bottom: rem-calc(5); }
+	span { font-family: MuseoSlab-700; }
+	&.last { padding-bottom: rem-calc(20); }
+	.medium-8 { margin-top: rem-calc(5); }
+}
+
+// triggers css3 hyphenation on good browsers
+.hyphenate {
+
+	-webkit-hyphens: auto;
+	hyphens: auto;
+}
+
+// list styling
+dl {
+	dd {
+		margin:0;
+		padding-top: rem-calc(2);
+		padding-left: rem-calc(5);
+		border-bottom: solid 1px $iron;
+		i { color: $red; margin-left: rem-calc(-10); }
+		a { color: $black; }
+	}
+	margin-bottom: 3rem;
+}
+
+// 1 + 2 column content view
+.chooser {
+	h1 { margin: 0; line-height: 100%; color: $primary-color;
+		 &.active { color: $red; }
+	}
+	p { font-family: MuseoSlab-700;
+		a { color: $primary-color;
+			&.active, &:hover { color: $black; }
+		}
+	}
+}
+.chooser_content { background-color: $silver;
+				  textarea { width: 100%; height: rem-calc(240); }
+}
+
+// style buttons either as links or as button element
+a.button, .arrow_box {
+	font-family: MuseoSlab-700;
+	text-align: left;
+	width: 100%;
+	height: 2.5em;
+	padding:0;
+	padding-left: rem-calc(0);
+	padding-top: rem-calc(10);
+}
+.arrow_box { padding-left: rem-calc(10); }
+
+button.gradient { padding-top:rem-calc(10); padding-left:0; height: 2.5em; text-align: left; font-family: MuseoSlab-700;    }
+a.gradient, a.button.active, button.gradient, button.active { @include gradient; }
+.arrow_box:hover { background-color: $primary-color; }
+button.gradient:hover, a.button:hover { @include background-image(linear-gradient(left,  $darkred 0%, black 100%)); }
+
+.arrow_box {
+	@include border-top-left-radius(3px);
+	@include border-bottom-left-radius(3px);
+	padding-top: rem-calc(5);
+	cursor: default;
+}
+
+.arrow_box:after {
+	left: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-left-color: $primary-color;
+	border-width: 20px;
+	margin-top: -20px;
+}
+.arrow_box.active:after {
+	border-left-color: $darkred;
+}
+
+// form stuff
+form {
+	button.gradient { width: 100%; padding-bottom: rem-calc(10); }
+	button:disabled { width: 100%; padding: rem-calc(10); height: 2.5em; text-align: left; color: $silver !important; background-color: $iron !important; font-family: MuseoSlab-700;  }
+	select { font-size: 100%; color: $red; }
+	p { margin-bottom: rem-calc(5); }
+}
+// footer stuff
+footer {
+	.arrow {
+		text-align: center;
+		img { margin-top: -12px; }
+		margin-bottom: 1.5em;
+	}
+	.copyright { color: $white; text-align: center; margin-bottom: 1.5em;	}
+
+}
+
+// overrides
+@media #{$small-only} {
+	.arrow_box {
+		@include border-top-right-radius(3px);
+		@include border-bottom-right-radius(3px);
+		&:after { left:0; top:0; border-width: 0;	}
+	}
+}

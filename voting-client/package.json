@@ -1,0 +1,13 @@
+{
+	"name": "univote",
+	"description": "UniVote",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/bfh-evg/univote2"
+	},
+	"version": "0.0.1",
+	"dependencies": {
+		"bower": "~1.3.12"
+	}
+}
