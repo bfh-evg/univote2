@@ -55,7 +55,7 @@ public class DefineEAActionContext extends ActionContext {
 	private String name;
 
 	public DefineEAActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, true);
+		super(actionContextKey, preconditionQueries, false);
 	}
 
 	@Override

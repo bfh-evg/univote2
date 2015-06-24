@@ -382,6 +382,13 @@ public class ActionManagerImpl implements ActionManager {
 
 	}
 
+	@Override
+	public void reRequireUserInput(ActionContext actionContext, UserInputPreconditionQuery inputPreconditionQuery) {
+		String newNotificationCode = this.userTaskManager.addUserInputTask(inputPreconditionQuery.getUserInputTask());
+		this.notificationDataAccessor.addNotificationData(
+				new NotificationData(newNotificationCode, actionContext.getActionContextKey()));
+	}
+
 	protected NotifiableAction getAction(String actionName) throws UnivoteException {
 		try {
 			//First search in the app(ear)
