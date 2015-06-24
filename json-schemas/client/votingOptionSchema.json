@@ -1,0 +1,10 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "Schema of a voting option",
+	"type": "object",
+	"properties": {
+		"id":   { "type": "integer" },
+		"type": { "enum": ["yes", "no", "abstain"] }
+	},
+	"required": ["id", "type"]
+}
