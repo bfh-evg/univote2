@@ -45,6 +45,7 @@ import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInput;
+import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import javax.ejb.Local;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
@@ -66,5 +67,7 @@ public interface ActionManager {
 	public void runAction(String actionName, String tenant, String section) throws UnivoteException;
 
 	public void runFinished(ActionContext actionContext, ResultStatus resultStatus);
+
+	public void reRequireUserInput(ActionContext actionContext, UserInputPreconditionQuery inputPreconditionQuery);
 
 }

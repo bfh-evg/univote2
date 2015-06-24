@@ -3,4 +3,7 @@
 !/doc/report/*.tex
 !/doc/report/*.pdf
 **/derby.log
-
+/voting-client/bower_components/
+/voting-client/etc/
+/voting-client/node/
+/voting-client/node_modules/

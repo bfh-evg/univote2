@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.services;
 
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
 import java.util.List;
 import javax.ejb.Local;
@@ -62,6 +63,14 @@ public interface InformationService {
 	 * @param information - information to be shown to the tenant
 	 */
 	public void informTenant(String actionName, String tenant, String section, String information);
+
+	/**
+	 * Shows the provided information to the corresponding tenant
+	 *
+	 * @param actionContextKey context key containing actionName, tenant, and section
+	 * @param information - information to be shown to the tenant
+	 */
+	public void informTenant(ActionContextKey actionContextKey, String information);
 
 	/**
 	 * Returns all the last received TenantInformationEntities limited by limit

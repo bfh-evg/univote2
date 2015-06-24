@@ -5,6 +5,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
 import ch.bfh.univote2.component.core.services.InformationService;
 import java.util.List;
@@ -52,6 +53,12 @@ public class InformationServiceMock implements InformationService {
 	@Override
 	public List<TenantInformationEntity> getTenantInforationEntities(String tenant, int limit, int start) {
 		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void informTenant(ActionContextKey actionContextKey, String information) {
+		this.informTenant(actionContextKey.getAction(), actionContextKey.getTenant(), actionContextKey.getSection(),
+				information);
 	}
 
 }

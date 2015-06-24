@@ -11,6 +11,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInput;
+import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Timer;
@@ -71,6 +72,11 @@ public class ActionManagerMock implements ActionManager {
 	@Override
 	public void runFinished(ActionContext actionContext, ResultStatus resultStatus) {
 		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void reRequireUserInput(ActionContext actionContext, UserInputPreconditionQuery inputPreconditionQuery) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 }

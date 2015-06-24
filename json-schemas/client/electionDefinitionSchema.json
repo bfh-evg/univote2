@@ -7,6 +7,14 @@
 			"description": "Title of the election",
 			"$ref": "i18nTextSchema.json"
 		},
+		"administration": {
+			"description": "Name of the election administration",
+			"$ref": "i18nTextSchema.json"
+		},
+		"description": {
+			"description": "Description of the election",
+			"$ref": "i18nTextSchema.json"
+		},
 		"votingPeriodBegin": {
 			"description": "Beginning date and time of the voting period (ISO 8601 format)",
 			"type": "string",
