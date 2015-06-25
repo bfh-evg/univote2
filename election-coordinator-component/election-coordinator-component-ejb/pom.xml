@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>ch.bfh.univote2</groupId>
-		<artifactId>maven-ejb-config</artifactId>
-		<version>1.0</version>
-	</parent>
+    <parent>
+        <groupId>ch.bfh.univote2</groupId>
+        <artifactId>maven-ejb-config</artifactId>
+        <version>1.0</version>
+    </parent>
 
-	<groupId>ch.bfh.univote2</groupId>
-	<artifactId>election-coordinator-component-ejb</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>ejb</packaging>
+    <groupId>ch.bfh.univote2</groupId>
+    <artifactId>election-coordinator-component-ejb</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>ejb</packaging>
 
-	<name>election-coordinator-component-ejb</name>
-	<dependencies>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>component-core-ejb</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	</dependencies>
-	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	</properties>
+    <name>election-coordinator-component-ejb</name>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>component-core-ejb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.4.3</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>jackson-coreutils</artifactId>
+            <version>1.8</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 </project>

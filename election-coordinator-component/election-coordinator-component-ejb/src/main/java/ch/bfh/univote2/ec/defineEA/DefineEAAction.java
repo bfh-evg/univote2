@@ -45,19 +45,9 @@ import ch.bfh.uniboard.clientlib.GetException;
 import ch.bfh.uniboard.clientlib.GetHelper;
 import ch.bfh.uniboard.clientlib.KeyHelper;
 import ch.bfh.uniboard.clientlib.signaturehelper.SignatureException;
-import ch.bfh.uniboard.data.AlphaIdentifierDTO;
-import ch.bfh.uniboard.data.AttributesDTO;
-import ch.bfh.uniboard.data.BetaIdentifierDTO;
-import ch.bfh.uniboard.data.ConstraintDTO;
-import ch.bfh.uniboard.data.EqualDTO;
-import ch.bfh.uniboard.data.IdentifierDTO;
-import ch.bfh.uniboard.data.InDTO;
-import ch.bfh.uniboard.data.MessageIdentifierDTO;
-import ch.bfh.uniboard.data.OrderDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -69,11 +59,10 @@ import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputTask;
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
-import ch.bfh.univote2.component.core.query.AlphaEnum;
-import ch.bfh.univote2.component.core.query.BetaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
+import ch.bfh.univote2.ec.QueryFactory;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -121,10 +110,10 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 
 		try {
 			ResultContainerDTO result
-					= this.uniboardService.get(this.getQueryForEACert(actionContext.getSection()));
+					= this.uniboardService.get(QueryFactory.getQueryForEACert(actionContext.getSection()));
 			return !result.getResult().getPost().isEmpty();
 		} catch (UnivoteException ex) {
-			logger.log(Level.OFF, "Could not request ea certificate.", ex);
+			logger.log(Level.WARNING, "Could not request ea certificate.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not check post condition.");
 			return false;
@@ -183,7 +172,8 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	private void runInternal(DefineEAActionContext actionContext) {
 		try {
 			//Get Certificate from UniCert
-			ResultContainerDTO result = this.getFromUniCert(this.getQueryFormUniCertForCert(actionContext.getName()));
+			ResultContainerDTO result = this.getFromUniCert(
+					QueryFactory.getQueryFormUniCertForCert(actionContext.getName()));
 			if (result.getResult().getPost().isEmpty()) {
 				this.informationService.informTenant(actionContext.getActionContextKey(),
 						"No certificate found for the specified EA name.");
@@ -200,9 +190,8 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 			//Create message from the retrieved certificate
 			byte[] message = post.getMessage();
 			//Post message
-			AttributesDTO Attr = this.uniboardService.post(actionContext.getSection(),
+			this.uniboardService.post(actionContext.getSection(),
 					GroupEnum.ADMIN_CERT.getValue(), message, actionContext.getTenant());
-			//TODO Store the attributes?
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not post message.");
@@ -210,52 +199,6 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 					new Object[]{actionContext.getActionContextKey(), ex.getMessage()});
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
-	}
-
-	protected QueryDTO getQueryFormUniCertForCert(String name) {
-		QueryDTO query = new QueryDTO();
-		//from unicert
-		IdentifierDTO identifier = new AlphaIdentifierDTO();
-		identifier.getPart().add(AlphaEnum.SECTION.getValue());
-		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
-		query.getConstraint().add(constraint);
-		//from certificates
-		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
-		query.getConstraint().add(constraint2);
-		//Where common name is equal to ea name
-		IdentifierDTO identifier3 = new MessageIdentifierDTO();
-		identifier3.getPart().add("commonName");
-		ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(name));
-		query.getConstraint().add(constraint3);
-		//Where cert type is trustee
-		IdentifierDTO identifier4 = new MessageIdentifierDTO();
-		identifier4.getPart().add("roles");
-		InDTO constraint4 = new InDTO();
-		constraint4.getElement().add(new StringValueDTO("trustee"));
-		query.getConstraint().add(constraint4);
-		//Order by timestamp desc
-		IdentifierDTO identifier5 = new BetaIdentifierDTO();
-		identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
-		query.getOrder().add(new OrderDTO(identifier5, false));
-		//Return only first post
-		query.setLimit(1);
-		return query;
-	}
-
-	protected QueryDTO getQueryForEACert(String section) {
-		QueryDTO query = new QueryDTO();
-		IdentifierDTO identifier = new AlphaIdentifierDTO();
-		identifier.getPart().add(AlphaEnum.SECTION.getValue());
-		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-		query.getConstraint().add(constraint);
-
-		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-		ConstraintDTO constraint2 = new EqualDTO(identifier, new StringValueDTO(GroupEnum.ADMIN_CERT.getValue()));
-		query.getConstraint().add(constraint2);
-		return query;
 	}
 
 	public ResultContainerDTO getFromUniCert(QueryDTO query) throws UnivoteException {

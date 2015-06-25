@@ -39,34 +39,29 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec.parallel;
+package ch.bfh.univote2.ec;
 
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.Date;
-import java.util.List;
+import org.junit.Test;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class ParallelActionContext extends ActionContext {
+public class QueryFactoryTest {
 
-	private Date timeOut;
-
-	public ParallelActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, true);
-		this.timeOut = new Date();
+	public QueryFactoryTest() {
 	}
 
-	@Override
-	protected void purgeData() {
-		this.timeOut = null;
+	@Test
+	public void testGetQueryFormUniCertForCert() {
 	}
 
-	public Date getTimeOut() {
-		return timeOut;
+	@Test
+	public void testGetQueryForEACert() {
+	}
+
+	@Test
+	public void testGetQueryForElectionDefinition() {
 	}
 
 }

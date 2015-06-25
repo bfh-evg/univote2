@@ -39,24 +39,37 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec.parallel;
+package ch.bfh.univote2.ec.grantED;
 
-import ch.bfh.univote2.component.core.data.UserInput;
+import ch.bfh.univote2.component.core.action.NotifiableAction;
+import ch.bfh.univote2.component.core.query.GroupEnum;
+import ch.bfh.univote2.ec.generic.GrantAccessRightEAAction;
+import java.util.logging.Logger;
+import javax.ejb.Stateless;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class ParallelUserInput implements UserInput {
+@Stateless
+public class GrantElectionDefinitionAction extends GrantAccessRightEAAction implements NotifiableAction {
 
-	private final String parallelValue;
+	private static final String ACTION_NAME = "GrantElectionDefinitionAction";
+	private static final Logger logger = Logger.getLogger(GrantElectionDefinitionAction.class.getName());
 
-	public ParallelUserInput(String parallelValue) {
-		this.parallelValue = parallelValue;
+	@Override
+	protected String getActionName() {
+		return ACTION_NAME;
 	}
 
-	public String getParallelValue() {
-		return parallelValue;
+	@Override
+	protected GroupEnum getGroupName() {
+		return GroupEnum.ELECTION_DEFINITION;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return logger;
 	}
 
 }

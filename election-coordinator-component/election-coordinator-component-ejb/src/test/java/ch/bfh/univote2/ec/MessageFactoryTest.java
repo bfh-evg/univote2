@@ -39,27 +39,59 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.ec;
+
+import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.query.GroupEnum;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
+import java.security.PublicKey;
+import java.util.Date;
+import org.junit.Assert;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import sun.security.provider.DSAPublicKey;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public class MessageFactoryTest {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees");
-
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	public MessageFactoryTest() {
 	}
 
-	public String getValue() {
-		return value;
+	@Test
+	public void testCreateAccessRight_5args() throws InvalidKeyException {
+		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+		GroupEnum group = GroupEnum.ACCESS_RIGHT;
+		Integer amount = 1;
+		Date startTime = new Date(new Long("1435242934856"));
+		Date endTime = new Date(new Long("1435242994846"));
+
+		String expectedMessageStr = "{\"group\":\"accessRight\",\"amount\": 1,\"startTime\":\"2015-06-25T14:35:34Z\","
+				+ "\"endTime\":\"2015-06-25T14:36:34Z\","
+				+ "\"crypto\":{\"type\":\"DL\", \"p\":\"1\",\"q\":\"1\",\"g\":\"1\",\"publickey\":\"1\"}}";;
+		try {
+			byte[] message = MessageFactory.createAccessRight(group, publicKey, amount, startTime, endTime);
+			Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));
+		} catch (UnivoteException ex) {
+			fail();
+		}
+
+	}
+
+	@Test
+	public void testCreateAccessRight_3args() throws Exception {
+	}
+
+	@Test
+	public void testCreateAccessRight_GroupEnum_PublicKey() throws Exception {
+	}
+
+	@Test
+	public void testCreateAccessRight_4args() throws Exception {
 	}
 
 }
