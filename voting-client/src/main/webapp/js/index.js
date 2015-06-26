@@ -12,28 +12,18 @@
  * This file contains the index-page specific JS.
  *
  */
-// Check for configuration, if it is missing
-// an error message is displayed at the top of the page.
-if (!uvConfig) {
-	window.onload = function () {
-		var body = document.getElementsByTagName('body')[0];
-		var errorDiv = document.createElement('div');
-		errorDiv.setAttribute('style', 'background-color:red; z-index:1000; position:absolute; top:0; left: 0; width: 100%; height:50px; text-align:center; font-weight:bold; padding-top: 20px;');
-		errorDiv.innerHTML = "<p>" + msg.missingConfig + "</p>";
-		body.appendChild(errorDiv);
-	}
-}
 
 /**
  * Holds the used DOM elements.
  */
 var elements = {};
+
 /**
  * Check cookie support and browser version on document ready.
  */
 $(document).ready(function () {
 
-// 1. Check cookie support
+	// 1. Check cookie support
 	if (!uvUtilCookie.areSupported()) {
 		$.blockUI({
 			message: '<div id="browser-check">' +
@@ -46,10 +36,10 @@ $(document).ready(function () {
 	}
 
 
-// 2. Check browser version
-// In the current version, the js file api is not needed. But for checking
-// for an actual version of FF, Safari and Chrome the file api can be used.
-// IE is checked by version as IE9 is fine but does not support the file api.
+	// 2. Check browser version
+	// In the current version, the js file api is not needed. But for checking
+	// for an actual version of FF, Safari and Chrome the file api can be used.
+	// IE is checked by version as IE9 is fine but does not support the file api.
 	if (($.browser.msie && $.browser.version < 9)) {
 		$.blockUI({
 			message: '<div id="browser-check">' +
@@ -60,10 +50,7 @@ $(document).ready(function () {
 		});
 	}
 
-	if (
-			(!$.browser.msie && !(window.File && window.FileReader && window.FileList && window.Blob))
-			) {
-
+	if ((!$.browser.msie && !(window.File && window.FileReader && window.FileList && window.Blob))) {
 		$.blockUI({
 			message: '<div id="browser-check">' +
 					'<h2>' + msg.browsercheck1 + '</h2>' +
@@ -73,7 +60,7 @@ $(document).ready(function () {
 		});
 	}
 
-// Get DOM elements
+	// Get DOM elements
 	elements.currentElectionsDiv = document.getElementById('currentElections');
 	elements.pastElectionsDiv = document.getElementById('pastElections');
 	elements.currentElectionsList = document.getElementById('currentElectionsList');
@@ -82,14 +69,20 @@ $(document).ready(function () {
 	elements.noElections = document.getElementById('noElections');
 	retrieveElections();
 });
+
+
 /**
  * Retrieves election definition from Board (asynchronously).
  * If Board is on another domain, IE9 will not be able to retrieve the data
  * IE9 does not support cross domain ajax request.
- * JSONP would be a solution, but it only allows HTTP GET, while HTTP POST is required for the
- * REST Service of the Board.
+ * JSONP would be a solution, but it only allows HTTP GET, while HTTP POST is
+ * required for the REST Service of the Board.
  */
 function retrieveElections() {
+
+	var update = setInterval(function () {
+		$(elements.loadingElections).append(".");
+	}, 1000);
 
 	//Query of election data over all sections
 	var queryJson = {constraint: [{
@@ -104,9 +97,7 @@ function retrieveElections() {
 				}
 			}]
 	};
-	var update = setInterval(function () {
-		$(elements.loadingElections).append(".");
-	}, 1000);
+
 	//For IE
 	$.support.cors = true;
 	//Ajax request
@@ -122,11 +113,10 @@ function retrieveElections() {
 		crossDomain: true,
 		success: function (resultContainer) {
 			clearInterval(update);
-			var lang = document.getElementById('language').value.toLowerCase();
+			$(elements.loadingElections).hide();
+
 			//Signature of result is not verified since the data that is displayed here is not really sensitive
 			//More over, the posts are signed by EA whose key should be retrieved from the Board
-
-			// Save election data
 			var posts = resultContainer.result.post;
 			for (var index in posts) {
 				var message = JSON.parse(B64.decode(posts[index].message));
@@ -135,32 +125,24 @@ function retrieveElections() {
 				if (new Date(message.votingPeriodBegin).getTime() <= now) {
 					if (new Date(message.votingPeriodEnd).getTime() >= now) {
 						//Current election
-						$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="wahl_schluessel.html" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + getLocalizedText(message.title, lang) + '</span><br />' + getLocalizedText(message.description, lang) + '</div></div>');
+						$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="vote.xhtml?electionId=' + electionId + '" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + getLocalizedText(message.administration) + '</span><br />' + getLocalizedText(message.title) + '</div></div>');
 					} else {
 						//Past election
-						$(elements.pastElectionsList).append('<dd><i class="red icon-right-dir"></i>' + getLocalizedText(message.title, lang) + ': ' + getLocalizedText(message.description, lang) + '</dd>');
+						$(elements.pastElectionsList).append('<dd><i class="red icon-right-dir"></i>' + getLocalizedText(message.administration) + ': ' + getLocalizedText(message.title) + '</dd>');
 					}
 				} else {
 					//Future election
-					$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + getLocalizedText(message.title, lang) + '</span><br />' + getLocalizedText(message.description, lang) + '</div></div>');
+					$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + getLocalizedText(message.administration) + '</span><br />' + getLocalizedText(message.title) + '</div></div>');
 				}
 			}
 
-			//Hide container if there is no election of this type
+			// Show containers
 			if ($(elements.currentElectionsList).find("div").length > 0) {
-				$(elements.loadingElections).hide();
 				$(elements.currentElectionsDiv).show();
 				$(elements.currentElectionsList).show();
 			}
-
 			if ($(elements.pastElectionsList).find("dd").length > 0) {
-				$(elements.loadingElections).hide();
 				$(elements.pastElectionsDiv).show();
-			}
-
-			//Show a text if there is no election
-			if ($(elements.currentElectionsList).find("li").length === 0 && $(elements.pastElectionsList).find("li").length === 0) {
-				$(elements.loadingElections).html(msg.noElections);
 			}
 		},
 		error: function (errormsg) {
@@ -170,92 +152,3 @@ function retrieveElections() {
 	});
 }
 
-/**
- * Helper function extracting the text in the desired language out
- * of LocalizedText elements of lists and candidates.
- *
- * @param localizedTexts - Array of i18n texts.
- * @param lang - Current language.
- */
-function getLocalizedText(localizedTexts, lang) {
-	if (localizedTexts == undefined)
-		return '';
-	var text = '';
-	for (var index in localizedTexts) {
-		if (localizedTexts[index].languageCode == lang.toUpperCase()) {
-			text = localizedTexts[index].text;
-			break;
-		}
-	}
-	if (text == '' && localizedTexts.length > 0) {
-		text = localizedTexts[0].text;
-	}
-	return text;
-}
-
-/**
- * Shows the brief instruction as overlay.
- */
-function showBriefInstruction() {
-
-	$.blockUI({
-		message: '<div id="brief-instruction">' +
-				'<h2>' + msg.instructionTitle + '</h2>' +
-				msg.instructionText + '</div>' +
-				'<p><button class="button" onclick="$.unblockUI();">' + msg.close + '</button></p>',
-		css: {top: '20%', left: '20%', width: '60%'}
-
-	});
-}
-
-/**
- * Shows the support/help box as overlay
- */
-function showHelp() {
-
-	$.blockUI({
-		message: '<div id="help-box">' +
-				'<h2>' + msg.helpBoxTitle + '</h2>' +
-				'<p>' + msg.helpBoxText + '</p>' +
-				'<form action="" name="help"><div><span>' + msg.helpBoxEmail + '</span><input type="text" name="email" id="email"/>' +
-				'<span>' + msg.helpBoxMessage + '</span><textarea name="message" id="message"></textarea>' +
-				'<span class="tiny">' + msg.helpBoxMessageAdds + '</span>' +
-				'<button class="button" onclick="return submitHelpForm($(\'#email\').val(),$(\'#message\').val());">' + msg.helpBoxSubmit + '</button>' +
-				'<button class="button" onclick="$.unblockUI(); return false;">' + msg.close + '</button>' + '</div></form>' +
-				'</div>',
-		css: {top: '20%', left: '20%', width: '60%'}
-	});
-}
-
-/**
- * Submits the help form.
- */
-function submitHelpForm(email, message) {
-	var dataString = 'email=' + email + '&message=' + message + '&useragent=' + navigator.userAgent;
-	$.unblockUI();
-	$.blockUI({
-		message: '<p>' + msg.helpBoxWait + '</p>'
-	});
-	$.ajax({
-		type: "POST",
-		url: "supportRequest.jsp",
-		data: dataString,
-		dataType: "text",
-		crossDomain: true,
-		success: function () {
-			$.unblockUI();
-			$.blockUI({
-				message: '<p>' + msg.helpBoxSuccess + '</p>',
-				timeout: 3000
-			});
-		},
-		error: function () {
-			$.unblockUI();
-			$.blockUI({
-				message: '<p>' + msg.helpBoxError + '</p>',
-				timeout: 3000
-			});
-		}
-	});
-	return false;
-}

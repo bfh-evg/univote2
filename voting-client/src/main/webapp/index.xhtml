@@ -57,7 +57,11 @@
 			</div>
 		</article>
 
-		<div id="currentElections" class="row">
+		<div class="row">
+			<div id="loadingElections" class="small-12 columns">#{msg.loadingElections}</div>
+		</div>
+
+		<div id="currentElections" class="row hidden">
 			<div class="small-12 columns">
 				<h3>#{msg.currentVotes}</h3>
 			</div>
@@ -73,36 +77,6 @@
 				</dl>
 			</div>
 		</div>
-
-
-
-
-
-
-	<!--<p class="block spacer0"><a href="#" class="raquo" onclick="showBriefInstruction(); return false;">#{msg.goInstruction}</a></p>
-	<p class="block spacer0"><a href="#" class="raquo" onclick="showHelp(); return false;">#{msg.goHelpBox}</a></p>-->
-
-			<!--<h3 class="">#{msg.registrationTitle}</h3>
-			<p class="block"><h:outputText value="#{msg.registrationText}" escape="false" /></p>
-			<p class="block spacer0"><a href="https://urd.bfh.ch/unicert-authentication/authenticate?idp=switchaai&amp;params=uv-vsbfh&amp;returnlocation=#{request.scheme}://#{request.serverName}:#{request.serverPort}#{request.contextPath}/registration.xhtml" class="raquo">#{msg.goRegister}</a></p>
-			<p class="block spacer0"><a href="https://urd.bfh.ch/unicert-authentication/authenticate?idp=google&amp;returnlocation=#{request.scheme}://#{request.serverName}:#{request.serverPort}#{request.contextPath}/registration.xhtml" class="raquo">#{msg.goRegister} Default</a></p>
-			<h3 class="">#{msg.votingeventsTitle}</h3>
-			<p class="block">#{msg.votingeventsText}</p>
-			<div id="loadingElections" class="block votingevents">#{msg.loadingElections}</div>
-
-			<div id="currentElections" class="hidden">
-				<h4 class="block">#{msg.currentVotes}</h4>
-				<ul id="currentElectionsList" class="block votingevents">
-
-				</ul>
-			</div>
-
-			<div id="pastElections" class="hidden">
-				<h4 class="block">#{msg.passedVotes}</h4>
-				<ul id="pastElectionsList" class="block votingevents">
-
-				</ul>
-			</div>-->
     </ui:define>
 
 </ui:composition>
