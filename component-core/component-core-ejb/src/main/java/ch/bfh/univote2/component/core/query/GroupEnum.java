@@ -47,7 +47,10 @@ package ch.bfh.univote2.component.core.query;
  */
 public enum GroupEnum {
 
-	ADMIN_CERT("administrationCertificate");
+	ADMIN_CERT("administrationCertificate"),
+	ACCESS_RIGHT("accessRight"),
+	ELECTION_DEFINITION("electionDefinition"),
+	TRUSTEES("trustees");
 
 	private final String value;
 
