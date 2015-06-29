@@ -135,9 +135,10 @@
 		\vhEntry{0.5.1}{30.04.2013}{Rolf Haenni}{Improved notational consistency.}
 		\vhEntry{0.5.2}{21.05.2013}{Rolf Haenni}{Two important notational corrections.}
 		\vhEntry{0.6}{07.01.2015}{Reto E. Koenig}{Quality: Change of title; re-establishement of the version history.}
-		\vhEntry{0.6}{15.06.2015}{Reto E. Koenig}{Revised section on Randomness}
-		\vhEntry{0.6.1}{16.06.2015}{Severin Hauser}{Revision of UniVote}
-		\vhEntry{0.6.2}{16.06.2015}{Reto E. Koenig}{Revision of UniVote}
+		\vhEntry{0.6}{15.06.2015}{Reto E. Koenig}{Revised section on Randomness.}
+		\vhEntry{0.6.1}{16.06.2015}{Severin Hauser}{Revision of UniVote.}
+		\vhEntry{0.6.2}{16.06.2015}{Reto E. Koenig}{Revision of UniVote.}
+		\vhEntry{0.6.3}{26.06.2015}{Rolf Haenni}{Table in Section 7 adjusted.}
 		
 	\end{versionhistory}
 	
@@ -1603,11 +1604,11 @@
 		\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|}\hline
 			\centering\multirow{2}{*}{Level} & \multirow{2}{*}{Strength} & \multicolumn{3}{c|}{Residue Class} &  \multirow{2}{*}{Elliptic Curve} & \multirow{2}{*}{Hash Value} \\\cline{3-5}
 			& &  Modulo & Group max. & Group min. & &  \\\hline
-			\centering 1 & 80 & 1024 & 1023 & 256 & -- & -- \\
-			\centering 2 & 112 & 2048 & 2047 & 256 & -- & -- \\
+			\centering 1 & 80 & 1024 & 1023 & 160 & 160 & 160 \\
+			\centering 2 & 112 & 2048 & 2047 & 224 & 224 & 224 \\
 			\centering 3 & 128 & 3072 & 3071 & 256 & 256 & 256 \\
-			\centering 4 & 192 & -- & -- & -- & 384 & 384\\
-			\centering 5 & 256 & -- & -- & -- & 521 & 512 \\\hline
+			\centering 4 & 192 & 7680 & 7679 & 384 & 384 & 384\\
+			\centering 5 & 256 & 15360 & 15359 & 512 & 521 & 512 \\\hline
 		\end{tabularx}
 	\end{center}
 	

@@ -65,6 +65,10 @@ header {
 	hr { margin-left: rem-calc(15); margin-right: rem-calc(15); }
 }
 
+main {
+	min-height: 400px;
+}
+
 .hidden	{
 	display: none;
 }
@@ -113,6 +117,29 @@ header {
 	&.last { padding-bottom: rem-calc(20); }
 	.medium-8 { margin-top: rem-calc(5); }
 }
+
+
+.blockUI.blockMsg>div, .blockUI.blockMsg>p  { padding: 10px; }
+
+.blockUI {
+	#brief-instruction {
+		li { margin-bottom: rem-calc(10)}
+	}
+
+	#help-box {
+		p { text-align: left; }
+		form {
+			div	{ text-align: center; max-width: 600px; margin: auto; padding-bottom: 20px;}
+			span, input, textarea { display: block; text-align: left; }
+			span { padding-top: 10px; padding-bottom: 2px;}
+			span.tiny{ padding-top: 0px; color: #aaa; font-size: 90%; line-height: 1.2;}
+			input { max-width: 250px; }
+			textarea { height: 100px; margin-bottom: 2px; }
+			button { min-width: 150px; margin: 25px 5px 10px 5px; }
+		}
+	}
+}
+
 
 // triggers css3 hyphenation on good browsers
 .hyphenate {
@@ -165,6 +192,7 @@ button.gradient { padding-top:rem-calc(10); padding-left:0; height: 2.5em; text-
 a.gradient, a.button.active, button.gradient, button.active { @include gradient; }
 .arrow_box:hover { background-color: $primary-color; }
 button.gradient:hover, a.button:hover { @include background-image(linear-gradient(left,  $darkred 0%, black 100%)); }
+a.button.disabled {color: $silver !important; background-color: $iron !important; background-image: none;}
 
 .arrow_box {
 	@include border-top-left-radius(3px);

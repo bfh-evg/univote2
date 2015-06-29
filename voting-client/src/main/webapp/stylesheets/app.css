@@ -3897,18 +3897,23 @@ header hr {
 }
 
 /* line 68, ../WEB-INF/scss/app.scss */
+main {
+  min-height: 400px;
+}
+
+/* line 72, ../WEB-INF/scss/app.scss */
 .hidden {
   display: none;
 }
 
-/* line 72, ../WEB-INF/scss/app.scss */
+/* line 76, ../WEB-INF/scss/app.scss */
 .round-button {
   width: 1.5em;
   margin-right: 0.3125rem;
   float: right;
 }
 
-/* line 77, ../WEB-INF/scss/app.scss */
+/* line 81, ../WEB-INF/scss/app.scss */
 .round-button-circle {
   width: 100%;
   height: 0;
@@ -3917,12 +3922,12 @@ header hr {
   overflow: hidden;
   background: rgba(0, 0, 0, 0.5);
 }
-/* line 84, ../WEB-INF/scss/app.scss */
+/* line 88, ../WEB-INF/scss/app.scss */
 .round-button-circle:hover, .round-button-circle.active {
   background-color: #000000;
 }
 
-/* line 87, ../WEB-INF/scss/app.scss */
+/* line 91, ../WEB-INF/scss/app.scss */
 .round-button a {
   display: block;
   float: left;
@@ -3938,116 +3943,168 @@ header hr {
   text-decoration: none;
 }
 
-/* line 104, ../WEB-INF/scss/app.scss */
+/* line 108, ../WEB-INF/scss/app.scss */
 .registration p a.red {
   margin-left: -10px;
 }
 
-/* line 105, ../WEB-INF/scss/app.scss */
+/* line 109, ../WEB-INF/scss/app.scss */
 .black, a {
   color: #000000;
 }
 
-/* line 106, ../WEB-INF/scss/app.scss */
+/* line 110, ../WEB-INF/scss/app.scss */
 .grey {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-/* line 107, ../WEB-INF/scss/app.scss */
+/* line 111, ../WEB-INF/scss/app.scss */
 .red, a.vote {
   color: #E4032B;
 }
 
-/* line 108, ../WEB-INF/scss/app.scss */
+/* line 112, ../WEB-INF/scss/app.scss */
 .mockup img {
   margin-bottom: 1.5em;
 }
 
-/* line 109, ../WEB-INF/scss/app.scss */
+/* line 113, ../WEB-INF/scss/app.scss */
 .upcoming {
   padding: 0;
   margin-top: 0;
   padding-bottom: 0.625rem;
 }
-/* line 111, ../WEB-INF/scss/app.scss */
+/* line 115, ../WEB-INF/scss/app.scss */
 .upcoming a.button {
   margin-top: 0.3125rem;
   margin-bottom: 0.3125rem;
 }
-/* line 112, ../WEB-INF/scss/app.scss */
+/* line 116, ../WEB-INF/scss/app.scss */
 .upcoming span {
   font-family: MuseoSlab-700;
 }
-/* line 113, ../WEB-INF/scss/app.scss */
+/* line 117, ../WEB-INF/scss/app.scss */
 .upcoming.last {
   padding-bottom: 1.25rem;
 }
-/* line 114, ../WEB-INF/scss/app.scss */
+/* line 118, ../WEB-INF/scss/app.scss */
 .upcoming .medium-8 {
   margin-top: 0.3125rem;
 }
 
-/* line 118, ../WEB-INF/scss/app.scss */
+/* line 122, ../WEB-INF/scss/app.scss */
+.blockUI.blockMsg > div, .blockUI.blockMsg > p {
+  padding: 10px;
+}
+
+/* line 126, ../WEB-INF/scss/app.scss */
+.blockUI #brief-instruction li {
+  margin-bottom: 0.625rem;
+}
+/* line 130, ../WEB-INF/scss/app.scss */
+.blockUI #help-box p {
+  text-align: left;
+}
+/* line 132, ../WEB-INF/scss/app.scss */
+.blockUI #help-box form div {
+  text-align: center;
+  max-width: 600px;
+  margin: auto;
+  padding-bottom: 20px;
+}
+/* line 133, ../WEB-INF/scss/app.scss */
+.blockUI #help-box form span, .blockUI #help-box form input, .blockUI #help-box form textarea {
+  display: block;
+  text-align: left;
+}
+/* line 134, ../WEB-INF/scss/app.scss */
+.blockUI #help-box form span {
+  padding-top: 10px;
+  padding-bottom: 2px;
+}
+/* line 135, ../WEB-INF/scss/app.scss */
+.blockUI #help-box form span.tiny {
+  padding-top: 0px;
+  color: #aaa;
+  font-size: 90%;
+  line-height: 1.2;
+}
+/* line 136, ../WEB-INF/scss/app.scss */
+.blockUI #help-box form input {
+  max-width: 250px;
+}
+/* line 137, ../WEB-INF/scss/app.scss */
+.blockUI #help-box form textarea {
+  height: 100px;
+  margin-bottom: 2px;
+}
+/* line 138, ../WEB-INF/scss/app.scss */
+.blockUI #help-box form button {
+  min-width: 150px;
+  margin: 25px 5px 10px 5px;
+}
+
+/* line 145, ../WEB-INF/scss/app.scss */
 .hyphenate {
   -webkit-hyphens: auto;
   hyphens: auto;
 }
 
-/* line 125, ../WEB-INF/scss/app.scss */
+/* line 152, ../WEB-INF/scss/app.scss */
 dl {
   margin-bottom: 3rem;
 }
-/* line 126, ../WEB-INF/scss/app.scss */
+/* line 153, ../WEB-INF/scss/app.scss */
 dl dd {
   margin: 0;
   padding-top: 0.125rem;
   padding-left: 0.3125rem;
   border-bottom: solid 1px #CCCCCC;
 }
-/* line 131, ../WEB-INF/scss/app.scss */
+/* line 158, ../WEB-INF/scss/app.scss */
 dl dd i {
   color: #E4032B;
   margin-left: -0.625rem;
 }
-/* line 132, ../WEB-INF/scss/app.scss */
+/* line 159, ../WEB-INF/scss/app.scss */
 dl dd a {
   color: #000000;
 }
 
-/* line 139, ../WEB-INF/scss/app.scss */
+/* line 166, ../WEB-INF/scss/app.scss */
 .chooser h1 {
   margin: 0;
   line-height: 100%;
   color: rgba(0, 0, 0, 0.5);
 }
-/* line 140, ../WEB-INF/scss/app.scss */
+/* line 167, ../WEB-INF/scss/app.scss */
 .chooser h1.active {
   color: #E4032B;
 }
-/* line 142, ../WEB-INF/scss/app.scss */
+/* line 169, ../WEB-INF/scss/app.scss */
 .chooser p {
   font-family: MuseoSlab-700;
 }
-/* line 143, ../WEB-INF/scss/app.scss */
+/* line 170, ../WEB-INF/scss/app.scss */
 .chooser p a {
   color: rgba(0, 0, 0, 0.5);
 }
-/* line 144, ../WEB-INF/scss/app.scss */
+/* line 171, ../WEB-INF/scss/app.scss */
 .chooser p a.active, .chooser p a:hover {
   color: #000000;
 }
 
-/* line 148, ../WEB-INF/scss/app.scss */
+/* line 175, ../WEB-INF/scss/app.scss */
 .chooser_content {
    background-color: #EFEFEF;
 }
-/* line 149, ../WEB-INF/scss/app.scss */
+/* line 176, ../WEB-INF/scss/app.scss */
 .chooser_content textarea {
   width: 100%;
   height: 15rem;
 }
 
-/* line 153, ../WEB-INF/scss/app.scss */
+/* line 180, ../WEB-INF/scss/app.scss */
 a.button, .arrow_box {
   font-family: MuseoSlab-700;
   text-align: left;
@@ -4058,12 +4115,12 @@ a.button, .arrow_box {
   padding-top: 0.625rem;
 }
 
-/* line 162, ../WEB-INF/scss/app.scss */
+/* line 189, ../WEB-INF/scss/app.scss */
 .arrow_box {
   padding-left: 0.625rem;
 }
 
-/* line 164, ../WEB-INF/scss/app.scss */
+/* line 191, ../WEB-INF/scss/app.scss */
 button.gradient {
   padding-top: 0.625rem;
   padding-left: 0;
@@ -4072,7 +4129,7 @@ button.gradient {
   font-family: MuseoSlab-700;
 }
 
-/* line 165, ../WEB-INF/scss/app.scss */
+/* line 192, ../WEB-INF/scss/app.scss */
 a.gradient, a.button.active, button.gradient, button.active {
   background-color: #E4032B;
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuMCIgeTE9IjAuNSIgeDI9IjEuMCIgeTI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U0MDMyYiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzg5MjQzNiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
@@ -4083,12 +4140,12 @@ a.gradient, a.button.active, button.gradient, button.active {
   background-image: linear-gradient(to right, #e4032b 0%, #892436 100%);
 }
 
-/* line 166, ../WEB-INF/scss/app.scss */
+/* line 193, ../WEB-INF/scss/app.scss */
 .arrow_box:hover {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-/* line 167, ../WEB-INF/scss/app.scss */
+/* line 194, ../WEB-INF/scss/app.scss */
 button.gradient:hover, a.button:hover {
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuMCIgeTE9IjAuNSIgeDI9IjEuMCIgeTI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzg5MjQzNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
   background-size: 100%;
@@ -4098,7 +4155,14 @@ button.gradient:hover, a.button:hover {
   background-image: linear-gradient(to right, #892436 0%, #000000 100%);
 }
 
-/* line 169, ../WEB-INF/scss/app.scss */
+/* line 195, ../WEB-INF/scss/app.scss */
+a.button.disabled {
+  color: #EFEFEF !important;
+  background-color: #CCCCCC !important;
+  background-image: none;
+}
+
+/* line 197, ../WEB-INF/scss/app.scss */
 .arrow_box {
   -moz-border-radius-topleft: 3px;
   -webkit-border-top-left-radius: 3px;
@@ -4110,7 +4174,7 @@ button.gradient:hover, a.button:hover {
   cursor: default;
 }
 
-/* line 176, ../WEB-INF/scss/app.scss */
+/* line 204, ../WEB-INF/scss/app.scss */
 .arrow_box:after {
   left: 100%;
   top: 50%;
@@ -4125,17 +4189,17 @@ button.gradient:hover, a.button:hover {
   margin-top: -20px;
 }
 
-/* line 189, ../WEB-INF/scss/app.scss */
+/* line 217, ../WEB-INF/scss/app.scss */
 .arrow_box.active:after {
   border-left-color: #892436;
 }
 
-/* line 195, ../WEB-INF/scss/app.scss */
+/* line 223, ../WEB-INF/scss/app.scss */
 form button.gradient {
   width: 100%;
   padding-bottom: 0.625rem;
 }
-/* line 196, ../WEB-INF/scss/app.scss */
+/* line 224, ../WEB-INF/scss/app.scss */
 form button:disabled {
   width: 100%;
   padding: 0.625rem;
@@ -4145,26 +4209,26 @@ form button:disabled {
   background-color: #CCCCCC !important;
   font-family: MuseoSlab-700;
 }
-/* line 197, ../WEB-INF/scss/app.scss */
+/* line 225, ../WEB-INF/scss/app.scss */
 form select {
   font-size: 100%;
   color: #E4032B;
 }
-/* line 198, ../WEB-INF/scss/app.scss */
+/* line 226, ../WEB-INF/scss/app.scss */
 form p {
   margin-bottom: 0.3125rem;
 }
 
-/* line 202, ../WEB-INF/scss/app.scss */
+/* line 230, ../WEB-INF/scss/app.scss */
 footer .arrow {
   text-align: center;
   margin-bottom: 1.5em;
 }
-/* line 204, ../WEB-INF/scss/app.scss */
+/* line 232, ../WEB-INF/scss/app.scss */
 footer .arrow img {
   margin-top: -12px;
 }
-/* line 207, ../WEB-INF/scss/app.scss */
+/* line 235, ../WEB-INF/scss/app.scss */
 footer .copyright {
   color: #FFFFFF;
   text-align: center;
@@ -4172,7 +4236,7 @@ footer .copyright {
 }
 
 @media only screen and (max-width: 40em) {
-  /* line 213, ../WEB-INF/scss/app.scss */
+  /* line 241, ../WEB-INF/scss/app.scss */
   .arrow_box {
     -moz-border-radius-topright: 3px;
     -webkit-border-top-right-radius: 3px;
@@ -4181,7 +4245,7 @@ footer .copyright {
     -webkit-border-bottom-right-radius: 3px;
     border-bottom-right-radius: 3px;
   }
-  /* line 216, ../WEB-INF/scss/app.scss */
+  /* line 244, ../WEB-INF/scss/app.scss */
   .arrow_box:after {
      left: 0;
     top: 0;
