@@ -14,6 +14,7 @@ java -jar json-schema-validator-2.2.6-lib.jar server/electionDataSchema.json exa
 
 java -jar json-schema-validator-2.2.6-lib.jar server/certificateSchema.json examples/ch-2015-06-14/certificate.json
 java -jar json-schema-validator-2.2.6-lib.jar server/voterCertificatesSchema.json examples/ch-2015-06-14/voterCertificates.json
+java -jar json-schema-validator-2.2.6-lib.jar server/trusteeCertificatesSchema.json examples/ch-2015-06-14/trusteeCertificates.json
 
 java -jar json-schema-validator-2.2.6-lib.jar client/electionDefinitionSchema.json examples/sub-2015/electionDefinition.json
 java -jar json-schema-validator-2.2.6-lib.jar client/trusteesSchema.json examples/sub-2015/trustees.json
