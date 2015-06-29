@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
+import ch.bfh.univote2.component.core.UnivoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -98,7 +99,10 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
 	}
 
 	@Override
-	public Properties getConfiguration(String key) {
+	public Properties getConfiguration(String key) throws UnivoteException {
+		if (!this.configurations.containsKey(key)) {
+			throw new UnivoteException("Unknown configuration: " + key);
+		}
 		return this.configurations.get(key);
 	}
 }

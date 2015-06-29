@@ -153,9 +153,11 @@ public class ActionManagerImpl implements ActionManager {
 	public void init() {
 		//Load action graph from the configuration
 		this.actionGraph = new HashMap<>();
-		Properties config = this.configurationManager.getConfiguration(CONFIGURATION_NAME);
 
-		if (config == null) {
+		Properties config;
+		try {
+			config = this.configurationManager.getConfiguration(CONFIGURATION_NAME);
+		} catch (UnivoteException ex) {
 			this.log("No configuration available for the action manager.", Level.SEVERE);
 			return;
 		}

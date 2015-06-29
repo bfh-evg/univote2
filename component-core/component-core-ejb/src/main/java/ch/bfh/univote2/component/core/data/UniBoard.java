@@ -39,31 +39,37 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.component.core.data;
+
+import java.security.PublicKey;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public class UniBoard {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel");
+	private final String wsdlURL;
+	private final String endPointURL;
 
-	private final String value;
+	private final PublicKey publicKey;
 
-	GroupEnum(String value) {
-		this.value = value;
+	public UniBoard(String wsdlURL, String endPointURL, PublicKey publicKey) {
+		this.wsdlURL = wsdlURL;
+		this.endPointURL = endPointURL;
+		this.publicKey = publicKey;
 	}
 
-	public String getValue() {
-		return value;
+	public String getWsdlURL() {
+		return wsdlURL;
+	}
+
+	public String getEndPointURL() {
+		return endPointURL;
+	}
+
+	public PublicKey getPublicKey() {
+		return publicKey;
 	}
 
 }

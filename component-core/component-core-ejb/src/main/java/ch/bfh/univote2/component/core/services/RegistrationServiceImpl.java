@@ -45,11 +45,10 @@ import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.notification.NotificationService;
 import ch.bfh.uniboard.notification.NotificationService_Service;
 import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.data.UniBoard;
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
+import ch.bfh.univote2.component.core.manager.UniBoardManager;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -62,10 +61,7 @@ import javax.xml.ws.BindingProvider;
 public class RegistrationServiceImpl implements RegistrationService {
 
 	private static final String CONFIG_NAME = "registration-helper";
-	private static final String WSDL_URL = "wsdlLocation";
-	private static final String ENDPOINT_URL = "endPointUrl";
 	private static final String OWN_ENDPOINT_URL = "ownEndPointUrl";
-	private final Map<String, StringTuple> boards = new HashMap<>();
 	private String ownEndPointURL;
 
 	private static final Logger logger = Logger.getLogger(RegistrationServiceImpl.class.getName());
@@ -73,59 +69,38 @@ public class RegistrationServiceImpl implements RegistrationService {
 	@EJB
 	ConfigurationManager configurationManager;
 
+	@EJB
+	UniBoardManager uniBoardManager;
+
 	@PostConstruct
 	public void init() {
-		if (!this.configurationManager.getConfiguration(CONFIG_NAME).containsKey(OWN_ENDPOINT_URL)) {
-			logger.log(Level.SEVERE, "Own endpoint URL is not configured. Cant register.");
-			return;
-		}
-		this.ownEndPointURL = (String) this.configurationManager.getConfiguration(CONFIG_NAME).remove(OWN_ENDPOINT_URL);
-		Set<String> boardCandidates = this.configurationManager.getConfiguration(CONFIG_NAME).stringPropertyNames();
-
-		for (String boardCandidate : boardCandidates) {
-			String[] split = boardCandidate.split("\\.");
-			if (split.length == 2) {
-				String name = split[0];
-				String urlType = split[1];
-				if (urlType.equals(WSDL_URL)) {
-					String boardCandidate2 = name + "." + ENDPOINT_URL;
-					if (boardCandidates.contains(boardCandidate2)) {
-						this.boards.put(name, new StringTuple(
-								this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate),
-								this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate2)
-						));
-					}
-				} else if (urlType.equals(ENDPOINT_URL)) {
-					String boardCandidate2 = name + "." + WSDL_URL;
-					if (boardCandidates.contains(boardCandidate2)) {
-						this.boards.put(name, new StringTuple(
-								this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate),
-								this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(boardCandidate2)
-						));
-					}
-				} else {
-					logger.log(Level.SEVERE, "Unknown property {0}", urlType);
-				}
+		try {
+			if (!this.configurationManager.getConfiguration(CONFIG_NAME).containsKey(OWN_ENDPOINT_URL)) {
+				logger.log(Level.SEVERE, "Own endpoint URL is not configured. Cant register.");
+				return;
 			}
+			this.ownEndPointURL = (String) this.configurationManager.getConfiguration(CONFIG_NAME).remove(OWN_ENDPOINT_URL);
+		} catch (UnivoteException ex) {
+			logger.log(Level.SEVERE, "Cant load configuration.", ex);
 		}
 	}
 
 	@Override
 	public String register(String board, QueryDTO q) throws UnivoteException {
-		return this.getNotificationService(board).register(ownEndPointURL, q);
+		return this.getNotificationService(this.uniBoardManager.getUniBoard(board)).register(ownEndPointURL, q);
 	}
 
 	@Override
 	public void unregister(String board, String notificationCode) throws UnivoteException {
-		this.getNotificationService(board).unregister(notificationCode);
+		this.getNotificationService(this.uniBoardManager.getUniBoard(board)).unregister(notificationCode);
 	}
 
 	@Override
 	public void unregisterUnknownNotification(String notificationCode
 	) {
-		for (String board : this.boards.keySet()) {
+		for (UniBoard board : this.uniBoardManager.getAllUniBoards()) {
 			try {
-				this.unregister(board, notificationCode);
+				this.getNotificationService(board).unregister(notificationCode);
 			} catch (UnivoteException ex) {
 				logger.log(Level.WARNING, ex.getMessage());
 				if (ex.getCause() != null) {
@@ -135,43 +110,19 @@ public class RegistrationServiceImpl implements RegistrationService {
 		}
 	}
 
-	private NotificationService getNotificationService(String board) throws UnivoteException {
-		StringTuple boardUrls = this.boards.get(board);
+	private NotificationService getNotificationService(UniBoard board) throws UnivoteException {
 		try {
 
-			URL wsdlLocation = new URL(boardUrls.getWdslUrl());
+			URL wsdlLocation = new URL(board.getWsdlURL());
 			QName qname = new QName("http://uniboard.bfh.ch/", "UniBoardService");
 			NotificationService_Service ubService = new NotificationService_Service(wsdlLocation, qname);
 			NotificationService notificationService = ubService.getNotificationServicePort();
 			BindingProvider bp = (BindingProvider) notificationService;
-			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, boardUrls.getEndPointUrl());
+			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, board.getEndPointURL());
 			return notificationService;
 		} catch (Exception ex) {
-			throw new UnivoteException("Unable to connect to UniBoard service: " + boardUrls.getEndPointUrl(), ex);
+			throw new UnivoteException("Unable to connect to UniBoard service: " + board.getEndPointURL(), ex);
 		}
 	}
 
-	protected Map<String, StringTuple> getBoards() {
-		return this.boards;
-	}
-
-	protected class StringTuple {
-
-		private final String wdslUrl;
-		private final String endPointUrl;
-
-		public StringTuple(String wdslUrl, String endPointUrl) {
-			this.wdslUrl = wdslUrl;
-			this.endPointUrl = endPointUrl;
-		}
-
-		public String getWdslUrl() {
-			return wdslUrl;
-		}
-
-		public String getEndPointUrl() {
-			return endPointUrl;
-		}
-
-	}
 }

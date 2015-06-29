@@ -10,6 +10,8 @@ import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
 import javax.ejb.EJB;
@@ -20,6 +22,7 @@ import javax.ejb.Singleton;
 public class OutcomeRoutingServiceImpl implements OutcomeRoutingService {
 
 	private static final String CONFIGURATION_NAME = "outcome-routing";
+	private static final Logger logger = Logger.getLogger(OutcomeRoutingServiceImpl.class.getName());
 
 	private final Map<String, String> routing = new HashMap<>();
 
@@ -31,9 +34,13 @@ public class OutcomeRoutingServiceImpl implements OutcomeRoutingService {
 
 	@PostConstruct
 	public void init() {
-		Properties config = this.configurationManager.getConfiguration(CONFIGURATION_NAME);
-		for (String userInputname : config.stringPropertyNames()) {
-			this.routing.put(userInputname, config.getProperty(userInputname));
+		try {
+			Properties config = this.configurationManager.getConfiguration(CONFIGURATION_NAME);
+			for (String userInputname : config.stringPropertyNames()) {
+				this.routing.put(userInputname, config.getProperty(userInputname));
+			}
+		} catch (UnivoteException ex) {
+			logger.log(Level.SEVERE, "Cant load configuration.", ex);
 		}
 	}
 

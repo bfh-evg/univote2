@@ -39,8 +39,9 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec.defineEA;
+package ch.bfh.univote2.ec.pubTC;
 
+import ch.bfh.univote2.ec.defineEA.*;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
@@ -71,13 +72,13 @@ import javax.ejb.Stateless;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Stateless
-public class DefineEAAction extends AbstractAction implements NotifiableAction {
+public class PublishTrusteeCertsAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "DefineEAAction";
+	private static final String ACTION_NAME = "PublishTrusteeCertsAction";
 	private static final String INPUT_NAME = "EAName";
 	private static final String UNIVOTE_BOARD = "univote-board";
 	private static final String UNICERT_BOARD = "unicert-board";
-	private static final Logger logger = Logger.getLogger(DefineEAAction.class.getName());
+	private static final Logger logger = Logger.getLogger(PublishTrusteeCertsAction.class.getName());
 
 	@EJB
 	ActionManager actionManager;
@@ -93,7 +94,7 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
 		List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
 		this.informationService.informTenant(ack, "Created new context.");
-		return new DefineEAActionContext(ack, preconditionsQuerys);
+		return new PublishTrusteeCertsActionContext(ack, preconditionsQuerys);
 	}
 
 	@Override
@@ -101,10 +102,10 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 
 		try {
 			ResultContainerDTO result = this.uniboardService.get(UNIVOTE_BOARD,
-					QueryFactory.getQueryForEACert(actionContext.getSection()));
+					QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
 			return !result.getResult().getPost().isEmpty();
 		} catch (UnivoteException ex) {
-			logger.log(Level.WARNING, "Could not request ea certificate.", ex);
+			logger.log(Level.WARNING, "Could not request trustees certificates.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not check post condition.");
 			return false;
@@ -113,26 +114,16 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
-		//Add UserInput
-		UserInputPreconditionQuery uiQuery = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
-				actionContext.getActionContextKey().getTenant(),
-				actionContext.getActionContextKey().getSection()));
-		actionContext.getPreconditionQueries().add(uiQuery);
+		//Check trustee certs
 	}
 
 	@Override
 	@Asynchronous
 	public void run(ActionContext actionContext) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
-		if (actionContext instanceof DefineEAActionContext) {
-			DefineEAActionContext deaa = (DefineEAActionContext) actionContext;
-			if (!deaa.getName().isEmpty()) {
-				this.runInternal(deaa);
-			} else {
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"No name set for ea.");
-				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			}
+		if (actionContext instanceof PublishTrusteeCertsActionContext) {
+			PublishTrusteeCertsActionContext ptcac = (PublishTrusteeCertsActionContext) actionContext;
+
 		} else {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Unsupported context.");
@@ -147,8 +138,8 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 			EANameUserInput aeui = (EANameUserInput) notification;
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Entred value: " + aeui.getName());
-			if (actionContext instanceof DefineEAActionContext) {
-				DefineEAActionContext deaa = (DefineEAActionContext) actionContext;
+			if (actionContext instanceof PublishTrusteeCertsActionContext) {
+				PublishTrusteeCertsActionContext deaa = (PublishTrusteeCertsActionContext) actionContext;
 				deaa.setName(aeui.getName());
 				this.runInternal(deaa);
 			} else {
@@ -164,7 +155,7 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 
 	}
 
-	private void runInternal(DefineEAActionContext actionContext) {
+	private void runInternal(PublishTrusteeCertsActionContext actionContext) {
 		try {
 			//Get Certificate from UniCert
 			ResultContainerDTO result = this.uniboardService.get(UNICERT_BOARD,

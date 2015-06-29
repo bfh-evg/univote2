@@ -54,8 +54,9 @@ import javax.ejb.Local;
 @Local
 public interface UniboardService {
 
-	ResultContainerDTO get(QueryDTO query) throws UnivoteException;
+	ResultContainerDTO get(String board, QueryDTO query) throws UnivoteException;
 
-	AttributesDTO post(String section, String group, byte[] message, String tennant) throws UnivoteException;
+	AttributesDTO post(String board, String section, String group, byte[] message, String tennant)
+			throws UnivoteException;
 
 }
