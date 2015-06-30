@@ -113,6 +113,27 @@ public class QueryFactory {
 		return query;
 	}
 
+	public static QueryDTO getQueryForTrusteeCerts(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier, new StringValueDTO(GroupEnum.TRUSTEE_CERTIFICATES.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
+
 	public static QueryDTO getQueryForElectionDefinition(String section) {
 		QueryDTO query = new QueryDTO();
 		IdentifierDTO identifier = new AlphaIdentifierDTO();

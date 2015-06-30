@@ -39,31 +39,37 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.ec.grantSL;
+
+import ch.bfh.univote2.component.core.action.NotifiableAction;
+import ch.bfh.univote2.component.core.query.GroupEnum;
+import ch.bfh.univote2.ec.generic.GrantAccessRightEAAction;
+import java.util.logging.Logger;
+import javax.ejb.Stateless;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+@Stateless
+public class GrantSecurityLevelAction extends GrantAccessRightEAAction implements NotifiableAction {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel");
+	private static final String ACTION_NAME = "GrantSecurityLevelAction";
+	private static final Logger logger = Logger.getLogger(GrantSecurityLevelAction.class.getName());
 
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	@Override
+	protected String getActionName() {
+		return ACTION_NAME;
 	}
 
-	public String getValue() {
-		return value;
+	@Override
+	protected GroupEnum getGroupName() {
+		return GroupEnum.SECURITY_LEVEL;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return logger;
 	}
 
 }

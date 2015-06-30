@@ -44,7 +44,6 @@ package ch.bfh.univote2.component.core.services;
 import ch.bfh.uniboard.clientlib.BoardErrorException;
 import ch.bfh.uniboard.clientlib.GetException;
 import ch.bfh.uniboard.clientlib.GetHelper;
-import ch.bfh.uniboard.clientlib.KeyHelper;
 import ch.bfh.uniboard.clientlib.PostException;
 import ch.bfh.uniboard.clientlib.PostHelper;
 import ch.bfh.uniboard.clientlib.signaturehelper.SignatureException;
@@ -52,14 +51,9 @@ import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.manager.ConfigurationManager;
+import ch.bfh.univote2.component.core.data.UniBoard;
 import ch.bfh.univote2.component.core.manager.TenantManager;
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Properties;
-import java.util.logging.Logger;
+import ch.bfh.univote2.component.core.manager.UniBoardManager;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -70,21 +64,18 @@ import javax.ejb.Stateless;
 @Stateless
 public class UniBoardServiceImpl implements UniboardService {
 
-	private static final Logger logger = Logger.getLogger(UniBoardServiceImpl.class.getName());
-	private static final String CONFIG_NAME = "uniboard-helper";
-
 	@EJB
 	TenantManager tenantManager;
 
 	@EJB
-	ConfigurationManager configurationManager;
+	UniBoardManager uniBoardManager;
 
 	@Override
-	public ResultContainerDTO get(QueryDTO query) throws UnivoteException {
-		String wsdlLocation = this.configurationManager.getConfiguration(CONFIG_NAME).getProperty("wsdlLocation");
-		String endPointUrl = this.configurationManager.getConfiguration(CONFIG_NAME).getProperty("endPointUrl");
+	public ResultContainerDTO get(String board, QueryDTO query) throws UnivoteException {
 		try {
-			GetHelper getHelper = new GetHelper(this.getBoardKey(), wsdlLocation, endPointUrl);
+			UniBoard boardConfig = this.uniBoardManager.getUniBoard(board);
+			GetHelper getHelper = new GetHelper(boardConfig.getPublicKey(), boardConfig.getWsdlURL(),
+					boardConfig.getEndPointURL());
 			return getHelper.get(query);
 		} catch (GetException ex) {
 			throw new UnivoteException("Could not create wsclient.", ex);
@@ -95,13 +86,13 @@ public class UniBoardServiceImpl implements UniboardService {
 	}
 
 	@Override
-	public AttributesDTO post(String section, String group, byte[] message, String tenant)
+	public AttributesDTO post(String board, String section, String group, byte[] message, String tenant)
 			throws UnivoteException {
-		String wsdlLocation = this.configurationManager.getConfiguration(CONFIG_NAME).getProperty("wsdlLocation");
-		String endPointUrl = this.configurationManager.getConfiguration(CONFIG_NAME).getProperty("endPointUrl");
 		try {
+			UniBoard boardConfig = this.uniBoardManager.getUniBoard(board);
 			PostHelper postHelper = new PostHelper(this.tenantManager.getPublicKey(tenant),
-					this.tenantManager.getPrivateKey(tenant), this.getBoardKey(), wsdlLocation, endPointUrl);
+					this.tenantManager.getPrivateKey(tenant), boardConfig.getPublicKey(), boardConfig.getWsdlURL(),
+					boardConfig.getEndPointURL());
 			return postHelper.post(message, section, group);
 		} catch (PostException ex) {
 			throw new UnivoteException("Could not create wsclient.", ex);
@@ -109,19 +100,6 @@ public class UniBoardServiceImpl implements UniboardService {
 			throw new UnivoteException("Could not sign message/Verify response.", ex);
 		} catch (BoardErrorException ex) {
 			throw new UnivoteException("Uniboard rejected the message", ex);
-		}
-	}
-
-	protected PublicKey getBoardKey() throws UnivoteException {
-		Properties config = this.configurationManager.getConfiguration(CONFIG_NAME);
-		BigInteger y = new BigInteger(config.getProperty("y"));
-		BigInteger p = new BigInteger(config.getProperty("p"));
-		BigInteger q = new BigInteger(config.getProperty("q"));
-		BigInteger g = new BigInteger(config.getProperty("g"));
-		try {
-			return KeyHelper.createDSAPublicKey(p, q, g, y);
-		} catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
-			throw new UnivoteException("Could not create publicKey for UniBoard", ex);
 		}
 	}
 

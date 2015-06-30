@@ -39,20 +39,37 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.manager;
+package ch.bfh.univote2.ec.pubTC;
 
-import ch.bfh.univote2.component.core.UnivoteException;
-import java.util.Properties;
-import javax.ejb.Local;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import ch.bfh.univote2.component.core.data.PreconditionQuery;
+import java.util.List;
 
 /**
- * Interface that allows components to retrieve their configuration without worrying from where this configuration is
- * loaded. For every application there is expected exactly one component implementing this interface.
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Local
-public interface ConfigurationManager {
+public class PublishTrusteeCertsActionContext extends ActionContext {
 
-	public Properties getConfiguration(String key) throws UnivoteException;
+	private String name;
+
+	public PublishTrusteeCertsActionContext(ActionContextKey actionContextKey,
+			List<PreconditionQuery> preconditionQueries) {
+		super(actionContextKey, preconditionQueries, false);
+	}
+
+	@Override
+	protected void purgeData() {
+		this.name = null;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 }

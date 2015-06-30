@@ -39,31 +39,28 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.component.core.manager;
+
+import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.data.UniBoard;
+import java.util.Collection;
+import javax.ejb.Local;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+@Local
+public interface UniBoardManager {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel");
+	/**
+	 * Returns the configuration for a given name of an uniboard
+	 *
+	 * @param uniBoardName name of the uniboard configuration needed
+	 * @return uniboard configuration
+	 * @throws UnivoteException throws exception if no configuration exists for the provided name
+	 */
+	public UniBoard getUniBoard(String uniBoardName) throws UnivoteException;
 
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
+	public Collection<UniBoard> getAllUniBoards();
 }

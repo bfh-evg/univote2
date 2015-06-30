@@ -84,14 +84,57 @@ public class MessageFactoryTest {
 
 	@Test
 	public void testCreateAccessRight_3args() throws Exception {
+		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+		GroupEnum group = GroupEnum.ACCESS_RIGHT;
+		Integer amount = 1;
+		Date startTime = new Date(new Long("1435242934856"));
+		Date endTime = new Date(new Long("1435242994846"));
+
+		String expectedMessageStr = "{\"group\":\"accessRight\",\"amount\": 1,"
+				+ "\"crypto\":{\"type\":\"DL\", \"p\":\"1\",\"q\":\"1\",\"g\":\"1\",\"publickey\":\"1\"}}";;
+		try {
+			byte[] message = MessageFactory.createAccessRight(group, publicKey, amount);
+			Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));
+		} catch (UnivoteException ex) {
+			fail();
+		}
 	}
 
 	@Test
 	public void testCreateAccessRight_GroupEnum_PublicKey() throws Exception {
+		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+		GroupEnum group = GroupEnum.ACCESS_RIGHT;
+		Integer amount = 1;
+		Date startTime = new Date(new Long("1435242934856"));
+		Date endTime = new Date(new Long("1435242994846"));
+
+		String expectedMessageStr = "{\"group\":\"accessRight\","
+				+ "\"crypto\":{\"type\":\"DL\", \"p\":\"1\",\"q\":\"1\",\"g\":\"1\",\"publickey\":\"1\"}}";;
+		try {
+			byte[] message = MessageFactory.createAccessRight(group, publicKey);
+			Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));
+		} catch (UnivoteException ex) {
+			fail();
+		}
 	}
 
 	@Test
 	public void testCreateAccessRight_4args() throws Exception {
+		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+		GroupEnum group = GroupEnum.ACCESS_RIGHT;
+		Integer amount = 1;
+		Date startTime = new Date(new Long("1435242934856"));
+		Date endTime = new Date(new Long("1435242994846"));
+
+		String expectedMessageStr = "{\"group\":\"accessRight\",\"startTime\":\"2015-06-25T14:35:34Z\","
+				+ "\"endTime\":\"2015-06-25T14:36:34Z\","
+				+ "\"crypto\":{\"type\":\"DL\", \"p\":\"1\",\"q\":\"1\",\"g\":\"1\",\"publickey\":\"1\"}}";;
+		try {
+			byte[] message = MessageFactory.createAccessRight(group, publicKey, startTime, endTime);
+			Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));
+		} catch (UnivoteException ex) {
+			fail();
+		}
 	}
 
 }
