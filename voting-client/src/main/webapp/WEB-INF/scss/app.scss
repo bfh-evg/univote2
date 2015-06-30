@@ -105,6 +105,9 @@ main {
 
 
 // inline sytling
+.center { text-align: center; }
+.spacer20 { padding-top: 20px; }
+.spacer50 { padding-top: 50px; }
 .registration p a.red { margin-left:-10px; }
 .black, a { color: $black; }
 .grey { background-color: $primary-color; }
@@ -138,6 +141,20 @@ main {
 			button { min-width: 150px; margin: 25px 5px 10px 5px; }
 		}
 	}
+
+	#certificate-viewer {
+		overflow: auto; padding: 10px;
+		table {
+			text-align: left; margin: 10px auto; border-collapse: collapse;
+			th { font-weight: bold; }
+			td { padding-left: 10px; width: 350px; }
+			tr {
+				border-bottom: 1px solid #ccc;
+				&:last-child { border-bottom: none; }
+			}
+		}
+		button { min-width: 150px; margin: 25px 5px 10px 5px; }
+	}
 }
 
 
@@ -162,19 +179,34 @@ dl {
 }
 
 // 1 + 2 column content view
-.chooser {
-	h1 { margin: 0; line-height: 100%; color: $primary-color;
-		 &.active { color: $red; }
+.substep {
+	margin-top: rem-calc(40); color: $black; opacity: 0.2; transition: opacity 0.8s;
+	&.done { opacity: 1; }
+	&.active {
+		opacity: 1;
+		h1 { color: $red; }
 	}
+
+}
+
+.chooser {
+	h1 { margin: 0; line-height: 100%; color: $primary-color; }
 	p { font-family: MuseoSlab-700;
 		a { color: $primary-color;
 			&.active, &:hover { color: $black; }
 		}
 	}
 }
-.chooser_content { background-color: $silver;
-				  textarea { width: 100%; height: rem-calc(240); }
+.chooser_content {
+	padding-top: rem-calc(0); /*background-color: $silver;*/
+	p { margin-bottom: rem-calc(5); }
+	textarea { width: 100%; height: rem-calc(140); }
+	input[type=password] {width: 50%; display: inline; margin-right: rem-calc(20); }
+	#password-check-icon { padding-left: 10px; opacity: 0.1; filter: alpha(opacity = 10); }
+	#password-check-icon.ok { opacity: 1; filter: alpha(opacity = 100); }
+	#pwderror { color: #c00;}
 }
+
 
 // style buttons either as links or as button element
 a.button, .arrow_box {
@@ -192,7 +224,7 @@ button.gradient { padding-top:rem-calc(10); padding-left:0; height: 2.5em; text-
 a.gradient, a.button.active, button.gradient, button.active { @include gradient; }
 .arrow_box:hover { background-color: $primary-color; }
 button.gradient:hover, a.button:hover { @include background-image(linear-gradient(left,  $darkred 0%, black 100%)); }
-a.button.disabled {color: $silver !important; background-color: $iron !important; background-image: none;}
+a.button.disabled, button[disabled] {color: $silver !important; background-color: $iron !important; background-image: none !important;}
 
 .arrow_box {
 	@include border-top-left-radius(3px);
@@ -223,7 +255,6 @@ form {
 	button.gradient { width: 100%; padding-bottom: rem-calc(10); }
 	button:disabled { width: 100%; padding: rem-calc(10); height: 2.5em; text-align: left; color: $silver !important; background-color: $iron !important; font-family: MuseoSlab-700;  }
 	select { font-size: 100%; color: $red; }
-	p { margin-bottom: rem-calc(5); }
 }
 // footer stuff
 footer {

@@ -21,14 +21,14 @@
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-    <ui:define name="page_title">#{msg.title}</ui:define>
+	<ui:define name="page_title">#{msg.title}</ui:define>
 
-    <ui:define name="head_include_css">
+	<ui:define name="head_include_css">
 		<link rel="stylesheet" type="text/css" href="css/custom-ui/jquery-ui-1.9.2.custom.css" />
 		<link rel="stylesheet" type="text/css" href="css/elections.css" />
-    </ui:define>
+	</ui:define>
 
-    <ui:define name="head_include_js">
+	<ui:define name="head_include_js">
 
 		<script type="text/javascript" src="js/lib/leemon.js"></script>
 		<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.min.js"></script>
@@ -48,65 +48,50 @@
 		<script type="text/javascript" src="js/vote-jquery-ui.js" />
 		<script type="text/javascript" src="js/vote-cast-ballot.js" />
 
-    </ui:define>
+	</ui:define>
 
 
 
-    <ui:define name="content">
-
-
-		<form name="properties">
-			<input type="hidden" id="electionid" value="#{param.electionId}" />
-			<input type="hidden" id="lang" value="#{languageDetails.locale}" />
-		</form>
-
-		<article class="row">
-			<div class="small-12 columns">
-				<h3>Wahlen des SUB-StudentInnenrates (4.–21. März 2015)</h3>
-			</div>
-			<div class="large-4 medium-4 columns">
-				<button class="arrow_box active">Schlüsseleingabe</button>
-			</div>
-			<div class="large-4 medium-4 columns">
-				<button class="arrow_box grey">Abstimmung</button>
-			</div>
-			<div class="large-4 medium-4 columns">
-				<button class="arrow_box grey">Bestätigung</button>
-			</div>
-			<div class="small-12 columns">
-				<p>Zur Überprüfung Ihrer Wahlberechtigung müssen Sie den passwortgeschützen Wahlschlüssel eingeben. </p>
-			</div>
-		</article>
+	<ui:define name="content">
 
 		<div class="row">
+			<div class="small-12 columns">
+				<h3 id="election-title" data-election-id="#{param.electionId}">&#160;</h3>
+			</div>
+			<div id="step_1" class="large-4 medium-4 columns">
+				<button class="arrow_box active">#{msg.voteStep1}</button>
+			</div>
+			<div id="step_2" class="large-4 medium-4 columns">
+				<button class="arrow_box grey">#{msg.voteStep2}</button>
+			</div>
+			<div id="step_3" class="large-4 medium-4 columns">
+				<button class="arrow_box grey">#{msg.voteStep3}</button>
+			</div>
+		</div>
+
+		<!-- STEP 1: Upload key -->
+		<div id="step_1_content" class="row">
+			<div class="small-12 columns">
+				<p>#{msg.enterKey1}</p>
+			</div>
 			<div class="large-4 medium-4 columns chooser">
-				<p>Der Wahlschlüssel wurde Ihnen während der Registrierung per E-Mail zugestellt.</p>
+				<p>#{msg.enterKey2}</p>
 			</div>
 			<div class="large-8 medium-8 columns chooser_content">
-				<form>
-					<p>Ihr persönlicher Wahlschlüssel</p>
-					<textarea id="secretkey_ta" class="middle radius" readonly="readonly">Bitte vollständigen Wahlschlüssel mittels copy/paste hier ins Textfeld einfügen.</textarea>
-					<p>Ihr Passwort</p>
+				<form onsubmit="return false;" id="upload_key_form">
+					<p>#{msg.yourKey}</p>
+					<textarea id="sk-upload" class="middle radius" placeholder="#{msg.yourKeyManually}"></textarea>
+					<p>#{msg.yourPassword}</p>
 					<input class="text radius" type="password" name="password" id="password" />
-					<p>Wenn Sie keinen Wahlschlüssel haben, dann <a href="registration.html">registrieren</a> Sie sich bitte zuerst.</p>
-					<a href="wahl_abstimmung.html" class="button gradient radius icon-right-dir">Zur Abstimmung</a>
+					<p>#{msg.noKey1} <h:outputLink value="index.xhtml">#{msg.noKey2}</h:outputLink> #{msg.noKey3}</p>
+					<a onClick="return uploadSecretKey();" class="button gradient radius icon-right-dir">#{msg.continueStr}</a>
 				</form>
 			</div>
 		</div>
 
 
-
-
-
-		<div class="progress-bar">
-			<div id="step_1" class="step active">#{msg.voteStep1}</div><img src="img/arrow.png" alt="Arrow" />
-			<div id="step_2" class="step">#{msg.voteStep2}</div><img src="img/arrow.png" alt="Arrow" />
-			<div id="step_3" class="step">#{msg.voteStep3}</div>
-		</div>
-
-
-
 		<!-- STEP 1: Upload key -->
+		<!--
 		<div id="step_1_content">
 
 			<p class="block">#{msg.enterKey}<br/><br/></p>
@@ -144,7 +129,7 @@
 
 			<p class="center small spacer50">#{msg.noKey1} <h:outputLink value="index.xhtml">#{msg.noKey2}</h:outputLink> #{msg.noKey3}</p>
 
-		</div>
+		</div>-->
 
 		<!-- STEP 2: Vote -->
 		<div id="step_2_content" class="hidden">
@@ -234,6 +219,6 @@
 
 			<p class="block spacer50"><h:outputLink value="index.xhtml" class="raquo">#{msg.backhome}</h:outputLink></p>
 		</div>
-    </ui:define>
+	</ui:define>
 
 </ui:composition>

@@ -34,8 +34,8 @@ function showHelp() {
 				'<form action="" name="help"><div><span>' + msg.helpBoxEmail + '</span><input type="text" name="email" id="email"/>' +
 				'<span>' + msg.helpBoxMessage + '</span><textarea name="message" id="message"></textarea>' +
 				'<span class="tiny">' + msg.helpBoxMessageAdds + '</span>' +
-				'<button class="button radius" onclick="return submitHelpForm($(\'#email\').val(),$(\'#message\').val());">' + msg.helpBoxSubmit + '</button>' +
-				'<button class="button radius" onclick="$.unblockUI(); return false;">' + msg.close + '</button>' + '</div></form>' +
+				'<button class="button radius" onclick="$.unblockUI(); return false;">' + msg.close + '</button>' +
+				'<button class="button radius" onclick="return submitHelpForm($(\'#email\').val(),$(\'#message\').val());">' + msg.helpBoxSubmit + '</button>' + '</div></form>' +
 				'</div>',
 		css: {top: '20%', left: '20%', width: '60%'}
 	});
