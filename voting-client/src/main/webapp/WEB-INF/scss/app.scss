@@ -125,6 +125,11 @@ main {
 .blockUI.blockMsg>div, .blockUI.blockMsg>p  { padding: 10px; }
 
 .blockUI {
+
+	#blockui-processing {
+		text-align: left;
+	}
+
 	#brief-instruction {
 		li { margin-bottom: rem-calc(10)}
 	}
@@ -255,6 +260,20 @@ form {
 	button.gradient { width: 100%; padding-bottom: rem-calc(10); }
 	button:disabled { width: 100%; padding: rem-calc(10); height: 2.5em; text-align: left; color: $silver !important; background-color: $iron !important; font-family: MuseoSlab-700;  }
 	select { font-size: 100%; color: $red; }
+}
+
+xinput, xselect, xtextarea {
+    border: solid 1px $red;
+    outline: 0;
+    color: black;
+    background: #FFFFFF url('') left top repeat-x;
+    background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF),
+		color-stop(4%, #EEEEEE), to(#FFFFFF) );
+    background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+
 }
 // footer stuff
 footer {

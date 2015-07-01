@@ -71,8 +71,9 @@
 					</div>
 					<div class="large-8 medium-8 columns chooser_content">
 						<select id="setup" class="select radius" name="setup" size="1" onchange="updateSetup()">
+							<!-- TODO Get values from JNDI -->
 							<option value="">#{msg.pleaseSelect}</option>
-							<option value="manually">Manuell</option>
+							<option value="manually">#{msg.manually}</option>
 							<option value="uv-vsbfh">VSBFH</option>
 						</select>
 						<div id="manual_setup" class="hidden">
@@ -81,31 +82,31 @@
 								<option value="RSA">RSA</option>
 								<option value="DiscreteLog">Discrete Logarithm</option>
 							</select>
-							<div id="rsa_options" class="hidden">
-								<p class="col1 small">#{msg.keysize}: </p>
+							<div id="rsa_options" class="crypto_setup_type_options hidden">
+								<p class="col1 small">#{msg.keysize}</p>
 								<select id="crypto_setup_size" class="select" name="crypto_setup_size" size="1">
 									<option value="1024">1024</option>
 									<option value="2048">2048</option>
 								</select>
 							</div>
-							<div id="dlog_options" class="hidden">
-								<p class="col1 small">#{msg.valuep}: </p>
+							<div id="dlog_options" class="crypto_setup_type_options hidden">
+								<p class="col1 small">#{msg.valuep}</p>
 								<input type="text" id="p" />
-								<p>#{msg.valueq}: </p>
+								<p>#{msg.valueq}</p>
 								<input type="text" id="q" />
-								<p>#{msg.valueg}: </p>
+								<p>#{msg.valueg}</p>
 								<input type="text" id="g" />
 							</div>
 							<div>
-								<p>#{msg.application}:</p>
+								<p>#{msg.application}</p>
 								<input type="text" id="application"/>
 							</div>
 							<div>
-								<p>#{msg.role}:</p>
+								<p>#{msg.role}</p>
 								<input type="text" id="role"/>
 							</div>
 							<div>
-								<p>#{msg.identityFunction}:</p>
+								<p>#{msg.identityFunction}</p>
 								<select id="identity_function" class="select" name="identity_function" size="1">
 									<option value="1">#{msg.idFStandardSwitch}</option>
 									<option value="2">#{msg.idFAnonymizedSwitch}</option>
@@ -169,7 +170,6 @@
 		</div>
 
 
-
 		<!-- STEP 3: Confirmation content -->
 		<div id="step_3_content" class="hidden">
 			<div class="row">
@@ -186,137 +186,6 @@
 			</div>
 		</div>
 
-		<!-- STEP 2: Generation key content -->
-		<!--
-		<div id="step_2_content">
-			<p class="block">#{msg.genkeysStep2Text}</p>
-
-			<div id="substep_2_1" class="substep clearfix"><div class="substep_nr">1</div>
-				<p>#{msg.genkeysSubstep21Text}</p>
-
-				<div class="row clearfix notdisplayed">
-					<div class="col1 small"><label for="crypto_setup_type">#{msg.keytype}: </label></div>
-					<div class="col2">
-						<select id="crypto_setup_type" class="select" name="crypto_setup_type" size="1" onchange="updateKeysOptions()">
-							<option value="">#{msg.pleaseSelect}</option>
-							<option value="RSA" >RSA</option>
-							<option value="DiscreteLog" >Discrete Logarithm</option>
-						</select>
-					</div>
-				</div>
-				<div id="rsa_options" class="row clearfix hidden">
-					<div class="notdisplayed">
-						<div class="col1 small">#{msg.keysize}: </div>
-						<div class="col2">
-							<select id="crypto_setup_size" class="select" name="crypto_setup_size" size="1">
-								<option value="1024">1024</option>
-								<option value="2048">2048</option>
-							</select>
-						</div>
-					</div>
-				</div>
-				<div id="dlog_options" class="row clearfix hidden">
-					<div class="notdisplayed">
-						<div class="col1 small">#{msg.valuep}: </div>
-						<div class="col2">
-							<input type="text" id="p" />
-						</div>
-					</div>
-					<div class="notdisplayed">
-						<div class="col1 small">#{msg.valueq}: </div>
-						<div class="col2">
-							<input type="text" id="q" />
-						</div>
-					</div>
-					<div class="notdisplayed">
-						<div class="col1 small">#{msg.valueg}: </div>
-						<div class="col2">
-							<input type="text" id="g" />
-						</div>
-					</div>
-				</div>
-				<div class="col2only">
-					<button id="generate_key_bu" class="button" onclick="generateKeyPair();">#{msg.genkeysButton}</button>
-				</div>
-				<div id="substep_2_1_1" class="row clearfix">
-					<div class="col1 small">#{msg.yourVotingKeyLabel}</div>
-					<div class="col2"><textarea id="secretkey_ta" class="middle" readonly="readonly"></textarea></div>
-				</div>
-			</div>
-
-			<div id="substep_2_2" class="substep clearfix"><div class="substep_nr">2</div>
-				<p>#{msg.genkeysSubstep22Text}</p>
-				<form onsubmit="return false;">
-					<div class="row clearfix">
-						<div class="col1 small">#{msg.password}</div>
-						<div class="col2"><input type="password" name="password" id="password"/> <span id="pwderror"></span></div>
-					</div>
-					<div class="row clearfix">
-						<div class="col1 small">#{msg.retypePassword}</div>
-						<div class="col2"><input type="password" name="password2" id="password2" /><img id="password-check-icon" src="img/check.png" /></div>
-					</div>
-				</form>
-			</div>
-			<div id="substep_2_3" class="substep clearfix notdisplayed">
-				<div class="substep_nr">3</div>
-				<p>#{msg.genCertSubstep23Text}</p>
-				<div class="row clearfix notdisplayed">
-					<div class="col1 small">#{msg.application}: </div>
-					<div class="col2">
-						<input type="text" id="application"/>
-					</div>
-				</div>
-				<div class="row clearfix notdisplayed">
-					<div class="col1 small">#{msg.role}: </div>
-					<div class="col2">
-						<input type="text" id="role"/>
-					</div>
-				</div>
-				<div class="row clearfix notdisplayed">
-					<div class="col1 small">#{msg.identityFunction}: </div>
-					<div class="col2">
-						<select id="identity_function" class="select" name="identity_function" size="1">
-							<option value="1">#{msg.idFStandardSwitch}</option>
-							<option value="2">#{msg.idFAnonymizedSwitch}</option>
-							<option value="3">#{msg.idFZurichSwitch}</option>
-							<option value="4">#{msg.idFStandardGoogle}</option>
-							<option value="5">#{msg.idFAnonymizedGoogle}</option>
-						</select>
-					</div>
-				</div>
-			</div>
-
-			<div id="substep_2_4" class="substep clearfix">
-				<div class="substep_nr">
-					4
-				</div>
-				<p>#{msg.genkeysSubstep24Text}</p>
-				<div class="col2only">
-					<table>
-						<tr><td><button id="retreive_secretkey_bu" class="button" onclick="completeCertRequest(true);">#{msg.retreiveSecretKey}</button></td><td>&#160;<span class="small">#{msg.to} <span id="mail"></span></span></td></tr>
-						<tr><td></td><td>&#160;<span class="small">#{msg.andText} </span><input type="text" id="alternate_mail" value="#{msg.optionalMail}"/></td></tr>
-					</table>
-					<c:if test="${initParam['dev-mode'] == 'true'}">
-						<br /><br/><span class="tiny">In dev-mode: <br/>if you don't have a running SMTP Server on your localhost...<br/>
-							<button class="button" onclick="completeCertRequest(false);">Save Key</button></span>
-					</c:if>
-				</div>
-			</div>
-		</div>
-		-->
-
-		<!-- STEP 3: Confirmation content -->
-
-		<!--<div id="step_3_content" class="hidden">
-			<p class="center"><img src="img/check_big.png" /></p>
-			<p class="block">#{msg.regsuccess}</p>
-			<p class="block spacer30">#{msg.inspectcert}</p>
-			<p class="center"><button class="button" onclick="inspectCert();">#{msg.savecert}</button></p>
-
-			<p class="block spacer50">
-				<h:outputLink value="index.xhtml" class="raquo">#{msg.backhome}</h:outputLink>
-			</p>
-		</div>-->
 	</ui:define>
 
 </ui:composition>

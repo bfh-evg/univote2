@@ -13,6 +13,9 @@
  *
  */
 
+var FAST = 500;
+var SLOW = 1000;
+var BLOCK_UI_TIMEOUT = 5000;
 
 var SEPARATOR = uvConfig.CONCAT_SEPARATOR;
 
@@ -57,12 +60,10 @@ $(function () {
 	if (requester.id.value == '') {
 		$.blockUI({message: '<p>' + msg.userNotAuthorised + '</p>'});
 		setTimeout(function () {
-			location.href = uvConfig.HOME_SITE
-		}, 5000);
+			location.href = uvConfig.HOME_SITE;
+		}, BLOCK_UI_TIMEOUT);
 		return;
 	}
-
-
 
 	// Get DOM elements
 	elements.step2 = document.getElementById('step_2');
@@ -77,6 +78,7 @@ $(function () {
 	elements.step3content = document.getElementById('step_3_content');
 
 	elements.setup = document.getElementById('setup');
+	elements.manualSetup = document.getElementById('manual_setup');
 	elements.secretKey = document.getElementById('secretkey_ta');
 
 	elements.password = document.getElementById('password');
@@ -129,6 +131,9 @@ $(function () {
 		checkPwdLength();
 	});
 
+	$('#manual_setup select, #manual_setup input').change(function () {
+		verifyKeysOptions();
+	});
 
 
 
@@ -137,18 +142,15 @@ $(function () {
 
 function updateSetup() {
 
-	$('.substep').removeClass('active done');
-	$('#substep_2_1').addClass('active');
-	elements.generateKeyButton.disabled = true;
-	elements.retreiveSecretKeyButton.disabled = true;
-	elements.password.disabled = true;
-	elements.password2.disabled = true;
+	gotoStep21();
 
 	var setup = elements.setup.value;
 	if (setup == '') {
 		// Nothing to do...
 	} else if (setup == 'manually') {
-		// TODO Show manual setup #manual_setup
+		$(elements.manualSetup).show(SLOW);
+		updateKeysOptions();
+		verifyKeysOptions();
 	} else {
 
 		// Block UI while processing
@@ -162,12 +164,14 @@ function updateSetup() {
  * If UniCert is on another domain, IE9 will not be able to retrieve the data
  * IE9 does not support cross domain ajax request.
  * JSONP could be a solution only if it is possible to send session id with it
+ *
+ * @param params Parameters
  */
 function retrieveData(params) {
 
 	var update = setInterval(function () {
 		$('#blockui-processing').append('.');
-	}, 1000);
+	}, SLOW);
 
 	//For IE
 	$.support.cors = true;
@@ -195,7 +199,7 @@ function retrieveData(params) {
 				$.blockUI({message: '<p>' + msg.dataRetrievalError + '</p>'});
 				setTimeout(function () {
 					location.href = uvConfig.HOME_SITE;
-				}, 5000);
+				}, BLOCK_UI_TIMEOUT);
 				return;
 			}
 
@@ -217,9 +221,6 @@ function retrieveData(params) {
 			elements.generateKeyButton.disabled = false;
 			$(elements.substep221).css('opacity', 0.5);
 			$.unblockUI();
-
-
-
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
 			clearInterval(update);
@@ -227,7 +228,7 @@ function retrieveData(params) {
 			$.blockUI({message: '<p>' + msg.dataRetrievalError + '</p><p>' + textStatus + ': ' + errorThrown});
 			setTimeout(function () {
 				location.href = uvConfig.HOME_SITE;
-			}, 50000000);
+			}, BLOCK_UI_TIMEOUT);
 		}
 	});
 
@@ -237,31 +238,87 @@ function retrieveData(params) {
 /*                                                PROCESS FUNCTIONS                                                  */
 /*********************************************************************************************************************/
 
+
+/**
+ * Goes to step 2.1
+ */
+function gotoStep21() {
+	$('.substep').removeClass('active done');
+	$('#substep_2_1').addClass('active');
+	$(elements.manualSetup).hide();
+	elements.generateKeyButton.disabled = true;
+	elements.password.disabled = true;
+	elements.password2.disabled = true;
+	elements.retreiveSecretKeyButton.disabled = true;
+}
+
+/**
+ * Goes to step 2.2
+ */
+function gotoStep22() {
+	$('.substep').removeClass('active done');
+	$(elements.substep21).addClass('done');
+	$(elements.substep22).addClass('active');
+	elements.generateKeyButton.disabled = false;
+	$(elements.substep221).css('opacity', 0.5);
+	elements.password.disabled = true;
+	elements.password2.disabled = true;
+	elements.retreiveSecretKeyButton.disabled = true;
+}
+
+
+/**
+ * Goes to step 3
+ */
+function gotoStep3() {
+	// Update progress bar
+	$(elements.step2).removeClass("active");
+	$(elements.step3).addClass("active");
+
+	// Show the certificate content
+	$(elements.step2content).addClass("hidden");
+	$(elements.step3content).removeClass("hidden");
+
+	// Scroll to top
+	window.scrollTo(0, 0);
+}
+
+
 /**
  * Update GUI with the corresponding fields when key type dropdown is changed
  */
 function updateKeysOptions() {
 	if (elements.cryptoSetupType.value === RSA) {
-		//only shows cryptoSetupSize when not set
-		if (!hasClass(elements.cryptoSetupSize.parentNode.parentNode, "notdisplayed")) {
-			$(elements.rsaOptions).show("slow");
-		}
-		$(elements.dlogOptions).hide("slow");
-		elements.generateKeyButton.disabled = false;
+		$(elements.rsaOptions).show(SLOW);
+		$(elements.dlogOptions).hide(SLOW);
 	} else if (elements.cryptoSetupType.value === DLOG) {
-		if (!hasClass(elements.p.parentNode.parentNode, "notdisplayed") ||
-				!hasClass(elements.q.parentNode.parentNode, "notdisplayed") ||
-				!hasClass(elements.g.parentNode.parentNode, "notdisplayed")) {
-			$(elements.dlogOptions).show("slow");
-		}
-		$(elements.rsaOptions).hide("slow");
-		elements.generateKeyButton.disabled = false;
+		$(elements.rsaOptions).hide(SLOW);
+		$(elements.dlogOptions).show(SLOW);
 	} else {
-		$(elements.rsaOptions).hide("slow");
-		$(elements.dlogOptions).hide("slow");
-		elements.generateKeyButton.disabled = true;
+		$(elements.rsaOptions).hide(SLOW);
+		$(elements.dlogOptions).hide(SLOW);
 	}
 }
+
+elements.application = document.getElementById('application');
+elements.role = document.getElementById('role');
+elements.cryptoSetupType = document.getElementById('crypto_setup_type');
+elements.cryptoSetupSize = document.getElementById('crypto_setup_size');
+elements.identity_function = document.getElementById('identity_function');
+
+function verifyKeysOptions() {
+	if (elements.cryptoSetupType.value != ''
+			&& ((elements.cryptoSetupType.value === RSA && elements.cryptoSetupType.value != '')
+					|| (elements.cryptoSetupType.value === DLOG && elements.p.value != '' && elements.q.value != '' && elements.g != ''))
+			&& elements.application.value != '' && elements.role.value != '' && elements.identity_function.value != '') {
+
+		gotoStep22();
+	} else {
+		gotoStep21();
+		$(elements.manualSetup).show();
+	}
+}
+
 /**
  * Generates key pair.
  */
@@ -288,7 +345,7 @@ function generateKeyPair() {
 
 		// Enable/disable next substep
 		$(elements.substep22).removeClass('active').addClass('done');
-		$(elements.substep221).animate({opacity: 1}, 500);
+		$(elements.substep221).animate({opacity: 1}, FAST);
 		$(elements.substep23).addClass('active');
 		elements.password.disabled = false;
 		elements.password2.disabled = false;
@@ -308,7 +365,7 @@ function generateKeyPair() {
 
 		// Enable/disable next substep
 		$(elements.substep22).removeClass('active').addClass('done');
-		$(elements.substep221).animate({opacity: 1}, 500);
+		$(elements.substep221).animate({opacity: 1}, FAST);
 		$(elements.substep23).addClass('active');
 		elements.password.disabled = false;
 		elements.password2.disabled = false;
@@ -328,7 +385,7 @@ function generateKeyPair() {
 		if (elements.p.value == "" || elements.q.value == "" || elements.g.value == "") {
 			$.unblockUI();
 			$.blockUI({message: '<p>' + msg.missingValuePQG + '</p>',
-				timeout: 5000});
+				timeout: BLOCK_UI_TIMEOUT});
 			return;
 		}
 		keyType = DLOG;
@@ -340,7 +397,6 @@ function generateKeyPair() {
 		var key = uvCrypto.computeVerificationKey(p, g, sk);
 		doneCbDlog(key);
 	}
-
 }
 
 function checkPwdLength() {
@@ -351,6 +407,7 @@ function checkPwdLength() {
 		$('#pwderror').html("");
 	}
 }
+
 /**
  * Helper function to check equality of password and password-check.
  * If the passwords are not empty but equal, the voter gets a feedback
@@ -424,7 +481,7 @@ function completeCertRequest(byMail) {
 						$.unblockUI();
 						$.blockUI({
 							message: '<p>' + msg.sendSecretKeyFailed + '</p>',
-							timeout: 5000});
+							timeout: BLOCK_UI_TIMEOUT});
 					});
 
 		} else {
@@ -457,7 +514,7 @@ function completeCertRequest(byMail) {
 		$.unblockUI();
 		$.blockUI({
 			message: '<p>' + msg.createCertificateFailed + " " + message + '</p>',
-			timeout: 5000});
+			timeout: BLOCK_UI_TIMEOUT});
 	};
 
 	// Update callback of verification key proof computation
@@ -489,21 +546,6 @@ function completeCertRequest(byMail) {
 }
 
 
-/**
- * Goes to step 3
- */
-function gotoStep3() {
-	// Update progress bar
-	$(elements.step2).removeClass("active");
-	$(elements.step3).addClass("active");
-
-	// Show the certificate content
-	$(elements.step2content).addClass("hidden");
-	$(elements.step3content).removeClass("hidden");
-
-	// Scroll to top
-	window.scrollTo(0, 0);
-}
 
 /*********************************************************************************************************************/
 /*                                          CERTIFICATE REQUEST FUNCTIONS                                            */
@@ -523,18 +565,19 @@ function gotoStep3() {
  * @param signature Signature proving knowledge of the private key
  * @param applicationIdentifier Application the certificate is issued for
  * @param role Role which the certificate must be issued for
- * @param doneCb	Code to execute after successful certificate issuance
+ * @param doneCb Code to execute after successful certificate issuance
  * @param errorCb Code to execute on error
+ * @param updateCb Callback for updates
  * @returns nothing: calls doneCb passing the JSON representation of the certificate
  */
-this.createRSACertificate = function (csSize, rsaModulo, identityFunction, publicKey, signature, applicationIdentifier,
+function createRSACertificate(csSize, rsaModulo, identityFunction, publicKey, signature, applicationIdentifier,
 		role, doneCb, errorCb, updateCb) {
 	// Verification key base 10 encoded
 	//var vkStr = computeBase64(vk);
 	var pkStr = leemon.bigInt2str(publicKey, 10);
 	var rsaModuloStr = leemon.bigInt2str(rsaModulo, 10);
 
-	var update = setInterval(updateCb, 1000);
+	var update = setInterval(updateCb, SLOW);
 
 	// Success callback for ajax request. Parses the received data
 	// expecting a list of certificates with voter's certficate at the top.
@@ -547,12 +590,12 @@ this.createRSACertificate = function (csSize, rsaModulo, identityFunction, publi
 		} else {
 			errorCb();
 		}
-	}
+	};
 
 	var errCb = function (data) {
 		clearInterval(update);
 		errorCb();
-	}
+	};
 
 	//For IE
 	$.support.cors = true;
@@ -590,9 +633,10 @@ this.createRSACertificate = function (csSize, rsaModulo, identityFunction, publi
  * @param role Role which the certificate must be issued for
  * @param doneCb Code to execute after successful certificate issuance
  * @param errorCb Code to execute on error
+ * @param updateCb Callback for updates
  * @returns nothing: calls doneCb passing the JSON representation of the certificate
  */
-this.createDLogCertificate = function (csSize, dlogPrimeP, dlogPrimeQ, dlogGenerator, identityFunction, publicKey, proof, applicationIdentifier,
+function createDLogCertificate(csSize, dlogPrimeP, dlogPrimeQ, dlogGenerator, identityFunction, publicKey, proof, applicationIdentifier,
 		role, doneCb, errorCb, updateCb) {
 
 	// Verification key base64 encoded
@@ -601,7 +645,7 @@ this.createDLogCertificate = function (csSize, dlogPrimeP, dlogPrimeQ, dlogGener
 	var qStr = leemon.bigInt2str(dlogPrimeQ, 10);
 	var gStr = leemon.bigInt2str(dlogGenerator, 10);
 
-	var update = setInterval(updateCb, 1000);
+	var update = setInterval(updateCb, SLOW);
 
 	// Success callback for ajax request. Parses the received data
 	// expecting a list of certificates with voter's certficate at the top.
@@ -614,12 +658,12 @@ this.createDLogCertificate = function (csSize, dlogPrimeP, dlogPrimeQ, dlogGener
 		} else {
 			errorCb();
 		}
-	}
+	};
 
 	var errCb = function (data) {
 		clearInterval(update);
 		errorCb();
-	}
+	};
 
 	//For IE
 	$.support.cors = true;
@@ -639,7 +683,7 @@ this.createDLogCertificate = function (csSize, dlogPrimeP, dlogPrimeQ, dlogGener
 			'application_identifier': applicationIdentifier, 'role': role},
 		dataType: 'json',
 		success: successCb,
-		error: errCb,
+		error: errCb
 	});
 }
 
@@ -647,10 +691,10 @@ this.createDLogCertificate = function (csSize, dlogPrimeP, dlogPrimeQ, dlogGener
  * Parses a json certificate as is is received from the CA and
  * returns it.
  *
- * @pram data - List of certificats as json object.
+ * @param data - List of certificats as json object.
  * @return the certificate
  */
-var parseCertificate = function (data) {
+function parseCertificate(data) {
 	if (!data) {
 		return null;
 	}
