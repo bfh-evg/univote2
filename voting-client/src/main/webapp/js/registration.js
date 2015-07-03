@@ -183,12 +183,8 @@ function retrieveData(params) {
 		accept: "application/json",
 		cache: false,
 		data: "params=" + params,
+		dataType: 'json',
 		timeout: 10000,
-		//To send the cookie
-		xhrFields: {
-			withCredentials: true
-		},
-		//To send the cookie also in cross domain cases
 		crossDomain: true,
 		success: function (data) {
 

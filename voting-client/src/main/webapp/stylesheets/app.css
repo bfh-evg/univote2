@@ -4355,3 +4355,11 @@ footer .copyright {
     border-width: 0;
   }
 }
+/* line 305, ../WEB-INF/scss/app.scss */
+#upload_key_error {
+  opacity: 0;
+  padding-top: 10px;
+  padding-bottom: 20px;
+  color: #c00;
+  font-weight: bold;
+}

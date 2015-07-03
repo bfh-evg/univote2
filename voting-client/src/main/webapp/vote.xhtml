@@ -59,18 +59,18 @@
 				<h3 id="election-title" data-election-id="#{param.electionId}">&#160;</h3>
 			</div>
 			<div id="step_1" class="large-4 medium-4 columns">
-				<button class="arrow_box active">#{msg.voteStep1}</button>
+				<button class="arrow_box active" tabindex="-1">#{msg.voteStep1}</button>
 			</div>
 			<div id="step_2" class="large-4 medium-4 columns">
-				<button class="arrow_box grey">#{msg.voteStep2}</button>
+				<button class="arrow_box grey" tabindex="-1">#{msg.voteStep2}</button>
 			</div>
 			<div id="step_3" class="large-4 medium-4 columns">
-				<button class="arrow_box grey">#{msg.voteStep3}</button>
+				<button class="arrow_box grey" tabindex="-1">#{msg.voteStep3}</button>
 			</div>
 		</div>
 
 		<!-- STEP 1: Upload key -->
-		<div id="step_1_content" class="row">
+		<div id="step_1_content" class="row substep">
 			<div class="small-12 columns">
 				<p>#{msg.enterKey1}</p>
 			</div>
@@ -80,12 +80,13 @@
 			<div class="large-8 medium-8 columns chooser_content">
 				<form onsubmit="return false;" id="upload_key_form">
 					<p>#{msg.yourKey}</p>
-					<textarea id="sk-upload" class="middle radius" placeholder="#{msg.yourKeyManually}"></textarea>
+					<textarea id="sk-upload" name="sk-upload" class="middle radius" placeholder="#{msg.yourKeyManually}"></textarea>
 					<p>#{msg.yourPassword}</p>
 					<input class="text radius" type="password" name="password" id="password" />
 					<p>#{msg.noKey1} <h:outputLink value="index.xhtml">#{msg.noKey2}</h:outputLink> #{msg.noKey3}</p>
-					<a onClick="return uploadSecretKey();" class="button gradient radius icon-right-dir">#{msg.continueStr}</a>
+					<button onClick="return uploadSecretKey();" class="button gradient radius icon-right-dir">#{msg.continueStr}</button>
 				</form>
+				<p id="upload_key_error">&#160;</p>
 			</div>
 		</div>
 
