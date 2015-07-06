@@ -3,7 +3,8 @@
 	  xmlns="http://www.w3.org/1999/xhtml"
 	  xmlns:h="http://java.sun.com/jsf/html"
 	  xmlns:f="http://java.sun.com/jsf/core"
-	  xmlns:ui="http://java.sun.com/jsf/facelets">
+	  xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core">
 	<!--
 	/*
 	 * Copyright (c) 2012 Berner Fachhochschule, Switzerland.
@@ -51,13 +52,15 @@
 					<div class="small-8 columns">
 						<a href="index.xhtml"><img src="images/univote.svg" alt="UniVote Logo" /></a>
 					</div>
-					<div class="small-4 columns">
-						<h:form>
-							<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'en' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('en')}">E</h:commandLink></div></div>
-							<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'fr' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('fr')}">F</h:commandLink></div></div>
-							<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'de' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('de')}">D</h:commandLink></div></div>
-						</h:form>
-					</div>
+					<c:if test="#{request.requestURI.endsWith('index.xhtml')}">
+						<div class="small-4 columns">
+							<h:form>
+								<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'en' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('en')}">E</h:commandLink></div></div>
+								<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'fr' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('fr')}">F</h:commandLink></div></div>
+								<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'de' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('de')}">D</h:commandLink></div></div>
+							</h:form>
+						</div>
+					</c:if>
 					<hr />
 				</header>
 

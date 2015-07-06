@@ -98,57 +98,48 @@ function retrieveElections() {
 			}]
 	};
 
-	//For IE
-	$.support.cors = true;
-	//Ajax request
-	$.ajax({
-		url: uvConfig.URL_UNIBOARD_GET,
-		type: 'POST',
-		contentType: "application/json",
-		accept: "application/json",
-		cache: false,
-		dataType: 'json',
-		data: JSON.stringify(queryJson),
-		timeout: 10000,
-		crossDomain: true,
-		success: function (resultContainer) {
-			clearInterval(update);
-			$(elements.loadingElections).hide();
+	var successCB = function (resultContainer) {
+		clearInterval(update);
+		$(elements.loadingElections).hide();
 
-			//Signature of result is not verified since the data that is displayed here is not really sensitive
-			//More over, the posts are signed by EA whose key should be retrieved from the Board
-			var posts = resultContainer.result.post;
-			for (var index in posts) {
-				var message = JSON.parse(B64.decode(posts[index].message));
-				var electionId = posts[index].alpha.attribute[0].value.value;
-				var now = new Date().getTime();
-				if (new Date(message.votingPeriodBegin).getTime() <= now) {
-					if (new Date(message.votingPeriodEnd).getTime() >= now) {
-						//Current election
-						$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="vote.xhtml?electionId=' + electionId + '" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + getLocalizedText(message.administration) + '</span><br />' + getLocalizedText(message.title) + '</div></div>');
-					} else {
-						//Past election
-						$(elements.pastElectionsList).append('<dd><i class="red icon-right-dir"></i>' + getLocalizedText(message.administration) + ': ' + getLocalizedText(message.title) + '</dd>');
-					}
+		//Signature of result is not verified since the data that is displayed here is not really sensitive
+		//More over, the posts are signed by EA whose key should be retrieved from the Board
+		var posts = resultContainer.result.post;
+		for (var index in posts) {
+			var message = JSON.parse(B64.decode(posts[index].message));
+			var electionId = posts[index].alpha.attribute[0].value.value;
+			var administration = (message.administration != undefined) ? getLocalizedText(message.administration) : '';
+			var title = getLocalizedText(message.title);
+			var now = new Date().getTime();
+			if (new Date(message.votingPeriodBegin).getTime() <= now) {
+				if (new Date(message.votingPeriodEnd).getTime() >= now) {
+					//Current election
+					$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="vote.xhtml?electionId=' + electionId + '" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + administration + '</span><br />' + title + '</div></div>');
 				} else {
-					//Future election
-					$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + getLocalizedText(message.administration) + '</span><br />' + getLocalizedText(message.title) + '</div></div>');
+					//Past election
+					$(elements.pastElectionsList).append('<dd><i class="red icon-right-dir"></i>' + administration + (administration != '' ? ': ' : '') + title + '</dd>');
 				}
+			} else {
+				//Future election
+				$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + administration + '</span><br />' + title + '</div></div>');
 			}
-
-			// Show containers
-			if ($(elements.currentElectionsList).find("div").length > 0) {
-				$(elements.currentElectionsDiv).show();
-				$(elements.currentElectionsList).show();
-			}
-			if ($(elements.pastElectionsList).find("dd").length > 0) {
-				$(elements.pastElectionsDiv).show();
-			}
-		},
-		error: function (errormsg) {
-			clearInterval(update);
-			$(elements.loadingElections).html(msg.retreiveElectionDefinitionError);
 		}
-	});
+
+		// Show containers
+		if ($(elements.currentElectionsList).find("div").length > 0) {
+			$(elements.currentElectionsDiv).show();
+			$(elements.currentElectionsList).show();
+		}
+		if ($(elements.pastElectionsList).find("dd").length > 0) {
+			$(elements.pastElectionsDiv).show();
+		}
+	};
+
+	var errorCB = function () {
+		clearInterval(update);
+		$(elements.loadingElections).html(msg.retreiveElectionDefinitionError);
+	};
+
+	uniBoard.get(queryJson, successCB, errorCB);
 }
 

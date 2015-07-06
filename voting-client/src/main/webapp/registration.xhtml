@@ -12,175 +12,180 @@
  */
 -->
 <ui:composition template="template.xhtml"
-                xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:c="http://java.sun.com/jsp/jstl/core">
+				xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-    <ui:define name="page_title">#{msg.title}</ui:define>
+	<ui:define name="page_title">#{msg.title}</ui:define>
 
-    <ui:define name="head_include_js">
-        <script type="text/javascript" src="js/lib/leemon.js"></script>
-        <script type="text/javascript" src="js/lib/sha256.js"></script>
-	<script type="text/javascript" src="js/lib/aes.js"></script>
-	<script type="text/javascript" src="js/lib/pbkdf2.js"></script>
-	<script type="text/javascript" src="js/univote-util.js"></script>
-        <script type="text/javascript" src="js/univote-random.js"></script>
-        <script type="text/javascript" src="js/univote-crypto.js"></script>
-        <script type="text/javascript" src="js/registration.js"></script>
-    </ui:define>
+	<ui:define name="head_include_js">
+		<script type="text/javascript" src="js/lib/leemon.js"></script>
+		<script type="text/javascript" src="js/lib/sha256.js"></script>
+		<script type="text/javascript" src="js/lib/aes.js"></script>
+		<script type="text/javascript" src="js/lib/pbkdf2.js"></script>
+		<script type="text/javascript" src="js/univote-util.js"></script>
+		<script type="text/javascript" src="js/univote-random.js"></script>
+		<script type="text/javascript" src="js/univote-crypto.js"></script>
+		<script type="text/javascript" src="js/registration.js"></script>
+	</ui:define>
 
-    <ui:define name="header">
+	<ui:define name="content">
 
-        <h2 class="center">#{msg.certrequest}</h2>
+		<form name="properties">
+			<input type="hidden" id="requester-id" value="#{param.id}"/>
+			<input type="hidden" id="requester-email" value="#{param.mail}"/>
+			<input type="hidden" id="requester-idp" value="#{param.idp}"/>
+			<input type="hidden" id="paramset" value="#{param.params}"/>
+		</form>
 
-        <form name="properties">
-            <input type="hidden" id="requester-id" value="#{param.id}"/>
-            <input type="hidden" id="requester-email" value="#{param.mail}"/>
-            <input type="hidden" id="requester-idp" value="#{param.idp}"/>
-	    <input type="hidden" id="paramset" value="#{param.params}"/>
-        </form>
-    </ui:define>
+		<div class="row">
+			<div class="small-12 columns">
+				<h3>#{msg.certrequest}</h3>
+			</div>
+			<div class="large-4 medium-4 columns">
+				<button id="step_1" class="arrow_box grey" tabindex="-1">#{msg.genkeysStep1}</button>
+			</div>
+			<div class="large-4 medium-4 columns">
+				<button id="step_2" class="arrow_box grey active" tabindex="-1">#{msg.genkeysStep2}</button>
+			</div>
+			<div class="large-4 medium-4 columns">
+				<button id="step_3" class="arrow_box grey" tabindex="-1">#{msg.genkeysStep3}</button>
+			</div>
+		</div>
 
-    <ui:define name="content">
+		<!-- STEP 2: Generation key content -->
+		<div id="step_2_content">
+			<div class="row">
+				<div class="small-12 columns">
+					<p>#{msg.genkeysStep2Text}</p>
+				</div>
+			</div>
+			<form onsubmit="return false;">
 
-        <div class="progress-bar">
-            <div id="step_1" class="step">#{msg.genkeysStep1}</div><img src="img/arrow.png" alt="Arrow" />
-            <div id="step_2" class="step active">#{msg.genkeysStep2}</div><img src="img/arrow.png" alt="Arrow" />
-            <div id="step_3" class="step">#{msg.genkeysStep3}</div>
-        </div>
+				<div id="substep_2_1" class="row substep active done">
+					<div class="large-4 medium-4 columns chooser">
+						<h1>1.</h1>
+						<p>#{msg.genkeysSubstep21Text}</p>
+					</div>
+					<div class="large-8 medium-8 columns chooser_content">
+						<select id="setup" class="select radius" name="setup" size="1" onchange="updateSetup()">
+							<!-- TODO Get values from JNDI -->
+							<option value="">#{msg.pleaseSelect}</option>
+							<option value="manually">#{msg.manually}</option>
+							<option value="uv-vsbfh">VSBFH</option>
+						</select>
+						<div id="manual_setup" class="hidden">
+							<select id="crypto_setup_type" class="select radius" name="crypto_setup_type" size="1" onchange="updateKeysOptions()">
+								<option value="">#{msg.pleaseSelectOption}</option>
+								<option value="RSA">RSA</option>
+								<option value="DiscreteLog">Discrete Logarithm</option>
+							</select>
+							<div id="rsa_options" class="crypto_setup_type_options hidden">
+								<p class="col1 small">#{msg.keysize}</p>
+								<select id="crypto_setup_size" class="select" name="crypto_setup_size" size="1">
+									<option value="1024">1024</option>
+									<option value="2048">2048</option>
+								</select>
+							</div>
+							<div id="dlog_options" class="crypto_setup_type_options hidden">
+								<p class="col1 small">#{msg.valuep}</p>
+								<input type="text" id="p" />
+								<p>#{msg.valueq}</p>
+								<input type="text" id="q" />
+								<p>#{msg.valueg}</p>
+								<input type="text" id="g" />
+							</div>
+							<div>
+								<p>#{msg.application}</p>
+								<input type="text" id="application"/>
+							</div>
+							<div>
+								<p>#{msg.role}</p>
+								<input type="text" id="role"/>
+							</div>
+							<div>
+								<p>#{msg.identityFunction}</p>
+								<select id="identity_function" class="select" name="identity_function" size="1">
+									<option value="1">#{msg.idFStandardSwitch}</option>
+									<option value="2">#{msg.idFAnonymizedSwitch}</option>
+									<option value="3">#{msg.idFZurichSwitch}</option>
+									<option value="4">#{msg.idFStandardGoogle}</option>
+									<option value="5">#{msg.idFAnonymizedGoogle}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="substep_2_2" class="row substep">
+					<div class="large-4 medium-4 columns chooser">
+						<h1>2.</h1>
+						<p>#{msg.genkeysSubstep22Text}</p>
+					</div>
+					<div class="large-8 medium-8 columns chooser_content">
+						<button id="generate_key_bu" class="button radius gradient icon-right-dir" disabled="disabled" onclick="generateKeyPair();">#{msg.genkeysButton}</button>
+						<div id="substep_2_2_1">
+							<p>#{msg.yourVotingKeyLabel}</p>
+							<textarea id="secretkey_ta" class="middle radius" disabled="disabled" readonly="readonly"></textarea>
+						</div>
+					</div>
+				</div>
 
-        <!-- STEP 2: Generation key content -->
-        <div id="step_2_content">
-            <p class="block">#{msg.genkeysStep2Text}</p>
+				<div id="substep_2_3" class="row substep">
+					<div class="large-4 medium-4 columns chooser">
+						<h1>3.</h1>
+						<p>#{msg.genkeysSubstep23Text}</p>
+					</div>
+					<div class="large-8 medium-8 columns chooser_content">
+						<div>
+							<p>#{msg.password}</p>
+							<div><input type="password" name="password" id="password" disabled="disabled"/> <span id="pwderror"></span></div>
+						</div>
+						<div>
+							<p>#{msg.retypePassword}</p>
+							<div><input type="password" name="password2" id="password2" disabled="disabled"/><img id="password-check-icon" src="img/check.png" /></div>
+						</div>
+					</div>
+				</div>
 
-            <div id="substep_2_1" class="substep clearfix"><div class="substep_nr">1</div>
-                <p>#{msg.genkeysSubstep21Text}</p>
+				<div id="substep_2_4" class="row substep">
+					<div class="large-4 medium-4 columns chooser">
+						<h1>4.</h1>
+						<p>#{msg.genkeysSubstep24Text}</p>
+					</div>
+					<div class="large-8 medium-8 columns chooser_content">
+						<div id="alt_mail" class="hidden">
+							<span class="small">#{msg.andText} </span><input type="text" id="alternate_mail" value="#{msg.optionalMail}"/>
+						</div>
+						<button id="retreive_secretkey_bu" class="button radius gradient icon-right-dir" disabled="disabled" onclick="completeCertRequest(true);">#{msg.retreiveSecretKey} #{msg.to}</button>
+					</div>
+					<c:if test="${initParam['dev-mode'] == 'true'}">
+						<br /><br/><span class="tiny">In dev-mode: <br/>if you don't have a running SMTP Server on your localhost...<br/>
+							<button class="button" onclick="completeCertRequest(false);">Save Key</button></span>
+					</c:if>
+				</div>
 
-                <div class="row clearfix notdisplayed">
-                    <div class="col1 small"><label for="crypto_setup_type">#{msg.keytype}: </label></div>
-                    <div class="col2">
-                        <select id="crypto_setup_type" class="select" name="crypto_setup_type" size="1" onchange="updateKeysOptions()">
-                            <option value="">#{msg.pleaseSelect}</option>
-                            <option value="RSA" >RSA</option>
-                            <option value="DiscreteLog" >Discrete Logarithm</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="rsa_options" class="row clearfix hidden">
-                    <div class="notdisplayed">
-                        <div class="col1 small">#{msg.keysize}: </div>
-                        <div class="col2">
-                            <select id="crypto_setup_size" class="select" name="crypto_setup_size" size="1">
-                                <option value="1024">1024</option>
-                                <option value="2048">2048</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div id="dlog_options" class="row clearfix hidden">
-                    <div class="notdisplayed">
-                        <div class="col1 small">#{msg.valuep}: </div>
-                        <div class="col2">
-                            <input type="text" id="p" />
-                        </div>
-                    </div>
-                    <div class="notdisplayed">
-                        <div class="col1 small">#{msg.valueq}: </div>
-                        <div class="col2">
-                            <input type="text" id="q" />
-                        </div>
-                    </div>
-                    <div class="notdisplayed">
-                        <div class="col1 small">#{msg.valueg}: </div>
-                        <div class="col2">
-                            <input type="text" id="g" />
-                        </div>
-                    </div>
-                </div>
-                <div class="col2only">
-                    <button id="generate_key_bu" class="button" onclick="generateKeyPair();">#{msg.genkeysButton}</button>
-                </div>
-                <div id="substep_2_1_1" class="row clearfix">
-                    <div class="col1 small">#{msg.yourVotingKeyLabel}</div>
-                    <div class="col2"><textarea id="secretkey_ta" class="middle" readonly="readonly"></textarea></div>
-                </div>
-            </div>
-
-            <div id="substep_2_2" class="substep clearfix"><div class="substep_nr">2</div>
-                <p>#{msg.genkeysSubstep22Text}</p>
-                <form onsubmit="return false;">
-                    <div class="row clearfix">
-                        <div class="col1 small">#{msg.password}</div>
-                        <div class="col2"><input type="password" name="password" id="password"/> <span id="pwderror"></span></div>
-                    </div>
-                    <div class="row clearfix">
-                        <div class="col1 small">#{msg.retypePassword}</div>
-                        <div class="col2"><input type="password" name="password2" id="password2" /><img id="password-check-icon" src="img/check.png" /></div>
-                    </div>
-                </form>
-            </div>
-            <div id="substep_2_3" class="substep clearfix notdisplayed">
-                <div class="substep_nr">3</div>
-                <p>#{msg.genCertSubstep23Text}</p>
-                <div class="row clearfix notdisplayed">
-                    <div class="col1 small">#{msg.application}: </div>
-                    <div class="col2">
-                        <input type="text" id="application"/>
-                    </div>
-                </div>
-                <div class="row clearfix notdisplayed">
-                    <div class="col1 small">#{msg.role}: </div>
-                    <div class="col2">
-			<input type="text" id="role"/>
-                    </div>
-                </div>
-                <div class="row clearfix notdisplayed">
-                    <div class="col1 small">#{msg.identityFunction}: </div>
-                    <div class="col2">
-                        <select id="identity_function" class="select" name="identity_function" size="1">
-                            <option value="1">#{msg.idFStandardSwitch}</option>
-                            <option value="2">#{msg.idFAnonymizedSwitch}</option>
-                            <option value="3">#{msg.idFZurichSwitch}</option>
-                            <option value="4">#{msg.idFStandardGoogle}</option>
-                            <option value="5">#{msg.idFAnonymizedGoogle}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div id="substep_2_4" class="substep clearfix">
-		<div class="substep_nr">
-                    4
-                </div>
-                <p>#{msg.genkeysSubstep24Text}</p>
-                <div class="col2only">
-                    <table>
-                        <tr><td><button id="retreive_secretkey_bu" class="button" onclick="completeCertRequest(true);">#{msg.retreiveSecretKey}</button></td><td>&#160;<span class="small">#{msg.to} <span id="mail"></span></span></td></tr>
-                        <tr><td></td><td>&#160;<span class="small">#{msg.andText} </span><input type="text" id="alternate_mail" value="#{msg.optionalMail}"/></td></tr>
-                    </table>
-                    <c:if test="${initParam['dev-mode'] == 'true'}">
-                        <br /><br/><span class="tiny">In dev-mode: <br/>if you don't have a running SMTP Server on your localhost...<br/>
-                            <button class="button" onclick="completeCertRequest(false);">Save Key</button></span>
-                    </c:if>
-                </div>
-            </div>
+			</form>
+		</div>
 
 
-        </div>
+		<!-- STEP 3: Confirmation content -->
+		<div id="step_3_content" class="hidden">
+			<div class="row">
+				<div class="small-12 columns">
+					<p class="center"><img src="img/check_big.png" /></p>
+					<p>#{msg.regsuccess}</p>
+					<p>#{msg.inspectcert}</p>
+					<p class="center"><button class="button radius gradient icon-right-dir" onclick="inspectCert();">#{msg.savecert}</button></p>
 
-        <!-- STEP 3: Confirmation content -->
-        <div id="step_3_content" class="hidden">
-            <p class="center"><img src="img/check_big.png" /></p>
-            <p class="block">#{msg.regsuccess}</p>
-            <p class="block spacer30">#{msg.inspectcert}</p>
-            <p class="center"><button class="button" onclick="inspectCert();">#{msg.savecert}</button></p>
+					<p class="spacer50">
+						<h:outputLink value="index.xhtml" class="red icon-right-dir">#{msg.backhome}</h:outputLink>
+					</p>
+				</div>
+			</div>
+		</div>
 
-            <p class="block spacer50">
-                <h:outputLink value="index.xhtml" class="raquo">#{msg.backhome}</h:outputLink>
-            </p>
-        </div>
-    </ui:define>
+	</ui:define>
 
 </ui:composition>

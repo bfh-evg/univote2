@@ -21,92 +21,95 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet responsible to load JNDI properties allowing to preconfigure the certificate request page with the already
- * defined values
- *
+ * Servlet responsible to load JNDI properties allowing to preconfigure the
+ * certificate request page with the already defined values
+ * <p>
  * @author Philémon von Bergen &lt;philemon.vonbergen@bfh.ch&gt;
  */
 @WebServlet("/parameters/*")
-public class ParametersServlet extends HttpServlet {
+public class ParametersServlet
+	   extends HttpServlet {
 
-    /**
-     * The logger this servlet uses.
-     */
-    private static final Logger logger = Logger.getLogger(ParametersServlet.class.getName());
+	/**
+	 * The logger this servlet uses.
+	 */
+	private static final Logger logger = Logger.getLogger(ParametersServlet.class.getName());
 
-    private static final String PROPERTY_SET_IDENTIFIER = "params";
+	private static final String PROPERTY_SET_IDENTIFIER = "params";
 
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-	    throws ServletException, IOException {
-    }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-	    throws ServletException, IOException {
-
-	    String propertiesSetIdentifier = request.getParameter(PROPERTY_SET_IDENTIFIER);
-	    propertiesSetIdentifier = "/univote/" + propertiesSetIdentifier;
-	    
-	    ConfigurationHelperImpl config = new ConfigurationHelperImpl(propertiesSetIdentifier);
-
-	    Gson gson = new Gson();
-	    String parameters = gson.toJson(config);
-
-	    response.setContentType("application/json");
-	    response.setCharacterEncoding("UTF-8");
-
-	    response.getWriter().append(parameters);
-
-    }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-	return "Servlet loading the properties needed in certificate request.";
-    }
-
-    /**
-     * Error code returned for the case of an error while processing a request.
-     *
-     * @param response a HTTP response object
-     * @param kind a detailed indication
-     * @throws IOException if the response cannot be written
-     */
-    private void internalServerErrorHandler(HttpServletResponse response, String kind) throws IOException {
-	response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-	response.setContentType("application/json");
-	response.setCharacterEncoding("UTF-8");
-	String errorCode = kind.substring(0, 3);
-	String errorMessage;
-	//Checks if error code is valid
-	try {
-	    Integer.parseInt(errorCode);
-	    errorMessage = kind.substring(4);
-	} catch (NumberFormatException e) {
-	    errorMessage = kind;
-	    errorCode = "";
+	/**
+	 * Handles the HTTP <code>GET</code> method.
+	 * <p>
+	 * @param request  servlet request
+	 * @param response servlet response
+	 * @throws ServletException if a servlet-specific error occurs
+	 * @throws IOException      if an I/O error occurs
+	 */
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+		   throws ServletException, IOException {
 	}
-	response.getWriter().write("{\"error\": \"" + errorCode + "\", \"message\": \"" + errorMessage + "\"}");
-    }
+
+	/**
+	 * Handles the HTTP <code>POST</code> method.
+	 * <p>
+	 * @param request  servlet request
+	 * @param response servlet response
+	 * @throws ServletException if a servlet-specific error occurs
+	 * @throws IOException      if an I/O error occurs
+	 */
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+		   throws ServletException, IOException {
+
+		String propertiesSetIdentifier = request.getParameter(PROPERTY_SET_IDENTIFIER);
+		propertiesSetIdentifier = "/univote/" + propertiesSetIdentifier;
+
+		ConfigurationHelperImpl config = new ConfigurationHelperImpl(propertiesSetIdentifier);
+
+		Gson gson = new Gson();
+		String parameters = gson.toJson(config);
+
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.setHeader("Access-Control-Allow-Origin", "*");
+
+		response.getWriter().append(parameters);
+
+	}
+
+	/**
+	 * Returns a short description of the servlet.
+	 * <p>
+	 * @return a String containing servlet description
+	 */
+	@Override
+	public String getServletInfo() {
+		return "Servlet loading the properties needed in certificate request.";
+	}
+
+	/**
+	 * Error code returned for the case of an error while processing a request.
+	 * <p>
+	 * @param response a HTTP response object
+	 * @param kind     a detailed indication
+	 * @throws IOException if the response cannot be written
+	 */
+	private void internalServerErrorHandler(HttpServletResponse response, String kind) throws IOException {
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		String errorCode = kind.substring(0, 3);
+		String errorMessage;
+		//Checks if error code is valid
+		try {
+			Integer.parseInt(errorCode);
+			errorMessage = kind.substring(4);
+		} catch (NumberFormatException e) {
+			errorMessage = kind;
+			errorCode = "";
+		}
+		response.getWriter().write("{\"error\": \"" + errorCode + "\", \"message\": \"" + errorMessage + "\"}");
+	}
+
 }

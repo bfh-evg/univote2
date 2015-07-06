@@ -39,6 +39,9 @@
 	 * @param localizedTexts - Array of i18n texts.
 	 */
 	window.getLocalizedText = function (localizedTexts) {
+		if (localizedTexts == undefined) {
+			return '';
+		}
 		var text = '';
 		for (var index in localizedTexts) {
 			if (localizedTexts[index].languageCode == getLocale().toUpperCase()) {
@@ -51,6 +54,45 @@
 		}
 		return text;
 	};
+
+})(window);
+
+
+//======================================================================
+// U N I B O A R D
+//
+(function (window) {
+
+	function UniBoard() {
+
+		this.get = function (query, successCB, errorCB) {
+
+			//For IE
+			$.support.cors = true;
+
+			//Ajax request
+			$.ajax({
+				url: uvConfig.URL_UNIBOARD_GET,
+				type: 'POST',
+				contentType: "application/json",
+				accept: "application/json",
+				cache: false,
+				dataType: 'json',
+				data: JSON.stringify(query),
+				timeout: 10000,
+				crossDomain: true,
+				success: successCB,
+				error: errorCB
+			});
+		};
+
+
+		this.post = function () {
+		};
+
+	}
+
+	window.uniBoard = new UniBoard();
 
 })(window);
 
@@ -204,6 +246,8 @@
 	window.uvUtilRuleControl = new UvUtilRuleControl();
 
 })(window);
+
+
 //======================================================================
 // C O O K I E   S U P P O R T
 //
