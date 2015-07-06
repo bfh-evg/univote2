@@ -47,7 +47,9 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.junit.Assert;
 import static org.junit.Assert.fail;
 import org.junit.Test;
@@ -135,6 +137,22 @@ public class MessageFactoryTest {
 		} catch (UnivoteException ex) {
 			fail();
 		}
+	}
+
+	@Test
+	public void testcreateTrusteeCerts() {
+
+		List<String> mixerCerts = new ArrayList<>();
+		mixerCerts.add("mixer1Cert");
+		mixerCerts.add("mixer2Cert");
+		mixerCerts.add("mixer3Cert");
+		List<String> tallierCerts = new ArrayList<>();
+		tallierCerts.add("tallier1Cert");
+		tallierCerts.add("tallier2Cert");
+		String expectedMessageStr = "{\"mixerCertificates\" : [mixer1Cert, mixer2Cert, mixer3Cert],"
+				+ " \"tallierCertificates\" : [tallier1Cert, tallier2Cert]}";
+		byte[] message = MessageFactory.createTrusteeCerts(mixerCerts, tallierCerts);
+		Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));
 	}
 
 }

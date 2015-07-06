@@ -55,6 +55,7 @@ import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
+import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
 import java.io.ByteArrayInputStream;
@@ -89,8 +90,6 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 	@EJB
 	UniboardService uniboardService;
 
-	private static String UNIVOTE_BOARD = "univote-board";
-
 	protected abstract String getActionName();
 
 	protected abstract GroupEnum getGroupName();
@@ -108,7 +107,7 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 	@Override
 	protected boolean checkPostCondition(ActionContext actionContext) {
 		try {
-			ResultContainerDTO result = this.uniboardService.get(UNIVOTE_BOARD,
+			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForElectionDefinition(actionContext.getSection()));
 			return !result.getResult().getPost().isEmpty();
 
@@ -123,8 +122,8 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
 		try {
-			ResultContainerDTO result
-					= this.uniboardService.get(UNIVOTE_BOARD, QueryFactory.getQueryForEACert(actionContext.getSection()));
+			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+					QueryFactory.getQueryForEACert(actionContext.getSection()));
 			if (!result.getResult().getPost().isEmpty()) {
 				//Load pem from message from post
 				String messageString = new String(result.getResult().getPost().get(0).getMessage(),
@@ -147,7 +146,7 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 		}
 		//Add UserInput
 		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-				QueryFactory.getQueryForEACert(actionContext.getSection()), "univote");
+				QueryFactory.getQueryForEACert(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 		actionContext.getPreconditionQueries().add(bQuery);
 	}
 
@@ -228,7 +227,7 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 		}
 		//post message
 		try {
-			this.uniboardService.post(UNIVOTE_BOARD, actionContext.getSection(),
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.ACCESS_RIGHT.getValue(), message, actionContext.getTenant());
 		} catch (UnivoteException ex) {
 			this.getLogger().log(Level.WARNING, "Unsupported public key type: {0}", ex.getMessage());

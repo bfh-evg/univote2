@@ -51,6 +51,7 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -109,5 +110,23 @@ public class MessageFactory {
 	public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Date startTime, Date endTime)
 			throws UnivoteException {
 		return MessageFactory.createAccessRight(group, publicKey, null, startTime, endTime);
+	}
+
+	public static byte[] createTrusteeCerts(List<String> mixerCerts, List<String> tallierCerts) {
+		String message = "{";
+
+		message += "\"mixerCertificates\" : [";
+		for (String mixerCert : mixerCerts) {
+			message += mixerCert + ", ";
+		}
+		message = message.substring(0, message.length() - 2);
+		message += "], ";
+		message += "\"tallierCertificates\" : [";
+		for (String tallierCert : tallierCerts) {
+			message += tallierCert + ", ";
+		}
+		message = message.substring(0, message.length() - 2);
+		message += "]}";
+		return message.getBytes(Charset.forName("UTF-8"));
 	}
 }
