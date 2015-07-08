@@ -140,10 +140,94 @@ $(document).ready(function () {
 	});
 
 	// Initiate retrieving election data from voting service
-	//setTimeout(retrieveElectionData, 50);
-	setTimeout(retrieveElectionDefinition, 50);
+	setTimeout(retrieveElectionData, 50);
 
 });
+
+
+
+function retrieveElectionData() {
+
+	//Query of election data over all sections
+	var queryJson = {
+		constraint: [{
+				type: "equal",
+				identifier: {
+					type: "alphaIdentifier",
+					part: ["section"]
+				},
+				value: {
+					type: "stringValue",
+					value: electionId}
+			}, {
+				type: "equal",
+				identifier: {
+					type: "alphaIdentifier",
+					part: ["group"]
+				},
+				value: {
+					type: "stringValue",
+					value: "electionData"
+				}
+			}]
+	};
+
+	var successCB = function (resultContainer) {
+
+		if (!mock) {
+			var success = uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
+			console.log("Verification Result Signature: " + success);
+			if (!success) {
+				processFatalError(msg.signatureError);
+				return;
+			}
+
+			var posts = resultContainer.result.post;
+			// Expect exactly one post! ElectionId should be unique!
+			if (posts.length != 1) {
+				processFatalError(msg.retreiveElectionDataError);
+				return;
+			}
+
+			var message = JSON.parse(B64.decode(posts[0].message));
+		} else {
+			var message = resultContainer;
+		}
+
+		// TODO Save Election Data
+		// message.issues, message.cryptoSetting, message.encrptionKey, message.signatureGenerator
+
+		// Update election definition
+		//var administration = (message.definition.administration != undefined) ? getLocalizedText(message.definition.administration) : '';
+		console.log(message);
+		var title = getLocalizedText(message.definition.title);
+
+		$(elements.electionTitle).html(title);
+		$.unblockUI();
+	};
+
+	var errorCB = function () {
+		processFatalError(msg.retreiveElectionDataError);
+	};
+
+	var mock = true;
+	if (!mock) {
+		uniBoard.get(queryJson, successCB, errorCB);
+	} else {
+		//Ajax request
+		$.ajax({
+			url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/json-schemas/examples/sub-2015/electionData.json",
+			type: 'GET',
+			accept: "application/json",
+			dataType: 'json',
+			crossDomain: true,
+			success: successCB,
+			error: errorCB
+		});
+	}
+}
+
+
 
 /**
  * Uploads (to the browser not to the server) the secret key. The secret key can
@@ -191,168 +275,8 @@ function decryptSecretKey(key, pw) {
 	// On success go to step 2
 	if (sk !== false) {
 		secretKey = sk;
-		// gotoStep2();
-		checkAuthorization();
-	}
-
-}
-
-function checkAuthorization() {
-	var update = setInterval(function () {
-		$('#blockui-processing').append('.');
-	}, 500);
-
-	$.blockUI({
-		message: '<p id="blockui-processing">' + msg.loading + '</p>',
-		fadeIn: 10
-	});
-
-	var errorCB = function (errorMsg) {
-		clearInterval(update);
-		$.unblockUI();
-		$.blockUI({message: '<p>' + errorMsg + '</p>'});
-		// Redirect to step 2 after 5s
-		setTimeout(function () {
-			$.unblockUI();
-			gotoStep2();
-		}, 5000);
-	}
-
-
-	var successCBg = function (resultContainer) {
-		// Save election data
-		var posts = resultContainer.result.post;
-		var post;
-		if (posts == undefined || posts.length <= 0) {
-			//No authorization was found for this key
-			errorCB(msg.noAuthorizationFound);
-			return;
-		} else {
-			post = posts[0];
-		}
-
-		try {
-			uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
-		} catch (message) {
-			errorCB(msg.signatureError);
-			return;
-		}
-
-		//assumes that only one post is retuned
-		var message = JSON.parse(B64.decode(post.message));
-		electionGenerator = leemon.str2bigInt(message.crypto.g, 10, 1);
-
-
-		clearInterval(update);
-		$.unblockUI();
 		gotoStep2();
 	}
-
-	var successCBghat = function (resultContainer) {
-		// Save election data
-		var posts = resultContainer.result.post;
-		var post;
-		if (posts == undefined || posts.length <= 0) {
-			//No authorization was found for this key, so we recompute the public key using normal g (instead of ghat)
-			queryAuthorization(uvCrypto.signatureSetting.g, successCBg, errorCB);
-			return;
-		} else {
-			post = posts[0];
-		}
-
-		try {
-			uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
-		} catch (message) {
-			errorCB(msg.signatureError);
-			return;
-		}
-
-
-		//assumes that only one post is retuned
-		var message = JSON.parse(B64.decode(post.message));
-		electionGenerator = leemon.str2bigInt(message.crypto.g, 10, 1);
-
-		clearInterval(update);
-		$.unblockUI();
-		gotoStep2();
-	};
-
-	queryAuthorization(uvCrypto.signatureSetting.gHat, successCBghat, errorCB);
-}
-
-function queryAuthorization(generator, succesCB, errorCB) {
-
-	var publicKey = uvCrypto.computeElectionVerificationKey(generator, secretKey).vkString;
-
-	var queryJson = {
-		constraint: [{
-				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["section"]
-				},
-				value: {
-					type: "stringValue",
-					value: electionId}
-			}, {
-				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["group"]
-				},
-				value: {
-					type: "stringValue",
-					value: "accessRight"
-				}
-			}, {
-				type: "equal",
-				identifier: {
-					type: "messageIdentifier",
-					part: ["group"]
-				},
-				value: {
-					type: "stringValue",
-					value: "ballot"
-				}
-			}, {
-				type: "equal",
-				identifier: {
-					type: "messageIdentifier",
-					part: ["crypto", "publickey"]
-				},
-				value: {
-					type: "stringValue",
-					value: publicKey
-				}
-			}],
-		order: [{
-				identifier: {
-					type: "betaIdentifier",
-					parts: ["rank"]
-				},
-				ascDesc: false
-			}],
-		limit: 1};
-
-	//For IE
-	$.support.cors = true;
-
-	//Ajax request
-	$.ajax({
-		url: uvConfig.URL_UNIBOARD_GET,
-		type: 'POST',
-		contentType: "application/json",
-		accept: "application/json",
-		cache: false,
-		dataType: 'json',
-		data: JSON.stringify(queryJson),
-		timeout: 10000,
-		crossDomain: true,
-		success: succesCB,
-		error: function () {
-			errorCB(msg.errorAuthorizationVerification);
-		}
-	});
 }
 
 /**
@@ -416,7 +340,7 @@ function processFatalError(errorMsg) {
 	$.unblockUI();
 	// Show error message
 	$.blockUI({message: '<p>' + errorMsg + '</p>'});
-	// Redirect to home after 5s
+	// Redirect to home after 5s (TODO: Add a link back to home instead of auto redirect)
 	setTimeout(function () {
 		location.href = uvConfig.HOME_SITE;
 	}, 5000);
@@ -424,61 +348,125 @@ function processFatalError(errorMsg) {
 
 
 
-//===========================================================================
-// Get and process data from election board service
 
 
-function retrieveElectionDefinition() {
 
+
+//==============================================================================
+// TODO: If this must be done (what surprises me...) then do it just
+// before posting the ballot on the BB!
+
+function checkAuthorization() {
 	var update = setInterval(function () {
-		$(elements.loadingElections).append(".");
-	}, 1000);
+		$('#blockui-processing').append('.');
+	}, 500);
 
-	//Query of election data over all sections
+	$.blockUI({
+		message: '<p id="blockui-processing">' + msg.loading + '</p>',
+		fadeIn: 10
+	});
+
+	var processError = function (errorMsg) {
+		clearInterval(update);
+		$.unblockUI();
+		$.blockUI({message: '<p>' + errorMsg + '</p>'});
+		// Redirect to step 2 after 5s
+		setTimeout(function () {
+			$.unblockUI();
+			gotoStep2();
+		}, 5000);
+	};
+
+	var errorCB = function () {
+		processError(msg.errorAuthorizationVerification);
+	};
+
+	var tryForGHat = true;
+
+	var successCB = function (resultContainer) {
+		// Save election data
+		var posts = resultContainer.result.post;
+		var post;
+		if (posts == undefined || posts.length <= 0) {
+			//No authorization was found for this key
+			if (tryForGHat) {
+				tryForGHat = false;
+				// => recompute the public key using normal g (instead of ghat)
+				queryAuthorization(uvCrypto.signatureSetting.g, successCB, errorCB);
+			} else {
+				processError(msg.noAuthorizationFound);
+			}
+			return;
+		} else {
+			post = posts[0];
+		}
+
+		try {
+			uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
+		} catch (message) {
+			processError(msg.signatureError);
+			return;
+		}
+
+		// TODO!!
+		//assumes that only one post is retuned
+		var message = JSON.parse(B64.decode(post.message));
+		electionGenerator = leemon.str2bigInt(message.crypto.g, 10, 1);
+
+		clearInterval(update);
+		$.unblockUI();
+		gotoStep2();
+	};
+
+	queryAuthorization(uvCrypto.signatureSetting.gHat, successCB, errorCB);
+}
+
+function queryAuthorization(generator, successCB, errorCB) {
+
+	var publicKey = uvCrypto.computeElectionVerificationKey(generator, secretKey).vkString;
+
 	var queryJson = {
 		constraint: [{
 				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["section"]
-				},
-				value: {
-					type: "stringValue",
-					value: electionId}
+				identifier: {type: "alphaIdentifier", part: ["section"]},
+				value: {type: "stringValue", value: electionId}
 			}, {
 				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["group"]
-				},
-				value: {
-					type: "stringValue",
-					value: "electionDefinition"
-				}
-			}]
-	};
-
-	//For IE
-	$.support.cors = true;
-
-	var successCB = function (resultContainer) {
-		var posts = resultContainer.result.post;
-		var message = JSON.parse(B64.decode(posts[0].message));
-		//var administration = (message.administration != undefined) ? getLocalizedText(message.administration) : '';
-		var title = getLocalizedText(message.title);
-		$(elements.electionTitle).html(title);
-		$.unblockUI();
-		$(elements.step1content).addClass('active');
-		clearInterval(update);
-	};
-
-	var errorCB = function (errormsg) {
-		clearInterval(update);
-		processFatalError(msg.retreiveElectionDataError);
+				identifier: {type: "alphaIdentifier", part: ["group"]},
+				value: {type: "stringValue", value: "accessRight"}
+			}, {
+				type: "equal",
+				identifier: {type: "messageIdentifier", part: ["group"]},
+				value: {type: "stringValue", value: "ballot"}
+			}, {
+				type: "equal",
+				identifier: {type: "messageIdentifier", part: ["crypto", "publickey"]},
+				value: {type: "stringValue", value: publicKey}
+			}],
+		order: [{
+				identifier: {type: "betaIdentifier", parts: ["rank"]},
+				ascDesc: false
+			}],
+		limit: 1
 	};
 
 	uniBoard.get(queryJson, successCB, errorCB);
 }
+
+// END
+//=============================================================================
+
+
+
+
+
+
+
+
+//===========================================================================
+// Get and process data from election board service
+
+
 
 
 
@@ -491,7 +479,7 @@ function retrieveElectionDefinition() {
  * REST Service of the Board.
  *
  */
-function retrieveElectionData() {
+function retrieveElectionDataOld() {
 
 	var update = setInterval(function () {
 		$('#blockui-processing').append('.');
