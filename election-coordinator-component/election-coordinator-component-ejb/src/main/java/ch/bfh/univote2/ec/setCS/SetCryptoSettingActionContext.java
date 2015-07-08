@@ -39,33 +39,35 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.ec.setCS;
+
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import java.util.ArrayList;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public class SetCryptoSettingActionContext extends ActionContext {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYTPION_KEY_SHARE("encrytpionKeyShare");
-
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	public SetCryptoSettingActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, new ArrayList<>(), false);
 	}
 
-	public String getValue() {
-		return value;
+	private Integer securityLevel;
+
+	@Override
+	protected void purgeData() {
+		this.securityLevel = null;
+	}
+
+	public Integer getSecurityLevel() {
+		return securityLevel;
+	}
+
+	public void setSecurityLevel(Integer securityLevel) {
+		this.securityLevel = securityLevel;
 	}
 
 }

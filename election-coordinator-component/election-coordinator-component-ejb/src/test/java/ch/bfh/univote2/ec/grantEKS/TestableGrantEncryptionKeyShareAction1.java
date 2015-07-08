@@ -39,33 +39,46 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.ec.grantEKS;
+
+import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import java.security.PublicKey;
+import javax.ejb.LocalBean;
+import javax.ejb.Singleton;
+import javax.json.JsonObject;
 
 /**
+ * To test the protected methods
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+@Singleton
+@LocalBean
+public class TestableGrantEncryptionKeyShareAction1 extends GrantEncryptionKeyShareAction {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYTPION_KEY_SHARE("encrytpionKeyShare");
-
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	@Override
+	public boolean grantAccessRight(ActionContext actionContext, PublicKey publickey) {
+		return super.grantAccessRight(actionContext, publickey);
 	}
 
-	public String getValue() {
-		return value;
+	@Override
+	public void runInternal(GrantEncryptionKeyShareActionContext actionContext) {
+		super.runInternal(actionContext);
+	}
+
+	@Override
+	public boolean checkAccessRight(ActionContext actionContext, PublicKey publicKey) throws UnivoteException {
+		return super.checkAccessRight(actionContext, publicKey);
+	}
+
+	@Override
+	public void parseTrusteeCerts(JsonObject message, GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
+		super.parseTrusteeCerts(message, actionContext);
+	}
+
+	@Override
+	public void retrieveTalliers(GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
+		super.retrieveTalliers(actionContext);
 	}
 
 }

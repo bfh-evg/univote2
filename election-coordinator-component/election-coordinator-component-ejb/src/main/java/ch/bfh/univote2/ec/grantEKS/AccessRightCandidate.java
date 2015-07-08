@@ -39,33 +39,33 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.ec.grantEKS;
+
+import java.security.PublicKey;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public class AccessRightCandidate {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYTPION_KEY_SHARE("encrytpionKeyShare");
+	private final PublicKey publicKey;
+	private AccessRightStatus granted = AccessRightStatus.UNKOWN;
 
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	public AccessRightCandidate(PublicKey publicKey) {
+		this.publicKey = publicKey;
 	}
 
-	public String getValue() {
-		return value;
+	public PublicKey getPublicKey() {
+		return publicKey;
+	}
+
+	public void setGranted(AccessRightStatus granted) {
+		this.granted = granted;
+	}
+
+	public AccessRightStatus getGranted() {
+		return granted;
 	}
 
 }

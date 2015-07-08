@@ -39,33 +39,16 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.ec.grantEKS;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public enum AccessRightStatus {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYTPION_KEY_SHARE("encrytpionKeyShare");
-
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
-	}
-
-	public String getValue() {
-		return value;
-	}
+	GRANTED,
+	NOT_GRANTED,
+	UNKOWN;
 
 }

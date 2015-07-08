@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.ec.pubTC;
 
+import ch.bfh.univote2.ec.UniboardServiceMock;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -222,7 +223,7 @@ public class PublishTrusteeCertsActionTest {
 		this.publishTrusteeCertsAction.run(context);
 		assertEquals((ResultStatus.FINISHED), this.actionManagerMock.getResultStatus());
 		PostDTO post = this.uniboardServiceMock.getPost();
-		assertEquals("{\"mixerCertificates\" : [{	\"certContent\": [\"mixer1\"]}], \"tallierCertificates\" : [{	\"certContent\": [\"tallier1\"],}]}", post.getMessage());
+		Assert.assertArrayEquals("{\"mixerCertificates\" : [{	\"certContent\": [\"mixer1\"]}], \"tallierCertificates\" : [{	\"certContent\": [\"tallier1\"],}]}".getBytes(), post.getMessage());
 	}
 
 	/**

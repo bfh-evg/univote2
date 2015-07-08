@@ -39,7 +39,7 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec.pubTC;
+package ch.bfh.univote2.ec.setCS;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
@@ -50,40 +50,34 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
-import ch.bfh.univote2.component.core.query.GroupEnum;
+import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
-import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
+import ch.bfh.univote2.ec.pubTC.PublishTrusteeCertsActionContext;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.json.JsonValue;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Stateless
-public class PublishTrusteeCertsAction extends AbstractAction implements NotifiableAction {
+public class SetCryptoSettingAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "PublishTrusteeCertsAction";
-	private static final Logger logger = Logger.getLogger(PublishTrusteeCertsAction.class.getName());
+	private static final String ACTION_NAME = SetCryptoSettingAction.class.getSimpleName();
+	private static final Logger logger = Logger.getLogger(SetCryptoSettingAction.class.getName());
 
 	@EJB
 	ActionManager actionManager;
@@ -91,24 +85,24 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	InformationService informationService;
 	@EJB
 	UniboardService uniboardService;
+	@EJB
+	ConfigurationManager configurationManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
 		this.informationService.informTenant(ack, "Created new context.");
-		return new PublishTrusteeCertsActionContext(ack, preconditionsQuerys);
+		return new SetCryptoSettingActionContext(ack);
 	}
 
 	@Override
 	protected boolean checkPostCondition(ActionContext actionContext) {
-
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-					QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
+					QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
 			return !result.getResult().getPost().isEmpty();
 		} catch (UnivoteException ex) {
-			logger.log(Level.WARNING, "Could not request trustees certificates.", ex);
+			logger.log(Level.WARNING, "Could not request crypto setting.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not check post condition.");
 			return false;
@@ -118,22 +112,21 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
 		try {
-			PublishTrusteeCertsActionContext ptcac = (PublishTrusteeCertsActionContext) actionContext;
-			this.fillContext(ptcac, this.retrieveTrustees(ptcac));
+			SetCryptoSettingActionContext scsac = (SetCryptoSettingActionContext) actionContext;
+			this.fillContext(scsac, this.retrieveSecurityLevel(scsac));
 		} catch (UnivoteException ex) {
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForTrustees(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
-			logger.log(Level.WARNING, "Could not get trustees.", ex);
+			logger.log(Level.WARNING, "Could not get securityLevel.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error retrieving trustees: " + ex.getMessage());
+					"Error retrieving securityLevel: " + ex.getMessage());
 		} catch (JsonException ex) {
-			logger.log(Level.WARNING, "Could not parse trustees.", ex);
+			logger.log(Level.WARNING, "Could not parse securityLevel.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error reading trustees.");
+					"Error reading securityLevel.");
 		}
-
 	}
 
 	@Override
@@ -141,13 +134,13 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	public void run(ActionContext actionContext) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
 		if (actionContext instanceof PublishTrusteeCertsActionContext) {
-			PublishTrusteeCertsActionContext ptcac = (PublishTrusteeCertsActionContext) actionContext;
-			if (!ptcac.getMixers().isEmpty() && !ptcac.getTalliers().isEmpty()) {
-				this.runInternal(ptcac);
+			SetCryptoSettingActionContext scsac = (SetCryptoSettingActionContext) actionContext;
+			if (scsac.getSecurityLevel() != null) {
+				this.runInternal(scsac);
 			} else {
 				try {
-					this.fillContext(ptcac, this.retrieveTrustees(ptcac));
-					this.runInternal(ptcac);
+					this.fillContext(scsac, this.retrieveSecurityLevel(scsac));
+					this.runInternal(scsac);
 				} catch (UnivoteException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -165,7 +158,7 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	public void notifyAction(ActionContext actionContext, Object notification) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
 		if (actionContext instanceof PublishTrusteeCertsActionContext) {
-			PublishTrusteeCertsActionContext ptcac = (PublishTrusteeCertsActionContext) actionContext;
+			SetCryptoSettingActionContext scsac = (SetCryptoSettingActionContext) actionContext;
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
 
@@ -173,8 +166,8 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 				JsonReader jsonReader = Json.createReader(new StringReader(messageString));
 				JsonObject message = jsonReader.readObject();
 				try {
-					this.fillContext(ptcac, message);
-					this.runInternal(ptcac);
+					this.fillContext(scsac, message);
+					this.runInternal(scsac);
 				} catch (UnivoteException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -193,13 +186,13 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 
 	}
 
-	protected JsonObject retrieveTrustees(ActionContext actionContext) throws JsonException, UnivoteException {
+	protected JsonObject retrieveSecurityLevel(ActionContext actionContext) throws JsonException, UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForTrustees(actionContext.getSection()));
+				QueryFactory.getQueryForSecurityLevel(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
-			throw new UnivoteException("Trustees not published yet.");
+			throw new UnivoteException("Security level not published yet.");
 		}
-		//Prepare JsonObject for trustees
+		//Prepare JsonObject
 		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
 				Charset.forName("UTF-8"));
 		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
@@ -207,97 +200,15 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 
 	}
 
-	protected void fillContext(PublishTrusteeCertsActionContext ptcac, JsonObject message) throws UnivoteException {
-		JsonArray mixers = message.getJsonArray("mixerIds");
-		if (mixers == null) {
-			throw new UnivoteException("Invalid trustees message. mixerIds is missing.");
+	protected void fillContext(SetCryptoSettingActionContext scsac, JsonObject message) throws UnivoteException {
+		Integer securityLevel = message.getInt("securityLevel");
+		if (securityLevel == null) {
+			throw new UnivoteException("Invalid securityLevel message.");
 		}
-		for (JsonValue jv : mixers) {
-			JsonString js = (JsonString) jv;
-			ptcac.getMixers().add(js.getString());
-		}
-		JsonArray talliers = message.getJsonArray("tallierIds");
-		if (talliers == null) {
-			throw new UnivoteException("Invalid trustees message. tallierIds is missing.");
-		}
-		for (JsonValue jv : talliers) {
-			JsonString js = (JsonString) jv;
-			ptcac.getTalliers().add(js.getString());
-		}
+		scsac.setSecurityLevel(securityLevel);
 	}
 
-	private void runInternal(PublishTrusteeCertsActionContext actionContext) {
-
-		List<String> missingMixers = new ArrayList<>();
-		List<String> mixerCerts = new ArrayList<>();
-		for (String mixer : actionContext.getMixers()) {
-			//Get Certificate from UniCert
-			ResultContainerDTO result;
-			try {
-				result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
-						QueryFactory.getQueryFormUniCertForTrusteeCert(mixer));
-			} catch (UnivoteException ex) {
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Could not retrieve cert for mixer :" + mixer);
-				missingMixers.add(mixer);
-				break;
-			}
-			if (result.getResult().getPost().isEmpty()) {
-				missingMixers.add(mixer);
-			}
-			PostDTO post = result.getResult().getPost().get(0);
-			mixerCerts.add(new String(post.getMessage(), Charset.forName("UTF-8")));
-		}
-		List<String> missingTalliers = new ArrayList<>();
-		List<String> tallierCerts = new ArrayList<>();
-		for (String tallier : actionContext.getMixers()) {
-			//Get Certificate from UniCert
-			ResultContainerDTO result;
-			try {
-				result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
-						QueryFactory.getQueryFormUniCertForTrusteeCert(tallier));
-			} catch (UnivoteException ex) {
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Could not retrieve cert for tallier :" + tallier);
-				missingTalliers.add(tallier);
-				break;
-			}
-			if (result.getResult().getPost().isEmpty()) {
-				missingTalliers.add(tallier);
-			}
-			PostDTO post = result.getResult().getPost().get(0);
-			tallierCerts.add(new String(post.getMessage(), Charset.forName("UTF-8")));
-		}
-		if (missingTalliers.isEmpty() && missingMixers.isEmpty()) {
-
-			//Create message from the retrieved certificate
-			byte[] message = MessageFactory.createTrusteeCerts(mixerCerts, tallierCerts);
-			//Post message
-			try {
-				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
-						GroupEnum.ADMIN_CERT.getValue(), message, actionContext.getTenant());
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Posted trustee certs. Action finished.");
-				this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-			} catch (UnivoteException ex) {
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Could not post message.");
-				logger.log(Level.WARNING, "Could not post message. context: {0}. ex: {1}",
-						new Object[]{actionContext.getActionContextKey(), ex.getMessage()});
-				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			}
-		} else {
-			for (String tallier : missingTalliers) {
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Could not find certificates for tallier:" + tallier);
-			}
-			for (String mixer : missingMixers) {
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Could not find certificates for mixer:" + mixer);
-			}
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		}
-
+	private void runInternal(SetCryptoSettingActionContext actionContext) {
+		//Where to retrieve the settings from?
 	}
-
 }

@@ -39,36 +39,35 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec.generic;
+package ch.bfh.univote2.ec.grantEKS;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class GrantAccessRightEAActionContext extends ActionContext {
+public class GrantEncryptionKeyShareActionContext extends ActionContext {
 
-	private PublicKey publlicKey;
+	private final List<AccessRightCandidate> talliers;
 
-	public GrantAccessRightEAActionContext(ActionContextKey actionContextKey) {
+	public GrantEncryptionKeyShareActionContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), false);
+		this.talliers = new ArrayList<>();
 	}
 
 	@Override
 	protected void purgeData() {
-		this.publlicKey = null;
+		this.talliers.clear();
 	}
 
-	public void setPublicKey(PublicKey publicKey) {
-		this.publlicKey = publicKey;
+	public List<AccessRightCandidate> getTalliers() {
+		return talliers;
 	}
 
-	public PublicKey getPublicKey() {
-		return publlicKey;
-	}
 
 }
