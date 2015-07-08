@@ -44,6 +44,7 @@ package ch.bfh.univote2.ec.pubTC;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,24 +53,28 @@ import java.util.List;
  */
 public class PublishTrusteeCertsActionContext extends ActionContext {
 
-	private String name;
+	private final List<String> mixers;
+	private final List<String> talliers;
 
 	public PublishTrusteeCertsActionContext(ActionContextKey actionContextKey,
 			List<PreconditionQuery> preconditionQueries) {
 		super(actionContextKey, preconditionQueries, false);
+		this.mixers = new ArrayList<>();
+		this.talliers = new ArrayList<>();
 	}
 
 	@Override
 	protected void purgeData() {
-		this.name = null;
+		this.mixers.clear();
+		this.talliers.clear();
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public List<String> getMixers() {
+		return mixers;
 	}
 
-	public String getName() {
-		return name;
+	public List<String> getTalliers() {
+		return talliers;
 	}
 
 }

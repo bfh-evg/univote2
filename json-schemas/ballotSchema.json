@@ -1,0 +1,27 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a ballot",
+	"type": "object",
+	"properties": {
+		"encryptedVote": {
+			"description": "ElGamal encryption of a vote",
+			"type": "object",
+			"properties": {
+				"firstValue":  { "type": "string" },
+				"secondValue": { "type": "string" }
+			},
+			"required": ["firstValue", "secondValue"]
+		},	
+		"proof": {
+			"description": "Encryption proof",
+			"type": "object",
+			"properties": {
+				"commitment": { "type": "string" },
+				"response":   { "type": "string" }
+			},
+			"required": ["commitment", "response"]
+		}
+	},
+	"required": ["encryptedVote", "proof"],
+	"additionalProperties": false
+}

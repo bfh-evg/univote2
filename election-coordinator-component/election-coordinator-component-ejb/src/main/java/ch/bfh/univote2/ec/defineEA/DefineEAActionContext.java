@@ -43,8 +43,7 @@ package ch.bfh.univote2.ec.defineEA;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -54,8 +53,8 @@ public class DefineEAActionContext extends ActionContext {
 
 	private String name;
 
-	public DefineEAActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, false);
+	public DefineEAActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, new ArrayList<>(), false);
 	}
 
 	@Override

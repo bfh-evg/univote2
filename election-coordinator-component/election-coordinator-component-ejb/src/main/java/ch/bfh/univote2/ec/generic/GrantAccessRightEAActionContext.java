@@ -43,8 +43,8 @@ package ch.bfh.univote2.ec.generic;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.List;
+import java.security.PublicKey;
+import java.util.ArrayList;
 
 /**
  *
@@ -52,24 +52,23 @@ import java.util.List;
  */
 public class GrantAccessRightEAActionContext extends ActionContext {
 
-	private String pem;
+	private PublicKey publlicKey;
 
-	public GrantAccessRightEAActionContext(ActionContextKey actionContextKey,
-			List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, false);
+	public GrantAccessRightEAActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, new ArrayList<>(), false);
 	}
 
 	@Override
 	protected void purgeData() {
-		this.pem = null;
+		this.publlicKey = null;
 	}
 
-	public void setPem(String pem) {
-		this.pem = pem;
+	public void setPublicKey(PublicKey publicKey) {
+		this.publlicKey = publicKey;
 	}
 
-	public String getPem() {
-		return pem;
+	public PublicKey getPublicKey() {
+		return publlicKey;
 	}
 
 }

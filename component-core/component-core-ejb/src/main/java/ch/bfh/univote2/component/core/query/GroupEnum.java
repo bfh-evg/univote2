@@ -54,7 +54,9 @@ public enum GroupEnum {
 	TRUSTEE_CERTIFICATES("trusteeCertificates"),
 	ELECTORAL_ROLL("electoralRoll"),
 	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel");
+	SECURITY_LEVEL("securityLevel"),
+	CRYPTO_SETTING("cryptoSetting"),
+	ENCRYTPION_KEY_SHARE("encrytpionKeyShare");
 
 	private final String value;
 

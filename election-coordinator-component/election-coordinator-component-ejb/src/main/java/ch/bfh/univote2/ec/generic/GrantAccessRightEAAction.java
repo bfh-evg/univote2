@@ -44,17 +44,16 @@ package ch.bfh.univote2.ec.generic;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
+import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
 import java.io.ByteArrayInputStream;
@@ -65,14 +64,11 @@ import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.json.Json;
-import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
@@ -80,7 +76,7 @@ import javax.json.JsonReader;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public abstract class GrantAccessRightEAAction extends AbstractAction implements NotifiableAction {
+public abstract class GrantAccessRightEAAction implements NotifiableAction {
 
 	@EJB
 	ActionManager actionManager;
@@ -89,8 +85,6 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 	@EJB
 	UniboardService uniboardService;
 
-	private static String UNIVOTE_BOARD = "univote-board";
-
 	protected abstract String getActionName();
 
 	protected abstract GroupEnum getGroupName();
@@ -98,57 +92,41 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 	protected abstract Logger getLogger();
 
 	@Override
-	protected ActionContext createContext(String tenant, String section) {
+	public ActionContext prepareContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(this.getActionName(), tenant, section);
-		List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
 		this.informationService.informTenant(ack, "Created new context.");
-		return new GrantAccessRightEAActionContext(ack, preconditionsQuerys);
-	}
-
-	@Override
-	protected boolean checkPostCondition(ActionContext actionContext) {
+		GrantAccessRightEAActionContext actionContext = new GrantAccessRightEAActionContext(ack);
+		boolean precondition = false;
 		try {
-			ResultContainerDTO result = this.uniboardService.get(UNIVOTE_BOARD,
-					QueryFactory.getQueryForElectionDefinition(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
-
+			//Check precondition
+			this.retrieveEA(actionContext);
+			precondition = true;
 		} catch (UnivoteException ex) {
-			this.getLogger().log(Level.WARNING, "Could not request election definition.", ex);
+			this.getLogger().log(Level.WARNING, "Could not request trustee certificates.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not check post condition.");
-			return false;
+					"Could not request trustee certificates.");
 		}
-	}
 
-	@Override
-	protected void definePreconditions(ActionContext actionContext) {
-		try {
-			ResultContainerDTO result
-					= this.uniboardService.get(UNIVOTE_BOARD, QueryFactory.getQueryForEACert(actionContext.getSection()));
-			if (!result.getResult().getPost().isEmpty()) {
-				//Load pem from message from post
-				String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-						Charset.forName("UTF-8"));
-				JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-				JsonObject message = jsonReader.readObject();
-				String pem = message.getString("pem");
-				GrantAccessRightEAActionContext gedac = (GrantAccessRightEAActionContext) actionContext;
-				gedac.setPem(pem);
-				return;
+		if (precondition) {
+			//If fullfilled check postcondition
+			try {
+				actionContext.setPostCondition(this.checkAccessRight(actionContext));
+			} catch (UnivoteException ex) {
+				this.getLogger().log(Level.WARNING, "Could not check post condition.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Could not check post condition.");
 			}
-		} catch (UnivoteException ex) {
-			this.getLogger().log(Level.WARNING, "Could not get ea certificate.", ex);
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error retrieving ea certificate.");
-		} catch (JsonException ex) {
-			this.getLogger().log(Level.WARNING, "Could not parse ea certificate.", ex);
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error reading ea certificate.");
+			//Set postcondition
+		} else {
+			//Set postcondition
+			actionContext.setPostCondition(false);
+			//Add Notification
+			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForTrusteeCerts(
+					actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
+			actionContext.getPreconditionQueries().add(bQuery);
 		}
-		//Add UserInput
-		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-				QueryFactory.getQueryForEACert(actionContext.getSection()), "univote");
-		actionContext.getPreconditionQueries().add(bQuery);
+
+		return actionContext;
 	}
 
 	@Override
@@ -156,9 +134,21 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 	public void run(ActionContext actionContext) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
 		if (actionContext instanceof GrantAccessRightEAActionContext) {
-			GrantAccessRightEAActionContext gedac = (GrantAccessRightEAActionContext) actionContext;
-			if (!gedac.getPem().isEmpty()) {
-				this.runInternal(gedac);
+			GrantAccessRightEAActionContext gareac = (GrantAccessRightEAActionContext) actionContext;
+			if (gareac.getPublicKey() != null) {
+				this.runInternal(gareac);
+			} else {
+				try {
+					//Check precondition
+					this.retrieveEA(gareac);
+					gareac.getPreconditionQueries().clear();
+					this.runInternal(gareac);
+
+				} catch (UnivoteException ex) {
+					this.getLogger().log(Level.WARNING, "Could not request ea certificate.", ex);
+					this.informationService.informTenant(actionContext.getActionContextKey(),
+							"Could not request ea certificate.");
+				}
 			}
 		} else {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -180,10 +170,9 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 				try {
 					JsonReader jsonReader = Json.createReader(new StringReader(messageString));
 					JsonObject message = jsonReader.readObject();
-					String pem = message.getString("pem");
-					gedac.setPem(pem);
+					this.parseEACert(message, gedac);
 					this.runInternal(gedac);
-				} catch (JsonException ex) {
+				} catch (UnivoteException ex) {
 					this.getLogger().log(Level.WARNING, "Could not parse ea certificate.", ex);
 					this.informationService.informTenant(actionContext.getActionContextKey(),
 							"Error reading ea certificate.");
@@ -206,29 +195,19 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 	private void runInternal(GrantAccessRightEAActionContext actionContext) {
 		byte[] message;
 		try {
-			//Load certificate from pem string
-			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-			InputStream in = new ByteArrayInputStream(actionContext.getPem().getBytes());
-			X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
-			PublicKey pk = cert.getPublicKey();
 			//Get type(RSA/DSA)
-			message = MessageFactory.createAccessRight(this.getGroupName(), pk, 1);
-		} catch (CertificateException ex) {
-			this.getLogger().log(Level.WARNING, "Unsupported certificate: {0}", ex);
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not read ea certificate.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			return;
+			message = MessageFactory.createAccessRight(this.getGroupName(), actionContext.getPublicKey(), 1);
 		} catch (UnivoteException ex) {
-			this.getLogger().log(Level.WARNING, "Unsupported public key type: {0}", ex);
+			this.getLogger().log(Level.WARNING, "Unsupported public key type: {0}", ex.getMessage());
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not post access right for " + this.getGroupName() + ".");
+					"Unsupported public key type: " + actionContext.getPublicKey() + ".");
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			return;
 		}
+
 		//post message
 		try {
-			this.uniboardService.post(UNIVOTE_BOARD, actionContext.getSection(),
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.ACCESS_RIGHT.getValue(), message, actionContext.getTenant());
 		} catch (UnivoteException ex) {
 			this.getLogger().log(Level.WARNING, "Unsupported public key type: {0}", ex.getMessage());
@@ -238,6 +217,45 @@ public abstract class GrantAccessRightEAAction extends AbstractAction implements
 		this.informationService.informTenant(actionContext.getActionContextKey(),
 				"Posted access right for " + this.getGroupName() + ".");
 		this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+	}
+
+	private void retrieveEA(GrantAccessRightEAActionContext actionContext) throws UnivoteException {
+		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
+				QueryFactory.getQueryFormUniCertForEACert(actionContext.getSection()));
+		if (result.getResult().getPost().isEmpty()) {
+			throw new UnivoteException("EA certificate not published yet.");
+		}
+		//Prepare JsonObject for trustees
+		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
+				Charset.forName("UTF-8"));
+		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
+		this.parseEACert(jsonReader.readObject(), actionContext);
+	}
+
+	private void parseEACert(JsonObject message, GrantAccessRightEAActionContext actionContext)
+			throws UnivoteException {
+		String pem = message.getString("pem");
+		if (pem == null) {
+			throw new UnivoteException("Invalid certificate message. pem is missing.");
+		}
+		try {
+			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+			InputStream in = new ByteArrayInputStream(pem.getBytes());
+			X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
+			PublicKey pk = cert.getPublicKey();
+			actionContext.setPublicKey(pk);
+		} catch (CertificateException ex) {
+			throw new UnivoteException("Invalid trustees certificates message. Could not load pem.", ex);
+		}
+
+	}
+
+	private boolean checkAccessRight(GrantAccessRightEAActionContext actionContext) throws UnivoteException {
+		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForAccessRight(actionContext.getSection(),
+						actionContext.getPublicKey(), this.getGroupName()));
+		return !result.getResult().getPost().isEmpty();
+
 	}
 
 }

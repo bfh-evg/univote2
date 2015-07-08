@@ -1,0 +1,44 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of an election issue",
+	"type": "object",
+
+	"properties": {
+		"id": {
+			"description": "Issue identifier (unique within election)",
+			"type": "integer"
+		},
+		"type": {
+			"description": "Issue type",
+			"enum": ["candidateElection"]
+		},
+		"title": {
+			"description": "Election title",
+			"$ref": "i18nTextSchema.json"
+		},
+		"description": {
+			"description": "Election description",
+			"$ref": "i18nTextSchema.json"
+		},
+		"options": {
+			"description": "Container of election options",
+			"type": "array",
+			"items": { "$ref": "candidateOptionSchema.json" }
+		},
+		"rules": {
+			"description": "Container of election rules",
+			"type": "array",
+			"items": {
+				"oneOf": [
+					{ "$ref": "summationRuleSchema.json" },
+					{ "$ref": "cumulationRuleSchema.json" }
+				]
+			}
+		},
+		"ballotEncoding": {
+			"description": "Identifier of the ballot encoding scheme",
+			"type": "string"
+		}
+	},
+	"required": ["id", "type", "title", "options", "rules", "ballotEncoding"]
+}

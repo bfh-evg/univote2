@@ -49,7 +49,6 @@ import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputTask;
@@ -57,9 +56,8 @@ import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
+import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.QueryFactory;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -75,8 +73,6 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 
 	private static final String ACTION_NAME = "DefineEAAction";
 	private static final String INPUT_NAME = "EAName";
-	private static final String UNIVOTE_BOARD = "univote-board";
-	private static final String UNICERT_BOARD = "unicert-board";
 	private static final Logger logger = Logger.getLogger(DefineEAAction.class.getName());
 
 	@EJB
@@ -91,16 +87,15 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
 		this.informationService.informTenant(ack, "Created new context.");
-		return new DefineEAActionContext(ack, preconditionsQuerys);
+		return new DefineEAActionContext(ack);
 	}
 
 	@Override
 	protected boolean checkPostCondition(ActionContext actionContext) {
 
 		try {
-			ResultContainerDTO result = this.uniboardService.get(UNIVOTE_BOARD,
+			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForEACert(actionContext.getSection()));
 			return !result.getResult().getPost().isEmpty();
 		} catch (UnivoteException ex) {
@@ -167,8 +162,8 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	private void runInternal(DefineEAActionContext actionContext) {
 		try {
 			//Get Certificate from UniCert
-			ResultContainerDTO result = this.uniboardService.get(UNICERT_BOARD,
-					QueryFactory.getQueryFormUniCertForCert(actionContext.getName()));
+			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
+					QueryFactory.getQueryFormUniCertForEACert(actionContext.getName()));
 			if (result.getResult().getPost().isEmpty()) {
 				this.informationService.informTenant(actionContext.getActionContextKey(),
 						"No certificate found for the specified EA name.");
@@ -185,7 +180,7 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 			//Create message from the retrieved certificate
 			byte[] message = post.getMessage();
 			//Post message
-			this.uniboardService.post(UNIVOTE_BOARD, actionContext.getSection(),
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.ADMIN_CERT.getValue(), message, actionContext.getTenant());
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),

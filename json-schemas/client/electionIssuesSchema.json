@@ -1,8 +1,0 @@
-{
-	"$schema": "http://json-schema.org/draft-04/schema",
-	"title": "UniVote2: Schema of election issues",
-	"type": "array",
-	"items": {
-		"$ref": "electionIssueSchema.json"
-	}
-}
