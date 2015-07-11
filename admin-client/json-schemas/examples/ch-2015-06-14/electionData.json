@@ -7,7 +7,8 @@
 			"rm": "Votaziun dal pievel dals 14 da zercladur 2015"
 		},
 		"votingPeriodBegin": "2015-06-01T23:00:00Z",
-		"votingPeriodEnd": "2015-06-14T11:00:00Z"
+		"votingPeriodEnd": "2015-06-14T11:00:00Z",
+		"ballotEncoding": "BR"
 	},
 	"issues": [
 		{
@@ -45,8 +46,7 @@
 					"lowerBound": 0,
 					"upperBound": 1
 				}
-			],
-			"ballotEncoding": "BR"
+			]
 		},
 		{
 			"id": 2,
@@ -83,8 +83,7 @@
 					"lowerBound": 0,
 					"upperBound": 1
 				}
-			],
-			"ballotEncoding": "BR"
+			]
 		},
 		{
 			"id": 3,
@@ -121,8 +120,7 @@
 					"lowerBound": 0,
 					"upperBound": 1
 				}
-			],
-			"ballotEncoding": "BR"
+			]
 		},
 		{
 			"id": 4,
@@ -159,8 +157,7 @@
 					"lowerBound": 0,
 					"upperBound": 1
 				}
-			],
-			"ballotEncoding": "BR"
+			]
 		}
 	],
 	"cryptoSetting": {

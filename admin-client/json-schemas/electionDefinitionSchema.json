@@ -24,7 +24,12 @@
 			"description": "End date and time of the voting period (ISO 8601 format)",
 			"type": "string",
 			"format": "date-time"
+		},
+		"ballotEncoding": {
+			"description": "Identifier of the ballot encoding scheme",
+			"type": "string"
 		}
 	},
-	"required": ["title", "votingPeriodBegin", "votingPeriodEnd"]
+	"required": ["title", "votingPeriodBegin", "votingPeriodEnd", "ballotEncoding"],
+	"additionalProperties": false
 }

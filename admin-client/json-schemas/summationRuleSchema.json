@@ -9,5 +9,6 @@
 		"lowerBound": { "type": "integer" },
 		"upperBound": { "type": "integer" }
 	},
-	"required": ["id", "type", "optionIds", "lowerBound", "upperBound"]
+	"required": ["id", "type", "optionIds", "lowerBound", "upperBound"],
+	"additionalProperties": false
 }

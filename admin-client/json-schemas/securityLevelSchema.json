@@ -8,5 +8,6 @@
 			"type": "integer"
 		}
 	},
-	"required": ["securityLevel"]
+	"required": ["securityLevel"],
+	"additionalProperties": false
 }

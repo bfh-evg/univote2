@@ -24,10 +24,6 @@
 			"description": "Container of rules",
 			"type": "array",
 			"items": { "$ref": "#/definitions/rule" }
-		},
-		"ballotEncoding": {
-			"description": "Identifier of the ballot encoding scheme",
-			"type": "string"
 		}
 	},
 	"required": ["id", "type", "title", "options", "rules", "ballotEncoding"],

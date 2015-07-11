@@ -34,8 +34,7 @@
 				"lowerBound": 0,
 				"upperBound": 1
 			}
-		],
-		"ballotEncoding": "BR"
+		]
 	},
 	{
 		"id": 2,
@@ -72,8 +71,7 @@
 				"lowerBound": 0,
 				"upperBound": 1
 			}
-		],
-		"ballotEncoding": "BR"
+		]
 	},
 	{
 		"id": 3,
@@ -110,8 +108,7 @@
 				"lowerBound": 0,
 				"upperBound": 1
 			}
-		],
-		"ballotEncoding": "BR"
+		]
 	},
 	{
 		"id": 4,
@@ -148,7 +145,6 @@
 				"lowerBound": 0,
 				"upperBound": 1
 			}
-		],
-		"ballotEncoding": "BR"
+		]
 	}
 ]

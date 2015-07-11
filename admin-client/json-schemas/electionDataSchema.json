@@ -24,5 +24,6 @@
 			"type": "string"
 		}
 	},
-	"required": ["definition", "issues", "cryptoSetting", "encryptionKey", "signatureGenerator"]
+	"required": ["definition", "issues", "cryptoSetting", "encryptionKey", "signatureGenerator"],
+	"additionalProperties": false
 }

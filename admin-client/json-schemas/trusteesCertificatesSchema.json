@@ -1,0 +1,23 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of trustees certificates",
+	"type": "object",
+	"properties": {
+		"mixerCertificates": {
+			"description": "Certificates of the mixers",
+			"type": "array",
+			"items": {
+				"$ref": "certificateSchema.json"
+			}
+		},
+		"tallierCertificates": {
+			"description": "Certificates of the talliers",
+			"type": "array",
+			"items": {
+				"$ref": "certificateSchema.json"
+			}
+		}
+	},
+	"required": ["mixerCertificates", "tallierCertificates"],
+	"additionalProperties": false
+}

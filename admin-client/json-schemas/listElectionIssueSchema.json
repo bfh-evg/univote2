@@ -39,11 +39,8 @@
 					{ "$ref": "cumulationRuleSchema.json" }
 				]
 			}
-		},
-		"ballotEncoding": {
-			"description": "Identifier of the ballot encoding scheme",
-			"type": "string"
 		}
 	},
-	"required": ["id", "type", "title", "options", "rules", "ballotEncoding"]
+	"required": ["id", "type", "title", "options", "rules"],
+	"additionalProperties": false
 }

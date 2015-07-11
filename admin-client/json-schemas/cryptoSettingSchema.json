@@ -16,5 +16,6 @@
 			"type": "string"
 		}
 	},
-	"required": ["encryptionSetting", "signatureSetting", "hashSetting"]
+	"required": ["encryptionSetting", "signatureSetting", "hashSetting"],
+	"additionalProperties": false
 }

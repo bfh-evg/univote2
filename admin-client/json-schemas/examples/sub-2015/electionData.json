@@ -1,12 +1,13 @@
 {
 	"definition": {
 		"title": {
-			"en": "University of Berne",
-			"de": "Universität Bern",
-			"fr": "Université de Berne"
+			"de": "Wahlen des <a href=\"http://www.bfh.ch\">SUB</a>-StudentInnenrates (3. - 21. Dezember 2015)",
+			"fr": "Élection du conseil des étudiant-e-s <a href=\"http://www.bfh.ch\">SUB</a> (3 - 21 décembre 2015)\"\",
+			"en": "<a href=\"http://www.bfh.ch\">SUB</a> Elections (Decembre 3 - 21, 2015)"
 		},
 		"votingPeriodBegin": "2015-03-08T23:00:00Z",
-		"votingPeriodEnd": "2015-03-26T11:00:00Z"
+		"votingPeriodEnd": "2015-03-26T11:00:00Z",
+		"ballotEncoding": "BR"
 	},
 	"issues": [
 		{
@@ -1804,8 +1805,7 @@
 					"lowerBound": 0,
 					"upperBound": 3
 				}
-			],
-			"ballotEncoding": "BR"
+			]
 		}
 	],
 	"cryptoSetting": {

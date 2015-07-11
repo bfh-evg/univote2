@@ -10,5 +10,6 @@
 		"fr": "Le bulletin de vote peut comporter au maximum 40 candidats. Il peut comporter des candidats de listes différentes. Chaque électeur peut cumuler jusqu’à trois suffrages sur un candidat. Le bulletin de vote peut-être attribué à une liste. Si un bulletin de vote contient un nombre de candidats inférieurs à 40, les lignes laissées en blanc sont considérées comme autant de suffrages complémentaires attribués à la liste choisie. Si aucune liste n’est indiquée, ces suffrages  sont considérés comme périmés."
 	},
 	"votingPeriodBegin": "2015-03-08T23:00:00Z",
-	"votingPeriodEnd": "2015-03-26T11:00:00Z"
+	"votingPeriodEnd": "2015-03-26T11:00:00Z",
+	"ballotEncoding": "BR"
 }

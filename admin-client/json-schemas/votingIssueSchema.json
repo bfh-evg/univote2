@@ -16,6 +16,10 @@
 			"description": "Vote title",
 			"$ref": "i18nTextSchema.json"
 		},
+		"description": {
+			"description": "Vote description",
+			"$ref": "i18nTextSchema.json"
+		},
 		"question": {
 			"description": "Vote description",
 			"$ref": "i18nTextSchema.json"
@@ -34,11 +38,8 @@
 					{ "$ref": "cumulationRuleSchema.json" }
 				]
 			}
-		},
-		"ballotEncoding": {
-			"description": "Identifier of the ballot encoding scheme",
-			"type": "string"
 		}
 	},
-	"required": ["id", "type", "title", "question", "options", "rules", "ballotEncoding"]
+	"required": ["id", "type", "title", "question", "options", "rules"],
+	"additionalProperties": false
 }
