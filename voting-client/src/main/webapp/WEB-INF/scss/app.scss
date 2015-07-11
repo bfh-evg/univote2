@@ -184,6 +184,11 @@ dl {
 }
 
 // 1 + 2 column content view
+
+.step {
+	color: $black;
+}
+
 .substep {
 	margin-top: rem-calc(40); color: $black; opacity: 0.2; transition: opacity 0.8s;
 	&.done { opacity: 1; }
