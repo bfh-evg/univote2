@@ -2,8 +2,13 @@
 	"definition": {
 		"title": {
 			"de": "Wahlen des <a href=\"http://www.bfh.ch\">SUB</a>-StudentInnenrates (3. - 21. Dezember 2015)",
-			"fr": "Élection du conseil des étudiant-e-s <a href=\"http://www.bfh.ch\">SUB</a> (3 - 21 décembre 2015)\"\",
+			"fr": "Élection du conseil des étudiant-e-s <a href=\"http://www.bfh.ch\">SUB</a> (3 - 21 décembre 2015)",
 			"en": "<a href=\"http://www.bfh.ch\">SUB</a> Elections (Decembre 3 - 21, 2015)"
+		},
+		"administration": {
+			"de": "StudentInnenschaft der Universität Bern (SUB)",
+			"fr": "Ensemble des étudiants de l'Université de Berne (SUB)",
+			"en": "Student Body of the University of Bern (SUB)"
 		},
 		"votingPeriodBegin": "2015-03-08T23:00:00Z",
 		"votingPeriodEnd": "2015-03-26T11:00:00Z",

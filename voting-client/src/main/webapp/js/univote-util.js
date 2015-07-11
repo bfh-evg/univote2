@@ -21,6 +21,7 @@
 (function (window) {
 
 	var locale = '';
+	var DEFAULT_LOCALE = 'de';
 
 	window.getLocale = function () {
 		if (locale == '') {
@@ -43,15 +44,22 @@
 			return '';
 		}
 		var text = '';
+		var firstIndex = '';
 		for (var index in localizedTexts) {
-			if (localizedTexts[index].languageCode == getLocale().toUpperCase()) {
-				text = localizedTexts[index].text;
+			firstIndex = firstIndex == '' ? index : firstIndex;
+			if (index.toLowerCase() == getLocale().toLowerCase()) {
+				text = localizedTexts[index];
 				break;
 			}
 		}
-		if (text == '' && localizedTexts.length > 0) {
-			text = localizedTexts[0].text;
+		if (text == '') {
+			if (localizedTexts[DEFAULT_LOCALE] != undefined) {
+				text = localizedTexts[DEFAULT_LOCALE];
+			} else if (firstIndex != '') {
+				text = localizedTexts[firstIndex];
+			}
 		}
+
 		return text;
 	};
 

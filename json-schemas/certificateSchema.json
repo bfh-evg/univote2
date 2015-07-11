@@ -1,6 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"title": "UniVote2: Schema of a crypto setting",
+	"title": "UniVote2: Schema of a certificate",
 	"type":"object",
 	"properties": {
 		"commonName": {
