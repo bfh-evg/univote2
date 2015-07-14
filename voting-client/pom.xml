@@ -41,7 +41,7 @@
 					<sourceIncludes>
 						<include>lib/base64.js</include>
 						<include>lib/sha256.js</include>
-						<include>lib/MapClass.js</include>
+						<include>lib/map.js</include>
 						<include>lib/leemon.js</include>
 						<include>lib/jquery-1.7.2.min.js</include>
 						<include>lib/aes.js</include>
@@ -49,6 +49,7 @@
 						<include>lib/seedrandom.js</include>
 						<include>univote-config.js</include>
 						<include>univote-crypto.js</include>
+						<include>univote-util.js</include>
 						<!--<include>**/*.js</include>-->
 					</sourceIncludes>
 				</configuration>

@@ -106,154 +106,127 @@
 
 
 //======================================================================
-// R U L E - C O N T R O L
+// R U L E S
 //
-// A few helper function to control the rules (sum-rules and forall-rules). All
-// of them return true if at least one rule is broken, otherswise (if no rule is
-// broken) false. -> TODO: This is quite confusing! Might be inverted once.
 
 (function (window) {
 
-	function UvUtilRuleControl() {
-
-		/*
-		 * Checks a vote against the upper bounds of a list of sum-rules.
-		 *
-		 * @param vote - A map representing the vote.
-		 * @param rules - An array holding the sum-rules.
-		 * @return true if at least one rule is broken, otherwise false.
-		 */
-		this.checkSumRules = function (vote, rules) {
-
-			//loop through the rules
-			for (var j = 0; j < rules.length; j++) {
-
-				var countSR = 0;
-				var ids = rules[j].choiceIds;
-
-				//loop through the concerned ids
-				for (var i = 0; i < ids.length; i++) {
-					var value = vote.get(ids[i].toString());
-					//add the number of occurences of all concerned ids
-					if (value != undefined) {
-						countSR += value;
-					}
-					//if greater than upper bound => error
-					if (countSR > rules[j].upperBound) {
-						return true;
-					}
-				}
-			}
-			return false;
+	// @see http://stackoverflow.com/questions/4152931/javascript-inheritance-call-super-constructor-or-use-prototype-chain
+	// @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+	function extend(base, sub) {
+		var origProto = sub.prototype;
+		sub.prototype = Object.create(base.prototype);
+		for (var key in origProto) {
+			sub.prototype[key] = origProto[key];
 		}
-
-		/*
-		 * Checks a vote against the upper bounds of a list of forall-rules.
-		 *
-		 * @param vote - A map representing the vote.
-		 * @param rules - An array holding the forall-rules.
-		 * @return true if at least one rule is broken, otherwise false.
-		 */
-		this.checkForAllRules = function (vote, rules) {
-
-			//loop through the rules
-			for (var i = 0; i < rules.length; i++) {
-				var ids = rules[i].choiceIds;
-
-				//loop through the concerned ids
-				for (var j = 0; j < ids.length; j++) {
-					var value = vote.get(ids[j].toString());
-					//check the value of the id against upper bound
-					if (value != undefined) {
-						//if greater than upper bound => error
-						if (value > rules[i].upperBound) {
-							return true;
-						}
-					}
-				}
-			}
-			return false;
-		}
-
-		/*
-		 * Checks a vote against the lower bounds of a list of forall-rules.
-		 *
-		 * @param vote - A map representing the vote.
-		 * @param rules - An array holding the forall-rules.
-		 * @return true if at least one rule is broken, otherwise false.
-		 */
-		this.checkForAllRulesMin = function (vote, rules) {
-
-			//loop through the rules
-			for (var i = 0; i < rules.length; i++) {
-				var lowerBoundSR = rules[i].lowerBound;
-				//check only for rules whose limit is more than 0
-				if (lowerBoundSR > 0) {
-					var ids = rules[i].choiceIds;
-
-					//loop through the concerned ids
-					for (var j = 0; j < ids.length; j++) {
-						var value = vote.get(ids[j].toString());
-						//check the value of the id against upper bound
-						if (value != undefined) {
-							//if smaller than lower bound => error
-							if (value < rules[i].lowerBound) {
-								return true;
-							}
-						}
-						//if not found in map => error
-						else {
-							return true;
-						}
-					}
-				}
-			}
-			return false;
-		}
-
-		/*
-		 * Checks a vote against the lower bounds of a list of sum-rules.
-		 *
-		 * @param vote - A map representing the vote.
-		 * @param rules - An array holding the sum-rules.
-		 * @return true if at least one rule is broken, otherwise false.
-		 */
-		this.checkSumRulesMin = function (vote, rules) {
-
-			//loop through the rules
-			for (var i = 0; i < rules.length; i++) {
-				var sumRule = rules[i];
-				var lowerBoundSR = sumRule.lowerBound;
-				//check only for rules whose limit is more than 0
-				if (lowerBoundSR > 0) {
-					var ids = sumRule.choiceIds;
-					var countSR = 0;
-
-					//loop through the concerned ids
-					for (var j = 0; j < ids.length; j++) {
-						var value = vote.get(ids[j].toString());
-						//add the number of occurences of all concerned ids
-						if (value != undefined) {
-							countSR += value;
-						}
-
-						if (countSR >= rules[i].lowerBound) {
-							break;
-						}
-					}
-					//if smaller than lower bound => error
-					if (countSR < rules[i].lowerBound) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
+		sub.prototype.constructor = sub;
+		Object.defineProperty(sub.prototype, 'constructor', {
+			enumerable: false,
+			value: sub
+		});
 	}
 
-	window.uvUtilRuleControl = new UvUtilRuleControl();
+	/**
+	 * Rule. Base object for voting rules.
+	 *
+	 * @param {type} rule
+	 * @returns {univote-util_L112.Rule}
+	 */
+	function Rule(rule) {
+		this.rule = rule || {};
+		this.id = rule.id || 0;
+		this.options = rule.optionIds || [];
+		this.upperBound = rule.upperBound || 0;
+		this.lowerBound = rule.lowerBound || 0;
+	}
+
+	Rule.prototype = {
+		containsOption: function (option) {
+			return this.options.indexOf(option) !== -1;
+		},
+		// Abstract: To be implemented by specialization
+		verify: function () {
+			return false;
+		}
+	};
+
+	/**
+	 * SummationRule extends Rule
+	 *
+	 * @param {type} rule
+	 * @returns {univote-util_L112.SummationRule}
+	 */
+	function SummationRule(rule) {
+		Rule.call(this, rule);
+	}
+
+	SummationRule.prototype = {
+		verify: function (vote) {
+			var counter = 0;
+
+			// Loop through the concerned options
+			for (var i = 0; i < this.options.length; i++) {
+				var value = vote.get(this.options[i]);
+				if (value != undefined) {
+					counter += value;
+				}
+				// If greater than upper bound => error
+				if (counter > this.upperBound) {
+					return false;
+				}
+			}
+
+			// If smaller than lower bound => error
+			if (counter < this.lowerBound) {
+				return false;
+			}
+
+			// Finally return true!
+			return true;
+		}
+	};
+
+	extend(Rule, SummationRule);
+	window.SummationRule = SummationRule;
+
+	/**
+	 * CumulationRule extends Rule
+	 *
+	 * @param {type} rule
+	 * @returns {univote-util_L112.CumulationRule}
+	 */
+	function CumulationRule(rule) {
+		Rule.call(this, rule);
+	}
+
+	CumulationRule.prototype = {
+		verify: function (vote) {
+			// Loop through the options
+			for (var i = 0; i < this.options.length; i++) {
+				var value = vote.get(this.options[i]);
+				if (value != undefined) {
+					// If greater than upper bound => error
+					if (value > this.upperBound) {
+						return false;
+					}
+					// If smaller than lower bound => error
+					if (value < this.lowerBound) {
+						return false;
+					}
+				} else if (this.lowerBound > 0) {
+					return false;
+				}
+			}
+			return true;
+		}
+	};
+
+	extend(Rule, CumulationRule);
+	window.CumulationRule = CumulationRule;
 
 })(window);
+
+
 
 
 //======================================================================
@@ -276,7 +249,7 @@
 			else
 				expires = "";
 			document.cookie = name + "=" + value + expires + "; path=/";
-		}
+		};
 
 		// Reads a cookie.
 		this.read = function (name) {
@@ -290,12 +263,12 @@
 					return c.substring(nameEQ.length, c.length);
 			}
 			return null;
-		}
+		};
 
 		// Erases a cookie.
 		this.erase = function (name) {
 			this.create(name, "", -1);
-		}
+		};
 
 		// Checks whether cookies supported/accepted by the client's browser.
 		// A cookie is created and tried to be read afterwards. If this success
@@ -308,7 +281,7 @@
 				return true;
 			}
 			return false;
-		}
+		};
 	}
 	window.uvUtilCookie = new UvUtilCookie();
 
