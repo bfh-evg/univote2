@@ -1,0 +1,23 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of an encrytpion key share",
+	"type": "object",
+	"properties": {
+		"keyShare": {
+			"description": "Key share of the encryption key",
+			"type": "string"
+		},
+		"proof": {
+			"description": "Proof",
+			"type": "object",
+			"properties": {
+				"commitment": { "type": "string" },
+				"response":   { "type": "string" }
+			},
+			"required": ["commitment", "response"],
+			"additionalProperties": false
+		}
+	},
+	"required": ["keyShare, proof"],
+	"additionalProperties": false
+}

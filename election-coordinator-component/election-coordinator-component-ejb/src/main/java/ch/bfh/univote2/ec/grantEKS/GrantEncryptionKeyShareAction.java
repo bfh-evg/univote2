@@ -56,7 +56,6 @@ import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
-import ch.bfh.univote2.ec.setCS.SetCryptoSettingAction;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -71,6 +70,7 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
@@ -81,7 +81,7 @@ import javax.json.JsonValue;
  */
 public class GrantEncryptionKeyShareAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = SetCryptoSettingAction.class.getSimpleName();
+	private static final String ACTION_NAME = GrantEncryptionKeyShareAction.class.getSimpleName();
 	private static final Logger logger = Logger.getLogger(GrantEncryptionKeyShareAction.class.getName());
 
 	@EJB
@@ -120,6 +120,7 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 					}
 				} catch (UnivoteException ex) {
 					candidate.setGranted(AccessRightStatus.UNKOWN);
+					finished = false;
 					logger.log(Level.WARNING, "Could not check post condition.", ex);
 					this.informationService.informTenant(actionContext.getActionContextKey(),
 							"Could not check post condition.");
@@ -160,6 +161,7 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 					logger.log(Level.WARNING, "Could not request trustee certificates.", ex);
 					this.informationService.informTenant(actionContext.getActionContextKey(),
 							"Could not request trustee certificates.");
+					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 				}
 			}
 		} else {
@@ -174,15 +176,15 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 	public void notifyAction(ActionContext actionContext, Object notification) {
 		if (actionContext instanceof GrantEncryptionKeyShareActionContext) {
 			GrantEncryptionKeyShareActionContext geksac = (GrantEncryptionKeyShareActionContext) actionContext;
-			PostDTO post = (PostDTO) notification;
 			if (notification instanceof PostDTO) {
+				PostDTO post = (PostDTO) notification;
 				try {
 					String messageString = new String(post.getMessage(), Charset.forName("UTF-8"));
 					JsonReader jsonReader = Json.createReader(new StringReader(messageString));
 					JsonObject message = jsonReader.readObject();
 					this.parseTrusteeCerts(message, geksac);
 					this.runInternal(geksac);
-				} catch (UnivoteException ex) {
+				} catch (UnivoteException | JsonException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(),
 							ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -215,10 +217,12 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 
 	protected void parseTrusteeCerts(JsonObject message, GrantEncryptionKeyShareActionContext actionContext)
 			throws UnivoteException {
-		JsonArray talliers = message.getJsonArray("tallierCertificates");
-		if (talliers == null) {
-			throw new UnivoteException("Invalid trustees certificates message. tallierCertificates is missing.");
+		JsonValue talliersValue = message.get("tallierCertificates");
+		if (talliersValue == null || !talliersValue.getValueType().equals(JsonValue.ValueType.ARRAY)) {
+			throw new UnivoteException(
+					"Invalid trustees certificates message. tallierCertificates is missing or no array.");
 		}
+		JsonArray talliers = (JsonArray) talliersValue;
 		for (JsonValue jv : talliers) {
 			try {
 				if (!jv.getValueType().equals(JsonValue.ValueType.OBJECT)) {
@@ -243,7 +247,7 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 	protected boolean checkAccessRight(ActionContext actionContext, PublicKey publicKey) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForAccessRight(actionContext.getSection(),
-						publicKey, GroupEnum.ENCRYTPION_KEY_SHARE));
+						publicKey, GroupEnum.ENCRYPTION_KEY_SHARE));
 		return !result.getResult().getPost().isEmpty();
 	}
 
@@ -280,6 +284,7 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 						logger.log(Level.WARNING, "Could not check accessRight.", ex);
 						this.informationService.informTenant(actionContext.getActionContextKey(),
 								"Could not check access right for: " + candidate.getPublicKey());
+						finished = false;
 					}
 				}
 				break;
@@ -297,7 +302,7 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 
 	protected boolean grantAccessRight(ActionContext actionContext, PublicKey publickey) {
 		try {
-			byte[] message = MessageFactory.createAccessRight(GroupEnum.ENCRYTPION_KEY_SHARE, publickey, 1);
+			byte[] message = MessageFactory.createAccessRight(GroupEnum.ENCRYPTION_KEY_SHARE, publickey, 1);
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.ACCESS_RIGHT.getValue(), message, actionContext.getTenant());
 			return true;

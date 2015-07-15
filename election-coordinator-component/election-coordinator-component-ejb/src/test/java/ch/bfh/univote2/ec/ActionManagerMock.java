@@ -93,6 +93,8 @@ public class ActionManagerMock implements ActionManager {
 	}
 
 	public ResultStatus getResultStatus() {
-		return this.status;
+		ResultStatus out = this.status;
+		this.status = null;
+		return out;
 	}
 }
