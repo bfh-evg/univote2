@@ -39,14 +39,14 @@ var dialogs = {};
 var secretKey;
 
 /**
- * Holds the election data received by the voting service (univote_bfh_ch_common_electionData).
- */
-var electionData;
-
-/**
  * Holds the election id.
  */
 var electionId;
+
+/**
+ * Holds the election definition.
+ */
+var electionDefinition;
 
 /**
  * Holds the election generator (bigInt).
@@ -125,13 +125,11 @@ $(document).ready(function () {
 	elements.qrcodeHolder = document.getElementById('qrcode-holder');
 
 	// Get dialogs
-	dialogs.video = document.getElementById('dialog-video');
 	dialogs.confirm = document.getElementById('dialog-confirm');
 	dialogs.$confirm = $(dialogs.confirm);
 
 	// Get election id and user's language/locale
 	electionId = $('#election-title').data('electionId');
-	console.log(electionId);
 
 	// Block UI while loading election data from board
 	$.blockUI({
@@ -174,10 +172,9 @@ function retrieveElectionData() {
 
 	var successCB = function (resultContainer) {
 
+		// TODO @DEV
 		if (!mock) {
-			var success = uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
-			console.log("Verification Result Signature: " + success);
-			if (!success) {
+			if (!uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true)) {
 				processFatalError(msg.signatureError);
 				return;
 			}
@@ -210,13 +207,14 @@ function retrieveElectionData() {
 		processFatalError(msg.retreiveElectionDataError);
 	};
 
+	// TODO @DEV
 	var mock = true;
 	if (!mock) {
 		uniBoard.get(queryJson, successCB, errorCB);
 	} else {
 		//Ajax request
 		$.ajax({
-			url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/json-schemas/examples/sub-2015/electionData.json",
+			url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/json-schemas/examples/sub-2015/electionData.json",
 			type: 'GET',
 			accept: "application/json",
 			dataType: 'json',
@@ -236,6 +234,10 @@ function retrieveElectionData() {
  * is set.
  */
 function uploadSecretKey() {
+
+	// TODO @DEV
+	gotoStep2();
+	return;
 
 	// Hide previous error message
 	$(elements.uploadKeyError).html('').css('opacity', '0.01');
@@ -305,11 +307,6 @@ function gotoStep2() {
 
 	// Scroll to top
 	window.scrollTo(0, 0);
-
-	// Open video dialog
-	if (listsAreSelectable) {
-		$(dialogs.video).dialog('open');
-	}
 }
 
 /**
@@ -348,127 +345,8 @@ function processFatalError(errorMsg) {
 
 
 
-
-
-
-
-//==============================================================================
-// TODO: If this must be done (what surprises me...) then do it just
-// before posting the ballot on the BB!
-
-function checkAuthorization() {
-	var update = setInterval(function () {
-		$('#blockui-processing').append('.');
-	}, 500);
-
-	$.blockUI({
-		message: '<p id="blockui-processing">' + msg.loading + '</p>',
-		fadeIn: 10
-	});
-
-	var processError = function (errorMsg) {
-		clearInterval(update);
-		$.unblockUI();
-		$.blockUI({message: '<p>' + errorMsg + '</p>'});
-		// Redirect to step 2 after 5s
-		setTimeout(function () {
-			$.unblockUI();
-			gotoStep2();
-		}, 5000);
-	};
-
-	var errorCB = function () {
-		processError(msg.errorAuthorizationVerification);
-	};
-
-	var tryForGHat = true;
-
-	var successCB = function (resultContainer) {
-		// Save election data
-		var posts = resultContainer.result.post;
-		var post;
-		if (posts == undefined || posts.length <= 0) {
-			//No authorization was found for this key
-			if (tryForGHat) {
-				tryForGHat = false;
-				// => recompute the public key using normal g (instead of ghat)
-				queryAuthorization(uvCrypto.signatureSetting.g, successCB, errorCB);
-			} else {
-				processError(msg.noAuthorizationFound);
-			}
-			return;
-		} else {
-			post = posts[0];
-		}
-
-		try {
-			uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
-		} catch (message) {
-			processError(msg.signatureError);
-			return;
-		}
-
-		// TODO!!
-		//assumes that only one post is retuned
-		var message = JSON.parse(B64.decode(post.message));
-		electionGenerator = leemon.str2bigInt(message.crypto.g, 10, 1);
-
-		clearInterval(update);
-		$.unblockUI();
-		gotoStep2();
-	};
-
-	queryAuthorization(uvCrypto.signatureSetting.gHat, successCB, errorCB);
-}
-
-function queryAuthorization(generator, successCB, errorCB) {
-
-	var publicKey = uvCrypto.computeElectionVerificationKey(generator, secretKey).vkString;
-
-	var queryJson = {
-		constraint: [{
-				type: "equal",
-				identifier: {type: "alphaIdentifier", part: ["section"]},
-				value: {type: "stringValue", value: electionId}
-			}, {
-				type: "equal",
-				identifier: {type: "alphaIdentifier", part: ["group"]},
-				value: {type: "stringValue", value: "accessRight"}
-			}, {
-				type: "equal",
-				identifier: {type: "messageIdentifier", part: ["group"]},
-				value: {type: "stringValue", value: "ballot"}
-			}, {
-				type: "equal",
-				identifier: {type: "messageIdentifier", part: ["crypto", "publickey"]},
-				value: {type: "stringValue", value: publicKey}
-			}],
-		order: [{
-				identifier: {type: "betaIdentifier", parts: ["rank"]},
-				ascDesc: false
-			}],
-		limit: 1
-	};
-
-	uniBoard.get(queryJson, successCB, errorCB);
-}
-
-// END
-//=============================================================================
-
-
-
-
-
-
-
-
 //===========================================================================
 // Get and process data from election board service
-
-
-
-
 
 
 /**

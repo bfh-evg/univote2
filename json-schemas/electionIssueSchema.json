@@ -26,7 +26,7 @@
 			"items": { "$ref": "#/definitions/rule" }
 		}
 	},
-	"required": ["id", "type", "title", "options", "rules", "ballotEncoding"],
+	"required": ["id", "type", "title", "options", "rules"],
 
 	"definitions": {
 		"option": {
