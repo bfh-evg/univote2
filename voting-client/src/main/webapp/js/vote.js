@@ -58,41 +58,23 @@ var electionGenerator;
  */
 var encryptionKey;
 
-/**
- * Holds all choice ids (used for vote encoding).
- */
-var choiceIds;
+var issues;
 
-/**
- * Holds all summation rules (array of objects).
- */
-var sumRules;
 
-/**
- * Holds all for all rules (array of objects).
- */
-var forAllRules;
 
-/**
- * Holds all choices: key is choiceId.
- */
-var choicesMap;
 
+// TOBE REMOVED
+//======================================
 /**
  * Flag that is set to true if not only candidates but also list can be selected.
  */
 var listsAreSelectable = false;
 
 /**
- * Holds user's language/locale (used for lacalized election data).
- */
-var lang;
-
-/**
  * Flag that is set to true if no political lists are available (only candidates).
  */
 var noList = false;
-
+//======================================
 
 /**
  * Initialisation on document ready.
@@ -193,10 +175,14 @@ function retrieveElectionData() {
 
 		// TODO Save Election Data
 		// message.issues, message.cryptoSetting, message.encrptionKey, message.signatureGenerator
+		issues = [];
+		for (var i in message.issues) {
+			var issue = message.issues[i];
+			issues[issue.id] = Issue.createIssue(issue);
+		}
 
 		// Update election definition
 		//var administration = (message.definition.administration != undefined) ? getLocalizedText(message.definition.administration) : '';
-		console.log(message);
 		var title = getLocalizedText(message.definition.title);
 
 		$(elements.electionTitle).html(title);
