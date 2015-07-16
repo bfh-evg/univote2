@@ -39,37 +39,52 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.ec.keyMix;
+
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public class KeyMixingActionContext extends ActionContext {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
-	ENCRYPTION_KEY("encryptionKey"),
-	MIXING_REQUEST("mixingReques"),
-	MIXING_RESULT("mixingResult"),
-	MIXED_KEYS("mixedKeys");
+	private final List<String> mixerOrder;
+	private final Map<String, PublicKey> mixerKeys;
+	private boolean erReceived = false;
 
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	public KeyMixingActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, new ArrayList<>(), false);
+		this.mixerOrder = new ArrayList<>();
+		this.mixerKeys = new HashMap<>();
 	}
 
-	public String getValue() {
-		return value;
+	@Override
+	protected void purgeData() {
+		mixerOrder.clear();
+		mixerKeys.clear();
+	}
+
+	public List<String> getMixerOrder() {
+		return mixerOrder;
+	}
+
+	public Map<String, PublicKey> getMixerKeys() {
+		return mixerKeys;
+	}
+
+	public void setErReceived(boolean erReceived) {
+		this.erReceived = erReceived;
+	}
+
+	public boolean isErReceived() {
+		return erReceived;
 	}
 
 }

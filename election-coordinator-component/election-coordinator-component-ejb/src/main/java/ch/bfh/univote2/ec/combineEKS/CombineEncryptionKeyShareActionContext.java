@@ -39,37 +39,43 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.ec.combineEKS;
+
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public class CombineEncryptionKeyShareActionContext extends ActionContext {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
-	ENCRYPTION_KEY("encryptionKey"),
-	MIXING_REQUEST("mixingReques"),
-	MIXING_RESULT("mixingResult"),
-	MIXED_KEYS("mixedKeys");
+	int amount = -1;
+	Map<String, BigInteger> keyShares = new HashMap<>();
 
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	public CombineEncryptionKeyShareActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, new ArrayList<>(), false);
 	}
 
-	public String getValue() {
-		return value;
+	@Override
+	protected void purgeData() {
+		this.keyShares.clear();
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+
+	public int getAmount() {
+		return amount;
+	}
+
+	public Map<String, BigInteger> getKeyShares() {
+		return keyShares;
 	}
 
 }
