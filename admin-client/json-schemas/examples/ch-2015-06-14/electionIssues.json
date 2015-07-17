@@ -15,9 +15,9 @@
 			"rm": "Vulais Vus acceptar il Conclus federal dals 12 da december 2014 davart la midada da l’artitgel constituziunal concernent la medischina da reproducziun e la tecnologia da gens sin il sectur uman?"
 		},
 		"options": [
-			{ "id": 1, "type": "yes" },
-			{ "id": 2, "type": "no" },
-			{ "id": 3, "type": "abstain" }
+			{ "id": 1, "type": "answer", "value": "yes" },
+			{ "id": 2, "type": "answer", "value": "no" },
+			{ "id": 3, "type": "answer", "value": "abstain" }
 		],
 		"rules": [
 			{
@@ -52,9 +52,9 @@
 			"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Iniziativa davart ils stipendis»?"
 		},
 		"options": [
-			{ "id": 1, "type": "yes" },
-			{ "id": 2, "type": "no" },
-			{ "id": 3, "type": "abstain" }
+			{ "id": 1, "type": "answer", "value": "yes" },
+			{ "id": 2, "type": "answer", "value": "no" },
+			{ "id": 3, "type": "answer", "value": "abstain" }
 		],
 		"rules": [
 			{
@@ -89,9 +89,9 @@
 			"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Far pajar taglias sin iertas da milliuns per finanziar nossa AVS (Refurma da la tagliasin l’ierta)»?"
 		},
 		"options": [
-			{ "id": 1, "type": "yes" },
-			{ "id": 2, "type": "no" },
-			{ "id": 3, "type": "abstain" }
+			{ "id": 1, "type": "answer", "value": "yes" },
+			{ "id": 2, "type": "answer", "value": "no" },
+			{ "id": 3, "type": "answer", "value": "abstain" }
 		],
 		"rules": [
 			{
@@ -126,9 +126,9 @@
 			"rm": "Vulais Vus acceptar la midada dals 26 da settember 2014 da la Lescha federala davart radio e televisiun (LRTV)?"
 		},
 		"options": [
-			{ "id": 1, "type": "yes" },
-			{ "id": 2, "type": "no" },
-			{ "id": 3, "type": "abstain" }
+			{ "id": 1, "type": "answer", "value": "yes" },
+			{ "id": 2, "type": "answer", "value": "no" },
+			{ "id": 3, "type": "answer", "value": "abstain" }
 		],
 		"rules": [
 			{

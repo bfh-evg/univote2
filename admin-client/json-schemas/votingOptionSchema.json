@@ -3,8 +3,9 @@
 	"title": "Schema of a voting option",
 	"type": "object",
 	"properties": {
-		"id":   { "type": "integer" },
-		"type": { "enum": ["yes", "no", "abstain"] }
+		"id":    { "type": "integer" },
+		"type":  { "enum": ["answer"] },
+		"value": { "enum": ["yes", "no", "abstain"] }
 	},
-	"required": ["id", "type"]
+	"required": ["id", "type", "value"]
 }
