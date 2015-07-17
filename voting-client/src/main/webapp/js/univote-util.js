@@ -185,7 +185,7 @@
 			return this.options[id];
 		},
 		// Returns -1 if option not in options or no upper bound exists
-		getOptionsUpperBound: function (option) {
+		getOptionUpperBound: function (option) {
 			if (this.options[option] == undefined) {
 				return -1;
 			}
@@ -270,6 +270,14 @@
 				}
 			}
 			return candidates;
+		},
+		listsAreChoosable: function () {
+			for (var i in this.lists) {
+				if (this.getOptionUpperBound(this.lists[i].id) > 0) {
+					return true;
+				}
+			}
+			return false;
 		}
 	};
 	extend(Issue, ListElectionIssue);

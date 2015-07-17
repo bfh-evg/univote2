@@ -14,14 +14,17 @@
  */
 
 
-// Configuration.
-//-------------------------------------
 
-var CLASS_NAME_VOTE = "Vote";
-var CLASS_NAME_CANDIDATE_ELECTION = "CandidateElection";
-var CLASS_NAME_PARTY_ELECTION = "PartyElection";
-var CLASS_NAME_SUMMATION_RULE = "SummationRule";
-var CLASS_NAME_FORALL_RULE = "ForAllRule";
+//<!-- DIALOGS -->
+
+//<div id="dialog-confirm" title="#{msg.ballot}"></div>
+//<div id="dialog-copy-list" title="#{msg.copycandidatetitle}">#{msg.copycandidate}</div>
+//<div id="dialog-too-many-candidates" title="#{msg.error}">#{msg.toomanycandidate}</div>
+//<div id="dialog-too-many-repetitions" title="#{msg.error}">#{msg.toomanyrepetitions}</div>
+//<div id="list-copied-with-modification" title="#{msg.information}">#{msg.listcopiedwithmodif}</div>
+
+
+
 
 /**
  * Holds the used DOM elements.
@@ -64,22 +67,6 @@ var issues;
 var ballotEncoding;
 
 
-
-
-
-// TOBE REMOVED
-//======================================
-/**
- * Flag that is set to true if not only candidates but also list can be selected.
- */
-var listsAreSelectable = false;
-
-/**
- * Flag that is set to true if no political lists are available (only candidates).
- */
-var noList = false;
-//======================================
-
 /**
  * Initialisation on document ready.
  */
@@ -99,7 +86,8 @@ $(document).ready(function () {
 	elements.uploadKeyError = document.getElementById('upload_key_error');
 
 	elements.electionTitle = document.getElementById('election-title');
-	elements.voteText = document.getElementById('vote-text');
+	elements.listVoteText = document.getElementById('list_vote_text');
+	elements.listVoteDescription = document.getElementById('list_vote_description');
 	elements.lists = document.getElementById('lists');
 	elements.listsContent = document.getElementById('lists_content');
 
@@ -186,7 +174,7 @@ function retrieveElectionData() {
 		issues = [];
 		for (var i in message.issues) {
 			var issue = message.issues[i];
-			issues[issue.id] = Issue.createIssue(issue);
+			issues[i] = Issue.createIssue(issue);
 		}
 
 		if (!(encryptionKey && signatureGenerator && ballotEncoding && issues.length > 0)) {
@@ -211,7 +199,8 @@ function retrieveElectionData() {
 	} else {
 		//Ajax request
 		$.ajax({
-			url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/json-schemas/examples/sub-2015/electionData.json",
+			//url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/json-schemas/examples/sub-2015/electionData.json",
+			url: "http://uni.vote/listElection.php",
 			type: 'GET',
 			accept: "application/json",
 			dataType: 'json',
@@ -294,6 +283,16 @@ function showUploadKeyError(message) {
  */
 function gotoStep2() {
 
+	// Create vote content
+	// Currently only the following issue combinations are supported:
+	//   - 1 issue of type 'listElection'
+	//   - n issues of tpye 'vote'
+	if (issues[0] instanceof ListElectionIssue) {
+		createListElectionContent();
+	} else {
+		createVoteContent();
+	}
+
 	// Update progress bar
 	$(elements.step1).removeClass("active");
 	$(elements.step2).addClass("active");
@@ -339,6 +338,44 @@ function processFatalError(errorMsg) {
 		location.href = uvConfig.HOME_SITE;
 	}, 5000);
 }
+
+
+
+function createListElectionContent() {
+	console.log("Creating list election content...");
+	var issue = issues[0];
+
+	$(elements.listVoteDescription).html(getLocalizedText(issue.description));
+	// Replace vote text if only candidates and no lists are choosable
+	if (!issue.listsAreChoosable()) {
+		$(elements.listVoteText).html(msg.voteTextCandidatesOnly);
+	}
+}
+
+
+function createVoteContent() {
+	console.log("Creating vote content...");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -25,7 +25,6 @@
 
 	<ui:define name="head_include_css">
 		<link rel="stylesheet" type="text/css" href="css/custom-ui/jquery-ui-1.9.2.custom.css" />
-		<link rel="stylesheet" type="text/css" href="css/elections.css" />
 	</ui:define>
 
 	<ui:define name="head_include_js">
@@ -90,64 +89,52 @@
 
 
 		<!-- STEP 2: Vote -->
-		<div id="step_2_content" class="hidden">
+		<div id="step_2_content" class="step hidden">
 
-			<p class="block" id="vote-text"><h:outputText value="#{msg.voteText}" escape="false" /></p>
-			<p class="block"><h:outputText value="#{electionDetails.getVoteRules(param.electionId, languageDetails.locale)}" escape="false" /></p>
-
-			<div id="container_elections">
-				<!-- INITIAL LISTS -->
-
-				<div id="col1">
-					<p class="center important">#{msg.candidates}</p>
-					<div id="candidates" class="ui-widget">
-
-						<!-- change to tabs-left/tabs-right to have the tabs on the left/right -->
-						<div id="tabs" class="tabs ui-tabs-left ui-helper-clearfix">
-							<ul id="lists" class="connectedSortable">
-
-							</ul>
-							<div id="lists_content">
-
-							</div>
-
-							<div id="lists-footer" ></div>
-						</div>
+			<div id="list_election_content">
+				<div class="row">
+					<div class="small-12 columns">
+						<p id="list_vote_text"><h:outputText value="#{msg.voteText}" escape="false" /></p>
+						<p id="list_vote_description"></p>
 					</div>
 				</div>
 
-				<!-- RESULT LIST -->
-
-				<div id="col2">
-					<p class="center important">#{msg.ballot}</p>
-
-					<div id="result">
-						<div id="result-scroll">
-							<div class="buttons">
-								<input type="image" id="undo" src="img/undo.png" alt="#{msg.undo}" title="#{msg.undo}"/>
-								<input type="image" id="redo" src="img/redo.png" alt="#{msg.redo}" title="#{msg.redo}"/>
-								<input type="image" id="reset" src="img/reset.png" alt="#{msg.reset}" title="#{msg.reset}"/>
+				<div id="container_elections" class="row">
+					<div class="large-6 medium-6 columns mockup">
+						<h4>#{msg.candidates}</h4>
+						<div id="candidates" class="ui-widget">
+							<!-- change to tabs-left/tabs-right to have the tabs on the left/right -->
+							<div id="tabs" class="tabs ui-tabs-left ui-helper-clearfix">
+								<ul id="lists" class="connectedSortable">
+								</ul>
+								<div id="lists_content">
+								</div>
+								<div id="lists-footer" ></div>
 							</div>
-
-							<ul id="selected-list"><li class="placeholder-item ui-state-default">#{msg.list}</li></ul>
-							<p id="list-title"></p>
-							<ul id="created-list"><li class="placeholder-item ui-state-default">#{msg.candidate}</li></ul>
 						</div>
-						<div id="createdlist-footer" ></div>
 					</div>
-					<div id="vote_button_div"><button id="submit_vote_button" onclick="submitVote();
-							return false;" class="button">#{msg.submitvote}</button></div>
 
+					<div class="large-6 medium-6 columns mockup">
+						<h4>Auswahl</h4>
+						<div id="result">
+							<div id="result-scroll">
+								<div class="buttons">
+									<input type="image" id="undo" src="img/undo.png" alt="#{msg.undo}" title="#{msg.undo}"/>
+									<input type="image" id="redo" src="img/redo.png" alt="#{msg.redo}" title="#{msg.redo}"/>
+									<input type="image" id="reset" src="img/reset.png" alt="#{msg.reset}" title="#{msg.reset}"/>
+								</div>
+
+								<ul id="selected-list"><li class="placeholder-item ui-state-default">#{msg.list}</li></ul>
+								<p id="list-title"></p>
+								<ul id="created-list"><li class="placeholder-item ui-state-default">#{msg.candidate}</li></ul>
+							</div>
+							<div id="createdlist-footer" ></div>
+						</div>
+
+						<div id="vote_button_div"><button id="submit_vote_button" class="button" onclick="return submitVote();">#{msg.submitvote}</button></div>
+
+					</div>
 				</div>
-
-				<!-- DIALOGS -->
-
-				<div id="dialog-confirm" title="#{msg.ballot}"></div>
-				<div id="dialog-copy-list" title="#{msg.copycandidatetitle}">#{msg.copycandidate}</div>
-				<div id="dialog-too-many-candidates" title="#{msg.error}">#{msg.toomanycandidate}</div>
-				<div id="dialog-too-many-repetitions" title="#{msg.error}">#{msg.toomanyrepetitions}</div>
-				<div id="list-copied-with-modification" title="#{msg.information}">#{msg.listcopiedwithmodif}</div>
-
 			</div>
 		</div>
 
