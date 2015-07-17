@@ -44,21 +44,25 @@ var secretKey;
 var electionId;
 
 /**
- * Holds the election definition.
- */
-var electionDefinition;
-
-/**
  * Holds the election generator (bigInt).
  */
-var electionGenerator;
+var signatureGenerator;
 
 /**
  * Holds the encryption key (bigInt).
  */
 var encryptionKey;
 
+/**
+ *
+ */
 var issues;
+
+/**
+ *
+ */
+var ballotEncoding;
+
 
 
 
@@ -129,26 +133,15 @@ $(document).ready(function () {
 function retrieveElectionData() {
 
 	//Query of election data over all sections
-	var queryJson = {
+	var query = {
 		constraint: [{
 				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["section"]
-				},
-				value: {
-					type: "stringValue",
-					value: electionId}
+				identifier: {type: "alphaIdentifier", part: ["section"]},
+				value: {type: "stringValue", value: electionId}
 			}, {
 				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["group"]
-				},
-				value: {
-					type: "stringValue",
-					value: "electionData"
-				}
+				identifier: {type: "alphaIdentifier", part: ["group"]},
+				value: {type: "stringValue", value: "electionData"}
 			}]
 	};
 
@@ -173,16 +166,34 @@ function retrieveElectionData() {
 			var message = resultContainer;
 		}
 
-		// TODO Save Election Data
-		// message.issues, message.cryptoSetting, message.encrptionKey, message.signatureGenerator
+		// Process retreived election data
+		var es = uvConfig.CS[message.cryptoSetting.encryptionSetting];
+		var ss = uvConfig.CS[message.cryptoSetting.signatureSetting];
+		var hs = uvConfig.CS[message.cryptoSetting.hashSetting];
+		if (!(es && ss && hs)) {
+			processFatalError(msg.incompatibleDataReceived);
+			return;
+		}
+
+		uvCrypto.setEncryptionParameters(es);
+		uvCrypto.setSignatureParameters(ss);
+		uvCrypto.setHashParameters(hs);
+
+		encryptionKey = message.encryptionKey || '';
+		signatureGenerator = message.signatureGenerator || '';
+		ballotEncoding = message.definition.ballotEncoding || '';
+
 		issues = [];
 		for (var i in message.issues) {
 			var issue = message.issues[i];
 			issues[issue.id] = Issue.createIssue(issue);
 		}
 
-		// Update election definition
-		//var administration = (message.definition.administration != undefined) ? getLocalizedText(message.definition.administration) : '';
+		if (!(encryptionKey && signatureGenerator && ballotEncoding && issues.length > 0)) {
+			processFatalError(msg.incompatibleDataReceived);
+			return;
+		}
+
 		var title = getLocalizedText(message.definition.title);
 
 		$(elements.electionTitle).html(title);
@@ -196,7 +207,7 @@ function retrieveElectionData() {
 	// TODO @DEV
 	var mock = true;
 	if (!mock) {
-		uniBoard.get(queryJson, successCB, errorCB);
+		uniBoard.get(query, successCB, errorCB);
 	} else {
 		//Ajax request
 		$.ajax({
@@ -335,142 +346,10 @@ function processFatalError(errorMsg) {
 // Get and process data from election board service
 
 
-/**
- * Retrieves election data from Board (asynchronously).
- * If Board is on another domain, IE9 will not be able to retrieve the data
- * IE9 does not support cross domain ajax request.
- * JSONP would be a solution, but it only allows HTTP GET and HTTP POST is required for the
- * REST Service of the Board.
- *
- */
-function retrieveElectionDataOld() {
 
-	var update = setInterval(function () {
-		$('#blockui-processing').append('.');
-	}, 500);
-
-	//Get election data: descendant order (newest first), limit 1
-	var queryJson = {
-		constraint: [{
-				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["section"]
-				},
-				value: {
-					type: "stringValue",
-					value: electionId}
-			}, {
-				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["group"]
-				},
-				value: {
-					type: "stringValue",
-					value: "electionData"
-				}
-			}],
-		order: [{
-				identifier: {
-					type: "betaIdentifier",
-					parts: ["rank"]
-				},
-				ascDesc: false
-			}],
-		limit: 1};
-
-	//For IE
-	$.support.cors = true;
-
-	//Ajax request
-	$.ajax({
-		url: uvConfig.URL_UNIBOARD_GET,
-		type: 'POST',
-		contentType: "application/json",
-		accept: "application/json",
-		cache: false,
-		dataType: 'json',
-		data: JSON.stringify(queryJson),
-		timeout: 10000,
-		crossDomain: true,
-		success: function (resultContainer) {
-			// Save election data
-			var posts = resultContainer.result.post;
-			var post;
-			if (posts == undefined || posts.length <= 0) {
-				//no data received
-				processFatalError(msg.retreiveElectionDataError);
-				return;
-			} else if (posts.length > 1) {
-				//multiple posts received, the last one is the right one
-				post = posts[posts.length - 1];
-			} else {
-				post = posts[0];
-			}
-
-			for (var i = 0; i < posts.length; i++) {
-				console.log("Post " + i + ": " + B64.decode(posts[i].message));
-			}
-
-			//assumes that only one post is retuned
-			var message = JSON.parse(B64.decode(post.message));
-			console.log(message);
-
-
-			// TODO
-			//assumes that there is only one election since GUI only supports one election
-			var elections = message.elections;
-			if (elections.length < 0) {
-				//no data received
-				clearInterval(update);
-				processFatalError(msg.retreiveElectionDataError);
-				return;
-			} else if (elections.length > 1) {
-				//Multiple elections received. Only one is currently supported by the current voting client.
-				clearInterval(update);
-				processFatalError(msg.tooMuchDataReceived);
-				return;
-			}
-			electionData = elections[0];
-
-			if (electionData.type === CLASS_NAME_VOTE) {
-				//Votes are not currently supported by the current voting client.
-				clearInterval(update);
-				processFatalError(msg.incompatibleDataReceived);
-				return;
-			} else if (electionData.type !== CLASS_NAME_CANDIDATE_ELECTION && electionData.type !== CLASS_NAME_PARTY_ELECTION) {
-				//Unknown type of election
-				clearInterval(update);
-				processFatalError(msg.incompatibleDataReceived);
-				return;
-			}
-			// Check signatures of retrieved post
-			try {
-				//Signature of ResultContainer (certified read is not checked, since the one post contained in the ResultContainer
-				//is also signed)
-				//var result = uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true);
-				//verifySignature(result);
-				//verifySignature(true);
-			} catch (errormsg) {
-				clearInterval(update);
-				processFatalError(msg.signatureError);
-				return;
-			}
-
-			$(elements.electionTitle).html(getLocalizedText(electionData.title));
-			$.unblockUI();
-
-			//verifySignature(true);
-			clearInterval(update);
-		},
-		error: function (errormsg) {
-			clearInterval(update);
-			processFatalError(msg.retreiveElectionDataError);
-		}
-	});
-
-}
+///////////////////////////////////////////////////////////////////////////
+////////// O L D //////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 /**
  * The callback for the verification of the election data signature. If the

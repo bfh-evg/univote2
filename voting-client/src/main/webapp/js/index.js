@@ -85,16 +85,10 @@ function retrieveElections() {
 	}, 1000);
 
 	//Query of election data over all sections
-	var queryJson = {constraint: [{
+	var query = {constraint: [{
 				type: "equal",
-				identifier: {
-					type: "alphaIdentifier",
-					part: ["group"]
-				},
-				value: {
-					type: "stringValue",
-					value: "electionDefinition"
-				}
+				identifier: {type: "alphaIdentifier", part: ["group"]},
+				value: {type: "stringValue", value: "electionDefinition"}
 			}]
 	};
 
@@ -140,6 +134,6 @@ function retrieveElections() {
 		$(elements.loadingElections).html(msg.retreiveElectionDefinitionError);
 	};
 
-	uniBoard.get(queryJson, successCB, errorCB);
+	uniBoard.get(query, successCB, errorCB);
 }
 
