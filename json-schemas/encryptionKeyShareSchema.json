@@ -8,14 +8,14 @@
 			"type": "string"
 		},
 		"proof": {
-			"description": "Proof",
+			"description": "Encryption proof",
 			"type": "object",
 			"properties": {
 				"commitment": { "type": "string" },
+				"challenge": { "type": "string" },
 				"response":   { "type": "string" }
 			},
-			"required": ["commitment", "response"],
-			"additionalProperties": false
+			"required": ["commitment", "challenge", "response"]
 		}
 	},
 	"required": ["keyShare, proof"],
