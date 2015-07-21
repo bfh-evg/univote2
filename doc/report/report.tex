@@ -16,6 +16,7 @@
 \usepackage{lscape}
 \usepackage{multirow}
 \usepackage{seqsplit}
+\usepackage{multicol}
 
 \setcounter{secnumdepth}{4}
 \renewcommand{\thesubsubsection}{\alph{subsubsection}}
@@ -138,11 +139,12 @@
 		\vhEntry{0.5.1}{30.04.2013}{Rolf Haenni}{Improved notational consistency.}
 		\vhEntry{0.5.2}{21.05.2013}{Rolf Haenni}{Two important notational corrections.}
 		\vhEntry{0.6}{07.01.2015}{Reto E. Koenig}{Quality: Change of title; re-establishement of the version history.}
-		\vhEntry{0.6}{15.06.2015}{Reto E. Koenig}{Revised section on Randomness.}
-		\vhEntry{0.6.1}{16.06.2015}{Severin Hauser}{Revision of UniVote.}
-		\vhEntry{0.6.2}{16.06.2015}{Reto E. Koenig}{Revision of UniVote.}
-		\vhEntry{0.6.3}{26.06.2015}{Rolf Haenni}{Table in Section 7 adjusted.}
-		\vhEntry{0.6.4}{20.07.2015}{Rolf Haenni}{Updated tables in Section 7; Updated late registration procedure.}
+		\vhEntry{0.6.1}{15.06.2015}{Reto E. Koenig}{Revised section on Randomness.}
+		\vhEntry{0.6.2}{16.06.2015}{Severin Hauser}{Revision of UniVote.}
+		\vhEntry{0.6.3}{16.06.2015}{Reto E. Koenig}{Revision of UniVote.}
+		\vhEntry{0.6.4}{26.06.2015}{Rolf Haenni}{Table in Section 7 adjusted.}
+		\vhEntry{0.6.5}{20.07.2015}{Rolf Haenni}{Updated tables in Section 7; Updated late registration procedure.}
+		\vhEntry{0.6.6}{22.07.2015}{Rolf Haenni}{Final minor protocol adjustments.}
 		
 	\end{versionhistory}
 	
@@ -867,7 +869,7 @@ UniCert then issues a certificate based on the identity information present in t
 %===============================================================================================
 
 %===============================================================================================
-\section{Overview}
+\section{Introduction}
 %===============================================================================================
 
 
@@ -887,10 +889,6 @@ UniCert then issues a certificate based on the identity information present in t
 \end{description}
 
 Number of ballots: $N\leq n$
-
-%-----------------------------------------------------------------------------------------------
-\subsection{Voting Process}
-%-----------------------------------------------------------------------------------------------
 
 %-----------------------------------------------------------------------------------------------
 \subsection{Public Identifiers and Keys}
@@ -943,7 +941,7 @@ Election Administration:
 	\item Private signature key: $\SK{\EA}$
 \end{itemize}
 
-Talliers: (for $1\leq j\leq r$)
+Talliers: (for $1\leq j\leq t$)
 \begin{itemize}
 	\item Identifier: $\Tallier{j}$
 	\item Public certificate: $Z_{j}$, signed by \CA at time $t_j$
@@ -995,7 +993,7 @@ The following tasks can be performed in advance, possibly long before the electi
 
 \EC performs the following steps: 
 \begin{enumerate}[resume]
-	\item Get $(\textsf{certificate}:Z_{\EA})$ from \UBC, where $Z_{\EA}$ is the most recent UniVote election administration certificate.
+	\item Get $(\textsf{certificate}:Z_{\EA})$ from \UBC, where $Z_{\EA}$ is a UniVote election administration certificate.
 	\item Verify $Z_{\EA}$.
 	\item Post $(\mathsf{administrationCertificate}: Z_{\EA})$ to \UBV.
 \end{enumerate}
@@ -1024,13 +1022,13 @@ The following tasks can be performed in advance, possibly long before the electi
 	\item Get $(\mathsf{trustees}: T, M)$ from \UBV.
 	\item For each $\Tallier{j}\in T$:
 	\begin{enumerate}
-		\item Get $(\textsf{certificate}:Z_{j})$ from \UBC, where $Z_j$ is the most recent UniVote tallier certificate.
+		\item Get $(\textsf{certificate}:Z_{j})$ from \UBC, where $Z_j$ is a UniVote tallier certificate.
 		\item Verify $Z_{j}$.
 	\end{enumerate}
-	Let $\mathcal{Z}_{T}=\{Z_j:1\leq j\leq r\}$  denote the corresponding set of certificates.
+	Let $\mathcal{Z}_{T}=\{Z_j:1\leq j\leq t\}$  denote the corresponding set of certificates.
 	\item For each $\Mixer{k}\in M$:
 	\begin{enumerate}
-		\item Get $(\textsf{certificate}:Z_{k})$ from \UBC, where $Z_k$ is the most recent UniVote mixer certificate.
+		\item Get $(\textsf{certificate}:Z_{k})$ from \UBC, where $Z_k$ is a UniVote mixer certificate.
 		\item Verify $Z_{k}$.
 	\end{enumerate}
 	Let $\mathcal{Z}_{M}=\{Z_k:1\leq k\leq m\}$ denote the corresponding set of certificates.
@@ -1048,7 +1046,7 @@ The following tasks can be performed in advance, possibly long before the electi
 		\item $\mathit{signSetting}\in \Sigma_\mathsf{SIGN}$, 
 		\item $\mathit{hashSetting}\in \Sigma_\mathsf{HASH}$ 
 	\end{itemize}
-	according to $\securityLevel$, where $\Sigma_\mathsf{ENCRYPT}$, $\Sigma_\mathsf{SIGN}$, $\Sigma_\mathsf{HASH}$ are corresponding sets of predefined cryptographic settings for ElGamal encryptions, Schnorr signatures, and hash functions, respectively (see \Cref{settings}).
+	according to $\securityLevel$, where $\Sigma_\mathsf{ENCRYPT}$, $\Sigma_\mathsf{SIGN}$, $\Sigma_\mathsf{HASH}$ are corresponding sets of predefined cryptographic settings for ElGamal encryptions, Schnorr signatures, and hash functions (see \Cref{settings}).
 	\item Post $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting})$ to \UBV.	
 \end{enumerate}
 
@@ -1086,7 +1084,7 @@ Each $\Tallier{j}\in T$ performs the following steps:
 \subsection{Election Preparation}\label{preparation}
 %-----------------------------------------------------------------------------------------------
 
-The following tasks are performed shortly before starting the election.
+The following tasks are performed shortly before the beginning of the election.
 
 \subsubsection{Definition of Election Options and Electoral Roll}
 
@@ -1112,9 +1110,9 @@ The following tasks are performed shortly before starting the election.
 	\item For every $V_i\in V$:
 	\begin{itemize}
 		\item Get $(\mathsf{certificate}:Z_i)$ from \UBC, where $Z_i$ is the most recent UniVote voter certificate for $\mathit{signSetting}$.
-		\item Verify $Z_i$.
+		\item Verify $Z_i$ (if it exists).
 	\end{itemize}
-	Let $\mathcal{Z}_V=\{Z_1,\ldots,Z_{n}\}$ denote the set of valid voter certificates.\footnote{To simplify the notation, we assume that $|V|=|\mathcal{Z}_V|=n$. In general, the number of valid certificates will be smaller or equal than the number of eligible voters.}
+	Let $\mathcal{Z}_V=\{Z_1,\ldots,Z_{n'}\}$ denote the set of valid voter certificates, where $n'\leq n$ is the number of eligible voters with a valid UniVote voter certificate.
 	\item Post $(\mathsf{voterCertificates}:\mathcal{Z}_V)$ on \UBV.
 \end{enumerate}
 
@@ -1122,14 +1120,14 @@ The following tasks are performed shortly before starting the election.
 \subsubsection{Mixing the Public Keys}
 \EC performs the following steps:
 \begin{enumerate}
-	\item Select $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n}\}$ from $\mathcal{Z}_V$.
+	\item Select $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n'}\}$ from $\mathcal{Z}_V$.
 	\item Let $g_0=g$.
 \end{enumerate}
 The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):
 \begin{enumerate}[resume]
 	\item \EC performs the following steps:
 	\begin{enumerate}
-		\item Post $(\mathsf{keyMixingRequest}:\Mixer{k},g_{k-1}, \mathit{VK}_{k-1})$ to \UBV.
+		\item Post $(\mathsf{keyMixingRequest}:\Mixer{k}, \mathit{VK}_{k-1},g_{k-1})$ to \UBV.
 		\item Select $\vk{k}$ from $Z_{k}\in \mathcal{Z}_{M}$.
 		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{keyMixingResult},1)$ to \UBV.
 	\end{enumerate}
@@ -1137,28 +1135,28 @@ The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order 
 	\begin{enumerate}
 		\item Get $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting}$ from \UBV.
 		\item Select $G_q$ and $g$ from $\mathit{signSetting}$.
-		\item Get $(\mathsf{keyMixingRequest}:\Mixer{k}, g_{k-1}, \mathit{VK}_{k-1})$ from \UBV.
+		\item Get $(\mathsf{keyMixingRequest}:\Mixer{k}, \mathit{VK}_{k-1}, g_{k-1})$ from \UBV.
 		\item Choose $\alpha_k\in_R\mathbb{Z}_q$.
 		\item Compute $g_k = g_{k-1}^{\alpha_k}$.
 		\item Choose $\psi_k:[1,n]\rightarrow[1,n]\in_R\Psi_n$.
 		\item Compute $\mathit{VK}_k=\mathit{shuffle}_{\psi_k}(\mathit{VK}_{k-1},\alpha_k)$.
-		\item Generate $\pi_{k}=\mathit{NIZKP}\{(\psi_k,\alpha_k):g_k=g_{k-1}^{\alpha_k}\wedge \mathit{VK}_{k}=\mathit{shuffle}_{\psi_k}(\mathit{VK}_{k-1},\alpha_k)\}$.
-		\item Post $(\mathsf{keyMixingResult}:g_k,\mathit{VK}_k,\pi_{k})$ to \UBV.
+		\item Generate $\pi_{k}=\mathit{NIZKP}\{(\psi_k,\alpha_k): \mathit{VK}_{k}=\mathit{shuffle}_{\psi_k}(\mathit{VK}_{k-1},\alpha_k)\wedge g_k=g_{k-1}^{\alpha_k}\}$.
+		\item Post $(\mathsf{keyMixingResult}:\mathit{VK}_k,g_k,\pi_{k})$ to \UBV.
 	\end{enumerate}
 	\item \EC performs the following steps:
 	\begin{enumerate}
-		\item Get $(\mathsf{keyMixingResult}:g_k,\mathit{VK}_k,\pi_{k})$ from \UBV.
+		\item Get $(\mathsf{keyMixingResult}:\mathit{VK}_k,g_k,\pi_{k})$ from \UBV.
 		\item Verify $\pi_{k}$.
 	\end{enumerate}
 \end{enumerate}
 
-Let $\hat{g}=g_m$ denote the \emph{signature generator} for this election and $\hat{\mathit{VK}}=\mathit{VK}_m$ the set of mixed public keys. 
+Let $\hat{\mathit{VK}}=\mathit{VK}_m$ denote the set of mixed public keys and $\hat{g}=g_m$ the \emph{signature generator} for this election.
 
 \subsubsection{Finalizing Election Preparation}
 
 \EC performs the following steps:
 \begin{enumerate}
-	\item Post $(\mathsf{mixedKeys}:\hat{\mathit{VK}})$ to \UBV.
+	\item Post $(\mathsf{mixedKeys}:\hat{\mathit{VK}},\hat{g})$ to \UBV.
 	\item For every $\vkhat{i}\in \hat{\mathit{VK}}$, post $(\mathsf{accessRight}:\vkhat{i}, \mathsf{ballot}, 1,\electionPeriod)$.
 	\item Get $(\mathsf{electionDefinition}: \electionTitle,\electionPeriod)$ from \UBV.
 	\item Get $(\mathsf{electionDetails}:\mathcal{Q},\mathcal{R},\electionIssues,\encode)$ from \UBV.
@@ -1199,7 +1197,7 @@ $\Voter{i}\in V$ performs the following steps:
 		\item If $\pi_{i}$ is valid, collect $E_{i}$.
 	\end{enumerate}
 \end{enumerate}
-Let $\mathcal{E}_0=\{E_1,\ldots,E_N\}\in(\mathcal{G}_Q\times\mathcal{G}_Q)^N$ be list of valid encrypted votes for $N\leq n$.
+Let $\mathcal{E}_0=\{E_1,\ldots,E_N\}\in(\mathcal{G}_Q\times\mathcal{G}_Q)^N$ be list of valid encrypted votes for $N\leq n'$.
 
 \subsubsection{Mixing the Encrypted Votes}
 
@@ -1310,28 +1308,28 @@ Upon notification of a newly issued voter certificate $Z'_i$ for $\Voter{i}$, \E
 \subsection{Mixing a Single Public Key}\label{singlekey}
 %-----------------------------------------------------------------------------------------------
 
-Let $\vk{}=\vk{0}$ be a single key to be ``mixed'' in essentially the same way as described in \Cref{preparation}. A simplified sub-routine for this is called twice in the above general procedure for different input keys. For this, the following steps are repeated for every $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):
+Let $\vk{i}=\vk{i,0}$ be a single key to be ``mixed'' in essentially the same way as the mixing of a list of keys as described in \Cref{preparation}. A simplified sub-routine for this is called twice in the above general procedure for different input keys. In this sub-routine, the following steps are repeated for every $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):
 \begin{enumerate}[]
 	\item \EC performs the following steps:
 	\begin{enumerate}
-		\item Post $(\mathsf{singleKeyMixingRequest}:\Mixer{k}, \vk{k-1})$ to \UBV.
+		\item Post $(\mathsf{singleKeyMixingRequest}:\Mixer{k}, \vk{i},\vk{i,k-1})$ to \UBV.\footnote{We include the original input key $\vk{i}$ for convenience reasons.}
 		\item Select $\vk{k}$ from $Z_{k}\in \mathcal{Z}_{M}$.
-		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{singleKeyMixingRequest},x=x+1)$ to \UBV.
+		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{singleKeyMixingRequest},+1)$ to \UBV.
 	\end{enumerate}
 	\item $\Mixer{k}$ performs the following steps:
 	\begin{enumerate}
-		\item Get $(\mathsf{singleKeyMixingRequest}: \Mixer{k}, \vk{k-1})$ from \UBV.
-		\item Compute $\vk{k} = \vk{k-1}^{\alpha_k}$
-		\item Generate $\pi_{k}=\mathit{NIZKP}\{(\alpha_k):g_k=g_{k-1}^{\alpha_k}\wedge \vk{k} = \vk{k-1}^{\alpha_k}$.
-		\item Post $(\mathsf{singleKeyMixingResult}:\vk{k-1},\vk{k}, \pi_{k})$ to \UBV.
+		\item Get $(\mathsf{singleKeyMixingRequest}: \Mixer{k}, \vk{i},\vk{i,k-1})$ from \UBV.
+		\item Compute $\vk{i,k} = \vk{i,k-1}^{\alpha_k}$
+		\item Generate $\pi_{i,k}=\mathit{NIZKP}\{(\alpha_k): \vk{i,k} = \vk{i,k-1}^{\alpha_k}\wedge g_k=g_{k-1}^{\alpha_k}\}$.
+		\item Post $(\mathsf{singleKeyMixingResult}:\vk{i},\vk{i,k-1},\vk{i,k}, \pi_{i,k})$ to \UBV.
 	\end{enumerate}
 	\item \EC performs the following steps:
 	\begin{enumerate}
-		\item Get $(\mathsf{singleKeyMixingResult}:\vk{k-1},\vk{k}, \pi_{k})$ from \UBV.
-		\item Verify $\pi_{k}$.
+		\item Get $(\mathsf{singleKeyMixingResult}:\vk{i},\vk{i,k-1},\vk{i,k}, \pi_{i,k})$ from \UBV.
+		\item Verify $\pi_{i,k}$.
 	\end{enumerate}
 \end{enumerate}
-Let $\vkhat{}=\vk{m}$ denote the result of this sub-routine.
+Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 
 %===============================================================================================
 \section{Summary of Election Data}
@@ -1346,17 +1344,19 @@ Let $\vkhat{}=\vk{m}$ denote the result of this sub-routine.
 			\EA & $\mathsf{trustees}$ & 1 & $T, M$ & \EC\\
 			\EA & $\mathsf{securityLevel}$ & 1 & $\securityLevel$ & \EC \\
 			\EC & $\mathsf{trusteeCertificates}$ & 1 & $\mathcal{Z}_{T},\mathcal{Z}_{M}$ & -- \\
-			\EC & $\mathsf{cryptoSetting}$ & 1 & $\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting}$ & \Tallier{j}, \Mixer{k} \\
+			\EC & $\mathsf{cryptoSetting}$ & 1 & $\mathit{encryptSetting},\mathit{signSetting},$ & \Tallier{j}, \Mixer{k} \\
+			& & & $\mathit{hashSetting}$ & \\
 			\Tallier{j} & $\mathsf{encryptionKeyShare}$ & $r$ & $y_j,\pi_{j}$ & \EC \\
 			\EC & $\mathsf{encryptionKey}$ & 1 & $y$ & -- \\
 			\EA	& $\mathsf{electionDetails}$ & 1 & $\mathcal{Q},\mathcal{R},\electionIssues,\encode$ & \EC \\
 			\EA	& $\mathsf{electoralRoll}$ & 1 & $V$ & \EC \\
 			\EC & $\mathsf{voterCertificates}$ & 1 & $\mathcal{Z}_V$ & -- \\
-			\EC & $\mathsf{keyMixingRequest}$ & $m$ & $\Mixer{k},g_{k-1}, \mathit{VK}_{k-1}$ & \Mixer{k} \\
-			\Mixer{k} & $\mathsf{keyMixingResult}$ & 1 & $g_k,\mathit{VK}_k,\pi_{k}$ & \EC \\
-			\EC & $\mathsf{mixedKeys}$ & $m$ & $\hat{\mathit{VK}}$ & --\\
-			\EC & $\mathsf{votingData}$ & 1 & $\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \mathit{encryptSetting},$ & \Voter{i} \\
-			& & & $\mathit{signSetting},\mathit{hashSetting},y, \hat{g}$ \\
+			\EC & $\mathsf{keyMixingRequest}$ & $m$ & $\Mixer{k},\mathit{VK}_{k-1},g_{k-1}$ & \Mixer{k} \\
+			\Mixer{k} & $\mathsf{keyMixingResult}$ & 1 & $\mathit{VK}_k,g_k,\pi_{k}$ & \EC \\
+			\EC & $\mathsf{mixedKeys}$ & $1$ & $ \hat{\mathit{VK}}, \hat{g}$ & --\\
+			\EC & $\mathsf{votingData}$ & 1 & $\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues,\encode,$ & \Voter{i} \\
+			& & & $\mathit{encryptSetting},\mathit{signSetting},$ \\
+			& & & $\mathit{hashSetting},y, \hat{g}$ \\
 			\Voter{i} & $\mathsf{ballot}$ & 1 & $E_i,\pi_{i}$ & \EC \\
 			\EC & $\mathsf{voteMixingRequest}$ & $m$ & $\Mixer{k},\mathcal{E}_k$ & \Mixer{k}\\
 			\Mixer{k} & $\mathsf{voteMixingResult}$ & $m$ & $\mathcal{E}_k,\pi'_{k}$ & \EC \\
@@ -1372,43 +1372,44 @@ Let $\vkhat{}=\vk{m}$ denote the result of this sub-routine.
 
 \begin{table}[ht]
 	\begin{center}
-		\begin{tabular}{l|l|l}
-			Symbol & Type  & Element of \\\hline
-			$Z_{\EA}$ & certificate & \\
-			$\electionTitle$ & description & \\
-			$\electionPeriod=(t_{1},t_{2})$ & time period & \\
-			$T=\{\Tallier{1},\ldots,\Tallier{t}\}$ & identifier list & \\
-			$M=\{\Mixer{1},\ldots,\Mixer{m}\}$ & identifier list & \\
-			$\securityLevel$ & integer & $\{0,1,2,\ldots\}$\\
-			$\mathcal{Z}_{T}$ & certificate list & \\
-			$\mathcal{Z}_{M}$ & certificate list & \\
-			$\mathit{encryptSetting}$ & identifier & $\Sigma_\mathsf{ENCRYPT}$\\
-			$\mathit{signSetting}$ & identifier & $\Sigma_\mathsf{SIGN}$\\
-			$\mathit{hashSetting}$ & identifier & $\Sigma_\mathsf{HASH}$\\
-			$y_j$ & public key share & $\mathcal{G}_Q$\\
-			$\pi_j$ & zero-knowlegde proof & \\
-			$y$ & public key & $\mathcal{G}_Q$ \\
-			$\mathcal{Q}=\{Q_1,\ldots,Q_s\}$ & option list & \\
-			$\mathcal{R}$ & rule list &  \\
-			$\electionIssues$ & description & \\
-			$\encode$ & identifier & $\Sigma_\mathsf{ENCODE}$\\
-			$V=\{\Voter{1},\ldots,\Voter{n}\}$ & identifier list & \\
-			$\mathcal{Z}_{V}$ & certificate list & \\
-			$g_k$ & generator & $G_q$ \\
-			$\mathit{VK}_k$ & public key list & \\
-			$\hat{\mathit{VK}}$  & public key list & \\
-			$\pi_k$ & zero-knowledge proof & \\
-			$\hat{g}$ & generator & $G_q$ \\
-			$E_i=(a_i,b_i)$ & ElGamal encryption & $\mathcal{G}_Q\times\mathcal{G}_Q$\\
-			$\pi_i$ & zero-knowledge proof & \\
-			$\mathcal{E}_k$ & ElGamal encryption list & \\
-			$\hat{\mathcal{E}}$ & ElGamal encryption list & \\
-			$\pi'_{k}$ & zero-knowledge proof & \\
-			$A_j= (a_{1,j},\ldots,a_{N,j})$ & partial decryption list & $\mathcal{G}_Q^N$ \\
-			$\pi_{j}'$ & zero-knowledge proof & \\ 
-			$\mathcal{W}=\{w_1,\ldots,w_{N}\}$ & list of decrypted votes & \\
-			$\mathcal{V}=\{v_1,\ldots,v_{N'}\}$ & list of decoded votes & \\
-			$\mathit{result}=\{r_1,\ldots,r_s\}$ & integer list & $\mathbb{N}^s$\\
+		\begin{tabular}{c|l|c|c}
+			Symbol & Type  & Element of & List Size\\\hline
+			$Z_{\EA}$ & certificate & & --\\
+			$\electionTitle$ & description & & --\\
+			$\electionPeriod$ & time period & & --\\
+			$T$ & identifier list & & $r$\\
+			$M$ & identifier list & & $m$\\
+			$\securityLevel$ & integer & $\{0,1,2,\ldots\}$ & --\\
+			$\mathcal{Z}_{T}$ & certificate list & & $r$\\
+			$\mathcal{Z}_{M}$ & certificate list & & $m$\\
+			$\mathit{encryptSetting}$ & identifier & $\Sigma_\mathsf{ENCRYPT}$ & --\\
+			$\mathit{signSetting}$ & identifier & $\Sigma_\mathsf{SIGN}$ & --\\
+			$\mathit{hashSetting}$ & identifier & $\Sigma_\mathsf{HASH}$ & --\\
+			$y_j$ & public key share & $\mathcal{G}_Q$  & --\\
+			$\pi_j$ & zero-knowlegde proof &  & --\\
+			$y$ & public key & $\mathcal{G}_Q$  & --\\
+			$\mathcal{Q}$ & option list &  & $s$\\
+			$\mathcal{R}$ & rule list & &  ?\\
+			$\electionIssues$ & description &  & --\\
+			$\encode$ & identifier & $\Sigma_\mathsf{ENCODE}$ & --\\
+			$V$ & identifier list & & $n$\\
+			$\mathcal{Z}_{V}$ & certificate list & & $n'$ \\
+			$\Mixer{k}$ & identifier & & -- \\
+			$\mathit{VK}_k$ & public key list & $G_q$ & $n'$\\
+			$g_k$ & generator & $G_q$ & --\\
+			$\pi_k$ & zero-knowledge proof & & --\\
+			$\hat{\mathit{VK}}$  & public key list & $G_q$ & $n'$\\
+			$\hat{g}$ & generator & $G_q$ & --\\
+			$E_i$ & ElGamal encryption & $\mathcal{G}_Q\times\mathcal{G}_Q$ & --\\
+			$\pi_i$ & zero-knowledge proof & & --\\
+			$\mathcal{E}_k$ & ElGamal encryption list & $\mathcal{G}_Q\times\mathcal{G}_Q$ & $N$\\
+			$\pi'_{k}$ & zero-knowledge proof & & --\\
+			$\hat{\mathcal{E}}$ & ElGamal encryption list & $\mathcal{G}_Q\times\mathcal{G}_Q$ & $N$\\
+			$A_j$ & partial decryption list & $\mathcal{G}_Q$ & $N$ \\
+			$\pi_{j}'$ & zero-knowledge proof & & --\\ 
+			$\mathcal{W}$ & list of decrypted votes & $\mathbb{Z}_Q$ & $N$ \\
+			$\mathcal{V}$ & list of decoded votes & $\mathbb{N}^s$ & $N'$\\
+			$\mathit{result}$ & election result & $\mathbb{N}^s$ & --\\
 		\end{tabular}
 		\caption{Summary of election data published on \UBV.}
 	\end{center}
@@ -1439,7 +1440,7 @@ Let \Verifier be a verifier. To verify the correctness of the election result, \
 \section{Options, Rules, and Votes}\label{options}
 %===============================================================================================
 
-To allow a variety of different election types, we consider two finite sets, a set $\mathcal{Q}=\{Q_1,\ldots,Q_s\}$ of possible \emph{election options} and a set $\mathcal{R}$ of \emph{election rules}. For each election option $Q_j\in \mathcal{Q}$ in a given election, the election system outputs the number $r_j$ of votes that $Q_j$ has received from the voters. Each election rule in $\mathcal{R}$ defines some constraints on how voters can distribute their votes among the election options. We use $v_{i,j}$ to denote this number for a particular ballot $B_i$ and an election option $Q_j$. The tuple $v_i=(v_{i,1},\ldots,v_{i,s})\in\validVotes(\mathcal{Q},\mathcal{R})$ represents a valid vote, where $\validVotes(\mathcal{Q},\mathcal{R})$ denotes the set of all valid votes for given sets $\mathcal{Q}$ and $\mathcal{R}$.
+To allow a variety of different election types, we consider two finite sets, a set $\mathcal{Q}=\{Q_1,\ldots,Q_s\}$ of possible \emph{election options} and a set $\mathcal{R}$ of \emph{election rules}. For each election option $Q_j\in \mathcal{Q}$ in a given election, the UniVote outputs the number $r_j$ of valid votes that $Q_j$ has received from the voters. Each election rule in $\mathcal{R}$ defines some constraints on how voters can distribute their votes among the election options. We use $v_{i,j}$ to denote this number for a particular ballot $B_i$ and election option $Q_j$. The tuple $v_i=(v_{i,1},\ldots,v_{i,s})\in\validVotes(\mathcal{Q},\mathcal{R})$ represents a valid vote, where $\validVotes(\mathcal{Q},\mathcal{R})$ denotes the set of all valid votes for given sets $\mathcal{Q}$ and $\mathcal{R}$.
 
 
 We distinguish three types of election rules:
@@ -1459,27 +1460,27 @@ for two sets of options and corresponding sets of rules. Note that this can be u
 \begin{itemize}
 	\item Referendum: $1$-out-of-$2$
 	\begin{align*}
-		\mathcal{Q}=\{yes,no\},~ 
-		\mathcal{R}=\left\{\begin{aligned}\Sigma:\{yes,no\}\rightarrow[1,1] \\ \forall:\{yes,no\}\rightarrow[0,1]\end{aligned}\right\}
+		\mathcal{Q}=\{\mathsf{yes},\mathsf{no}\},~ 
+		\mathcal{R}=\left\{\begin{aligned}\Sigma:\{\mathsf{yes},\mathsf{no}\}\rightarrow[1,1] \\ \forall:\{\mathsf{yes},\mathsf{no}\}\rightarrow[0,1]\end{aligned}\right\}
 	\end{align*}
 	
 	\item Referendum with Null Votes: max-$1$-out-of-$2$
 	\begin{align*}
-		\mathcal{Q}=\{yes,no\},~
-		\mathcal{R}=\left\{\begin{aligned}\Sigma:\{yes,no\}\rightarrow[0,1] \\ \forall:\{yes,no\}\rightarrow[0,1]\end{aligned}\right\}
+		\mathcal{Q}=\{\mathsf{yes},\mathsf{no}\},~
+		\mathcal{R}=\left\{\begin{aligned}\Sigma:\{\mathsf{yes},\mathsf{no}\}\rightarrow[0,1] \\ \forall:\{\mathsf{yes},\mathsf{no}\}\rightarrow[0,1]\end{aligned}\right\}
 	\end{align*}
 	or
 	\begin{align*}
-		\mathcal{Q}=\{yes,no,null\},~ 
-		\mathcal{R}=\left\{\begin{aligned}\Sigma:\{yes,no, null\}\rightarrow[1,1] \\ \forall:\{yes,no, null\}\rightarrow[0,1]\end{aligned}\right\}
+		\mathcal{Q}=\{\mathsf{yes},\mathsf{no},\mathsf{null}\},~ 
+		\mathcal{R}=\left\{\begin{aligned}\Sigma:\{\mathsf{yes},\mathsf{no}, \mathsf{null}\}\rightarrow[1,1] \\ \forall:\{\mathsf{yes},\mathsf{no}, \mathsf{null}\}\rightarrow[0,1]\end{aligned}\right\}
 	\end{align*}	
 	\item Referendum List: $s$ times $1$-out-of-$2$
 	\begin{align*}
-		\mathcal{Q}=\{yes_1,no_1,\ldots,yes_s,no_s\},~ 
-		\mathcal{R}=\left\{\begin{aligned}&\Sigma:\{yes_1,no_1\}\rightarrow[1,1] \\
+		\mathcal{Q}=\{\mathsf{yes}_1,no_1,\ldots,\mathsf{yes}_s,no_s\},~ 
+		\mathcal{R}=\left\{\begin{aligned}&\Sigma:\{\mathsf{yes}_1,no_1\}\rightarrow[1,1] \\
 		&~~~\vdots~~~~~~~~~~~\vdots~~~~~~~~~~~\vdots\\
-		&\Sigma:\{yes_s,no_s\}\rightarrow[1,1] \\
-		&\forall:\{yes_1,no_1,\ldots,yes_s,no_s\}\rightarrow[0,1]\end{aligned}\right\}
+		&\Sigma:\{\mathsf{yes}_s,no_s\}\rightarrow[1,1] \\
+		&\forall:\{\mathsf{yes}_1,no_1,\ldots,\mathsf{yes}_s,no_s\}\rightarrow[0,1]\end{aligned}\right\}
 	\end{align*}
 
 	\item Multiple-Choice Referendum (Plurality Voting): $1$-out-of-$n$
@@ -1495,8 +1496,8 @@ for two sets of options and corresponding sets of rules. Note that this can be u
 	\end{align*}
 	or
 	\begin{align*}
-		\mathcal{Q}=\{Q_1,\ldots,Q_n,null\},~ 
-		\mathcal{R}=\left\{\begin{aligned}\Sigma:\{Q_1,\ldots,Q_n, null\}\rightarrow[1,1] \\ \forall:\{Q_1,\ldots,Q_n, null\}\rightarrow[0,1]\end{aligned}\right\}
+		\mathcal{Q}=\{Q_1,\ldots,Q_n,\mathsf{null}\},~ 
+		\mathcal{R}=\left\{\begin{aligned}\Sigma:\{Q_1,\ldots,Q_n, \mathsf{null}\}\rightarrow[1,1] \\ \forall:\{Q_1,\ldots,Q_n, \mathsf{null}\}\rightarrow[0,1]\end{aligned}\right\}
 	\end{align*}
 	
 	\item Approval Voting: max-$n$-out-of-$n$ 
@@ -1577,18 +1578,19 @@ The following parameters are assumed to be known in advance and not to change ov
 %		\Sigma_\mathsf{HASH} &= \{\mathsf{H3}, \mathsf{H4}, \mathsf{H5}\}
 %	\end{align*}
 	
-	\begin{center}
+	\begin{table}[htb]
 		\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|}\hline
-			\centering\multirow{2}{*}{Level} & \multirow{2}{*}{Strength} & \multicolumn{3}{c|}{Residue Class Group} & \multirow{2}{*}{Hash Value} \\\cline{3-5}
+			\centering\multirow{2}{*}{Security Level} & \multirow{2}{*}{Strength} & \multicolumn{3}{c|}{Residue Class Group} & \multirow{2}{*}{Hash Value} \\\cline{3-5}
 			& &  modulo & max.\ order & min.\ order & \\\hline
-			\centering 0 (for testing only) & 2   & 6    & 5    & 4  & 4 \\
+			\centering 0 (for testing only) & 3   & 8    & 7    & 6  & 6 \\
 			\centering 1 & 80  & 1024 & 1023 & 160 & 160 \\
 			\centering 2 & 112 & 2048 & 2047 & 224 & 224 \\
 			\centering 3 & 128 & 3072 & 3071 & 256 & 256 \\
 			\centering 4 & 192 & 7680 & 7679 & 384 & 384\\
 			\centering 5 & 256 & 15360 & 15359 & 512 & 512 \\\hline
 		\end{tabularx}
-	\end{center}
+	\caption{Except for security level 0, the values in this table correspond to the NIST recommendations \cite[Table 2]{BBBPS12}.}
+	\end{table}
 	
 	\begin{align*}
 		\Sigma_\mathsf{ENCRYPT} &= \{\mathsf{RC0e}, \mathsf{RC1e}, \mathsf{RC2e}, \mathsf{RC3e}\} \\
@@ -1598,28 +1600,32 @@ The following parameters are assumed to be known in advance and not to change ov
 	
 	\section{Residue Class Groups}
 
-	\subsection{Level 0 (Testing Only)} 
+	In this section, we specify the parameters for default residue class groups satisfying the security levels 0--3. For a given bit length, we choose the smallest possible prime group order $q=(p-1)/k$ and then the smallest possible co-factor $k$ such that $p$ is prime. In each group, we use $g=2^k\bmod p$ as default generator. 
+	
+\subsection{Level 0 (Testing Only)} 
+\begin{multicols}{2}
 	\fbox{
-	\begin{tabularx}{\textwidth}{rX}
+	\begin{tabularx}{0.9\columnwidth}{rX}
 		Name: & \textsf{RC0e} \\
 		Strength: & 2 \\
-		Bit Length: & 6/5 \\
-		Modulo: & \seqsplit{59} \\
-		Order: & \seqsplit{29} \\
+		Bit Length: & 8/7 \\
+		Modulo: & \seqsplit{167} \\
+		Order: & \seqsplit{83} \\
 		Co-factor: & \seqsplit{2} \\
 		Generator: & \seqsplit{4} 
 	\end{tabularx}}
 
 	\fbox{
-	\begin{tabularx}{\textwidth}{rX}
+	\begin{tabularx}{0.9\columnwidth}{rX}
 		Name: & \textsf{RC0s} \\
-		Strength: & 2 \\
-		Bit Length: & 6/4 \\
-		Modulo: & \seqsplit{53} \\
-		Order: & \seqsplit{13} \\
+		Strength: & 3 \\
+		Bit Length: & 8/6 \\
+		Modulo: & \seqsplit{149} \\
+		Order: & \seqsplit{37} \\
 		Co-factor: & \seqsplit{4} \\
 		Generator: & \seqsplit{16} 
 	\end{tabularx}}
+\end{multicols}
 
 	\subsection{Level 1}
 
@@ -1807,17 +1813,15 @@ The following parameters are assumed to be known in advance and not to change ov
 \chapter{Encoding Votes}\label{votes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-With $\rho_j$ we denote the maximum number of votes that the election rules in $R$ allow for $c_j$.
- 
-To encode $v_i\in \mathsf{Votes}$ as an integer, consider a bit string of length $B=\sum_{j=1}^n b_j$, where $b_j=\lfloor\log_2\rho_j\rfloor+1$ denotes the number of bits reserved for each value $v_{i,j}$. Furthermore, let $B_j=\sum_{k=1}^{j-1}b_k$ be the number of bits in the bit string \emph{prior} to $v_{i,j}$, i.e., $B_1=0$, $B_2=b_1$, $B_3=b_1+b_2$, \ldots, $B_{n+1}=B$. The encoding function $\mathit{encode}_{\mathcal{Q},\mathcal{R}}:\mathsf{Votes}\rightarrow \{0,\ldots,2^B{-}1\}$ can then be defined as follows:
+For a given set of election options $\mathcal{Q}$ and corresponding election rules $\mathcal{R}$, let $\rho_j$ denote the maximum number of votes that the election rules allow for $Q_j\in \mathcal{Q}$. To encode $v_i=(v_{i,1},\ldots,v_{s,1})\in \validVotes(\mathcal{Q},\mathcal{R})$ as an integer, consider a bit string of length $B=\sum_{j=1}^s b_j$, where $b_j=\lfloor\log_2\rho_j\rfloor+1$ denotes the number of bits reserved for each value $v_{i,j}$. Furthermore, let $B_j=\sum_{k=1}^{j-1}b_k$ be the number of bits in the bit string \emph{prior} to $v_{i,j}$, i.e., $B_1=0$, $B_2=b_1$, $B_3=b_1+b_2$, \ldots, $B_{s+1}=B$. The encoding function $\mathit{encode}_{\mathcal{Q},\mathcal{R}}:\validVotes(\mathcal{Q},\mathcal{R})\rightarrow \{0,\ldots,2^B{-}1\}$ can then be defined as follows:
 \begin{align*}
 	\mathit{encode}_{\mathcal{Q},\mathcal{R}}(v_i) = \sum_{j=1}^n v_{i,j}\cdot 2^{B_j}.
 \end{align*}
 Since some integers in $\{0,\ldots,2^B{-}1\}$ do not represent valid votes according to the election rules $R$, this encoding is not optimal in terms of memory space consumption. In the vast majority of practical cases, however, we believe that the size of the message space $G_Q$ of the ElGamal cryptosystem is large enough to support this encoding.
 
-To decode an integer representation $x=\mathit{encode}_{\mathcal{Q},\mathcal{R}}(v_i)$ back to $v=(v_{i,1},\ldots,v_{i,s})$, we must decompose the bit string into its components. Mathematically, this decomposition can be written as follows:
+To decode an integer representation $w_i=\mathit{encode}_{\mathcal{Q},\mathcal{R}}(v_i)$ back to $v=(v_{i,1},\ldots,v_{i,s})$, we must decompose the bit string into its components. Mathematically, this decomposition can be written as follows:
 \begin{align*}
-	\mathit{encode}^{-1}_{\mathcal{Q},\mathcal{R}}(x) = (v_{i,1},\ldots,v_{i,s}),~\text{where}~v_{i,j}=\lfloor x/2^{B_j} \rfloor \bmod{2^{b_j}}.
+	\mathit{encode}^{-1}_{\mathcal{Q},\mathcal{R}}(w_i) = (v_{i,1},\ldots,v_{i,s}),~\text{where}~v_{i,j}=\lfloor w_i/2^{B_j} \rfloor \bmod{2^{b_j}}.
 \end{align*}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
