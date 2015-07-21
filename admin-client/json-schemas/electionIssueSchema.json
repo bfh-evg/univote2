@@ -1,9 +1,39 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title": "UniVote2: Schema of an election issue",
-	"oneOf": [
-		{ "$ref": "votingIssueSchema.json" },
-		{ "$ref": "candidateElectionIssueSchema.json" },
-		{ "$ref": "listElectionIssueSchema.json" }
-	]
+	"type": "object",
+	"properties": {
+		"id": {
+			"description": "Issue identifier",
+			"type": "integer"
+		},
+		"type": {
+			"description": "Issue type",
+			"enum": ["candidateElection", "listElection", "vote"]
+		},
+		"title": {
+			"description": "Issue title",
+			"$ref": "i18nTextSchema.json"
+		},
+		"description": {
+			"description": "Description of the issue",
+			"$ref": "i18nTextSchema.json"
+		},
+		"question": {
+			"description": "Question of a voting issue",
+			"$ref": "i18nTextSchema.json"
+		},
+		"optionIds": {
+			"description": "Identifiers of issue options",
+			"type": "array",
+			"items": { "type": "integer" }
+		},
+		"ruleIds": {
+			"description": "Identifiers of issue rules",
+			"type": "array",
+			"items": { "type": "integer" }
+		}
+	},
+	"required": ["id", "type", "title", "optionIds", "ruleIds"],
+	"additionalProperties": false
 }

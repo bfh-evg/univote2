@@ -1,18 +1,18 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"title": "UniVote2: Schema of an election data",
+	"title": "UniVote2: Schema of voting data",
 	"type": "object",
 	"properties": {
 		"definition": {
 			"description": "Election definition",
 			"$ref": "electionDefinitionSchema.json"
 		},
-		"issues": {
-			"description": "Election issues",
-			"$ref": "electionIssuesSchema.json"
+		"details": {
+			"description": "Election details",
+			"$ref": "electionDetailsSchema.json"
 		},
 		"cryptoSetting": {
-			"description": "Crypto setting",
+			"description": "Crypto setting (encryption, signature, hashing)",
 			"$ref": "cryptoSettingSchema.json"
 		},
 		"encryptionKey": {
@@ -24,6 +24,6 @@
 			"type": "string"
 		}
 	},
-	"required": ["definition", "issues", "cryptoSetting", "encryptionKey", "signatureGenerator"],
+	"required": ["definition", "details", "cryptoSetting", "encryptionKey", "signatureGenerator"],
 	"additionalProperties": false
 }

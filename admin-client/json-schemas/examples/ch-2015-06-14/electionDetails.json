@@ -1,15 +1,124 @@
 {
-	"definition": {
-		"title": {
-			"de": "Volksabstimmung 14. Juni 2015",
-			"fr": "Votation populaire du 14 juin 2015",
-			"it": "Votazione del 14 giugno 2015",
-			"rm": "Votaziun dal pievel dals 14 da zercladur 2015"
+	"options": [
+		{
+			"id": 1,
+			"type": "answer",
+			"value": { "de": "Ja", "fr": "Oui", "it": "Si"}
 		},
-		"votingPeriodBegin": "2015-06-01T23:00:00Z",
-		"votingPeriodEnd": "2015-06-14T11:00:00Z",
-		"ballotEncoding": "BR"
-	},
+		{
+			"id": 2,
+			"type": "answer",
+			"value": { "de": "Nein", "fr": "Non", "it": "No"}
+		},
+		{
+			"id": 3,
+			"type": "answer",
+			"value": { "de": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+		},
+		{
+			"id": 4,
+			"type": "answer",
+			"value": { "de": "Ja", "fr": "Oui", "it": "Si"}
+		},
+		{
+			"id": 5,
+			"type": "answer",
+			"value": { "de": "Nein", "fr": "Non", "it": "No"}
+		},
+		{
+			"id": 6,
+			"type": "answer",
+			"value": { "de": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+		},
+		{
+			"id": 7,
+			"type": "answer",
+			"value": { "de": "Ja", "fr": "Oui", "it": "Si"}
+		},
+		{
+			"id": 8,
+			"type": "answer",
+			"value": { "de": "Nein", "fr": "Non", "it": "No"}
+		},
+		{
+			"id": 9,
+			"type": "answer",
+			"value": { "de": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+		},
+		{
+			"id": 10,
+			"type": "answer",
+			"value": { "de": "Ja", "fr": "Oui", "it": "Si"}
+		},
+		{
+			"id": 11,
+			"type": "answer",
+			"value": { "de": "Nein", "fr": "Non", "it": "No"}
+		},
+		{
+			"id": 12,
+			"type": "answer",
+			"value": { "de": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+		}
+	],
+	"rules": [
+		{
+			"id": 1,
+			"type": "summation",
+			"optionIds": [1, 2, 3],
+			"lowerBound": 0,
+			"upperBound": 1
+		},
+		{
+			"id": 2,
+			"type": "cumulation",
+			"optionIds": [1, 2, 3],
+			"lowerBound": 0,
+			"upperBound": 1
+		},
+		{
+			"id": 3,
+			"type": "summation",
+			"optionIds": [4, 5, 6],
+			"lowerBound": 0,
+			"upperBound": 1
+		},
+		{
+			"id": 4,
+			"type": "cumulation",
+			"optionIds": [4, 5, 6],
+			"lowerBound": 0,
+			"upperBound": 1
+		},
+		{
+			"id": 5,
+			"type": "summation",
+			"optionIds": [7, 8, 9],
+			"lowerBound": 0,
+			"upperBound": 1
+		},
+		{
+			"id": 6,
+			"type": "cumulation",
+			"optionIds": [7, 8, 9],
+			"lowerBound": 0,
+			"upperBound": 1
+		},
+		{
+			"id": 7,
+			"type": "summation",
+			"optionIds": [10, 11, 12],
+			"lowerBound": 0,
+			"upperBound": 1
+		},
+		{
+			"id": 8,
+			"type": "cumulation",
+			"optionIds": [10, 11, 12],
+			"lowerBound": 0,
+			"upperBound": 1
+		}
+	],
 	"issues": [
 		{
 			"id": 1,
@@ -26,27 +135,8 @@
 				"it": "Volete accettare il decreto federale del 12 dicembre 2014 concernente la modifica dell’articolo costituzionale relativo alla medicina riproduttiva e all’ingegneria genetica in ambito umano?",
 				"rm": "Vulais Vus acceptar il Conclus federal dals 12 da december 2014 davart la midada da l’artitgel constituziunal concernent la medischina da reproducziun e la tecnologia da gens sin il sectur uman?"
 			},
-			"options": [
-				{ "id": 1, "type": "answer", "value": "yes" },
-				{ "id": 2, "type": "answer", "value": "no" },
-				{ "id": 3, "type": "answer", "value": "abstain" }
-			],
-			"rules": [
-				{
-					"id": 1,
-					"type": "summation",
-					"optionIds": [1, 2, 3],
-					"lowerBound": 0,
-					"upperBound": 1
-				},
-				{
-					"id": 1,
-					"type": "cumulation",
-					"optionIds": [1, 2, 3],
-					"lowerBound": 0,
-					"upperBound": 1
-				}
-			]
+			"optionIds": [1, 2, 3],
+			"ruleIds": [1, 2]
 		},
 		{
 			"id": 2,
@@ -63,27 +153,8 @@
 				"it": "Volete accettare l’iniziativa popolare «Sulle borse di studio»?",
 				"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Iniziativa davart ils stipendis»?"
 			},
-			"options": [
-				{ "id": 1, "type": "answer", "value": "yes" },
-				{ "id": 2, "type": "answer", "value": "no" },
-				{ "id": 3, "type": "answer", "value": "abstain" }
-			],
-			"rules": [
-				{
-					"id": 1,
-					"type": "summation",
-					"optionIds": [1, 2, 3],
-					"lowerBound": 0,
-					"upperBound": 1
-				},
-				{
-					"id": 1,
-					"type": "cumulation",
-					"optionIds": [1, 2, 3],
-					"lowerBound": 0,
-					"upperBound": 1
-				}
-			]
+			"optionIds": [4, 5, 6],
+			"ruleIds": [3, 4]
 		},
 		{
 			"id": 3,
@@ -100,27 +171,8 @@
 				"it": "Volete accettare l’iniziativa popolare «Tassare le eredità milionarie per finanziare la nostra AVS (Riforma dell’impostasulle successioni)»?",
 				"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Far pajar taglias sin iertas da milliuns per finanziar nossa AVS (Refurma da la tagliasin l’ierta)»?"
 			},
-			"options": [
-				{ "id": 1, "type": "answer", "value": "yes" },
-				{ "id": 2, "type": "answer", "value": "no" },
-				{ "id": 3, "type": "answer", "value": "abstain" }
-			],
-			"rules": [
-				{
-					"id": 1,
-					"type": "summation",
-					"optionIds": [1, 2, 3],
-					"lowerBound": 0,
-					"upperBound": 1
-				},
-				{
-					"id": 1,
-					"type": "cumulation",
-					"optionIds": [1, 2, 3],
-					"lowerBound": 0,
-					"upperBound": 1
-				}
-			]
+			"optionIds": [7, 8, 9],
+			"ruleIds": [5, 6]
 		},
 		{
 			"id": 4,
@@ -137,34 +189,9 @@
 				"it": "Volete accettare la modifica del 26 settembre 2014 della legge federale sulla radiotelevisione (LRTV)?",
 				"rm": "Vulais Vus acceptar la midada dals 26 da settember 2014 da la Lescha federala davart radio e televisiun (LRTV)?"
 			},
-			"options": [
-				{ "id": 1, "type": "answer", "value": "yes" },
-				{ "id": 2, "type": "answer", "value": "no" },
-				{ "id": 3, "type": "answer", "value": "abstain" }
-			],
-			"rules": [
-				{
-					"id": 1,
-					"type": "summation",
-					"optionIds": [1, 2, 3],
-					"lowerBound": 0,
-					"upperBound": 1
-				},
-				{
-					"id": 1,
-					"type": "cumulation",
-					"optionIds": [1, 2, 3],
-					"lowerBound": 0,
-					"upperBound": 1
-				}
-			]
+			"optionIds": [10, 11, 12],
+			"ruleIds": [7, 8]
 		}
 	],
-	"cryptoSetting": {
-		"encryptionSetting": "RC2",
-		"signatureSetting": "RC2s",
-		"hashSetting": "H2"
-	},
-	"encryptionKey": "91119287387482810725299284597751730297358595357967339129245557319362300326317603349124577759531942586879523260357064133075657405043421423278179218133399049314945190759226487413938851037528971806505834896476263628153957882527151512135458357322989509505305049487723315898812780201104384863495612707468258957878",
-	"signatureGenerator": "107109962631870964694631290572616741684259433534913193717696669627034744183712064532843948178840692685135901742106546031184882792684386296417476646866306748317314750581351545212887046296410227653636832554555991359342552427316273176036531855263497569544312481810013296540896767718156533429912241745106756662354"
-}	
+	"ballotEncoding": "E1"
+}

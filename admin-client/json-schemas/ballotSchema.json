@@ -17,9 +17,10 @@
 			"type": "object",
 			"properties": {
 				"commitment": { "type": "string" },
+				"challenge":  { "type": "string" },
 				"response":   { "type": "string" }
 			},
-			"required": ["commitment", "response"]
+			"required": ["commitment", "challenge", "response"]
 		}
 	},
 	"required": ["encryptedVote", "proof"],

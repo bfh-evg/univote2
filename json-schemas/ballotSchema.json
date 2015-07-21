@@ -17,7 +17,7 @@
 			"type": "object",
 			"properties": {
 				"commitment": { "type": "string" },
-				"challenge": { "type": "string" },
+				"challenge":  { "type": "string" },
 				"response":   { "type": "string" }
 			},
 			"required": ["commitment", "challenge", "response"]

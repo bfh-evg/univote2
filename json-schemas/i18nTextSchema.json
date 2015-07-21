@@ -10,7 +10,8 @@
 				"de": { "type": "string" },
 				"fr": { "type": "string" },
 				"it": { "type": "string" }
-			}
+			},
+			"additionalProperties": true
 		}
 	]
 }

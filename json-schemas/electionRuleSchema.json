@@ -1,0 +1,22 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of an election rule",
+	"type": "object",
+	"properties": {
+		"id": {
+			"description": "Rule identifier",
+			"type": "integer"
+		},
+		"type": {
+			"description": "Rule type",
+			"type": "string"
+		},
+		"optionIds": {
+			"description": "Identifiers of referenced options",
+			"type": "array",
+			"items": { "type": "integer" }
+		}
+	},
+	"required": ["id", "type", "optionIds"],
+	"additionalProperties": true
+}

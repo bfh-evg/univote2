@@ -5,7 +5,7 @@
 	"properties": {
 		"id":    { "type": "integer" },
 		"type":  { "enum": ["answer"] },
-		"value": { "enum": ["yes", "no", "abstain"] }
+		"value": { "$ref": "i18nTextSchema.json" }
 	},
 	"required": ["id", "type", "value"]
 }

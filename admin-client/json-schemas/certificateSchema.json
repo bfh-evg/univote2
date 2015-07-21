@@ -61,10 +61,8 @@
 		},
 		"roles": {
 			"type":"array",
-			"description": "Role the certificate has been issued for",
-			"items": {
-				"type":"string"
-			}
+			"description": "Roles the certificate has been issued for",
+			"items": { "type":"string" }
 		},
 		"identityProvider": {
 			"type": "string",
@@ -75,6 +73,6 @@
 			"description": "Certificate in PEM format"
 		}
 	},
-	"required": ["commonName", "issuer", "serialNumber", "validFrom", "validUntil", "identityProvider", "pem" ],
+	"required": ["commonName", "issuer", "serialNumber", "validFrom", "validUntil", "identityProvider", "pem"],
 	"additionalProperties": false
 }

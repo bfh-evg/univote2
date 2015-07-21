@@ -7,7 +7,9 @@
 		"type":      { "enum": ["list"] },
 		"number":    { "type": "string" },
 		"listName":  { "$ref": "i18nTextSchema.json" },
-		"partyName": { "$ref": "i18nTextSchema.json" }
+		"partyName": { "$ref": "i18nTextSchema.json" },
+		"candidateIds": { "type": "array", "items": { "type": "integer" } }
 	},
-	"required": ["id", "type", "listName"]
+	"required": ["id", "type", "listName"],
+	"additionalProperties": false
 }

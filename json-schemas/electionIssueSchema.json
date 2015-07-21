@@ -4,64 +4,32 @@
 	"type": "object",
 	"properties": {
 		"id": {
-			"description": "Issue identifier (unique within election)",
+			"description": "Issue identifier",
 			"type": "integer"
 		},
 		"type": {
-			"description": "Issue type (e.g. candidate election, list election, vote)",
+			"description": "Issue type",
 			"type": "string"
 		},
 		"title": {
 			"description": "Issue title",
 			"$ref": "i18nTextSchema.json"
 		},
-		"options": {
-			"description": "Container of options",
-			"type": "array",
-			"items": { "$ref": "#/definitions/option" }
+		"description": {
+			"description": "Description of the issue",
+			"$ref": "i18nTextSchema.json"
 		},
-		"rules": {
-			"description": "Container of rules",
+		"optionIds": {
+			"description": "Identifiers of issue options",
 			"type": "array",
-			"items": { "$ref": "#/definitions/rule" }
+			"items": { "type": "integer" }
+		},
+		"ruleIds": {
+			"description": "Identifiers of issue rules",
+			"type": "array",
+			"items": { "type": "integer" }
 		}
 	},
-	"required": ["id", "type", "title", "options", "rules"],
-
-	"definitions": {
-		"option": {
-			"type": "object",
-			"properties": {
-				"id": {
-					"description": "Option identifier (unique within issue)",
-					"type": "integer"
-				},
-				"type": {
-					"description": "Option type (e.g. candidate, party list, yes/no)",
-					"type": "string"
-				}
-			},
-			"required": ["id", "type"]
-		},
-
-		"rule": {
-			"type": "object",
-			"properties": {
-				"id": {
-					"description": "Rule identifier (unique within issue)",
-					"type": "integer"
-				},
-				"type": {
-					"description": "Rule type (e.g. summation, cumulation)",
-					"type": "string"
-				},
-				"optionIds": {
-					"description": "Identifiers of referenced options",
-					"type": "array",
-					"items": { "type": "integer" }
-				}
-			},
-			"required": ["id", "type", "optionIds"]
-		}
-	}
+	"required": ["id", "type", "title", "optionIds", "ruleIds"],
+	"additionalProperties": true
 }

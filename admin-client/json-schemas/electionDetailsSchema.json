@@ -1,0 +1,28 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of election details",
+	"type": "object",
+	"properties": {
+		"options": {
+			"description": "Election options",
+			"type": "array",
+			"items": { "$ref": "electionOptionSchema.json" }
+		},
+		"rules": {
+			"description": "Election rules",
+			"type": "array",
+			"items": { "$ref": "electionRuleSchema.json" }
+		},
+		"issues": {
+			"description": "Election issues",
+			"type": "array",
+			"items": { "$ref": "electionIssueSchema.json" }
+		},
+		"ballotEncoding": {
+			"description": "Identifier of the ballot encoding scheme",
+			"type": "string"
+		}
+	},
+	"required": ["options", "rules", "issues", "ballotEncoding"],
+	"additionalProperties": false
+}

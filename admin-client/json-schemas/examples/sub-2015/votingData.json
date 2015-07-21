@@ -1,24 +1,27 @@
-[
-	{
-		"id": 1,
-		"type": "listElection",
+{
+	"definition": {
 		"title": {
-			"de": "Wahlen des SUB-StudentInnenrates 2015",
-			"fr": "Élection du conseil des étudiant-e-s SUB 2015",
-			"en": "SUB Elections 2015"
+			"de": "Wahlen des <a href=\"http://www.bfh.ch\">SUB</a>-StudentInnenrates (3. - 21. Dezember 2015)",
+			"fr": "Élection du conseil des étudiant-e-s <a href=\"http://www.bfh.ch\">SUB</a> (3 - 21 décembre 2015)",
+			"en": "<a href=\"http://www.bfh.ch\">SUB</a> Elections (Decembre 3 - 21, 2015)"
 		},
-		"description": {
-			"de": "Der Wahlzettel kann einer Liste zugeordnet werden und maximal 40 Kandidierende aus verschiedenen Listen enthalten. Einzelne Kandidierende können bis zu dreimal aufgeführt werden. Enthält ein Wahlzettel weniger als 40 Kandidierende, so zählen die fehlenden Einträge als Zusatzstimmen für die ausgewählte Liste. Wenn keine Liste angegeben ist, verfallen diese Stimmen.",
-			"fr": "Le bulletin de vote peut comporter au maximum 40 candidats. Il peut comporter des candidats de listes différentes. Chaque électeur peut cumuler jusqu’à trois suffrages sur un candidat. Le bulletin de vote peut-être attribué à une liste. Si un bulletin de vote contient un nombre de candidats inférieurs à 40, les lignes laissées en blanc sont considérées comme autant de suffrages complémentaires attribués à la liste choisie. Si aucune liste n’est indiquée, ces suffrages  sont considérés comme périmés.",
-			"en": "Your ballot paper can include up to 40 candidates from all lists. It can include candidates from different lists. You may vote for each candidate up to three times. You can assign a list to your ballot. If you vote for less than 40 candidates, the missing entries will count as list votes for the chosen list. If you do not assign a list, they will expire and count as empty votes."
+		"administration": {
+			"de": "StudentInnenschaft der Universität Bern (SUB)",
+			"fr": "Ensemble des étudiants de l'Université de Berne (SUB)",
+			"en": "Student Body of the University of Bern (SUB)"
 		},
+		"votingPeriodBegin": "2015-03-08T23:00:00Z",
+		"votingPeriodEnd": "2015-03-26T11:00:00Z"
+	},
+	"details": {
 		"options": [
 			{
 				"id": 1,
 				"type": "list",
 				"number": "1",
 				"listName": "Tuxpartei",
-				"partyName": "tux"
+				"partyName": "tux",
+				"candidateIds": [2, 2, 3, 3, 4, 4]
 			},
 			{
 				"id": 2,
@@ -31,9 +34,7 @@
 				"studyBranch": "Humanmedizin",
 				"studyDegree": "MA",
 				"studySemester": 10,
-				"status": "OLD",
-				"listId": 1,
-				"listPositions": [1, 2]
+				"status": "OLD"
 			},
 			{
 				"id": 3,
@@ -46,8 +47,7 @@
 				"studyBranch": "Humanmedizin",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"listId": 1,
-				"listPositions": [3, 4]
+				"status": "OLD"
 			},
 			{
 				"id": 4,
@@ -60,16 +60,15 @@
 				"studyBranch": "Informatik",
 				"studyDegree": "MA",
 				"studySemester": 3,
-				"status": "OLD",
-				"listId": 1,
-				"listPositions": [5, 6]
+				"status": "OLD"
 			},
 			{
 				"id": 5,
 				"type": "list",
 				"number": "2",
 				"listName": "Junge Grüne Uni Bern",
-				"partyName": "jg"
+				"partyName": "jg",
+				"candidateIds": [6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 17, 18, 19, 20, 21, 22]
 			},
 			{
 				"id": 6,
@@ -81,9 +80,7 @@
 				"studyBranch": "Politikwissenschaft",
 				"studyDegree": "MA",
 				"studySemester": 5,
-				"status": "OLD",
-				"listId": 5,
-				"listPositions": [1, 2]
+				"status": "OLD"
 			},
 			{
 				"id": 7,
@@ -95,9 +92,7 @@
 				"studyBranch": "Medizin",
 				"studyDegree": "BA",
 				"studySemester": 3,
-				"status": "OLD",
-				"listId": 5,
-				"listPositions": [3, 4]
+				"status": "OLD"
 			},
 			{
 				"id": 8,
@@ -109,9 +104,7 @@
 				"studyBranch": "Rechtswissenschaft",
 				"studyDegree": "MA",
 				"studySemester": 1,
-				"status": "OLD",
-				"listId": 5,
-				"listPositions": [5, 6]
+				"status": "OLD"
 			},
 			{
 				"id": 9,
@@ -123,9 +116,7 @@
 				"studyBranch": "Rechtswissenschaft",
 				"studyDegree": "MA",
 				"studySemester": 5,
-				"status": "OLD",
-				"listId": 5,
-				"listPositions": [7, 8]
+				"status": "OLD"
 			},
 			{
 				"id": 10,
@@ -137,9 +128,7 @@
 				"studyBranch": "Geographie",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "OLD",
-				"listId": 5,
-				"listPositions": [9, 10]
+				"status": "OLD"
 			},
 			{
 				"id": 11,
@@ -151,9 +140,7 @@
 				"studyBranch": "Biologie",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "OLD",
-				"listId": 5,
-				"listPositions": [11, 12]
+				"status": "OLD"
 			},
 			{
 				"id": 12,
@@ -165,9 +152,7 @@
 				"studyBranch": "Rechtswissenschaft",
 				"studyDegree": "MA",
 				"studySemester": 4,
-				"status": "OLD",
-				"listId": 5,
-				"listPositions": [13, 14]
+				"status": "OLD"
 			},
 			{
 				"id": 13,
@@ -179,9 +164,7 @@
 				"studyBranch": "Wirtschaftswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "OLD",
-				"listId": 5,
-				"listPositions": [15, 16]
+				"status": "OLD"
 			},
 			{
 				"id": 14,
@@ -193,9 +176,7 @@
 				"studyBranch": "Rechtswissenschaft",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [17, 18]
+				"status": "NEW"
 			},
 			{
 				"id": 15,
@@ -207,9 +188,7 @@
 				"studyBranch": "Psychologie",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [19, 20]
+				"status": "NEW"
 			},
 			{
 				"id": 16,
@@ -221,9 +200,7 @@
 				"studyBranch": "Politikwissenschaft",
 				"studyDegree": "MA",
 				"studySemester": 5,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [21]
+				"status": "NEW"
 			},
 			{
 				"id": 17,
@@ -235,9 +212,7 @@
 				"studyBranch": "Rechtswissenschaft",
 				"studyDegree": "MA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [22]
+				"status": "NEW"
 			},
 			{
 				"id": 18,
@@ -249,9 +224,7 @@
 				"studyBranch": "Soziologie",
 				"studyDegree": "MA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [23]
+				"status": "NEW"
 			},
 			{
 				"id": 19,
@@ -263,9 +236,7 @@
 				"studyBranch": "Sozialwissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [24]
+				"status": "NEW"
 			},
 			{
 				"id": 20,
@@ -277,9 +248,7 @@
 				"studyBranch": "Politikwissenschaft",
 				"studyDegree": "MA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [25]
+				"status": "NEW"
 			},
 			{
 				"id": 21,
@@ -291,9 +260,7 @@
 				"studyBranch": "Religionswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [26]
+				"status": "NEW"
 			},
 			{
 				"id": 22,
@@ -305,16 +272,15 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 10,
-				"status": "NEW",
-				"listId": 5,
-				"listPositions": [27]
+				"status": "NEW"
 			},
 			{
 				"id": 23,
 				"type": "list",
 				"number": "3",
 				"listName": "WIR \u2013 Wirtschaftswissenschaften im Rat",
-				"partyName": "wir"
+				"partyName": "wir",
+				"candidateIds": [24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 32, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
 			},
 			{
 				"id": 24,
@@ -326,9 +292,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [1, 2]
+				"status": "NEW"
 			},
 			{
 				"id": 25,
@@ -341,9 +305,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "BA",
 				"studySemester": 5,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [3, 4]
+				"status": "NEW"
 			},
 			{
 				"id": 26,
@@ -355,9 +317,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [5, 6]
+				"status": "NEW"
 			},
 			{
 				"id": 27,
@@ -370,9 +330,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [7, 8]
+				"status": "NEW"
 			},
 			{
 				"id": 28,
@@ -384,9 +342,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [9, 10]
+				"status": "NEW"
 			},
 			{
 				"id": 29,
@@ -398,9 +354,7 @@
 				"studyBranch": "International and Monetary Economics",
 				"studyDegree": "MA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [11, 12]
+				"status": "NEW"
 			},
 			{
 				"id": 30,
@@ -412,9 +366,7 @@
 				"studyBranch": "Business Administration Management",
 				"studyDegree": "MA",
 				"studySemester": 12,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [13, 14]
+				"status": "NEW"
 			},
 			{
 				"id": 31,
@@ -426,9 +378,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [15, 16]
+				"status": "NEW"
 			},
 			{
 				"id": 32,
@@ -440,9 +390,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [17, 18]
+				"status": "NEW"
 			},
 			{
 				"id": 33,
@@ -454,9 +402,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [19]
+				"status": "NEW"
 			},
 			{
 				"id": 34,
@@ -468,9 +414,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [20]
+				"status": "NEW"
 			},
 			{
 				"id": 35,
@@ -482,9 +426,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [21]
+				"status": "NEW"
 			},
 			{
 				"id": 36,
@@ -496,9 +438,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [22]
+				"status": "NEW"
 			},
 			{
 				"id": 37,
@@ -510,9 +450,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [23]
+				"status": "NEW"
 			},
 			{
 				"id": 38,
@@ -524,9 +462,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 5,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [24]
+				"status": "NEW"
 			},
 			{
 				"id": 39,
@@ -538,9 +474,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [25]
+				"status": "NEW"
 			},
 			{
 				"id": 40,
@@ -552,9 +486,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [26]
+				"status": "NEW"
 			},
 			{
 				"id": 41,
@@ -566,9 +498,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [27]
+				"status": "NEW"
 			},
 			{
 				"id": 42,
@@ -580,9 +510,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [28]
+				"status": "NEW"
 			},
 			{
 				"id": 43,
@@ -594,9 +522,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [29]
+				"status": "NEW"
 			},
 			{
 				"id": 44,
@@ -608,9 +534,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [30]
+				"status": "NEW"
 			},
 			{
 				"id": 45,
@@ -622,9 +546,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [31]
+				"status": "NEW"
 			},
 			{
 				"id": 46,
@@ -636,9 +558,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [32]
+				"status": "NEW"
 			},
 			{
 				"id": 47,
@@ -650,9 +570,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [33]
+				"status": "NEW"
 			},
 			{
 				"id": 48,
@@ -664,9 +582,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [34]
+				"status": "NEW"
 			},
 			{
 				"id": 49,
@@ -678,9 +594,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [35]
+				"status": "NEW"
 			},
 			{
 				"id": 50,
@@ -692,9 +606,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [36]
+				"status": "NEW"
 			},
 			{
 				"id": 51,
@@ -706,9 +618,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [37]
+				"status": "NEW"
 			},
 			{
 				"id": 52,
@@ -720,9 +630,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [38]
+				"status": "NEW"
 			},
 			{
 				"id": 53,
@@ -734,16 +642,15 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 23,
-				"listPositions": [39]
+				"status": "NEW"
 			},
 			{
 				"id": 54,
 				"type": "list",
 				"number": "4",
 				"listName": "Jungfreisinnige Uni Bern",
-				"partyName": "JF"
+				"partyName": "JF",
+				"candidateIds": [55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 57, 58, 59, 55]
 			},
 			{
 				"id": 55,
@@ -756,9 +663,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "OLD",
-				"listId": 54,
-				"listPositions": [1, 25]
+				"status": "OLD"
 			},
 			{
 				"id": 56,
@@ -771,9 +676,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "OLD",
-				"listId": 54,
-				"listPositions": [2, 21]
+				"status": "OLD"
 			},
 			{
 				"id": 57,
@@ -786,9 +689,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "MA",
 				"studySemester": 12,
-				"status": "OLD",
-				"listId": 54,
-				"listPositions": [3, 22]
+				"status": "OLD"
 			},
 			{
 				"id": 58,
@@ -801,9 +702,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [4, 23]
+				"status": "NEW"
 			},
 			{
 				"id": 59,
@@ -816,9 +715,7 @@
 				"studyBranch": "SoWi",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "OLD",
-				"listId": 54,
-				"listPositions": [5, 24]
+				"status": "OLD"
 			},
 			{
 				"id": 60,
@@ -831,9 +728,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [6]
+				"status": "NEW"
 			},
 			{
 				"id": 61,
@@ -846,9 +741,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "MA",
 				"studySemester": 10,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [7]
+				"status": "NEW"
 			},
 			{
 				"id": 62,
@@ -861,9 +754,7 @@
 				"studyBranch": "Informatik",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [8]
+				"status": "NEW"
 			},
 			{
 				"id": 63,
@@ -876,9 +767,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "MA",
 				"studySemester": 10,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [9]
+				"status": "NEW"
 			},
 			{
 				"id": 64,
@@ -891,9 +780,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [10]
+				"status": "NEW"
 			},
 			{
 				"id": 65,
@@ -906,9 +793,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [11]
+				"status": "NEW"
 			},
 			{
 				"id": 66,
@@ -921,9 +806,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "MA",
 				"studySemester": 11,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [12]
+				"status": "NEW"
 			},
 			{
 				"id": 67,
@@ -936,9 +819,7 @@
 				"studyBranch": "Geschichte, Germanistik, Politik",
 				"studyDegree": "MA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [13]
+				"status": "NEW"
 			},
 			{
 				"id": 68,
@@ -951,9 +832,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "MA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [14]
+				"status": "NEW"
 			},
 			{
 				"id": 69,
@@ -965,9 +844,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 10,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [15]
+				"status": "NEW"
 			},
 			{
 				"id": 70,
@@ -980,9 +857,7 @@
 				"studyBranch": "Osteuropastudien",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [16]
+				"status": "NEW"
 			},
 			{
 				"id": 71,
@@ -994,9 +869,7 @@
 				"studyBranch": "Rechtswissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "OLD",
-				"listId": 54,
-				"listPositions": [17]
+				"status": "OLD"
 			},
 			{
 				"id": 72,
@@ -1009,9 +882,7 @@
 				"studyBranch": "Mathematik",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [18]
+				"status": "NEW"
 			},
 			{
 				"id": 73,
@@ -1024,9 +895,7 @@
 				"studyBranch": "BWL/VWL",
 				"studyDegree": "BA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [19]
+				"status": "NEW"
 			},
 			{
 				"id": 74,
@@ -1038,16 +907,15 @@
 				"studyBranch": "BWL/VWL",
 				"studyDegree": "BA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 54,
-				"listPositions": [20]
+				"status": "NEW"
 			},
 			{
 				"id": 75,
 				"type": "list",
 				"number": "5",
 				"listName": "Grünliberale Uni Bern",
-				"partyName": "glp"
+				"partyName": "glp",
+				"candidateIds": [76, 76, 77, 77, 78, 78, 79, 79, 80, 80, 81, 81, 82, 82, 83, 83, 84, 84, 85, 85, 86, 86, 87, 87, 88, 88, 89, 89, 90, 90, 91, 91, 92, 92, 93, 94, 95, 96, 97, 98]
 			},
 			{
 				"id": 76,
@@ -1060,9 +928,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "MA",
 				"studySemester": 12,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [1, 2]
+				"status": "OLD"
 			},
 			{
 				"id": 77,
@@ -1075,9 +941,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "MA",
 				"studySemester": 10,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [3, 4]
+				"status": "OLD"
 			},
 			{
 				"id": 78,
@@ -1090,9 +954,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [5, 6]
+				"status": "OLD"
 			},
 			{
 				"id": 79,
@@ -1105,9 +967,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "MA",
 				"studySemester": 8,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [7, 8]
+				"status": "OLD"
 			},
 			{
 				"id": 80,
@@ -1120,9 +980,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [9, 10]
+				"status": "OLD"
 			},
 			{
 				"id": 81,
@@ -1135,9 +993,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "MA",
 				"studySemester": 8,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [11, 12]
+				"status": "OLD"
 			},
 			{
 				"id": 82,
@@ -1150,9 +1006,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [13, 14]
+				"status": "OLD"
 			},
 			{
 				"id": 83,
@@ -1165,9 +1019,7 @@
 				"studyBranch": "Sozialwissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 10,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [15, 16]
+				"status": "OLD"
 			},
 			{
 				"id": 84,
@@ -1180,9 +1032,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "MA",
 				"studySemester": 10,
-				"status": "OLD",
-				"listId": 75,
-				"listPositions": [17, 18]
+				"status": "OLD"
 			},
 			{
 				"id": 85,
@@ -1195,9 +1045,7 @@
 				"studyBranch": "Biologie",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [19, 20]
+				"status": "NEW"
 			},
 			{
 				"id": 86,
@@ -1210,9 +1058,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [21, 22]
+				"status": "NEW"
 			},
 			{
 				"id": 87,
@@ -1225,9 +1071,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [23, 24]
+				"status": "NEW"
 			},
 			{
 				"id": 88,
@@ -1240,9 +1084,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [25, 26]
+				"status": "NEW"
 			},
 			{
 				"id": 89,
@@ -1255,9 +1097,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "MA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [27, 28]
+				"status": "NEW"
 			},
 			{
 				"id": 90,
@@ -1270,9 +1110,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "MA",
 				"studySemester": 10,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [29, 30]
+				"status": "NEW"
 			},
 			{
 				"id": 91,
@@ -1285,9 +1123,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [31, 32]
+				"status": "NEW"
 			},
 			{
 				"id": 92,
@@ -1300,9 +1136,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [33, 34]
+				"status": "NEW"
 			},
 			{
 				"id": 93,
@@ -1315,9 +1149,7 @@
 				"studyBranch": "VWL",
 				"studyDegree": "MA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [35]
+				"status": "NEW"
 			},
 			{
 				"id": 94,
@@ -1330,9 +1162,7 @@
 				"studyBranch": "BWL",
 				"studyDegree": "BA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [36]
+				"status": "NEW"
 			},
 			{
 				"id": 95,
@@ -1345,9 +1175,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "MA",
 				"studySemester": 10,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [37]
+				"status": "NEW"
 			},
 			{
 				"id": 96,
@@ -1360,9 +1188,7 @@
 				"studyBranch": "Zahnmedizin",
 				"studyDegree": "MA",
 				"studySemester": 10,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [38]
+				"status": "NEW"
 			},
 			{
 				"id": 97,
@@ -1375,9 +1201,7 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [39]
+				"status": "NEW"
 			},
 			{
 				"id": 98,
@@ -1390,16 +1214,15 @@
 				"studyBranch": "Rechtswissenschawten",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 75,
-				"listPositions": [40]
+				"status": "NEW"
 			},
 			{
 				"id": 99,
 				"type": "list",
 				"number": "6",
 				"listName": "Sozialdemokratisches Forum",
-				"partyName": "sf"
+				"partyName": "sf",
+				"candidateIds": [100, 100, 101, 101, 102, 102, 103, 103, 104, 104, 105, 105, 106, 106, 107, 107, 108, 108, 109, 109, 110, 110, 111, 111, 112, 112, 113, 113, 114, 115, 116, 117, 118, 119]
 			},
 			{
 				"id": 100,
@@ -1412,9 +1235,7 @@
 				"studyBranch": "SOWI",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "OLD",
-				"listId": 99,
-				"listPositions": [1, 2]
+				"status": "OLD"
 			},
 			{
 				"id": 101,
@@ -1426,9 +1247,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "OLD",
-				"listId": 99,
-				"listPositions": [3, 4]
+				"status": "OLD"
 			},
 			{
 				"id": 102,
@@ -1440,9 +1259,7 @@
 				"studyBranch": "Kunstgeschichte",
 				"studyDegree": "BA",
 				"studySemester": 10,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [5, 6]
+				"status": "NEW"
 			},
 			{
 				"id": 103,
@@ -1454,9 +1271,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "OLD",
-				"listId": 99,
-				"listPositions": [7, 8]
+				"status": "OLD"
 			},
 			{
 				"id": 104,
@@ -1468,9 +1283,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "OLD",
-				"listId": 99,
-				"listPositions": [9, 10]
+				"status": "OLD"
 			},
 			{
 				"id": 105,
@@ -1482,9 +1295,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "OLD",
-				"listId": 99,
-				"listPositions": [11, 12]
+				"status": "OLD"
 			},
 			{
 				"id": 106,
@@ -1496,9 +1307,7 @@
 				"studyBranch": "Jus",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [13, 14]
+				"status": "NEW"
 			},
 			{
 				"id": 107,
@@ -1510,9 +1319,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [15, 16]
+				"status": "NEW"
 			},
 			{
 				"id": 108,
@@ -1524,9 +1331,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [17, 18]
+				"status": "NEW"
 			},
 			{
 				"id": 109,
@@ -1538,9 +1343,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [19, 20]
+				"status": "NEW"
 			},
 			{
 				"id": 110,
@@ -1552,9 +1355,7 @@
 				"studyBranch": "Jus",
 				"studyDegree": "BA",
 				"studySemester": 6,
-				"status": "OLD",
-				"listId": 99,
-				"listPositions": [21, 22]
+				"status": "OLD"
 			},
 			{
 				"id": 111,
@@ -1566,9 +1367,7 @@
 				"studyBranch": "Englisch",
 				"studyDegree": "MA",
 				"studySemester": 12,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [23, 24]
+				"status": "NEW"
 			},
 			{
 				"id": 112,
@@ -1580,9 +1379,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 20,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [25, 26]
+				"status": "NEW"
 			},
 			{
 				"id": 113,
@@ -1594,9 +1391,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "MA",
 				"studySemester": 12,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [27, 28]
+				"status": "NEW"
 			},
 			{
 				"id": 114,
@@ -1608,9 +1403,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "OLD",
-				"listId": 99,
-				"listPositions": [29]
+				"status": "OLD"
 			},
 			{
 				"id": 115,
@@ -1622,9 +1415,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 8,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [30]
+				"status": "NEW"
 			},
 			{
 				"id": 116,
@@ -1636,9 +1427,7 @@
 				"studyBranch": "Psychologie",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [31]
+				"status": "NEW"
 			},
 			{
 				"id": 117,
@@ -1650,9 +1439,7 @@
 				"studyBranch": "Erdwissenschaften",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [32]
+				"status": "NEW"
 			},
 			{
 				"id": 118,
@@ -1664,9 +1451,7 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [33]
+				"status": "NEW"
 			},
 			{
 				"id": 119,
@@ -1678,16 +1463,15 @@
 				"studyBranch": "Geschichte",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 99,
-				"listPositions": [34]
+				"status": "NEW"
 			},
 			{
 				"id": 120,
 				"type": "list",
 				"number": "7",
 				"listName": "Wolke 7",
-				"partyName": "w7"
+				"partyName": "w7",
+				"candidateIds": [121, 121, 122, 122, 123, 123, 124, 124, 125]
 			},
 			{
 				"id": 121,
@@ -1700,9 +1484,7 @@
 				"studyBranch": "Geographie",
 				"studyDegree": "BA",
 				"studySemester": 8,
-				"status": "OLD",
-				"listId": 120,
-				"listPositions": [1, 2]
+				"status": "OLD"
 			},
 			{
 				"id": 122,
@@ -1715,9 +1497,7 @@
 				"studyBranch": "Psychologie",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "OLD",
-				"listId": 120,
-				"listPositions": [3, 4]
+				"status": "OLD"
 			},
 			{
 				"id": 123,
@@ -1730,9 +1510,7 @@
 				"studyBranch": "Jus",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 120,
-				"listPositions": [5, 6]
+				"status": "NEW"
 			},
 			{
 				"id": 124,
@@ -1745,9 +1523,7 @@
 				"studyBranch": "Jus",
 				"studyDegree": "BA",
 				"studySemester": 4,
-				"status": "NEW",
-				"listId": 120,
-				"listPositions": [7, 8]
+				"status": "NEW"
 			},
 			{
 				"id": 125,
@@ -1760,9 +1536,7 @@
 				"studyBranch": "Psychologie",
 				"studyDegree": "BA",
 				"studySemester": 2,
-				"status": "NEW",
-				"listId": 120,
-				"listPositions": [9]
+				"status": "NEW"
 			}
 		],
 		"rules": [
@@ -1794,6 +1568,32 @@
 				"lowerBound": 0,
 				"upperBound": 3
 			}
-		]
-	}
-]
+		],
+		"issues": [
+			{
+				"id": 1,
+				"type": "listElection",
+				"title": {
+					"de": "Wahlen des SUB-StudentInnenrates 2015",
+					"fr": "Élection du conseil des étudiant-e-s SUB 2015",
+					"en": "SUB Elections 2015"
+				},
+				"description": {
+					"de": "Der Wahlzettel kann einer Liste zugeordnet werden und maximal 40 Kandidierende aus verschiedenen Listen enthalten. Einzelne Kandidierende können bis zu dreimal aufgeführt werden. Enthält ein Wahlzettel weniger als 40 Kandidierende, so zählen die fehlenden Einträge als Zusatzstimmen für die ausgewählte Liste. Wenn keine Liste angegeben ist, verfallen diese Stimmen.",
+					"fr": "Le bulletin de vote peut comporter au maximum 40 candidats. Il peut comporter des candidats de listes différentes. Chaque électeur peut cumuler jusqu’à trois suffrages sur un candidat. Le bulletin de vote peut-être attribué à une liste. Si un bulletin de vote contient un nombre de candidats inférieurs à 40, les lignes laissées en blanc sont considérées comme autant de suffrages complémentaires attribués à la liste choisie. Si aucune liste n’est indiquée, ces suffrages  sont considérés comme périmés.",
+					"en": "Your ballot paper can include up to 40 candidates from all lists. It can include candidates from different lists. You may vote for each candidate up to three times. You can assign a list to your ballot. If you vote for less than 40 candidates, the missing entries will count as list votes for the chosen list. If you do not assign a list, they will expire and count as empty votes."
+				},
+				"optionIds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125],
+				"ruleIds": [1, 2, 3, 4]
+			}
+		],
+		"ballotEncoding": "E1"
+	},
+	"cryptoSetting": {
+		"encryptionSetting": "RC2",
+		"signatureSetting": "RC2s",
+		"hashSetting": "H2"
+	},
+	"encryptionKey": "91119287387482810725299284597751730297358595357967339129245557319362300326317603349124577759531942586879523260357064133075657405043421423278179218133399049314945190759226487413938851037528971806505834896476263628153957882527151512135458357322989509505305049487723315898812780201104384863495612707468258957878",
+	"signatureGenerator": "107109962631870964694631290572616741684259433534913193717696669627034744183712064532843948178840692685135901742106546031184882792684386296417476646866306748317314750581351545212887046296410227653636832554555991359342552427316273176036531855263497569544312481810013296540896767718156533429912241745106756662354"
+}	

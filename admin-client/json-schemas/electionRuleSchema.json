@@ -1,0 +1,30 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of an election rule",
+	"type": "object",
+	"properties": {
+		"id": {
+			"description": "Rule identifier",
+			"type": "integer"
+		},
+		"type": {
+			"description": "Rule type",
+			"enum": ["summation", "cumulation"]
+		},
+		"optionIds": {
+			"description": "Identifiers of referenced options",
+			"type": "array",
+			"items": { "type": "integer" }
+		},
+		"lowerBound": {
+			"description": "Lower bound of the rule",
+			"type": "integer"
+		},
+		"upperBound": {
+			"description": "Upper bound of the rule",
+			"type": "integer"
+		}
+	},
+	"required": ["id", "type", "optionIds"],
+	"additionalProperties": false
+}

@@ -1,0 +1,17 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of an election option",
+	"type": "object",
+	"properties": {
+		"id": {
+			"description": "Option identifier",
+			"type": "integer"
+		},
+		"type": {
+			"description": "Option type (e.g. candidate, list, answer)",
+			"type": "string"
+		}
+	},
+	"required": ["id", "type"],
+	"additionalProperties": true
+}
