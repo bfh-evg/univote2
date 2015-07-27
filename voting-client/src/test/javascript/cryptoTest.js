@@ -293,7 +293,7 @@ describe('mapZq2GqTest', function () {
 
 	it('mapping between Zq and Gq', function () {
 
-		uvCrypto.setEncryptionParameters("23", "11", "4", 10);
+		uvCrypto.setEncryptionParameters({P: "23", Q: "11", G: "4", BASE: 10});
 		var bigInt4 = leemon.str2bigInt("4", 10, 1);
 		var bigInt5 = leemon.str2bigInt("5", 10, 1);
 		var bigInt6 = leemon.str2bigInt("6", 10, 1);
@@ -306,7 +306,7 @@ describe('mapZq2GqTest', function () {
 
 	it('value not in Zq => exception', function () {
 
-		uvCrypto.setEncryptionParameters("23", "11", "4", 10);
+		uvCrypto.setEncryptionParameters({P: "23", Q: "11", G: "4", BASE: 10});
 		var bigInt17 = leemon.str2bigInt("17", 10, 1);
 
 

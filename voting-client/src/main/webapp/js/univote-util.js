@@ -28,6 +28,9 @@
 			if ($body.size() > 0) {
 				locale = $body.data('locale');
 			}
+			if (locale == undefined || locale == '') {
+				locale = DEFAULT_LOCALE;
+			}
 		}
 		return locale;
 	};
@@ -40,6 +43,9 @@
 	window.getLocalizedText = function (localizedTexts) {
 		if (localizedTexts == undefined) {
 			return '';
+		}
+		if (typeof localizedTexts === 'string') {
+			return localizedTexts;
 		}
 		var text = '';
 		var firstIndex = '';
@@ -121,28 +127,21 @@
 	}
 
 
-	/**
-	 *
-	 * @param {type} issue
-	 * @returns {univote-util_L112.Issue}
-	 */
-	function Issue(issue) {
-		issue = issue || {};
-		this.id = issue.id || 0;
-		this.type = issue.type || '';
-		this.title = issue.title || '';
-		this.description = issue.description || '';
-		// Make sure, options are ordered by id
+
+	function ElectionDetails(details) {
+		details = details || {};
+
+		// Make sure, options are ordered by id (important for ballot encoding)
 		this.options = [];
-		for (var i in issue.options) {
-			var option = issue.options[i];
+		for (var i in details.options) {
+			var option = details.options[i];
 			this.options[option.id] = option;
 		}
 
 		// Create a Rule object for each rule
 		this.rules = [];
-		for (var i in issue.rules) {
-			var rule = issue.rules[i];
+		for (var i in details.rules) {
+			var rule = details.rules[i];
 			switch (rule.type) {
 				case 'summation':
 					this.rules[i] = new SummationRule(rule);
@@ -155,11 +154,21 @@
 			}
 		}
 
+		// Issues
+		this.issues = [];
+		for (var i in details.issues) {
+			var issue = details.issues[i];
+			this.issues[i] = Issue.createIssue(issue, this);
+		}
+
+		// Ballot Encoding
+		this.ballotEncoding = details.ballotEncoding || '';
+
 		// Users choice
 		this.vote = [];
 	}
 
-	Issue.prototype = {
+	ElectionDetails.prototype = {
 		verifyVote: function () {
 			for (var i in this.rules) {
 				if (!this.rules[i].verify(this.vote)) {
@@ -201,16 +210,47 @@
 			return upperBound;
 		}
 	};
+	window.ElectionDetails = ElectionDetails;
 
-	Issue.createIssue = function (issue) {
+
+	/**
+	 *
+	 * @param {type} issue
+	 * @param {ElectionDetails} electionDetails
+	 * @returns {univote-util_L112.Issue}
+	 */
+	function Issue(issue, electionDetails) {
+		issue = issue || {};
+		this.electionDetails = electionDetails;
+		this.id = issue.id || 0;
+		this.type = issue.type || '';
+		this.title = getLocalizedText(issue.title);
+		this.description = getLocalizedText(issue.description);
+		this.options = [];
+		for (var i in issue.optionIds) {
+			var id = issue.optionIds[i];
+			this.options[id] = this.electionDetails.options[id];
+		}
+		this.rules = [];
+		for (var i in issue.rulesIds) {
+			var id = issue.rulesIds[i];
+			this.rules[id] = this.electionDetails.rules[id];
+		}
+	}
+
+	Issue.prototype = {
+		// Currently nothing...
+	};
+
+	Issue.createIssue = function (issue, electionDetails) {
 		var ret;
 		switch (issue.type) {
 			case 'listElection':
-				ret = new ListElectionIssue(issue);
+				ret = new ListElectionIssue(issue, electionDetails);
 				break;
 
 			default:
-				ret = new Issue(issue);
+				ret = new Issue(issue, electionDetails);
 		}
 		return ret;
 	};
@@ -220,10 +260,11 @@
 	/**
 	 *
 	 * @param {type} issue
+	 * @param {type} electionDetails
 	 * @returns {univote-util_L100.ListElectionIssue}
 	 */
-	function ListElectionIssue(issue) {
-		Issue.call(this, issue);
+	function ListElectionIssue(issue, electionDetails) {
+		Issue.call(this, issue, electionDetails);
 
 		// Sorted array of lists (index => option)
 		this.lists = [];
@@ -258,22 +299,18 @@
 		getLists: function () {
 			return this.lists;
 		},
-		// Returns a sorted array of candidates (according to the listPosition)
+		// Returns a sorted array of candidates (according to the lists's candidateIds)
 		getListCandidates: function (listId) {
+			var list = this.options[listId] || {};
 			var candidates = [];
-			for (var id in this.candidates) {
-				var candidate = this.candidates[id];
-				if (candidate.listId == listId) {
-					for (var i in candidate.listPositions) {
-						candidates[candidate.listPositions[i]] = candidate;
-					}
-				}
+			for (var i = 0; i < list.candidateIds.length; i++) {
+				candidates[i] = this.options[list.candidateIds[i]];
 			}
 			return candidates;
 		},
 		listsAreChoosable: function () {
 			for (var i in this.lists) {
-				if (this.getOptionUpperBound(this.lists[i].id) > 0) {
+				if (this.electionDetails.getOptionUpperBound(this.lists[i].id) > 0) {
 					return true;
 				}
 			}

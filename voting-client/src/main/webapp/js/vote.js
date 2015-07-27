@@ -59,13 +59,7 @@ var encryptionKey;
 /**
  *
  */
-var issues;
-
-/**
- *
- */
-var ballotEncoding;
-
+var electionDetails;
 
 /**
  * Initialisation on document ready.
@@ -169,15 +163,10 @@ function retrieveElectionData() {
 
 		encryptionKey = message.encryptionKey || '';
 		signatureGenerator = message.signatureGenerator || '';
-		ballotEncoding = message.definition.ballotEncoding || '';
 
-		issues = [];
-		for (var i in message.issues) {
-			var issue = message.issues[i];
-			issues[i] = Issue.createIssue(issue);
-		}
+		electionDetails = new ElectionDetails(message.details);
 
-		if (!(encryptionKey && signatureGenerator && ballotEncoding && issues.length > 0)) {
+		if (!(encryptionKey && signatureGenerator && electionDetails.issues.length > 0)) {
 			processFatalError(msg.incompatibleDataReceived);
 			return;
 		}
@@ -287,10 +276,11 @@ function gotoStep2() {
 	// Currently only the following issue combinations are supported:
 	//   - 1 issue of type 'listElection'
 	//   - n issues of tpye 'vote'
+	var issues = electionDetails.issues;
 	if (issues[0] instanceof ListElectionIssue) {
-		createListElectionContent();
+		createListElectionContent(issues[0]);
 	} else {
-		createVoteContent();
+		createVoteContent(issues);
 	}
 
 	// Update progress bar
@@ -341,19 +331,21 @@ function processFatalError(errorMsg) {
 
 
 
-function createListElectionContent() {
+function createListElectionContent(issue) {
 	console.log("Creating list election content...");
-	var issue = issues[0];
 
 	$(elements.listVoteDescription).html(getLocalizedText(issue.description));
-	// Replace vote text if only candidates and no lists are choosable
 	if (!issue.listsAreChoosable()) {
 		$(elements.listVoteText).html(msg.voteTextCandidatesOnly);
 	}
+
+
+
+
 }
 
 
-function createVoteContent() {
+function createVoteContent(issues) {
 	console.log("Creating vote content...");
 }
 
@@ -387,89 +379,6 @@ function createVoteContent() {
 ///////////////////////////////////////////////////////////////////////////
 ////////// O L D //////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-
-/**
- * The callback for the verification of the election data signature. If the
- * signature is correct then the election data are processed, otherwise a
- * fatal error.
- *
- * @param success - true if the signature is correct otherwise false.
- */
-function verifySignature(success) {
-
-	if (!success) {
-		processFatalError(msg.signatureError);
-		return;
-	}
-
-	//
-	// The signature is correct, so process election data.
-	// Doing all in once is too much for IE < 9!!
-	// So it is done in a few asynchronous steps.
-	//
-	var choices, rules, lists, choicesMap;
-
-	// Step 1: Process cryptographic parameters
-	// Set Elgamal parameters, election generator and encryption key
-	uvCrypto.setEncryptionParameters(electionData.encryptionSetting.p, electionData.encryptionSetting.q, electionData.encryptionSetting.g, 10);
-	uvCrypto.setSignatureParameters(electionData.signatureSetting.p, electionData.signatureSetting.q, electionData.signatureSetting.g, electionData.signatureSetting.ghat, 10);
-	electionGenerator = leemon.str2bigInt(electionData.signatureSetting.ghat, 10, 1);
-	encryptionKey = leemon.str2bigInt(electionData.encryptionSetting.encryptionKey, 10, 1);
-
-	// Step 2: Process election details like title, choices and rules
-	// Set title
-	$(elements.electionTitle).html(getLocalizedText(electionData.title, lang));
-
-	// Initilize arrays for choices and rules
-	choiceIds = new Array();
-	sumRules = new Array();
-	forAllRules = new Array();
-	choicesMap = new Map();
-
-	// Get the choices and rules
-	choices = electionData.choices;
-	rules = electionData.rules;
-	lists = [];
-	if (electionData.type === CLASS_NAME_CANDIDATE_ELECTION) {
-		lists = electionData.candidateLists === undefined ? new Array() : electionData.candidateLists;
-	} else if (electionData.type === CLASS_NAME_PARTY_ELECTION) {
-		lists = electionData.partyLists;
-	}
-
-	// Add candidates to the coresponding PoliticalList
-	for (i = 0; i < choices.length; i++) {
-		choicesMap.put(choices[i].choiceId, choices[i]);
-	}
-
-	// If no list exists, create one and put afterwards every candidate into it
-	if (lists.length === 0) {
-		var uniqueList = "{ \"choicesIds\": " + JSON.stringify(choicesMap.listKeys()) + "}";
-		lists.push(JSON.parse(uniqueList));
-		noList = true;
-	}
-
-	// Step 3: Process rules
-	// Split different rules
-	for (i = 0; i < rules.length; i++) {
-		var rule = rules[i];
-		if (rule.type === CLASS_NAME_SUMMATION_RULE) {
-			sumRules.push(rule);
-		}
-		else if (rule.type === CLASS_NAME_FORALL_RULE) {
-			forAllRules.push(rule);
-		}
-	}
-
-	// Figure out whether the voter can vote for candidates and a list or
-	// only for candidates
-	listsAreSelectable = electionData.type === CLASS_NAME_PARTY_ELECTION;
-
-	// Render the vote view: Add lists and candidates to the view
-	renderVoteView(lists, choicesMap);
-
-	// Finally unblock the GUI
-	$.unblockUI();
-}
 
 
 
@@ -564,6 +473,93 @@ function renderVoteView(lists, choicesMap) {
 	// Generate jquery user interface
 	jquery_generate({'listsAreSelectable': listsAreSelectable});
 }
+
+
+
+
+/**
+ * The callback for the verification of the election data signature. If the
+ * signature is correct then the election data are processed, otherwise a
+ * fatal error.
+ *
+ * @param success - true if the signature is correct otherwise false.
+ */
+function verifySignature(success) {
+
+	if (!success) {
+		processFatalError(msg.signatureError);
+		return;
+	}
+
+	//
+	// The signature is correct, so process election data.
+	// Doing all in once is too much for IE < 9!!
+	// So it is done in a few asynchronous steps.
+	//
+	var choices, rules, lists, choicesMap;
+
+	// Step 1: Process cryptographic parameters
+	// Set Elgamal parameters, election generator and encryption key
+	uvCrypto.setEncryptionParameters(electionData.encryptionSetting.p, electionData.encryptionSetting.q, electionData.encryptionSetting.g, 10);
+	uvCrypto.setSignatureParameters(electionData.signatureSetting.p, electionData.signatureSetting.q, electionData.signatureSetting.g, electionData.signatureSetting.ghat, 10);
+	electionGenerator = leemon.str2bigInt(electionData.signatureSetting.ghat, 10, 1);
+	encryptionKey = leemon.str2bigInt(electionData.encryptionSetting.encryptionKey, 10, 1);
+
+	// Step 2: Process election details like title, choices and rules
+	// Set title
+	$(elements.electionTitle).html(getLocalizedText(electionData.title, lang));
+
+	// Initilize arrays for choices and rules
+	choiceIds = new Array();
+	sumRules = new Array();
+	forAllRules = new Array();
+	choicesMap = new Map();
+
+	// Get the choices and rules
+	choices = electionData.choices;
+	rules = electionData.rules;
+	lists = [];
+	if (electionData.type === CLASS_NAME_CANDIDATE_ELECTION) {
+		lists = electionData.candidateLists === undefined ? new Array() : electionData.candidateLists;
+	} else if (electionData.type === CLASS_NAME_PARTY_ELECTION) {
+		lists = electionData.partyLists;
+	}
+
+	// Add candidates to the coresponding PoliticalList
+	for (i = 0; i < choices.length; i++) {
+		choicesMap.put(choices[i].choiceId, choices[i]);
+	}
+
+	// If no list exists, create one and put afterwards every candidate into it
+	if (lists.length === 0) {
+		var uniqueList = "{ \"choicesIds\": " + JSON.stringify(choicesMap.listKeys()) + "}";
+		lists.push(JSON.parse(uniqueList));
+		noList = true;
+	}
+
+	// Step 3: Process rules
+	// Split different rules
+	for (i = 0; i < rules.length; i++) {
+		var rule = rules[i];
+		if (rule.type === CLASS_NAME_SUMMATION_RULE) {
+			sumRules.push(rule);
+		}
+		else if (rule.type === CLASS_NAME_FORALL_RULE) {
+			forAllRules.push(rule);
+		}
+	}
+
+	// Figure out whether the voter can vote for candidates and a list or
+	// only for candidates
+	listsAreSelectable = electionData.type === CLASS_NAME_PARTY_ELECTION;
+
+	// Render the vote view: Add lists and candidates to the view
+	renderVoteView(lists, choicesMap);
+
+	// Finally unblock the GUI
+	$.unblockUI();
+}
+
 
 function isNumber(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
