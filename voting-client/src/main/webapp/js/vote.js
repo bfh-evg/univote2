@@ -80,12 +80,7 @@ $(document).ready(function () {
 	elements.uploadKeyError = document.getElementById('upload_key_error');
 
 	elements.electionTitle = document.getElementById('election-title');
-	elements.listVoteText = document.getElementById('list_vote_text');
-	elements.listVoteDescription = document.getElementById('list_vote_description');
-	elements.lists = document.getElementById('lists');
-	elements.listsContent = document.getElementById('lists_content');
 
-	elements.result = document.getElementById('result-scroll');
 
 	elements.sendVoteSuccess = document.getElementById('send-vote-success');
 	elements.sendVoteError = document.getElementById('send-vote-error');
@@ -332,14 +327,219 @@ function processFatalError(errorMsg) {
 
 
 function createListElectionContent(issue) {
-	console.log("Creating list election content...");
 
-	$(elements.listVoteDescription).html(getLocalizedText(issue.description));
+	$('#list_vote_description').html(issue.description);
 	if (!issue.listsAreChoosable()) {
-		$(elements.listVoteText).html(msg.voteTextCandidatesOnly);
+		$('#list_vote_text').html(msg.voteTextCandidatesOnly);
+	}
+
+	var lists = issue.getLists();
+	var $listLabels = $('#list_labels');
+	var $lists = $('#lists');
+	for (var i in lists) {
+		var list = lists[i];
+
+		var $listLabel = $('<li class="button-like"><a href="#">' + msg.list + ' ' + list.number + '</a></li>');
+		$listLabel.data('id', list.id);
+		if (issue.listsAreChoosable()) {
+			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('icon-plus-circled'));
+			$listLabel.append($tools);
+		}
+
+		$listLabels.append($listLabel);
+
+		var $list = $('<div>').attr('id', 'list-' + list.id).addClass('list prim-border').hide();
+		$list.append($('<h5>').html(__(list.partyName) + ' - ' + __(list.listName)));
+		var $ul = $('<ul>');
+		var candidates = issue.getListCandidates(list.id);
+		for (var j in candidates) {
+			var cand = candidates[j];
+			var $name = $('<span>').html(cand.lastName + ' ' + cand.firstName);
+			var $cand = $('<li>').append($name).addClass('button-like').data('id', cand.id);
+			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('icon-info-circled')).append($('<span>').addClass('icon-plus-circled'));
+			$cand.append($tools);
+
+			if (cand.status === 'OLD') {
+				$cand.addClass('previous');
+				$name.append('<br/><i>(' + msg.previous + ')</i>');
+			}
+			$ul.append($cand);
+		}
+		$list.append($ul);
+		$lists.append($list);
+		if (i == 0) {
+			$listLabel.addClass('active');
+			$list.show();
+		}
 	}
 
 
+	// Tabs
+	$('#list_labels a').click(function (event) {
+		event.preventDefault();
+		var $parent = $(this).parent();
+		$('#list_labels li').removeClass('active');
+		$parent.addClass('active');
+		$('#lists .list').hide().eq($parent.index()).show();
+	});
+
+
+	var addCandidate = function () {
+		return true;
+	};
+
+	var removeCandidate = function () {
+	};
+
+	var addList = function (id) {
+		var list = issue.getOption(id);
+
+		var process = function (withCandidates, dialog) {
+			$(dialog).dialog("close");
+			var ed = issue.electionDetails;
+			if (withCandidates) {
+				ed.removeAllChoices();
+				var $choiceCandidates = $("#choice-candidates").empty();
+				$('#list-' + id + ' li').each(function () {
+					var $cand = $(this);
+					var candId = $cand.data('id');
+					var $clone = $cand.clone(false);
+					$clone.data('id', candId);
+					ed.addChoice(candId, 1, true);
+					$choiceCandidates.append($clone);
+				});
+			} else {
+				var oldListId = $("#choice-list li").data('id');
+				if (oldListId != undefined && oldListId > -1) {
+					ed.removeChoice(oldListId);
+				}
+			}
+			ed.addChoice(id);
+			console.log("Vote: " + ed.vote);
+			$("#choice-list li").removeClass("placeholder-item").data('id', id);
+			$("#choice-list li>span").html(msg.list + ' ' + list.number);
+			$('#choice h5').html(__(list.partyName) + ' - ' + __(list.listName));
+		};
+
+		var buttons = {};
+		buttons[msg.copyAllCandidates] = function () {
+			process(true, this);
+		};
+		buttons[msg.copyListnumber] = function () {
+			process(false, this);
+		};
+
+		$('<div title="' + msg.copycandidatetitle + '">' + msg.copycandidate + '</div>').dialog({
+			resizable: false,
+			draggable: false,
+			autoOpen: true,
+			width: 600,
+			modal: true,
+			buttons: buttons
+		});
+	};
+
+	var removeList = function () {
+		// ...
+		$("#choice-list li").addClass("placeholder-item").data('id', '');
+		$("#choice-list li>span").html(msg.list);
+		$('#choice h5').html('');
+
+	};
+
+
+
+
+
+	// Candidates
+	$("#lists .list li").draggable({
+		helper: "clone",
+		connectToSortable: "#choice-candidates",
+		revert: "invalid",
+		scroll: false,
+		start: function (event, ui) {
+			ui.helper.addClass("candidateBeingDragged").css('z-index', 1000);
+		},
+		stop: function (event, ui) {
+			$lists.unblock({fadeOut: 200});
+		}
+	});
+
+	/* Do not allow to drag and drop the placholder itmes */
+	$('.placeholder-item').mousedown(function (event) {
+		event.stopPropagation();
+	});
+
+	/* Declare the created list as sortable */
+	$("#choice-candidates").sortable({
+		placeholder: 'placeholder',
+		start: function (event, ui) {
+			ui.item.addClass("candidateBeingDragged");
+		},
+		//sort: function(event, ui) {},
+		receive: function (e, ui) {
+			$(this).find(".placeholder-item").remove();
+			console.log("ADD ITEM: " + ui.item.data('id'));
+			if (addCandidate(ui.item.data('id'))) {
+				ui.helper.data('id', ui.item.data('id')).css('z-index', 1);
+			} else {
+				ui.helper.remove();
+			}
+		},
+		over: function (e, ui) {
+			ui.item.data('isOut', false);
+			$lists.unblock({fadeOut: 200});
+		},
+		out: function (e, ui) {
+			ui.item.data('isOut', true);
+			$lists.block({message: '', fadeIn: 200, overlayCSS: {opacity: '0.4'}});
+		},
+		beforeStop: function (e, ui) {
+			console.log("isOut: " + ui.item.data('isOut'));
+			if (ui.item.data('isOut')) {
+				console.log("REMOVE ITEM: " + ui.item.data('id'));
+				ui.item.remove();
+				removeCandidate(ui.item.data('id'));
+			}
+			ui.item.removeClass("candidateBeingDragged");
+		},
+		stop: function (e, ui) {
+			$lists.unblock({fadeOut: 200});
+		}
+
+	}).droppable({
+		//accept candidates
+		accept: "#lists .list li"
+	});
+
+
+	// List
+	if (issue.listsAreChoosable()) {
+		/* Declare the initial lists (the tabs) as draggable */
+		$("#list_labels > li").draggable({
+			helper: "clone",
+			revert: "invalid",
+			scroll: false,
+			appendTo: $("#choice"),
+			start: function (event, ui) {
+				//apply a css class to avoid deformation
+				ui.helper.addClass("partyBeingDragged").css('z-index', 1000);
+			}
+		});
+
+		/* Declare the party field as droppable */
+		$("#choice").droppable({
+			activeClass: "drop-active",
+			accept: "#list_labels > li",
+			drop: function (event, ui) {
+				//showDialogCopyList(ui.draggable);
+				addList(ui.draggable.data('id'));
+			}
+
+		});
+	} else {
+		$("#choice-list").hide();
+	}
 
 
 }

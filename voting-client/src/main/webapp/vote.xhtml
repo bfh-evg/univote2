@@ -24,12 +24,12 @@
 	<ui:define name="page_title">#{msg.title}</ui:define>
 
 	<ui:define name="head_include_css">
-		<link rel="stylesheet" type="text/css" href="css/custom-ui/jquery-ui-1.9.2.custom.css" />
+		<link rel="stylesheet" type="text/css" href="stylesheets/jquery-ui/jquery-ui.min.css" />
 	</ui:define>
 
 	<ui:define name="head_include_js">
 		<script type="text/javascript" src="js/lib/leemon.js"></script>
-		<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.min.js"></script>
+		<script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="js/lib/jquery.qtip-1.0.0-rc3.min.js"></script>
 		<script type="text/javascript" src="js/lib/qrcode.js"></script>
 		<script type="text/javascript" src="js/lib/map.js"></script>
@@ -100,39 +100,60 @@
 				</div>
 
 				<div id="container_elections" class="row">
-					<div class="large-6 medium-6 columns mockup">
+					<div class="large-6 medium-6 columns">
 						<h4>#{msg.candidates}</h4>
-						<div id="candidates" class="ui-widget">
-							<!-- change to tabs-left/tabs-right to have the tabs on the left/right -->
-							<div id="tabs" class="tabs ui-tabs-left ui-helper-clearfix">
-								<ul id="lists" class="connectedSortable">
+						<div id="candidates" class="clearfix">
+							<ul id="list_labels"></ul>
+							<div id="lists"></div>
+
+
+							<!--
+
+							<ul id="list_labels">
+								<li class="button-like active"><a href="#">List 1</a></li>
+								<li class="button-like"><a href="#">List 2</a></li>
+								<li class="button-like"><a href="#">List 3</a></li>
+							</ul>
+							<div class="list prim-border">
+								<h5>JG - Junge Grüne Uni Bern</h5>
+								<ul>
+									<li class="button-like previous"><span>Marbach Julian<br/><i>(previous)</i></span></li>
+									<li class="button-like previous"><span>Marbach Julian<br/><i>(previous)</i></span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
+									<li class="button-like"><span>Marbach Julian</span></li>
 								</ul>
-								<div id="lists_content">
-								</div>
-								<div id="lists-footer" ></div>
 							</div>
+
+							-->
+
+							<div class="list-footer"></div>
 						</div>
 					</div>
 
-					<div class="large-6 medium-6 columns mockup">
+					<div class="large-6 medium-6 columns">
 						<h4>Auswahl</h4>
-						<div id="result">
-							<div id="result-scroll">
-								<div class="buttons">
-									<input type="image" id="undo" src="img/undo.png" alt="#{msg.undo}" title="#{msg.undo}"/>
-									<input type="image" id="redo" src="img/redo.png" alt="#{msg.redo}" title="#{msg.redo}"/>
-									<input type="image" id="reset" src="img/reset.png" alt="#{msg.reset}" title="#{msg.reset}"/>
-								</div>
-
-								<ul id="selected-list"><li class="placeholder-item ui-state-default">#{msg.list}</li></ul>
-								<p id="list-title"></p>
-								<ul id="created-list"><li class="placeholder-item ui-state-default">#{msg.candidate}</li></ul>
+						<div id="choice-holder">
+							<div id="choice" class="prim-border">
+								<ul id="choice-list"><li class="button-like placeholder-item"><span>#{msg.list}</span><div class="tools"><span class="icon-minus-circled"></span></div></li></ul>
+								<h5 id="choice-list-title">&#160;</h5>
+								<ul id="choice-candidates">
+									<li class="button-like placeholder-item">#{msg.candidate}</li>
+								</ul>
 							</div>
-							<div id="createdlist-footer" ></div>
+							<div class="list-footer" ></div>
 						</div>
-
-						<div id="vote_button_div"><button id="submit_vote_button" class="button" onclick="return submitVote();">#{msg.submitvote}</button></div>
-
+						<form>
+							<button id="submit_list_vote" class="button radius gradient icon-right-dir" onclick="return submitVote();">#{msg.submitvote}</button>
+						</form>
 					</div>
 				</div>
 			</div>

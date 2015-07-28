@@ -105,6 +105,7 @@ main {
 
 
 // inline sytling
+ul, li { list-style: none; margin:0; padding: 0; }
 .center { text-align: center; }
 .spacer20 { padding-top: 20px; }
 .spacer50 { padding-top: 50px; }
@@ -112,7 +113,6 @@ main {
 .black, a { color: $black; }
 .grey { background-color: $primary-color; }
 .red, a.vote { color: $red; }
-.mockup img { margin-bottom: 1.5em; }
 .upcoming {
 	padding:0; margin-top:0; padding-bottom: rem-calc(10);
 	a.button { margin-top: rem-calc(5); margin-bottom: rem-calc(5); }
@@ -231,7 +231,7 @@ a.button, .arrow_box {
 .arrow_box { padding-left: rem-calc(10); }
 
 button.gradient { padding-top:rem-calc(10); padding-left:0; height: 2.5em; text-align: left; font-family: MuseoSlab-700;    }
-a.gradient, a.button.active, button.gradient, button.active { @include gradient; }
+a.gradient, a.button.active, button.gradient, button.active, div.gradient { @include gradient; }
 .arrow_box:hover { background-color: $primary-color; }
 button.gradient:hover, a.button:hover { @include background-image(linear-gradient(left,  $darkred 0%, black 100%)); }
 a.button.disabled, button[disabled] {color: $silver !important; background-color: $iron !important; background-image: none !important;}
@@ -308,3 +308,62 @@ footer {
 // vote.xhtml
 
 #upload_key_error { opacity: 0; padding-top: 10px; padding-bottom: 20px; color: #c00; font-weight: bold; }
+.button-like { cursor: move; border-radius: 3px; background-color: $primary-color; height:rem-calc(45); padding: rem-calc(5) rem-calc(10); color: $white; width: 100% !important; }
+.button-like.active { @include gradient; }
+.prim-border { border-radius: 3px; border: 2px $primary-color solid; padding: rem-calc(5); }
+
+.tools { font-size:rem-calc(35); line-height:1; position: absolute; top: rem-calc(5); right: rem-calc(5);
+		 span:before { font-size: 100%; margin: 0; cursor: pointer; }
+}
+
+#candidates, #choice-holder { margin-bottom: rem-calc(20); position:relative; }
+#list_labels {
+	float: left;
+	li { margin-bottom: rem-calc(5); width: rem-calc(105) !important; position: relative;
+		 &.button-like  { padding-top: rem-calc(10);
+						  a { font-family: MuseoSlab-700; color: $white; font-size: rem-calc(18);}
+		 }
+	}
+}
+
+.list, #choice { overflow-y: auto; height: rem-calc(400); }
+.list { margin-left: rem-calc(110); }
+.list, #choice {
+	h5 { line-height: 1.8; }
+	li { margin-bottom: rem-calc(5); position: relative;
+		 &.button-like { background-color: $black; line-height: 1.1;
+						 >span { display: inline-block; padding-top: rem-calc(8);
+								 i {font-size: rem-calc(11); }
+						 }
+						 &.previous>span { padding-top: rem-calc(0); }
+		 }
+	}
+}
+
+#choice {
+	#choice-list { width: rem-calc(120); border: 2px $white solid; border-radius: 5px;
+				   li { margin-bottom: 0;
+						>span { font-family: MuseoSlab-700; color: $white; font-size: rem-calc(18); }
+						&.placeholder-item .tools { display: none; }
+				   }
+	}
+	#choice-candidates { min-height: rem-calc(300); }
+
+	&.drop-active { border: 2px $red solid;
+					#choice-list {border: 2px $red solid;}
+	}
+	.button-like.placeholder-item { cursor: default; background-color: $primary-color; }
+	.placeholder { height: rem-calc(45); border: 2px $red solid; border-radius: 3px; }
+}
+
+.list-footer { position: absolute; bottom: 1.5px; left: 2px; right: 2px; height: 25px; background-image: url('../img/lists-footer2.png'); }
+#candidates .list-footer { left: rem-calc(112); }
+
+
+.candidateBeingDragged { width: 96% !important;
+						 .tools { display: none; }
+}
+.partyBeingDragged { margin-bottom: rem-calc(5); width: rem-calc(105) !important; position: relative; padding-top: rem-calc(10);
+					 a { font-family: MuseoSlab-700; color: $white; font-size: rem-calc(18);}
+					 .tools { display: none; }
+}

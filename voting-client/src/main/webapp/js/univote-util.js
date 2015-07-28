@@ -66,6 +66,7 @@
 
 		return text;
 	};
+	window.__ = window.getLocalizedText;
 })(window);
 
 
@@ -179,16 +180,33 @@
 		},
 		// The choice is not validated against the rules. False is returned
 		// if the option is not in the set of options, otherwise true.
-		addChoice: function (option, count) {
+		addChoice: function (option, count, increment) {
+			count = count || 1;
+			increment = increment || false;
 			if (this.options[option] != undefined) {
-				this.vote[option] = count;
+				if (this.vote[option] == undefined || !increment) {
+					this.vote[option] = count;
+				} else {
+					this.vote[option] += count;
+				}
 				return true;
 			} else {
 				return false;
 			}
 		},
-		removeChoice: function (option) {
-			this.vote.splice(option, 1);
+		removeChoice: function (option, count) {
+			count = count || -1;
+			if (count == -1) {
+				this.vote.splice(option, 1);
+			} else if (this.vote[option] != undefined) {
+				this.vote[option] = this.vote[option] - count;
+				if (this.vote[option] <= 0) {
+					this.vote.splice(option, 1);
+				}
+			}
+		},
+		removeAllChoices: function () {
+			this.vote = [];
 		},
 		getOption: function (id) {
 			return this.options[id];
@@ -239,7 +257,9 @@
 	}
 
 	Issue.prototype = {
-		// Currently nothing...
+		getOption: function (id) {
+			return this.electionDetails.getOption(id);
+		}
 	};
 
 	Issue.createIssue = function (issue, electionDetails) {
