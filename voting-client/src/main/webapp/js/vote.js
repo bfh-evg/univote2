@@ -328,6 +328,10 @@ function processFatalError(errorMsg) {
 
 function createListElectionContent(issue) {
 
+	// TODO: Support for no-list (only candidates, not belonging to a list)
+
+	var electionDetails = issue.electionDetails;
+
 	$('#list_vote_description').html(issue.description);
 	if (!issue.listsAreChoosable()) {
 		$('#list_vote_text').html(msg.voteTextCandidatesOnly);
@@ -342,7 +346,7 @@ function createListElectionContent(issue) {
 		var $listLabel = $('<li class="button-like"><a href="#">' + msg.list + ' ' + list.number + '</a></li>');
 		$listLabel.data('id', list.id);
 		if (issue.listsAreChoosable()) {
-			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('icon-plus-circled'));
+			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('add icon-plus-circled'));
 			$listLabel.append($tools);
 		}
 
@@ -356,7 +360,7 @@ function createListElectionContent(issue) {
 			var cand = candidates[j];
 			var $name = $('<span>').html(cand.lastName + ' ' + cand.firstName);
 			var $cand = $('<li>').append($name).addClass('button-like').data('id', cand.id);
-			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('icon-info-circled')).append($('<span>').addClass('icon-plus-circled'));
+			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('info icon-info-circled')).append($('<span>').addClass('add icon-plus-circled'));
 			$cand.append($tools);
 
 			if (cand.status === 'OLD') {
@@ -374,48 +378,59 @@ function createListElectionContent(issue) {
 	}
 
 
-	// Tabs
-	$('#list_labels a').click(function (event) {
-		event.preventDefault();
-		var $parent = $(this).parent();
-		$('#list_labels li').removeClass('active');
-		$parent.addClass('active');
-		$('#lists .list').hide().eq($parent.index()).show();
-	});
+	var addCandidate = function (id) {
+		electionDetails.addChoice(id, 1, true);
+		var ret = electionDetails.verifyVoteUpperBoundOnly();
+		if (ret != Rule.SUCCESS) {
 
+			electionDetails.removeChoice(id, 1);
+			var $dialog = $('<div>')
+					.attr('title', msg.error)
+					.html(ret == Rule.ERROR_CUMULATION_UPPER ? msg.tooManyRepetitions : msg.tooManyCandidates);
+			var buttons = {};
+			buttons[msg.ok] = function () {
+				$(this).dialog("close");
+			};
+			$dialog.dialog({
+				autoOpen: true,
+				modal: true,
+				buttons: buttons
+			});
+		} else {
+			$("#choice-candidates .placeholder-item").remove();
+		}
 
-	var addCandidate = function () {
-		return true;
+		return ret == Rule.SUCCESS;
 	};
 
-	var removeCandidate = function () {
+	var removeCandidate = function (id) {
+		electionDetails.removeChoice(id, 1);
 	};
 
 	var addList = function (id) {
 		var list = issue.getOption(id);
-
 		var process = function (withCandidates, dialog) {
 			$(dialog).dialog("close");
-			var ed = issue.electionDetails;
 			if (withCandidates) {
-				ed.removeAllChoices();
+				electionDetails.removeAllChoices();
 				var $choiceCandidates = $("#choice-candidates").empty();
 				$('#list-' + id + ' li').each(function () {
 					var $cand = $(this);
 					var candId = $cand.data('id');
 					var $clone = $cand.clone(false);
 					$clone.data('id', candId);
-					ed.addChoice(candId, 1, true);
+					updateCandidateTools($clone);
+					electionDetails.addChoice(candId, 1, true);
 					$choiceCandidates.append($clone);
 				});
 			} else {
 				var oldListId = $("#choice-list li").data('id');
 				if (oldListId != undefined && oldListId > -1) {
-					ed.removeChoice(oldListId);
+					electionDetails.removeChoice(oldListId);
 				}
 			}
-			ed.addChoice(id);
-			console.log("Vote: " + ed.vote);
+			electionDetails.addChoice(id);
+			console.log("Vote: " + electionDetails.vote);
 			$("#choice-list li").removeClass("placeholder-item").data('id', id);
 			$("#choice-list li>span").html(msg.list + ' ' + list.number);
 			$('#choice h5').html(__(list.partyName) + ' - ' + __(list.listName));
@@ -429,9 +444,7 @@ function createListElectionContent(issue) {
 			process(false, this);
 		};
 
-		$('<div title="' + msg.copycandidatetitle + '">' + msg.copycandidate + '</div>').dialog({
-			resizable: false,
-			draggable: false,
+		$('<div title="' + msg.copyCandidatesTitle + '">' + msg.copyCandidates + '</div>').dialog({
 			autoOpen: true,
 			width: 600,
 			modal: true,
@@ -440,15 +453,54 @@ function createListElectionContent(issue) {
 	};
 
 	var removeList = function () {
-		// ...
-		$("#choice-list li").addClass("placeholder-item").data('id', '');
-		$("#choice-list li>span").html(msg.list);
-		$('#choice h5').html('');
+		var process = function (removeCandidates, dialog) {
+			$(dialog).dialog("close");
+			if (removeCandidates) {
+				electionDetails.removeAllChoices();
+				$("#choice-candidates").empty();
+			} else {
+				electionDetails.removeChoice($("#choice-list li").data('id'));
+			}
+			$("#choice-list li").addClass("placeholder-item").data('id', '');
+			$("#choice-list li>span").html(msg.list);
+			$('#choice h5').html('&nbsp;');
+		};
+		var buttons = {};
+		buttons[msg.yes] = function () {
+			process(true, this);
+		};
+		buttons[msg.no] = function () {
+			process(false, this);
+		};
 
+		$('<div title="' + msg.removeCandidatesTitle + '">' + msg.removeCandidates + '</div>').dialog({
+			autoOpen: true,
+			width: 600,
+			modal: true,
+			buttons: buttons
+		});
+	};
+
+	var updateCandidateTools = function ($candidate) {
+		var id = $candidate.data('id');
+		$candidate.find('.add')
+				.removeClass('add icon-plus-circled')
+				.addClass('remove icon-minus-circled')
+				.click(function () {
+					removeCandidate(id);
+					$candidate.remove();
+				});
 	};
 
 
-
+	// Tabs
+	$('#list_labels a').click(function (event) {
+		event.preventDefault();
+		var $parent = $(this).parent();
+		$('#list_labels li').removeClass('active');
+		$parent.addClass('active');
+		$('#lists .list').hide().eq($parent.index()).show();
+	});
 
 
 	// Candidates
@@ -465,23 +517,21 @@ function createListElectionContent(issue) {
 		}
 	});
 
-	/* Do not allow to drag and drop the placholder itmes */
+	// Do not allow to drag and drop the placholder itmes
 	$('.placeholder-item').mousedown(function (event) {
 		event.stopPropagation();
 	});
 
-	/* Declare the created list as sortable */
+
 	$("#choice-candidates").sortable({
 		placeholder: 'placeholder',
 		start: function (event, ui) {
 			ui.item.addClass("candidateBeingDragged");
 		},
-		//sort: function(event, ui) {},
 		receive: function (e, ui) {
-			$(this).find(".placeholder-item").remove();
-			console.log("ADD ITEM: " + ui.item.data('id'));
 			if (addCandidate(ui.item.data('id'))) {
 				ui.helper.data('id', ui.item.data('id')).css('z-index', 1);
+				updateCandidateTools(ui.helper);
 			} else {
 				ui.helper.remove();
 			}
@@ -508,40 +558,53 @@ function createListElectionContent(issue) {
 		}
 
 	}).droppable({
-		//accept candidates
 		accept: "#lists .list li"
 	});
 
 
 	// List
 	if (issue.listsAreChoosable()) {
-		/* Declare the initial lists (the tabs) as draggable */
 		$("#list_labels > li").draggable({
 			helper: "clone",
 			revert: "invalid",
 			scroll: false,
 			appendTo: $("#choice"),
 			start: function (event, ui) {
-				//apply a css class to avoid deformation
 				ui.helper.addClass("partyBeingDragged").css('z-index', 1000);
 			}
 		});
 
-		/* Declare the party field as droppable */
 		$("#choice").droppable({
 			activeClass: "drop-active",
 			accept: "#list_labels > li",
 			drop: function (event, ui) {
-				//showDialogCopyList(ui.draggable);
 				addList(ui.draggable.data('id'));
 			}
-
 		});
 	} else {
 		$("#choice-list").hide();
+		$("#list_labels li").css('cursor', 'default');
 	}
 
+	// Register events (tools)
+	$('#list_labels .add').click(function () {
+		addList($(this).parents('#list_labels li').data('id'));
+	});
 
+	$('#choice-list .remove').click(function () {
+		removeList();
+	});
+
+	$('#lists .add').click(function () {
+		var $cand = $(this).parents('#lists li');
+		var candId = $cand.data('id');
+		if (addCandidate(candId)) {
+			var $clone = $cand.clone(false);
+			$clone.data('id', candId);
+			updateCandidateTools($clone);
+			$('#choice-candidates').append($clone);
+		}
+	});
 }
 
 
@@ -558,7 +621,11 @@ function createVoteContent(issues) {
 
 
 
+// Finalize Vote
+function submitListVote() {
 
+	return false;
+}
 
 
 
@@ -579,102 +646,6 @@ function createVoteContent(issues) {
 ///////////////////////////////////////////////////////////////////////////
 ////////// O L D //////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-
-
-
-/**
- * Renders the vote view; lists and candidates are added to the view.
- *
- * @param lists - Array of PoliticalList.
- * @param choicesMap - Map contaning the choices of the election (key is choiceId)
- */
-function renderVoteView(lists, choicesMap) {
-
-	// Replace vote text if only candidates and no lists are selectable
-	if (!listsAreSelectable) {
-		$(elements.voteText).html(msg.voteTextCandidatesOnly);
-	}
-
-	// For each list
-	for (var i = 1; i <= lists.length; i++) {
-		var list = lists[i - 1];
-
-		// Get list information
-		var choiceId, partyName, number, title, listNumber, listSubtitle;
-		if (noList) {
-			choiceId = '';
-			partyName = '';
-			number = '';
-			title = '';
-			listNumber = msg.list + " 1";
-			listSubtitle = '';
-		} else {
-			//if PartyElection, get the choice id and partyName bound to the list
-			if (electionData.type === CLASS_NAME_PARTY_ELECTION) {
-				choiceId = list.partyId;
-				partyName = getLocalizedText(choicesMap.get(choiceId).name, lang);
-			} else {
-				choiceId = -1;
-				partyName = "";
-			}
-
-			//Get name of list
-			title = getLocalizedText(list.name, lang);
-
-			//If list.number is a number, create a string of the form 'List #'
-			//If list.number is a string, get it as is
-			var number = getLocalizedText(list.listNumber, lang);
-			if (isNumber(number)) {
-				listNumber = msg.list + " " + number;
-			} else {
-				listNumber = number;
-			}
-			listSubtitle = listNumber;
-		}
-
-		// Tab creation
-		var dragListIcon = listsAreSelectable ? '<img class="drag_list icon" src="img/plus.png" alt="' + msg.add + '" title="' + msg.add + '"/>' : '';
-		var contentToAppend = '<li><a href="#list-' + i + '">' + listNumber + '</a><input type="hidden" class="choiceid" value="' + choiceId + '"/>' + dragListIcon + '</li>';
-		$(elements.lists).append(contentToAppend);
-
-		// Creation of the list of candidates in HTML
-		var contentToAppend2 = '<div id="list-' + i + '">';
-		var listDescription = title === listSubtitle || listSubtitle === '' ? '' : listSubtitle + ' - ';
-		contentToAppend2 += '<p>' + title + '<br/><span class="small">' + listDescription + " " + partyName + '</span></p>';
-		contentToAppend2 += '<ul class="list">';
-
-		// For each candidate in the list
-		for (var j = 0; j < list.choicesIds.length; j++) {
-			var candidate = choicesMap.get(list.choicesIds[j]);
-
-			// Get candidate information
-			var cLastName = candidate.lastname;
-			var cFirstName = candidate.firstname;
-			var cChoiceId = candidate.choiceId;
-
-			// Create candidate's list element (currently cNumber is not displayed to the voter)
-			var tooltiptext = getLocalizedText(candidate.description, lang).replace(",", "<br/>");
-
-			contentToAppend2 += '<li class="ui-state-default">' +
-					//'<span>' + cNumber + ' ' + cLastName + ' ' + cFirstName +
-					'<span>&nbsp;' + cLastName + ' ' + cFirstName +
-					'</span><input type="hidden" class="choiceid" value="' + cChoiceId + '"/>' +
-					'<img class="drag_candidate icon" src="img/plus.png" alt="' + msg.add + '" title="' + msg.add + '"/>';
-			if (tooltiptext != "") {
-				contentToAppend2 += '<img class="tooltip_candidate icon" src="img/info_small.png" alt="" tooltip="' + tooltiptext + '"/>';
-			}
-			contentToAppend2 += '</li>';
-		}
-		contentToAppend2 += '</ul></div>';
-		$(elements.listsContent).append(contentToAppend2);
-
-	}
-
-	// Generate jquery user interface
-	jquery_generate({'listsAreSelectable': listsAreSelectable});
-}
-
-
 
 
 /**

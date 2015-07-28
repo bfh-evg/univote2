@@ -130,7 +130,7 @@ describe('SummationRuleTest', function () {
 		map[1] = 1;
 		map[23] = 2;
 		var v = rule.verify(map);
-		expect(v).toEqual(true);
+		expect(v).toEqual(Rule.SUCCESS);
 	});
 	it('creating and verifying 2', function () {
 		var rule = new SummationRule(summationRule);
@@ -138,7 +138,7 @@ describe('SummationRuleTest', function () {
 		map[1] = 2;
 		map[23] = 4;
 		var v = rule.verify(map);
-		expect(v).toEqual(false);
+		expect(v).toEqual(Rule.ERROR_SUMMATION_UPPER);
 	});
 	it('containing option', function () {
 		var rule = new SummationRule(summationRule);
@@ -155,7 +155,7 @@ describe('CumulationRuleTest', function () {
 		map[1] = 1;
 		map[23] = 2;
 		var v = rule.verify(map);
-		expect(v).toEqual(true);
+		expect(v).toEqual(Rule.SUCCESS);
 	});
 	it('creating and verifying (upperBound) 2', function () {
 		var rule = new CumulationRule(cumulationRule);
@@ -163,7 +163,7 @@ describe('CumulationRuleTest', function () {
 		map[1] = 2;
 		map[23] = 4;
 		var v = rule.verify(map);
-		expect(v).toEqual(false);
+		expect(v).toEqual(Rule.ERROR_CUMULATION_UPPER);
 	});
 	it('creating and verifying (lowerBound) 3', function () {
 		var rule = new CumulationRule({
@@ -178,7 +178,7 @@ describe('CumulationRuleTest', function () {
 		map[5] = 2;
 		map[23] = 3;
 		var v = rule.verify(map);
-		expect(v).toEqual(false);
+		expect(v).toEqual(Rule.ERROR_CUMULATION_LOWER);
 	});
 	it('containing option', function () {
 		var rule = new CumulationRule({
@@ -202,13 +202,13 @@ describe('ElectionDetailsTest', function () {
 		details.addChoice(1, 1);
 		details.addChoice(2, 2);
 		var v = details.verifyVote();
-		expect(v).toEqual(true);
+		expect(v).toEqual(Rule.SUCCESS);
 		details.addChoice(3, 10);
 		v = details.verifyVote();
-		expect(v).toEqual(false);
+		expect(v).toEqual(Rule.ERROR_CUMULATION_UPPER);
 		details.removeChoice(3);
 		v = details.verifyVote();
-		expect(v).toEqual(true);
+		expect(v).toEqual(Rule.SUCCESS);
 	});
 });
 

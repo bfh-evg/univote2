@@ -171,12 +171,24 @@
 
 	ElectionDetails.prototype = {
 		verifyVote: function () {
+			var ret = Rule.SUCCESS;
 			for (var i in this.rules) {
-				if (!this.rules[i].verify(this.vote)) {
-					return false;
+				ret = this.rules[i].verify(this.vote);
+				if (ret != Rule.SUCCESS) {
+					return ret;
 				}
 			}
-			return true;
+			return ret;
+		},
+		verifyVoteUpperBoundOnly: function () {
+			var ret = Rule.SUCCESS;
+			for (var i in this.rules) {
+				ret = this.rules[i].verifyUpperBoundOnly(this.vote);
+				if (ret != Rule.SUCCESS) {
+					return ret;
+				}
+			}
+			return ret;
 		},
 		// The choice is not validated against the rules. False is returned
 		// if the option is not in the set of options, otherwise true.
@@ -197,11 +209,11 @@
 		removeChoice: function (option, count) {
 			count = count || -1;
 			if (count == -1) {
-				this.vote.splice(option, 1);
+				this.vote[option] = undefined;
 			} else if (this.vote[option] != undefined) {
 				this.vote[option] = this.vote[option] - count;
 				if (this.vote[option] <= 0) {
-					this.vote.splice(option, 1);
+					this.vote[option] = undefined;
 				}
 			}
 		},
@@ -359,11 +371,21 @@
 		containsOption: function (option) {
 			return this.options.indexOf(option) !== -1;
 		},
-		// Abstract: To be implemented by specialization
+		// Abstract functions: To be implemented by specialization
+		// Returns 0 on success or a value > 0 representing the error code
 		verify: function (vote) {
 			return false;
+		},
+		verifyUpperBoundOnly: function (vote) {
+			return this.verify(vote, true);
 		}
 	};
+	Rule.SUCCESS = 0;
+	Rule.ERROR_SUMMATION_UPPER = 1;
+	Rule.ERROR_SUMMATION_LOWER = 2;
+	Rule.ERROR_CUMULATION_UPPER = 3;
+	Rule.ERROR_CUMULATION_LOWER = 4;
+
 	window.Rule = Rule;
 	/**
 	 * SummationRule extends Rule
@@ -376,7 +398,8 @@
 	}
 
 	SummationRule.prototype = {
-		verify: function (vote) {
+		verify: function (vote, onlyUpperBound) {
+			onlyUpperBound = onlyUpperBound || false;
 			var counter = 0;
 			// Loop through the concerned options
 			for (var i = 0; i < this.options.length; i++) {
@@ -386,17 +409,17 @@
 				}
 				// If greater than upper bound => error
 				if (counter > this.upperBound) {
-					return false;
+					return Rule.ERROR_SUMMATION_UPPER;
 				}
 			}
 
 			// If smaller than lower bound => error
-			if (counter < this.lowerBound) {
-				return false;
+			if (!onlyUpperBound && counter < this.lowerBound) {
+				return Rule.ERROR_SUMMATION_LOWER;
 			}
 
 			// Finally return true!
-			return true;
+			return Rule.SUCCESS;
 		}
 	};
 	extend(Rule, SummationRule);
@@ -412,24 +435,25 @@
 	}
 
 	CumulationRule.prototype = {
-		verify: function (vote) {
+		verify: function (vote, onlyUpperBound) {
+			onlyUpperBound = onlyUpperBound || false;
 			// Loop through the options
 			for (var i = 0; i < this.options.length; i++) {
 				var value = vote[this.options[i]];
 				if (value != undefined) {
 					// If greater than upper bound => error
 					if (value > this.upperBound) {
-						return false;
+						return Rule.ERROR_CUMULATION_UPPER;
 					}
 					// If smaller than lower bound => error
-					if (value < this.lowerBound) {
-						return false;
+					if (!onlyUpperBound && value < this.lowerBound) {
+						return Rule.ERROR_CUMULATION_LOWER;
 					}
-				} else if (this.lowerBound > 0) {
-					return false;
+				} else if (!onlyUpperBound && this.lowerBound > 0) {
+					return Rule.ERROR_CUMULATION_LOWER;
 				}
 			}
-			return true;
+			return Rule.SUCCESS;
 		}
 	};
 	extend(Rule, CumulationRule);

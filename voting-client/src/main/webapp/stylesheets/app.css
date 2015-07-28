@@ -3753,6 +3753,9 @@ footer .copyright {
 .list {
   margin-left: 6.875rem;
 }
+.list ul {
+  margin-bottom: 1.5625rem;
+}
 
 .list h5, #choice h5 {
   line-height: 1.8;
@@ -3793,7 +3796,8 @@ footer .copyright {
   display: none;
 }
 #choice #choice-candidates {
-  min-height: 18.75rem;
+  min-height: 15.625rem;
+  margin-bottom: 1.5625rem;
 }
 #choice.drop-active {
   border: 2px #E4032B solid;

@@ -327,7 +327,7 @@ footer {
 }
 
 .list, #choice { overflow-y: auto; height: rem-calc(400); }
-.list { margin-left: rem-calc(110); }
+.list { margin-left: rem-calc(110); ul {margin-bottom: rem-calc(25);}}
 .list, #choice {
 	h5 { line-height: 1.8; }
 	li { margin-bottom: rem-calc(5); position: relative;
@@ -347,7 +347,7 @@ footer {
 						&.placeholder-item .tools { display: none; }
 				   }
 	}
-	#choice-candidates { min-height: rem-calc(300); }
+	#choice-candidates { min-height: rem-calc(250); margin-bottom: rem-calc(25); }
 
 	&.drop-active { border: 2px $red solid;
 					#choice-list {border: 2px $red solid;}

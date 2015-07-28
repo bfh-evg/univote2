@@ -43,8 +43,6 @@
 		<script type="text/javascript" src="js/univote-crypto.js"></script>
 
 		<script type="text/javascript" src="js/vote.js" />
-		<script type="text/javascript" src="js/vote-jquery-ui.js" />
-		<script type="text/javascript" src="js/vote-cast-ballot.js" />
 	</ui:define>
 
 
@@ -105,36 +103,6 @@
 						<div id="candidates" class="clearfix">
 							<ul id="list_labels"></ul>
 							<div id="lists"></div>
-
-
-							<!--
-
-							<ul id="list_labels">
-								<li class="button-like active"><a href="#">List 1</a></li>
-								<li class="button-like"><a href="#">List 2</a></li>
-								<li class="button-like"><a href="#">List 3</a></li>
-							</ul>
-							<div class="list prim-border">
-								<h5>JG - Junge Grüne Uni Bern</h5>
-								<ul>
-									<li class="button-like previous"><span>Marbach Julian<br/><i>(previous)</i></span></li>
-									<li class="button-like previous"><span>Marbach Julian<br/><i>(previous)</i></span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-									<li class="button-like"><span>Marbach Julian</span></li>
-								</ul>
-							</div>
-
-							-->
-
 							<div class="list-footer"></div>
 						</div>
 					</div>
@@ -143,7 +111,7 @@
 						<h4>Auswahl</h4>
 						<div id="choice-holder">
 							<div id="choice" class="prim-border">
-								<ul id="choice-list"><li class="button-like placeholder-item"><span>#{msg.list}</span><div class="tools"><span class="icon-minus-circled"></span></div></li></ul>
+								<ul id="choice-list"><li class="button-like placeholder-item"><span>#{msg.list}</span><div class="tools"><span class="remove icon-minus-circled"></span></div></li></ul>
 								<h5 id="choice-list-title">&#160;</h5>
 								<ul id="choice-candidates">
 									<li class="button-like placeholder-item">#{msg.candidate}</li>
@@ -152,7 +120,7 @@
 							<div class="list-footer" ></div>
 						</div>
 						<form>
-							<button id="submit_list_vote" class="button radius gradient icon-right-dir" onclick="return submitVote();">#{msg.submitvote}</button>
+							<button id="submit_list_vote" class="button radius gradient icon-right-dir" onclick="return submitListVote();">#{msg.submitvote}</button>
 						</form>
 					</div>
 				</div>
