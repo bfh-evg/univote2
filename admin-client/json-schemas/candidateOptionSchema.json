@@ -4,14 +4,14 @@
 	"type": "object",
 	"properties": {
 		"id":            { "type": "integer" },
-		"type":          { "enum": ["candidate"] },
+		"type":          { "enum": ["candidateOption"] },
 		"number":        { "type": "string" },
 		"lastName":      { "type": "string" },
 		"firstName":     { "type": "string" },
 		"sex":           { "enum": ["M", "F"] },
 		"yearOfBirth":   { "type": "integer", "minimum": 1900, "maximum": 2100 },
-		"studyBranch":   { "$ref": "i18nTextSchema.json" },
-		"studyDegree":   { "$ref": "i18nTextSchema.json" },
+		"studyBranch":   { "type": "string" },
+		"studyDegree":   { "type": "string" },
 		"studySemester": { "type": "integer", "minimum": 1, "maximum": 20 },
 		"status":        { "enum": ["OLD", "NEW"] }
 	},

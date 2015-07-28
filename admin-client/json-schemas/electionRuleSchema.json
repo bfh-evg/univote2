@@ -9,7 +9,7 @@
 		},
 		"type": {
 			"description": "Rule type",
-			"enum": ["summation", "cumulation"]
+			"enum": ["cumulationRule", "summationRule"]
 		},
 		"optionIds": {
 			"description": "Identifiers of referenced options",

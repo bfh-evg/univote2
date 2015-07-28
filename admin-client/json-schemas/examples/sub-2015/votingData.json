@@ -1,14 +1,14 @@
 {
 	"definition": {
 		"title": {
-			"de": "Wahlen des <a href=\"http://www.bfh.ch\">SUB</a>-StudentInnenrates (3. - 21. Dezember 2015)",
-			"fr": "Élection du conseil des étudiant-e-s <a href=\"http://www.bfh.ch\">SUB</a> (3 - 21 décembre 2015)",
-			"en": "<a href=\"http://www.bfh.ch\">SUB</a> Elections (Decembre 3 - 21, 2015)"
+			"default": "Wahlen des <a href=\"http://www.bfh.ch\">SUB</a>-StudentInnenrates (3. - 21. Dezember 2015)",
+			"french": "Élection du conseil des étudiant-e-s <a href=\"http://www.bfh.ch\">SUB</a> (3 - 21 décembre 2015)",
+			"english": "<a href=\"http://www.bfh.ch\">SUB</a> Elections (Decembre 3 - 21, 2015)"
 		},
 		"administration": {
-			"de": "StudentInnenschaft der Universität Bern (SUB)",
-			"fr": "Ensemble des étudiants de l'Université de Berne (SUB)",
-			"en": "Student Body of the University of Bern (SUB)"
+			"default": "StudentInnenschaft der Universität Bern (SUB)",
+			"french": "Ensemble des étudiants de l'Université de Berne (SUB)",
+			"english": "Student Body of the University of Bern (SUB)"
 		},
 		"votingPeriodBegin": "2015-03-08T23:00:00Z",
 		"votingPeriodEnd": "2015-03-26T11:00:00Z"
@@ -17,7 +17,7 @@
 		"options": [
 			{
 				"id": 1,
-				"type": "list",
+				"type": "listOption",
 				"number": "1",
 				"listName": "Tuxpartei",
 				"partyName": "tux",
@@ -25,7 +25,7 @@
 			},
 			{
 				"id": 2,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "1.1",
 				"lastName": "Vuilleumier",
 				"firstName": "Sebastian",
@@ -38,7 +38,7 @@
 			},
 			{
 				"id": 3,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "1.2",
 				"lastName": "Schmid",
 				"firstName": "Luca",
@@ -51,7 +51,7 @@
 			},
 			{
 				"id": 4,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "1.3",
 				"lastName": "Stolz",
 				"firstName": "Marcel",
@@ -64,7 +64,7 @@
 			},
 			{
 				"id": 5,
-				"type": "list",
+				"type": "listOption",
 				"number": "2",
 				"listName": "Junge Grüne Uni Bern",
 				"partyName": "jg",
@@ -72,7 +72,7 @@
 			},
 			{
 				"id": 6,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.1",
 				"lastName": "Oppold",
 				"firstName": "Malvin",
@@ -84,7 +84,7 @@
 			},
 			{
 				"id": 7,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.2",
 				"lastName": "Zingg",
 				"firstName": "Flavia",
@@ -96,7 +96,7 @@
 			},
 			{
 				"id": 8,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.3",
 				"lastName": "Stalder",
 				"firstName": "Lorenz",
@@ -108,7 +108,7 @@
 			},
 			{
 				"id": 9,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.4",
 				"lastName": "Schär",
 				"firstName": "Rahel",
@@ -120,7 +120,7 @@
 			},
 			{
 				"id": 10,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.5",
 				"lastName": "Tempelmann",
 				"firstName": "Jochen",
@@ -132,7 +132,7 @@
 			},
 			{
 				"id": 11,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.6",
 				"lastName": "Sollberger",
 				"firstName": "Sophia",
@@ -144,7 +144,7 @@
 			},
 			{
 				"id": 12,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.7",
 				"lastName": "Seiler",
 				"firstName": "Christoph",
@@ -156,7 +156,7 @@
 			},
 			{
 				"id": 13,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.8",
 				"lastName": "Kaita",
 				"firstName": "Anna",
@@ -168,7 +168,7 @@
 			},
 			{
 				"id": 14,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.9",
 				"lastName": "Sollberger",
 				"firstName": "Leonie",
@@ -180,7 +180,7 @@
 			},
 			{
 				"id": 15,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.1",
 				"lastName": "Seiler",
 				"firstName": "Catarina",
@@ -192,7 +192,7 @@
 			},
 			{
 				"id": 16,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.11",
 				"lastName": "König",
 				"firstName": "Emilie",
@@ -204,7 +204,7 @@
 			},
 			{
 				"id": 17,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.12",
 				"lastName": "Schlunegger",
 				"firstName": "Lea",
@@ -216,7 +216,7 @@
 			},
 			{
 				"id": 18,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.13",
 				"lastName": "Steiner",
 				"firstName": "Samuel",
@@ -228,7 +228,7 @@
 			},
 			{
 				"id": 19,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.14",
 				"lastName": "Nägler",
 				"firstName": "Leonie",
@@ -240,7 +240,7 @@
 			},
 			{
 				"id": 20,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.15",
 				"lastName": "Häni",
 				"firstName": "Eugénie",
@@ -252,7 +252,7 @@
 			},
 			{
 				"id": 21,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.16",
 				"lastName": "Farner",
 				"firstName": "Rebecca",
@@ -264,7 +264,7 @@
 			},
 			{
 				"id": 22,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "2.17",
 				"lastName": "Widmer",
 				"firstName": "Simone",
@@ -276,7 +276,7 @@
 			},
 			{
 				"id": 23,
-				"type": "list",
+				"type": "listOption",
 				"number": "3",
 				"listName": "WIR \u2013 Wirtschaftswissenschaften im Rat",
 				"partyName": "wir",
@@ -284,7 +284,7 @@
 			},
 			{
 				"id": 24,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.1",
 				"lastName": "Eichenberger",
 				"firstName": "Milena",
@@ -296,7 +296,7 @@
 			},
 			{
 				"id": 25,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.2",
 				"lastName": "Collalti",
 				"firstName": "Dino",
@@ -309,7 +309,7 @@
 			},
 			{
 				"id": 26,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.3",
 				"lastName": "Schlittler",
 				"firstName": "Katharina",
@@ -321,7 +321,7 @@
 			},
 			{
 				"id": 27,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.4",
 				"lastName": "Affolter",
 				"firstName": "Lorenz",
@@ -334,7 +334,7 @@
 			},
 			{
 				"id": 28,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.5",
 				"lastName": "Huber",
 				"firstName": "Viktoria",
@@ -346,7 +346,7 @@
 			},
 			{
 				"id": 29,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.6",
 				"lastName": "Wirth",
 				"firstName": "Lea",
@@ -358,7 +358,7 @@
 			},
 			{
 				"id": 30,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.7",
 				"lastName": "Knecht",
 				"firstName": "Thomas",
@@ -370,7 +370,7 @@
 			},
 			{
 				"id": 31,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.8",
 				"lastName": "Di Raimondo",
 				"firstName": "Michele",
@@ -382,7 +382,7 @@
 			},
 			{
 				"id": 32,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.9",
 				"lastName": "Theurillat",
 				"firstName": "Matthias",
@@ -394,7 +394,7 @@
 			},
 			{
 				"id": 33,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.1",
 				"lastName": "Pichler",
 				"firstName": "Jan",
@@ -406,7 +406,7 @@
 			},
 			{
 				"id": 34,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.11",
 				"lastName": "Schächteler",
 				"firstName": "Julia",
@@ -418,7 +418,7 @@
 			},
 			{
 				"id": 35,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.12",
 				"lastName": "Tochtermann",
 				"firstName": "Lucas",
@@ -430,7 +430,7 @@
 			},
 			{
 				"id": 36,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.13",
 				"lastName": "Hintermeister",
 				"firstName": "Fabian",
@@ -442,7 +442,7 @@
 			},
 			{
 				"id": 37,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.14",
 				"lastName": "Arro",
 				"firstName": "Milen",
@@ -454,7 +454,7 @@
 			},
 			{
 				"id": 38,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.15",
 				"lastName": "Heuberger",
 				"firstName": "Thomas",
@@ -466,7 +466,7 @@
 			},
 			{
 				"id": 39,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.16",
 				"lastName": "Schär",
 				"firstName": "Stefan",
@@ -478,7 +478,7 @@
 			},
 			{
 				"id": 40,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.17",
 				"lastName": "Kunz",
 				"firstName": "Pascal",
@@ -490,7 +490,7 @@
 			},
 			{
 				"id": 41,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.18",
 				"lastName": "Panchal",
 				"firstName": "Purav",
@@ -502,7 +502,7 @@
 			},
 			{
 				"id": 42,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.19",
 				"lastName": "Fankhauser",
 				"firstName": "Yvonne",
@@ -514,7 +514,7 @@
 			},
 			{
 				"id": 43,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.2",
 				"lastName": "Laubscher",
 				"firstName": "Stephanie",
@@ -526,7 +526,7 @@
 			},
 			{
 				"id": 44,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.21",
 				"lastName": "Streun",
 				"firstName": "Rico",
@@ -538,7 +538,7 @@
 			},
 			{
 				"id": 45,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.22",
 				"lastName": "Lendenmann",
 				"firstName": "Joel",
@@ -550,7 +550,7 @@
 			},
 			{
 				"id": 46,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.23",
 				"lastName": "Diep",
 				"firstName": "Minh Khoa Julien",
@@ -562,7 +562,7 @@
 			},
 			{
 				"id": 47,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.24",
 				"lastName": "Zhung",
 				"firstName": "YuanYuan",
@@ -574,7 +574,7 @@
 			},
 			{
 				"id": 48,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.25",
 				"lastName": "Ducrey",
 				"firstName": "Teresa",
@@ -586,7 +586,7 @@
 			},
 			{
 				"id": 49,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.26",
 				"lastName": "Wegmüller",
 				"firstName": "Nadja",
@@ -598,7 +598,7 @@
 			},
 			{
 				"id": 50,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.27",
 				"lastName": "Denby",
 				"firstName": "Natasha Allison",
@@ -610,7 +610,7 @@
 			},
 			{
 				"id": 51,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.28",
 				"lastName": "Schmidt",
 				"firstName": "Tim",
@@ -622,7 +622,7 @@
 			},
 			{
 				"id": 52,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.29",
 				"lastName": "Jingle",
 				"firstName": "Li",
@@ -634,7 +634,7 @@
 			},
 			{
 				"id": 53,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "3.3",
 				"lastName": "Moser",
 				"firstName": "Barbara",
@@ -646,7 +646,7 @@
 			},
 			{
 				"id": 54,
-				"type": "list",
+				"type": "listOption",
 				"number": "4",
 				"listName": "Jungfreisinnige Uni Bern",
 				"partyName": "JF",
@@ -654,7 +654,7 @@
 			},
 			{
 				"id": 55,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.1",
 				"lastName": "Kilchenmann",
 				"firstName": "Paloma",
@@ -667,7 +667,7 @@
 			},
 			{
 				"id": 56,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.2",
 				"lastName": "Schmid",
 				"firstName": "Thomas",
@@ -680,7 +680,7 @@
 			},
 			{
 				"id": 57,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.3",
 				"lastName": "Kellenberger",
 				"firstName": "Pascal",
@@ -693,7 +693,7 @@
 			},
 			{
 				"id": 58,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.4",
 				"lastName": "Geu",
 				"firstName": "Rémy",
@@ -706,7 +706,7 @@
 			},
 			{
 				"id": 59,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.5",
 				"lastName": "Schuler",
 				"firstName": "Marcel",
@@ -719,7 +719,7 @@
 			},
 			{
 				"id": 60,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.6",
 				"lastName": "Pfister",
 				"firstName": "Simon Tim",
@@ -732,7 +732,7 @@
 			},
 			{
 				"id": 61,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.7",
 				"lastName": "Schoy",
 				"firstName": "Michael",
@@ -745,7 +745,7 @@
 			},
 			{
 				"id": 62,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.8",
 				"lastName": "Ziltener",
 				"firstName": "Daniel",
@@ -758,7 +758,7 @@
 			},
 			{
 				"id": 63,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.9",
 				"lastName": "Bachmann",
 				"firstName": "Gregor",
@@ -771,7 +771,7 @@
 			},
 			{
 				"id": 64,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.1",
 				"lastName": "Buff",
 				"firstName": "Tobias",
@@ -784,7 +784,7 @@
 			},
 			{
 				"id": 65,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.11",
 				"lastName": "Thomann",
 				"firstName": "Viviane",
@@ -797,7 +797,7 @@
 			},
 			{
 				"id": 66,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.12",
 				"lastName": "Studer",
 				"firstName": "Fabio",
@@ -810,7 +810,7 @@
 			},
 			{
 				"id": 67,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.13",
 				"lastName": "Kägi",
 				"firstName": "Adrian",
@@ -823,7 +823,7 @@
 			},
 			{
 				"id": 68,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.14",
 				"lastName": "Hahn",
 				"firstName": "Michael Fabian",
@@ -836,7 +836,7 @@
 			},
 			{
 				"id": 69,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.15",
 				"lastName": "Arnaud",
 				"firstName": "Robert",
@@ -848,7 +848,7 @@
 			},
 			{
 				"id": 70,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.16",
 				"lastName": "Serret",
 				"firstName": "Attila",
@@ -861,7 +861,7 @@
 			},
 			{
 				"id": 71,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.17",
 				"lastName": "Walter",
 				"firstName": "Aliosha",
@@ -873,7 +873,7 @@
 			},
 			{
 				"id": 72,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.18",
 				"lastName": "Beck",
 				"firstName": "Ramona",
@@ -886,7 +886,7 @@
 			},
 			{
 				"id": 73,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.19",
 				"lastName": "Bigovic",
 				"firstName": "Danilo",
@@ -899,7 +899,7 @@
 			},
 			{
 				"id": 74,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "4.2",
 				"lastName": "Wild",
 				"firstName": "Nicolas",
@@ -911,7 +911,7 @@
 			},
 			{
 				"id": 75,
-				"type": "list",
+				"type": "listOption",
 				"number": "5",
 				"listName": "Grünliberale Uni Bern",
 				"partyName": "glp",
@@ -919,7 +919,7 @@
 			},
 			{
 				"id": 76,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.1",
 				"lastName": "Lindgren",
 				"firstName": "Maurice",
@@ -932,7 +932,7 @@
 			},
 			{
 				"id": 77,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.2",
 				"lastName": "Gmuender",
 				"firstName": "Elvira",
@@ -945,7 +945,7 @@
 			},
 			{
 				"id": 78,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.3",
 				"lastName": "Broennimann",
 				"firstName": "Lucas",
@@ -958,7 +958,7 @@
 			},
 			{
 				"id": 79,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.4",
 				"lastName": "Haldemann",
 				"firstName": "Fabiana",
@@ -971,7 +971,7 @@
 			},
 			{
 				"id": 80,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.5",
 				"lastName": "Winkelmann",
 				"firstName": "Nicolas",
@@ -984,7 +984,7 @@
 			},
 			{
 				"id": 81,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.6",
 				"lastName": "Meier",
 				"firstName": "Laura",
@@ -997,7 +997,7 @@
 			},
 			{
 				"id": 82,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.7",
 				"lastName": "Mathis",
 				"firstName": "Stefania",
@@ -1010,7 +1010,7 @@
 			},
 			{
 				"id": 83,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.8",
 				"lastName": "Abaecherli",
 				"firstName": "Aniko Beatrice",
@@ -1023,7 +1023,7 @@
 			},
 			{
 				"id": 84,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.9",
 				"lastName": "Vogler",
 				"firstName": "Manuel",
@@ -1036,7 +1036,7 @@
 			},
 			{
 				"id": 85,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.1",
 				"lastName": "Frey",
 				"firstName": "Gabrielle",
@@ -1049,7 +1049,7 @@
 			},
 			{
 				"id": 86,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.11",
 				"lastName": "Muradyan",
 				"firstName": "Tigran",
@@ -1062,7 +1062,7 @@
 			},
 			{
 				"id": 87,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.12",
 				"lastName": "Vogt",
 				"firstName": "Livia",
@@ -1075,7 +1075,7 @@
 			},
 			{
 				"id": 88,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.13",
 				"lastName": "Siegrist",
 				"firstName": "Simon Stefan",
@@ -1088,7 +1088,7 @@
 			},
 			{
 				"id": 89,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.14",
 				"lastName": "Hartmann",
 				"firstName": "Loredana",
@@ -1101,7 +1101,7 @@
 			},
 			{
 				"id": 90,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.15",
 				"lastName": "Solothurnmann",
 				"firstName": "Lorenz",
@@ -1114,7 +1114,7 @@
 			},
 			{
 				"id": 91,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.16",
 				"lastName": "Stauffer",
 				"firstName": "Layla",
@@ -1127,7 +1127,7 @@
 			},
 			{
 				"id": 92,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.17",
 				"lastName": "Kolly",
 				"firstName": "Raphael",
@@ -1140,7 +1140,7 @@
 			},
 			{
 				"id": 93,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.18",
 				"lastName": "Koch",
 				"firstName": "Markus",
@@ -1153,7 +1153,7 @@
 			},
 			{
 				"id": 94,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.19",
 				"lastName": "Aebischer",
 				"firstName": "Patricia",
@@ -1166,7 +1166,7 @@
 			},
 			{
 				"id": 95,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.2",
 				"lastName": "Sommer",
 				"firstName": "Yves",
@@ -1179,7 +1179,7 @@
 			},
 			{
 				"id": 96,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.21",
 				"lastName": "Bauer",
 				"firstName": "Joel",
@@ -1192,7 +1192,7 @@
 			},
 			{
 				"id": 97,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.22",
 				"lastName": "Turgul",
 				"firstName": "Timur Umut",
@@ -1205,7 +1205,7 @@
 			},
 			{
 				"id": 98,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "5.23",
 				"lastName": "Zaugg",
 				"firstName": "Luca",
@@ -1218,7 +1218,7 @@
 			},
 			{
 				"id": 99,
-				"type": "list",
+				"type": "listOption",
 				"number": "6",
 				"listName": "Sozialdemokratisches Forum",
 				"partyName": "sf",
@@ -1226,7 +1226,7 @@
 			},
 			{
 				"id": 100,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.1",
 				"lastName": "Trafelet",
 				"firstName": "Salome",
@@ -1239,7 +1239,7 @@
 			},
 			{
 				"id": 101,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.2",
 				"lastName": "Liebi",
 				"firstName": "Corina",
@@ -1251,7 +1251,7 @@
 			},
 			{
 				"id": 102,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.3",
 				"lastName": "Strobel",
 				"firstName": "Julia",
@@ -1263,7 +1263,7 @@
 			},
 			{
 				"id": 103,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.4",
 				"lastName": "Fux",
 				"firstName": "Deny",
@@ -1275,7 +1275,7 @@
 			},
 			{
 				"id": 104,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.5",
 				"lastName": "Kräuchi",
 				"firstName": "Anna-Daria",
@@ -1287,7 +1287,7 @@
 			},
 			{
 				"id": 105,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.6",
 				"lastName": "Bieri",
 				"firstName": "Julian",
@@ -1299,7 +1299,7 @@
 			},
 			{
 				"id": 106,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.7",
 				"lastName": "Leimann",
 				"firstName": "Aline",
@@ -1311,7 +1311,7 @@
 			},
 			{
 				"id": 107,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.8",
 				"lastName": "Landolt",
 				"firstName": "Christoph",
@@ -1323,7 +1323,7 @@
 			},
 			{
 				"id": 108,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.9",
 				"lastName": "Beeler",
 				"firstName": "Kathrin",
@@ -1335,7 +1335,7 @@
 			},
 			{
 				"id": 109,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.1",
 				"lastName": "Trottmann",
 				"firstName": "Jeremy Simeon",
@@ -1347,7 +1347,7 @@
 			},
 			{
 				"id": 110,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.11",
 				"lastName": "Langenegger",
 				"firstName": "Ilaria",
@@ -1359,7 +1359,7 @@
 			},
 			{
 				"id": 111,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.12",
 				"lastName": "Karst",
 				"firstName": "Kevin",
@@ -1371,7 +1371,7 @@
 			},
 			{
 				"id": 112,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.13",
 				"lastName": "Hofacher",
 				"firstName": "Samuel",
@@ -1383,7 +1383,7 @@
 			},
 			{
 				"id": 113,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.14",
 				"lastName": "Brügger",
 				"firstName": "Silvan",
@@ -1395,7 +1395,7 @@
 			},
 			{
 				"id": 114,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.15",
 				"lastName": "Hidalgo Staub",
 				"firstName": "Samuel",
@@ -1407,7 +1407,7 @@
 			},
 			{
 				"id": 115,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.16",
 				"lastName": "Funiciello",
 				"firstName": "Tamara",
@@ -1419,7 +1419,7 @@
 			},
 			{
 				"id": 116,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.17",
 				"lastName": "Rauter",
 				"firstName": "Ricarda",
@@ -1431,7 +1431,7 @@
 			},
 			{
 				"id": 117,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.18",
 				"lastName": "Zucha",
 				"firstName": "Jan Wolfgang",
@@ -1443,7 +1443,7 @@
 			},
 			{
 				"id": 118,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.19",
 				"lastName": "Steiner",
 				"firstName": "Michèle",
@@ -1455,7 +1455,7 @@
 			},
 			{
 				"id": 119,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "6.2",
 				"lastName": "Staub",
 				"firstName": "Lisa-Maria",
@@ -1467,7 +1467,7 @@
 			},
 			{
 				"id": 120,
-				"type": "list",
+				"type": "listOption",
 				"number": "7",
 				"listName": "Wolke 7",
 				"partyName": "w7",
@@ -1475,7 +1475,7 @@
 			},
 			{
 				"id": 121,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "7.1",
 				"lastName": "Reich",
 				"firstName": "Samuel",
@@ -1488,7 +1488,7 @@
 			},
 			{
 				"id": 122,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "7.2",
 				"lastName": "Hurni",
 				"firstName": "Julia Sophia",
@@ -1501,7 +1501,7 @@
 			},
 			{
 				"id": 123,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "7.3",
 				"lastName": "Hadorn",
 				"firstName": "Jonathan",
@@ -1514,7 +1514,7 @@
 			},
 			{
 				"id": 124,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "7.4",
 				"lastName": "Yared",
 				"firstName": "Jonathan",
@@ -1527,7 +1527,7 @@
 			},
 			{
 				"id": 125,
-				"type": "candidate",
+				"type": "candidateOption",
 				"number": "7.5",
 				"lastName": "Graf",
 				"firstName": "Yolanda",
@@ -1542,28 +1542,28 @@
 		"rules": [
 			{
 				"id": 1,
-				"type": "summation",
+				"type": "summationRule",
 				"optionIds": [1, 5, 23, 54, 75, 99, 120],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 2,
-				"type": "cumulation",
+				"type": "cumulationRule",
 				"optionIds": [1, 5, 23, 54, 75, 99, 120],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 3,
-				"type": "summation",
+				"type": "summationRule",
 				"optionIds": [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 121, 122, 123, 124, 125],
 				"lowerBound": 0,
 				"upperBound": 40
 			},
 			{
 				"id": 4,
-				"type": "cumulation",
+				"type": "cumulationRule",
 				"optionIds": [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 121, 122, 123, 124, 125],
 				"lowerBound": 0,
 				"upperBound": 3
@@ -1574,14 +1574,14 @@
 				"id": 1,
 				"type": "listElection",
 				"title": {
-					"de": "Wahlen des SUB-StudentInnenrates 2015",
-					"fr": "Élection du conseil des étudiant-e-s SUB 2015",
-					"en": "SUB Elections 2015"
+					"default": "Wahlen des SUB-StudentInnenrates 2015",
+					"french": "Élection du conseil des étudiant-e-s SUB 2015",
+					"english": "SUB Elections 2015"
 				},
 				"description": {
-					"de": "Der Wahlzettel kann einer Liste zugeordnet werden und maximal 40 Kandidierende aus verschiedenen Listen enthalten. Einzelne Kandidierende können bis zu dreimal aufgeführt werden. Enthält ein Wahlzettel weniger als 40 Kandidierende, so zählen die fehlenden Einträge als Zusatzstimmen für die ausgewählte Liste. Wenn keine Liste angegeben ist, verfallen diese Stimmen.",
-					"fr": "Le bulletin de vote peut comporter au maximum 40 candidats. Il peut comporter des candidats de listes différentes. Chaque électeur peut cumuler jusqu’à trois suffrages sur un candidat. Le bulletin de vote peut-être attribué à une liste. Si un bulletin de vote contient un nombre de candidats inférieurs à 40, les lignes laissées en blanc sont considérées comme autant de suffrages complémentaires attribués à la liste choisie. Si aucune liste n’est indiquée, ces suffrages  sont considérés comme périmés.",
-					"en": "Your ballot paper can include up to 40 candidates from all lists. It can include candidates from different lists. You may vote for each candidate up to three times. You can assign a list to your ballot. If you vote for less than 40 candidates, the missing entries will count as list votes for the chosen list. If you do not assign a list, they will expire and count as empty votes."
+					"default": "Der Wahlzettel kann einer Liste zugeordnet werden und maximal 40 Kandidierende aus verschiedenen Listen enthalten. Einzelne Kandidierende können bis zu dreimal aufgeführt werden. Enthält ein Wahlzettel weniger als 40 Kandidierende, so zählen die fehlenden Einträge als Zusatzstimmen für die ausgewählte Liste. Wenn keine Liste angegeben ist, verfallen diese Stimmen.",
+					"french": "Le bulletin de vote peut comporter au maximum 40 candidats. Il peut comporter des candidats de listes différentes. Chaque électeur peut cumuler jusqu’à trois suffrages sur un candidat. Le bulletin de vote peut-être attribué à une liste. Si un bulletin de vote contient un nombre de candidats inférieurs à 40, les lignes laissées en blanc sont considérées comme autant de suffrages complémentaires attribués à la liste choisie. Si aucune liste n’est indiquée, ces suffrages  sont considérés comme périmés.",
+					"english": "Your ballot paper can include up to 40 candidates from all lists. It can include candidates from different lists. You may vote for each candidate up to three times. You can assign a list to your ballot. If you vote for less than 40 candidates, the missing entries will count as list votes for the chosen list. If you do not assign a list, they will expire and count as empty votes."
 				},
 				"optionIds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125],
 				"ruleIds": [1, 2, 3, 4]

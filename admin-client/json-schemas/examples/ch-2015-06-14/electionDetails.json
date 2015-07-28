@@ -2,118 +2,118 @@
 	"options": [
 		{
 			"id": 1,
-			"type": "answer",
-			"value": { "de": "Ja", "fr": "Oui", "it": "Si"}
+			"type": "votingOption",
+			"answer": { "default": "Ja", "french": "Oui", "italien": "Si"}
 		},
 		{
 			"id": 2,
-			"type": "answer",
-			"value": { "de": "Nein", "fr": "Non", "it": "No"}
+			"type": "votingOption",
+			"answer": { "default": "Nein", "french": "Non", "italien": "No"}
 		},
 		{
 			"id": 3,
-			"type": "answer",
-			"value": { "de": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+			"type": "votingOption",
+			"answer": { "default": "Enthaltung", "french": "Abstention", "italien": "Astensione"}
 		},
 		{
 			"id": 4,
-			"type": "answer",
-			"value": { "de": "Ja", "fr": "Oui", "it": "Si"}
+			"type": "votingOption",
+			"answer": { "default": "Ja", "french": "Oui", "italien": "Si"}
 		},
 		{
 			"id": 5,
-			"type": "answer",
-			"value": { "de": "Nein", "fr": "Non", "it": "No"}
+			"type": "votingOption",
+			"answer": { "default": "Nein", "french": "Non", "italien": "No"}
 		},
 		{
 			"id": 6,
-			"type": "answer",
-			"value": { "de": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+			"type": "votingOption",
+			"answer": { "default": "Enthaltung", "french": "Abstention", "italien": "Astensione"}
 		},
 		{
 			"id": 7,
-			"type": "answer",
-			"value": { "de": "Ja", "fr": "Oui", "it": "Si"}
+			"type": "votingOption",
+			"answer": { "default": "Ja", "french": "Oui", "italien": "Si"}
 		},
 		{
 			"id": 8,
-			"type": "answer",
-			"value": { "de": "Nein", "fr": "Non", "it": "No"}
+			"type": "votingOption",
+			"answer": { "default": "Nein", "french": "Non", "italien": "No"}
 		},
 		{
 			"id": 9,
-			"type": "answer",
-			"value": { "de": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+			"type": "votingOption",
+			"answer": { "default": "Enthaltung", "french": "Abstention", "italien": "Astensione"}
 		},
 		{
 			"id": 10,
-			"type": "answer",
-			"value": { "de": "Ja", "fr": "Oui", "it": "Si"}
+			"type": "votingOption",
+			"answer": { "default": "Ja", "french": "Oui", "italien": "Si"}
 		},
 		{
 			"id": 11,
-			"type": "answer",
-			"value": { "de": "Nein", "fr": "Non", "it": "No"}
+			"type": "votingOption",
+			"answer": { "default": "Nein", "french": "Non", "italien": "No"}
 		},
 		{
 			"id": 12,
-			"type": "answer",
-			"value": { "de": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+			"type": "votingOption",
+			"answer": { "default": "Enthaltung", "french": "Abstention", "italien": "Astensione"}
 		}
 	],
 	"rules": [
 		{
 			"id": 1,
-			"type": "summation",
+			"type": "summationRule",
 			"optionIds": [1, 2, 3],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 2,
-			"type": "cumulation",
+			"type": "cumulationRule",
 			"optionIds": [1, 2, 3],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 3,
-			"type": "summation",
+			"type": "summationRule",
 			"optionIds": [4, 5, 6],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 4,
-			"type": "cumulation",
+			"type": "cumulationRule",
 			"optionIds": [4, 5, 6],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 5,
-			"type": "summation",
+			"type": "summationRule",
 			"optionIds": [7, 8, 9],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 6,
-			"type": "cumulation",
+			"type": "cumulationRule",
 			"optionIds": [7, 8, 9],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 7,
-			"type": "summation",
+			"type": "summationRule",
 			"optionIds": [10, 11, 12],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 8,
-			"type": "cumulation",
+			"type": "cumulationRule",
 			"optionIds": [10, 11, 12],
 			"lowerBound": 0,
 			"upperBound": 1
@@ -124,16 +124,16 @@
 			"id": 1,
 			"type": "vote",
 			"title": {
-				"de": "Präimplantationsdiagnostik",
-				"fr": "Diagnostic préimplantatoire",
-				"it": "Diagnosi preimpianto",
-				"rm": "Diagnostica da preimplantaziun"
+				"default": "Präimplantationsdiagnostik",
+				"french": "Diagnostic préimplantatoire",
+				"italien": "Diagnosi preimpianto",
+				"rhaetian": "Diagnostica da preimplantaziun"
 			},
 			"question": {
-				"de": "Wollen Sie den Bundesbeschluss vom 12. Dezember 2014 über die Änderung der Verfassungsbestimmung zur Fortpflanzungsmedizin und Gentechnologie im Humanbereich annehmen?",
-				"fr": "Acceptez-vous l’arrêté fédéral du 12 décembre 2014 concernant la modification de l’article constitutionnel relatif à la procréation médicalement assistée et au génie génétique dans le domaine humain?",
-				"it": "Volete accettare il decreto federale del 12 dicembre 2014 concernente la modifica dell’articolo costituzionale relativo alla medicina riproduttiva e all’ingegneria genetica in ambito umano?",
-				"rm": "Vulais Vus acceptar il Conclus federal dals 12 da december 2014 davart la midada da l’artitgel constituziunal concernent la medischina da reproducziun e la tecnologia da gens sin il sectur uman?"
+				"default": "Wollen Sie den Bundesbeschluss vom 12. Dezember 2014 über die Änderung der Verfassungsbestimmung zur Fortpflanzungsmedizin und Gentechnologie im Humanbereich annehmen?",
+				"french": "Acceptez-vous l’arrêté fédéral du 12 décembre 2014 concernant la modification de l’article constitutionnel relatif à la procréation médicalement assistée et au génie génétique dans le domaine humain?",
+				"italien": "Volete accettare il decreto federale del 12 dicembre 2014 concernente la modifica dell’articolo costituzionale relativo alla medicina riproduttiva e all’ingegneria genetica in ambito umano?",
+				"rhaetian": "Vulais Vus acceptar il Conclus federal dals 12 da december 2014 davart la midada da l’artitgel constituziunal concernent la medischina da reproducziun e la tecnologia da gens sin il sectur uman?"
 			},
 			"optionIds": [1, 2, 3],
 			"ruleIds": [1, 2]
@@ -142,16 +142,16 @@
 			"id": 2,
 			"type": "vote",
 			"title": {
-				"de": "Stipendieninitiative",
-				"fr": "Initiative sur les bourses d'études",
-				"it": "Iniziativa sulle borse di studio",
-				"rm": "Iniziativa davart ils stipendis"
+				"default": "Stipendieninitiative",
+				"french": "Initiative sur les bourses d'études",
+				"italien": "Iniziativa sulle borse di studio",
+				"rhaetian": "Iniziativa davart ils stipendis"
 			},
 			"question": {
-				"de": "Wollen Sie die Volksinitiative «Stipendieninitiative» annehmen?",
-				"fr": "Acceptez-vous l’initiative populaire «Initiative sur les bourses d’études»?",
-				"it": "Volete accettare l’iniziativa popolare «Sulle borse di studio»?",
-				"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Iniziativa davart ils stipendis»?"
+				"default": "Wollen Sie die Volksinitiative «Stipendieninitiative» annehmen?",
+				"french": "Acceptez-vous l’initiative populaire «Initiative sur les bourses d’études»?",
+				"italien": "Volete accettare l’iniziativa popolare «Sulle borse di studio»?",
+				"rhaetian": "Vulais Vus acceptar l’iniziativa dal pievel «Iniziativa davart ils stipendis»?"
 			},
 			"optionIds": [4, 5, 6],
 			"ruleIds": [3, 4]
@@ -160,16 +160,16 @@
 			"id": 3,
 			"type": "vote",
 			"title": {
-				"de": "Erbschaftssteuerreform",
-				"fr": "Réforme de la fiscalité successorale",
-				"it": "Riforma dell'imposta sulle successioni",
-				"rm": "Refurma da la taglia sin l'ierta"
+				"default": "Erbschaftssteuerreform",
+				"french": "Réforme de la fiscalité successorale",
+				"italien": "Riforma dell'imposta sulle successioni",
+				"rhaetian": "Refurma da la taglia sin l'ierta"
 			},
 			"question": {
-				"de": "Wollen Sie die Volksinitiative «Millionen-Erbschaften besteuern für unsere AHV (Erbschaftssteuerreform)» annehmen?",
-				"fr": "Acceptez-vous l’initiative populaire «Imposer les successions de plusieurs millions pour financer notre AVS (Réforme de la fiscalité successorale)»?",
-				"it": "Volete accettare l’iniziativa popolare «Tassare le eredità milionarie per finanziare la nostra AVS (Riforma dell’impostasulle successioni)»?",
-				"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Far pajar taglias sin iertas da milliuns per finanziar nossa AVS (Refurma da la tagliasin l’ierta)»?"
+				"default": "Wollen Sie die Volksinitiative «Millionen-Erbschaften besteuern für unsere AHV (Erbschaftssteuerreform)» annehmen?",
+				"french": "Acceptez-vous l’initiative populaire «Imposer les successions de plusieurs millions pour financer notre AVS (Réforme de la fiscalité successorale)»?",
+				"italien": "Volete accettare l’iniziativa popolare «Tassare le eredità milionarie per finanziare la nostra AVS (Riforma dell’impostasulle successioni)»?",
+				"rhaetian": "Vulais Vus acceptar l’iniziativa dal pievel «Far pajar taglias sin iertas da milliuns per finanziar nossa AVS (Refurma da la tagliasin l’ierta)»?"
 			},
 			"optionIds": [7, 8, 9],
 			"ruleIds": [5, 6]
@@ -178,16 +178,16 @@
 			"id": 4,
 			"type": "vote",
 			"title": {
-				"de": "Bundesgesetz über Radio und Fernsehen",
-				"fr": "Loi fédérale sur la radio et la télévision",
-				"it": "Legge federale sulla radiotelevisione (LRTV)",
-				"rm": "Lescha federala davart radio e televisiun"
+				"default": "Bundesgesetz über Radio und Fernsehen",
+				"french": "Loi fédérale sur la radio et la télévision",
+				"italien": "Legge federale sulla radiotelevisione (LRTV)",
+				"rhaetian": "Lescha federala davart radio e televisiun"
 			},
 			"question": {
-				"de": "Wollen Sie die Änderung vom 26. September 2014 des Bundesgesetzes über Radio und Fernsehen (RTVG) annehmen?",
-				"fr": "Acceptez-vous la modification du 26 septembre 2014 de la loi fédérale sur la radio et la télévision (LRTV)?",
-				"it": "Volete accettare la modifica del 26 settembre 2014 della legge federale sulla radiotelevisione (LRTV)?",
-				"rm": "Vulais Vus acceptar la midada dals 26 da settember 2014 da la Lescha federala davart radio e televisiun (LRTV)?"
+				"default": "Wollen Sie die Änderung vom 26. September 2014 des Bundesgesetzes über Radio und Fernsehen (RTVG) annehmen?",
+				"french": "Acceptez-vous la modification du 26 septembre 2014 de la loi fédérale sur la radio et la télévision (LRTV)?",
+				"italien": "Volete accettare la modifica del 26 settembre 2014 della legge federale sulla radiotelevisione (LRTV)?",
+				"rhaetian": "Vulais Vus acceptar la midada dals 26 da settember 2014 da la Lescha federala davart radio e televisiun (LRTV)?"
 			},
 			"optionIds": [10, 11, 12],
 			"ruleIds": [7, 8]

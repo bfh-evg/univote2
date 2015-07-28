@@ -3,9 +3,9 @@
 	"title": "Schema of a voting option",
 	"type": "object",
 	"properties": {
-		"id":    { "type": "integer" },
-		"type":  { "enum": ["answer"] },
-		"value": { "$ref": "i18nTextSchema.json" }
+		"id":     { "type": "integer" },
+		"type":   { "enum": ["votingOption"] },
+		"answer": { "$ref": "i18nTextSchema.json" }
 	},
-	"required": ["id", "type", "value"]
+	"required": ["id", "type", "answer"]
 }
