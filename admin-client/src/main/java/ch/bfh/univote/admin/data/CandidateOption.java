@@ -18,15 +18,15 @@ public class CandidateOption extends ElectionOption {
     private String firstName;
     private Sex sex;
     private Integer yearOfBirth;
-    private String studyBranch;
-    private String studyDegree;
+    private I18nText studyBranch;
+    private I18nText studyDegree;
     private Integer studySemester;
     private Status status;
 
     public CandidateOption() {
     }
 
-    public CandidateOption(Integer id, String number, String lastName, String firstName, Sex sex, Integer yearOfBirth, String studyBranch, String studyDegree, Integer studySemester, Status status) {
+    public CandidateOption(Integer id, String number, String lastName, String firstName, Sex sex, Integer yearOfBirth, I18nText studyBranch, I18nText studyDegree, Integer studySemester, Status status) {
 	this.id = id;
 	this.number = number;
 	this.lastName = lastName;
@@ -87,19 +87,19 @@ public class CandidateOption extends ElectionOption {
 	this.yearOfBirth = yearOfBirth;
     }
 
-    public String getStudyBranch() {
+    public I18nText getStudyBranch() {
 	return studyBranch;
     }
 
-    public void setStudyBranch(String studyBranch) {
+    public void setStudyBranch(I18nText studyBranch) {
 	this.studyBranch = studyBranch;
     }
 
-    public String getStudyDegree() {
+    public I18nText getStudyDegree() {
 	return studyDegree;
     }
 
-    public void setStudyDegree(String studyDegree) {
+    public void setStudyDegree(I18nText studyDegree) {
 	this.studyDegree = studyDegree;
     }
 
