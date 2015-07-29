@@ -40,7 +40,11 @@ $(document).ready(function () {
 	// In the current version, the js file api is not needed. But for checking
 	// for an actual version of FF, Safari and Chrome the file api can be used.
 	// IE is checked by version as IE9 is fine but does not support the file api.
-	if (($.browser.msie && $.browser.version < 9)) {
+	// TODO: implement a better and nicer solution!!
+	//if (($.browser.msie && $.browser.version < 9)) {
+	var myNav = navigator.userAgent.toLowerCase();
+	var ie = (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
+	if (ie !== false && ie < 9) {
 		$.blockUI({
 			message: '<div id="browser-check">' +
 					'<h2>' + msg.browsercheck1 + '</h2>' +
@@ -50,7 +54,7 @@ $(document).ready(function () {
 		});
 	}
 
-	if ((!$.browser.msie && !(window.File && window.FileReader && window.FileList && window.Blob))) {
+	if ((ie === false && !(window.File && window.FileReader && window.FileList && window.Blob))) {
 		$.blockUI({
 			message: '<div id="browser-check">' +
 					'<h2>' + msg.browsercheck1 + '</h2>' +

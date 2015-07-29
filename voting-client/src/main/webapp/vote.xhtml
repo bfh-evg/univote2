@@ -89,7 +89,7 @@
 		<!-- STEP 2: Vote -->
 		<div id="step_2_content" class="step hidden">
 
-			<div id="list_election_content">
+			<div id="list_election_content" class="hidden">
 				<div class="row">
 					<div class="small-12 columns">
 						<p id="list_vote_text"><h:outputText value="#{msg.voteText}" escape="false" /></p>
@@ -120,11 +120,22 @@
 							<div class="list-footer" ></div>
 						</div>
 						<form>
-							<button id="submit_list_vote" class="button radius gradient icon-right-dir" onclick="return submitListVote();">#{msg.submitvote}</button>
+							<button id="submit_list_vote" class="button radius gradient icon-right-dir" onclick="return submitListBallot();">#{msg.submitvote}</button>
 						</form>
 					</div>
 				</div>
 			</div>
+
+
+			<div id="vote_content" class="hidden">
+				<div class="row">
+					<div class="small-12 columns">
+						<p>TODO: Fille up with vote issues...</p>
+					</div>
+				</div>
+			</div>
+
+
 		</div>
 
 		<!-- STEP 3: Confirmation -->

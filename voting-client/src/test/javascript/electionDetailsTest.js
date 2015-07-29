@@ -17,7 +17,7 @@ var listElectionDetails = {
 	"options": [
 		{
 			"id": 5,
-			"type": "list",
+			"type": "listOption",
 			"number": "2",
 			"listName": "Junge Grüne Uni Bern",
 			"partyName": "jg",
@@ -25,7 +25,7 @@ var listElectionDetails = {
 		},
 		{
 			"id": 6,
-			"type": "candidate",
+			"type": "candidateOption",
 			"number": "2.1",
 			"lastName": "Oppold",
 			"firstName": "Malvin",
@@ -37,7 +37,7 @@ var listElectionDetails = {
 		},
 		{
 			"id": 1,
-			"type": "list",
+			"type": "listOption",
 			"number": "1",
 			"listName": "Tuxpartei",
 			"partyName": "tux",
@@ -45,7 +45,7 @@ var listElectionDetails = {
 		},
 		{
 			"id": 2,
-			"type": "candidate",
+			"type": "candidateOption",
 			"number": "1.1",
 			"lastName": "Vuilleumier",
 			"firstName": "Sebastian",
@@ -58,7 +58,7 @@ var listElectionDetails = {
 		},
 		{
 			"id": 3,
-			"type": "candidate",
+			"type": "candidateOption",
 			"number": "1.2",
 			"lastName": "Schmid",
 			"firstName": "Luca",

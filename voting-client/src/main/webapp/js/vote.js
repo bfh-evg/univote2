@@ -14,18 +14,6 @@
  */
 
 
-
-//<!-- DIALOGS -->
-
-//<div id="dialog-confirm" title="#{msg.ballot}"></div>
-//<div id="dialog-copy-list" title="#{msg.copycandidatetitle}">#{msg.copycandidate}</div>
-//<div id="dialog-too-many-candidates" title="#{msg.error}">#{msg.toomanycandidate}</div>
-//<div id="dialog-too-many-repetitions" title="#{msg.error}">#{msg.toomanyrepetitions}</div>
-//<div id="list-copied-with-modification" title="#{msg.information}">#{msg.listcopiedwithmodif}</div>
-
-
-
-
 /**
  * Holds the used DOM elements.
  */
@@ -183,8 +171,9 @@ function retrieveElectionData() {
 	} else {
 		//Ajax request
 		$.ajax({
-			//url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/json-schemas/examples/sub-2015/electionData.json",
+			//url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/src/main/resources/json-examples/sub-2015/votingData.json",
 			url: "http://uni.vote/listElection.php",
+			//url: "http://uni.vote/voteElection.php",
 			type: 'GET',
 			accept: "application/json",
 			dataType: 'json',
@@ -353,17 +342,17 @@ function createListElectionContent(issue) {
 		$listLabels.append($listLabel);
 
 		var $list = $('<div>').attr('id', 'list-' + list.id).addClass('list prim-border').hide();
-		$list.append($('<h5>').html(__(list.partyName) + ' - ' + __(list.listName)));
+		$list.append($('<h5>').html(list.getName()));
 		var $ul = $('<ul>');
 		var candidates = issue.getListCandidates(list.id);
 		for (var j in candidates) {
 			var cand = candidates[j];
-			var $name = $('<span>').html(cand.lastName + ' ' + cand.firstName);
+			var $name = $('<span>').html(cand.getName());
 			var $cand = $('<li>').append($name).addClass('button-like').data('id', cand.id);
 			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('info icon-info-circled')).append($('<span>').addClass('add icon-plus-circled'));
 			$cand.append($tools);
 
-			if (cand.status === 'OLD') {
+			if (cand.isPrevious()) {
 				$cand.addClass('previous');
 				$name.append('<br/><i>(' + msg.previous + ')</i>');
 			}
@@ -433,20 +422,20 @@ function createListElectionContent(issue) {
 			console.log("Vote: " + electionDetails.vote);
 			$("#choice-list li").removeClass("placeholder-item").data('id', id);
 			$("#choice-list li>span").html(msg.list + ' ' + list.number);
-			$('#choice h5').html(__(list.partyName) + ' - ' + __(list.listName));
+			$('#choice h5').html(list.getName());
 		};
 
 		var buttons = {};
-		buttons[msg.copyAllCandidates] = function () {
+		buttons[msg.yes] = function () {
 			process(true, this);
 		};
-		buttons[msg.copyListnumber] = function () {
+		buttons[msg.no] = function () {
 			process(false, this);
 		};
 
 		$('<div title="' + msg.copyCandidatesTitle + '">' + msg.copyCandidates + '</div>').dialog({
 			autoOpen: true,
-			width: 600,
+			width: 400,
 			modal: true,
 			buttons: buttons
 		});
@@ -459,7 +448,10 @@ function createListElectionContent(issue) {
 				electionDetails.removeAllChoices();
 				$("#choice-candidates").empty();
 			} else {
+				console.log(electionDetails.getVote());
 				electionDetails.removeChoice($("#choice-list li").data('id'));
+				console.log("Remove: " + $("#choice-list li").data('id'));
+				console.log(electionDetails.getVote());
 			}
 			$("#choice-list li").addClass("placeholder-item").data('id', '');
 			$("#choice-list li>span").html(msg.list);
@@ -475,7 +467,7 @@ function createListElectionContent(issue) {
 
 		$('<div title="' + msg.removeCandidatesTitle + '">' + msg.removeCandidates + '</div>').dialog({
 			autoOpen: true,
-			width: 600,
+			width: 400,
 			modal: true,
 			buttons: buttons
 		});
@@ -605,11 +597,22 @@ function createListElectionContent(issue) {
 			$('#choice-candidates').append($clone);
 		}
 	});
+
+
+
+	// Finally show content!
+	$('#list_election_content').show();
+
 }
 
 
 function createVoteContent(issues) {
 	console.log("Creating vote content...");
+
+
+	// Finally show content!
+	$('#vote_content').show();
+
 }
 
 
@@ -622,7 +625,69 @@ function createVoteContent(issues) {
 
 
 // Finalize Vote
-function submitListVote() {
+function submitListBallot() {
+
+	var $dialog = $('<div>').attr('id', 'dialog-list-ballot').attr('title', msg.ballot);
+	var $listNr = $('<div>').addClass('button-like').html(msg.noListShort);
+	var $listName = $('<h5>').html(msg.noListLong);
+	var $candidates = $('<ul>');
+
+	var issue = electionDetails.issues[0];
+	if (issue.listsAreChoosable()) {
+		$dialog.append($listNr).append($listName);
+	}
+	$dialog.append($candidates);
+	var vote = electionDetails.getVote();
+	// TODO: Error handling if more than one list in vote! (what in fact should never be the case!!)
+	for (var id in vote) {
+		if (vote[id] == 0) {
+			continue;
+		}
+		var option = electionDetails.getOption(id);
+		if (option.isList()) {
+			$listNr.html(msg.list + ' ' + option.number);
+			$listName.html(option.getName());
+		} else if (option.isCandidate()) {
+			var $name = $('<span>').html(vote[id] + ' x ' + option.getName());
+			var $cand = $('<li>').append($name).addClass('button-like');
+			$candidates.append($cand);
+		} else {
+			// TODO: Error handling!
+		}
+	}
+
+	var buttons = {};
+	buttons[msg.confirm] = function () {
+		$(this).dialog("close");
+		$.blockUI({
+			message: '<p id="blockui-processing">' + msg.wait + '.</p>',
+			css: {
+				width: '40%',
+				left: '30%'
+			}
+		});
+		setTimeout(finalizeVote, 500);
+	};
+	buttons[msg.cancel] = function () {
+		$(this).dialog("close");
+	};
+
+	$dialog.dialog({
+		autoOpen: true,
+		height: 600,
+		width: 400,
+		modal: true,
+		buttons: buttons,
+		open: function (event, ui) {
+			$("a.ui-dialog-titlebar-close").remove();
+		}
+	});
+
+	return false;
+}
+
+
+function submitVoteBallot() {
 
 	return false;
 }
@@ -630,10 +695,9 @@ function submitListVote() {
 
 
 
+function finalizeVote() {
 
-
-
-
+}
 
 
 

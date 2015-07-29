@@ -319,7 +319,7 @@ footer {
 #candidates, #choice-holder { margin-bottom: rem-calc(20); position:relative; }
 #list_labels {
 	float: left;
-	li { margin-bottom: rem-calc(5); width: rem-calc(105) !important; position: relative;
+	li { margin-bottom: rem-calc(5); width: rem-calc(115) !important; position: relative;
 		 &.button-like  { padding-top: rem-calc(10);
 						  a { font-family: MuseoSlab-700; color: $white; font-size: rem-calc(18);}
 		 }
@@ -327,8 +327,8 @@ footer {
 }
 
 .list, #choice { overflow-y: auto; height: rem-calc(400); }
-.list { margin-left: rem-calc(110); ul {margin-bottom: rem-calc(25);}}
-.list, #choice {
+.list { margin-left: rem-calc(120); ul {margin-bottom: rem-calc(25);}}
+.list, #choice, #dialog-list-ballot {
 	h5 { line-height: 1.8; }
 	li { margin-bottom: rem-calc(5); position: relative;
 		 &.button-like { background-color: $black; line-height: 1.1;
@@ -341,7 +341,7 @@ footer {
 }
 
 #choice {
-	#choice-list { width: rem-calc(120); border: 2px $white solid; border-radius: 5px;
+	#choice-list { width: rem-calc(130); border: 2px $white solid; border-radius: 5px;
 				   li { margin-bottom: 0;
 						>span { font-family: MuseoSlab-700; color: $white; font-size: rem-calc(18); }
 						&.placeholder-item .tools { display: none; }
@@ -357,7 +357,7 @@ footer {
 }
 
 .list-footer { position: absolute; bottom: 1.5px; left: 2px; right: 2px; height: 25px; background-image: url('../img/lists-footer2.png'); }
-#candidates .list-footer { left: rem-calc(112); }
+#candidates .list-footer { left: rem-calc(122); }
 
 
 .candidateBeingDragged { width: 96% !important;
@@ -366,4 +366,11 @@ footer {
 .partyBeingDragged { margin-bottom: rem-calc(5); width: rem-calc(105) !important; position: relative; padding-top: rem-calc(10);
 					 a { font-family: MuseoSlab-700; color: $white; font-size: rem-calc(18);}
 					 .tools { display: none; }
+}
+
+
+#dialog-list-ballot {
+	div.button-like {width: rem-calc(120) !important; font-family: MuseoSlab-700; background-color: $black; color: $white; font-size: rem-calc(18); padding-top:rem-calc(10); }
+
+	.button-like { cursor: default; }
 }

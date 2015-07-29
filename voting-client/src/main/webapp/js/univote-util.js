@@ -21,7 +21,7 @@
 (function (window) {
 
 	var locale = '';
-	var DEFAULT_LOCALE = 'de';
+	var DEFAULT_LOCALE = 'default';
 	window.getLocale = function () {
 		if (locale == '') {
 			var $body = $('body');
@@ -48,20 +48,14 @@
 			return localizedTexts;
 		}
 		var text = '';
-		var firstIndex = '';
 		for (var index in localizedTexts) {
-			firstIndex = firstIndex == '' ? index : firstIndex;
 			if (index.toLowerCase() == getLocale().toLowerCase()) {
 				text = localizedTexts[index];
 				break;
 			}
 		}
-		if (text == '') {
-			if (localizedTexts[DEFAULT_LOCALE] != undefined) {
-				text = localizedTexts[DEFAULT_LOCALE];
-			} else if (firstIndex != '') {
-				text = localizedTexts[firstIndex];
-			}
+		if (text == '' && localizedTexts[DEFAULT_LOCALE] != undefined) {
+			text = localizedTexts[DEFAULT_LOCALE];
 		}
 
 		return text;
@@ -136,23 +130,13 @@
 		this.options = [];
 		for (var i in details.options) {
 			var option = details.options[i];
-			this.options[option.id] = option;
+			this.options[option.id] = Option.createOption(option);
 		}
 
 		// Create a Rule object for each rule
 		this.rules = [];
 		for (var i in details.rules) {
-			var rule = details.rules[i];
-			switch (rule.type) {
-				case 'summation':
-					this.rules[i] = new SummationRule(rule);
-					break;
-				case 'cumulation':
-					this.rules[i] = new CumulationRule(rule);
-					break;
-				default:
-					this.rules[i] = new Rule(rule);
-			}
+			this.rules[i] = Rule.createRule(details.rules[i]);
 		}
 
 		// Issues
@@ -209,16 +193,16 @@
 		removeChoice: function (option, count) {
 			count = count || -1;
 			if (count == -1) {
-				this.vote[option] = undefined;
+				this.vote[option] = 0;
 			} else if (this.vote[option] != undefined) {
-				this.vote[option] = this.vote[option] - count;
-				if (this.vote[option] <= 0) {
-					this.vote[option] = undefined;
-				}
+				this.vote[option] = Math.max(this.vote[option] - count, 0);
 			}
 		},
 		removeAllChoices: function () {
 			this.vote = [];
+		},
+		getVote: function () {
+			return this.vote;
 		},
 		getOption: function (id) {
 			return this.options[id];
@@ -306,9 +290,9 @@
 		var c = 0;
 		for (var i in this.options) {
 			var option = this.options[i];
-			if (option.type == 'list') {
+			if (option.isList()) {
 				this.lists[c++] = option;
-			} else if (option.type == 'candidate') {
+			} else if (option.isCandidate()) {
 				this.candidates[option.id] = option;
 			}
 		}
@@ -353,6 +337,117 @@
 	window.ListElectionIssue = ListElectionIssue;
 
 
+
+	/**
+	 *
+	 * @param {type} option
+	 * @returns {univote-util_L107.Option}
+	 */
+	function Option(option) {
+		option = option || {};
+		this.id = option.id || 0;
+	}
+
+	Option.prototype = {
+		isList: function () {
+			return this instanceof ListOption;
+		},
+		isCandidate: function () {
+			return this instanceof CandidateOption;
+		},
+		isVote: function () {
+			return this instanceof VoteOption;
+		}
+	};
+
+	Option.createOption = function (option) {
+		var ret;
+		switch (option.type) {
+			case 'listOption':
+				ret = new ListOption(option);
+				break;
+			case 'candidateOption':
+				ret = new CandidateOption(option);
+				break;
+			case 'voteOption':
+				ret = new VoteOption(option);
+				break;
+			default:
+				ret = new Option(option);
+		}
+		return ret;
+	};
+	window.Option = Option;
+
+
+	/**
+	 *
+	 * @param {type} option
+	 * @returns {univote-util_L107.ListOption}
+	 */
+	function ListOption(option) {
+		Option.call(this, option);
+		this.number = option.number || '';
+		this.listName = __(option.listName);
+		this.partyName = __(option.partyName);
+		this.candidateIds = option.candidateIds || [];
+	}
+
+	ListOption.prototype = {
+		getName: function () {
+			return this.partyName + ' - ' + this.listName;
+		}
+	};
+	extend(Option, ListOption);
+	window.ListOption = ListOption;
+
+	/**
+	 *
+	 * @param {type} option
+	 * @returns {univote-util_L107.CandidateOption}
+	 */
+	function CandidateOption(option) {
+		Option.call(this, option);
+
+		this.number = option.number || '';
+		this.lastName = option.lastName || '';
+		this.firstName = option.firstName || '';
+		this.sex = option.sex || '';
+		this.yearOfBirth = option.yearOfBirth || 0;
+		this.studyBranch = __(option.studyBranch);
+		this.studyDegree = __(option.studyDegree);
+		this.studySemester = option.studySemester || 0;
+		this.status = option.status || '';
+	}
+
+	CandidateOption.prototype = {
+		getName: function () {
+			return this.lastName + ' ' + this.firstName;
+		},
+		isPrevious: function () {
+			return this.status == 'OLD';
+		}
+	};
+	extend(Option, CandidateOption);
+	window.CandidateOption = CandidateOption;
+
+	/**
+	 *
+	 * @param {type} option
+	 * @returns {univote-util_L107.VoteOption}
+	 */
+	function VoteOption(option) {
+		Option.call(this, option);
+	}
+
+	VoteOption.prototype = {
+		//
+	};
+	extend(Option, VoteOption);
+	window.VoteOption = VoteOption;
+
+
+
 	/**
 	 * Rule. Base object for voting rules.
 	 *
@@ -380,11 +475,27 @@
 			return this.verify(vote, true);
 		}
 	};
+
 	Rule.SUCCESS = 0;
 	Rule.ERROR_SUMMATION_UPPER = 1;
 	Rule.ERROR_SUMMATION_LOWER = 2;
 	Rule.ERROR_CUMULATION_UPPER = 3;
 	Rule.ERROR_CUMULATION_LOWER = 4;
+
+	Rule.createRule = function (rule) {
+		var ret;
+		switch (rule.type) {
+			case 'summation':
+				ret = new SummationRule(rule);
+				break;
+			case 'cumulation':
+				ret = new CumulationRule(rule);
+				break;
+			default:
+				ret = new Rule(rule);
+		}
+		return ret;
+	};
 
 	window.Rule = Rule;
 	/**
