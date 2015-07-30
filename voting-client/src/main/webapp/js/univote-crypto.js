@@ -712,79 +712,40 @@
 		 * The number of bits per choice is based on the allowd maximum defined
 		 * in the for-all-rules.
 		 *
-		 * @param resultMap - A map representing the vote (choiceId => V(choice)).
-		 * @param choicesIds - An array with all possible choice ids.
-		 * @param forAllRules -  An array with all for-all-rules.
+		 * @param electionDetails
 		 * @return The encoded vote as bigInt.
 		 */
-		this.encodeVote = function (resultMap, choicesIds, forAllRules) {
-
-			// Helper to figure out wheter an element is in array or not.
-			var isInArray = function (element, array) {
-				for (var i = 0; i < array.length; i++) {
-					if (array[i] == element) {
-						return true
-					}
-				}
-				return false;
-			};
+		this.encodeVote = function (electionDetails) {
 
 			// The encoded vote as binary string
 			var bitstring = "";
 
-			// Make sure, the choices are sorted based on the id
-			choicesIds.sort(function (a, b) {
-				return a - b;
-			});
+			// Loop through all options and add the according bits to bitstring
+			for (var id in electionDetails.getOptions()) {
 
-			// Loop through all choices and add the according bits to bitstring
-			for (var i = 0; i < choicesIds.length; i++) {
-
-				var actualId = choicesIds[i];
-				if (actualId != undefined && actualId >= 0) {
-
-					// Get maximal allowed voices for current choice. If (what shouldn't be
-					// the case!) more than one forall-rule exists for a choice, then the
-					// lowest max must be taken.
-					var nbrVoicesPerCandidate = 0;
-					for (var j = 0; j < forAllRules.length; j++) {
-						var ruleIds = forAllRules[j].choiceIds;
-						if (isInArray(actualId, ruleIds)) {
-							var upperBound = forAllRules[j].upperBound;
-							if (nbrVoicesPerCandidate == 0 || upperBound < nbrVoicesPerCandidate) {
-								nbrVoicesPerCandidate = upperBound;
-							}
-						}
-					}
-
-					// Throw an error if the choice couldn't be found in any rule
-					if (nbrVoicesPerCandidate == 0) {
-						throw new Error("Encoding error: choice not found in any rule.");
-					}
-					// Compute the number of bits needed to encode the actual choice
-					var nbrBitsPerCandidate = Math.floor((Math.log(nbrVoicesPerCandidate)) / (Math.log(2))) + 1;
-					// Get the occurences of actual id in vote
-					var votesForActualChoice = resultMap.get(actualId.toString());
-					if (votesForActualChoice === undefined) {
-						votesForActualChoice = 0;
-					}
-
-					// Represent the number in binary number
-					var votesForActualChoiceBin = votesForActualChoice.toString(2);
-					// Check what never should be the case! (If it were true, than the
-					// ruleControle in uv-util would have a bug!)
-					if (votesForActualChoiceBin.length > nbrBitsPerCandidate) {
-						throw new Error("Encoding error: Too many voices for candidate!");
-					}
-					// Add front padding to binary representation
-					while (votesForActualChoiceBin.length < nbrBitsPerCandidate) {
-						votesForActualChoiceBin = "0" + votesForActualChoiceBin;
-					}
-
-					// Construct the bit string
-					// -> actual choice is added at the left of precedent choices
-					bitstring = votesForActualChoiceBin + bitstring;
+				var upperBound = electionDetails.getOptionUpperBound(id);
+				if (upperBound == -1) {
+					throw new Error("Encoding error: No upper bound for option " + id + ".");
 				}
+				// Compute the number of bits needed to encode the option
+				var nbrBits = Math.floor((Math.log(upperBound)) / (Math.log(2))) + 1;
+				// Get the occurences of actual id in vote
+				var votes = electionDetails.getChoice(id);
+
+				// Represent the number in binary number
+				var votesBin = votes.toString(2);
+				// Check what never should be the case!
+				if (votesBin.length > nbrBits) {
+					throw new Error("Encoding error: Too many votes for option!");
+				}
+				// Add front padding to binary representation
+				while (votesBin.length < nbrBits) {
+					votesBin = "0" + votesBin;
+				}
+
+				// Construct the bit string
+				// -> actual choice is added at the left of precedent choices
+				bitstring = votesBin + bitstring;
 			}
 
 			// Return the encoded vote as bigInt

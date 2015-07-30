@@ -114,13 +114,13 @@
 								<ul id="choice-list"><li class="button-like placeholder-item"><span>#{msg.list}</span><div class="tools"><span class="remove icon-minus-circled"></span></div></li></ul>
 								<h5 id="choice-list-title">&#160;</h5>
 								<ul id="choice-candidates">
-									<li class="button-like placeholder-item">#{msg.candidate}</li>
+									<li class="button-like placeholder-item"><span>#{msg.candidate}</span></li>
 								</ul>
 							</div>
 							<div class="list-footer" ></div>
 						</div>
 						<form>
-							<button id="submit_list_vote" class="button radius gradient icon-right-dir" onclick="return submitListBallot();">#{msg.submitvote}</button>
+							<button class="button radius gradient icon-right-dir" onclick="return submitListBallot();">#{msg.submitvote}</button>
 						</form>
 					</div>
 				</div>
@@ -129,9 +129,14 @@
 
 			<div id="vote_content" class="hidden">
 				<div class="row">
-					<div class="small-12 columns">
-						<p>TODO: Fille up with vote issues...</p>
+					<div id="vote_issues" class="small-12 columns"></div>
+				</div>
+				<div class="row">
+					<div class="large-6 medium-6 columns">
 					</div>
+					<form class="large-6 medium-6 columns">
+						<button class="button radius gradient icon-right-dir" onclick="return submitVoteBallot();">#{msg.submitvote}</button>
+					</form>
 				</div>
 			</div>
 
@@ -140,22 +145,31 @@
 
 		<!-- STEP 3: Confirmation -->
 		<div id="step_3_content" class="hidden">
-			<div id="send-vote-success">
-				<p class="center"><img src="img/check_big.png" /></p>
-				<p class="block">#{msg.sendVoteSuccess}</p>
+			<div class="row">
+				<div class="small-12 columns">
+					<div id="send-vote-success">
+						<p class="send-vote-icon"><img src="img/check_big.png" /></p>
+						<p>#{msg.sendVoteSuccess}</p>
+						<p class="center" id="qrcode-holder"></p>
 
-				<p class="center" id="qrcode-holder"></p>
-				<p class="block">#{msg.feedbackText}</p>
-				<p class="block spacer0"><a href="https://docs.google.com/forms/d/1loD0DWA0FxQM8xnHyKJm1LiYc_fnEbGzZTZPHgaXsIY/viewform" target="_blank" class="raquo">#{msg.feedbackLink}</a></p>
+						<!--
+						<p>#{msg.feedbackText}</p>
+						<p class="spacer0"><a href="https://docs.google.com/forms/d/1loD0DWA0FxQM8xnHyKJm1LiYc_fnEbGzZTZPHgaXsIY/viewform" target="_blank" class="raquo">#{msg.feedbackLink}</a></p>
+						-->
+					</div>
+
+					<div id="send-vote-error" class="hidden">
+						<p class="send-vote-icon"><img src="img/x_mark_red_big.png" /></p>
+						<p class="block" id="send-vote-error-message"></p>
+					</div>
+					<p class="spacer50">
+						<h:outputLink value="index.xhtml" class="red icon-right-dir">#{msg.backhome}</h:outputLink>
+					</p>
+				</div>
 			</div>
-
-			<div id="send-vote-error" class="hidden">
-				<p class="center"><img src="img/x_mark_red_big.png" /></p>
-				<p class="block" id="send-vote-error-message"></p>
-			</div>
-
-			<p class="block spacer50"><h:outputLink value="index.xhtml" class="raquo">#{msg.backhome}</h:outputLink></p>
 		</div>
+
+
 	</ui:define>
 
 </ui:composition>

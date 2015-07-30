@@ -138,6 +138,6 @@ function retrieveElections() {
 		$(elements.loadingElections).html(msg.retreiveElectionDefinitionError);
 	};
 
-	uniBoard.get(query, successCB, errorCB);
+	UniBoard.GET(query, successCB, errorCB);
 }
 

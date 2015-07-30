@@ -66,7 +66,7 @@ header {
 }
 
 main {
-	min-height: 400px;
+	min-height: 500px;
 }
 
 .hidden	{
@@ -308,8 +308,12 @@ footer {
 // vote.xhtml
 
 #upload_key_error { opacity: 0; padding-top: 10px; padding-bottom: 20px; color: #c00; font-weight: bold; }
-.button-like { cursor: move; border-radius: 3px; background-color: $primary-color; height:rem-calc(45); padding: rem-calc(5) rem-calc(10); color: $white; width: 100% !important; }
-.button-like.active { @include gradient; }
+.button-like { cursor: move; border-radius: 3px; background-color: $primary-color; height:rem-calc(45); padding: rem-calc(5) rem-calc(10); color: $white; width: 100% !important; position: relative;
+			   >span { display: inline-block; padding-top: rem-calc(8);
+					   i {font-size: rem-calc(11); }
+			   }
+			   &.active { @include gradient; }
+}
 .prim-border { border-radius: 3px; border: 2px $primary-color solid; padding: rem-calc(5); }
 
 .tools { font-size:rem-calc(35); line-height:1; position: absolute; top: rem-calc(5); right: rem-calc(5);
@@ -319,7 +323,7 @@ footer {
 #candidates, #choice-holder { margin-bottom: rem-calc(20); position:relative; }
 #list_labels {
 	float: left;
-	li { margin-bottom: rem-calc(5); width: rem-calc(115) !important; position: relative;
+	li { margin-bottom: rem-calc(5); width: rem-calc(115) !important;
 		 &.button-like  { padding-top: rem-calc(10);
 						  a { font-family: MuseoSlab-700; color: $white; font-size: rem-calc(18);}
 		 }
@@ -332,9 +336,6 @@ footer {
 	h5 { line-height: 1.8; }
 	li { margin-bottom: rem-calc(5); position: relative;
 		 &.button-like { background-color: $black; line-height: 1.1;
-						 >span { display: inline-block; padding-top: rem-calc(8);
-								 i {font-size: rem-calc(11); }
-						 }
 						 &.previous>span { padding-top: rem-calc(0); }
 		 }
 	}
@@ -374,3 +375,28 @@ footer {
 
 	.button-like { cursor: default; }
 }
+
+#vote_issues { padding-bottom: rem-calc(20); }
+
+.issue { margin-top: rem-calc(20);
+
+		 .button-like { margin-bottom: rem-calc(20); cursor: pointer;
+						.tools .remove { display:none; }
+						&.selected { background-color: $black; /*@include gradient;*/
+									 .tools {
+										 .add { display:none; }
+										 .remove { display:block; }
+									 }
+						}
+		 }
+}
+
+#dialog-vote-ballot {
+	h4 { padding-top: rem-calc(25); }
+	p { margin-bottom: 0; }
+	.button-like { cursor:default; background-color: $black; }
+}
+
+
+
+.send-vote-icon { text-align: center; padding: rem-calc(20) 0;  }

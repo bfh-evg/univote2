@@ -13,10 +13,9 @@
 
 
 
-//======================================================================
-// H E L P E R   F U N C T I O N S
-//
-// Just a view global helper functions
+//===========================================================================
+// L O C A L I Z A T I O N
+//===========================================================================
 
 (function (window) {
 
@@ -65,44 +64,60 @@
 
 
 
-//======================================================================
+
+//===========================================================================
 // U N I B O A R D
-//
+//===========================================================================
+
 (function (window) {
 
-	function UniBoard() {
+	// If Board is on another domain, IE9 will not be able to send the GET/POST.
+	// => IE9 does not support cross domain ajax request.
+	var UniBoard = {};
 
-		this.get = function (query, successCB, errorCB) {
+	UniBoard.GET = function (query, successCB, errorCB) {
 
-			//For IE
-			$.support.cors = true;
-			//Ajax request
-			$.ajax({
-				url: uvConfig.URL_UNIBOARD_GET,
-				type: 'POST',
-				contentType: "application/json",
-				accept: "application/json",
-				cache: false,
-				dataType: 'json',
-				data: JSON.stringify(query),
-				timeout: 10000,
-				crossDomain: true,
-				success: successCB,
-				error: errorCB
-			});
-		};
-		this.post = function () {
-		};
-	}
+		//For IE
+		$.support.cors = true;
+		//Ajax request
+		$.ajax({
+			url: uvConfig.URL_UNIBOARD_GET,
+			type: 'POST',
+			contentType: "application/json",
+			accept: "application/json",
+			cache: false,
+			dataType: 'json',
+			data: JSON.stringify(query),
+			timeout: 10000,
+			crossDomain: true,
+			success: successCB,
+			error: errorCB
+		});
+	};
 
-	window.uniBoard = new UniBoard();
+	UniBoard.POST = function (post, successCB, errorCB) {
+
+		//For IE
+		$.support.cors = true;
+		//Ajax request
+		$.ajax({
+			url: uvConfig.URL_UNIBOARD_POST,
+			type: 'POST',
+			contentType: "application/json",
+			accept: "application/json",
+			cache: false,
+			dataType: 'json',
+			data: JSON.stringify(post),
+			timeout: 10000,
+			crossDomain: true,
+			success: successCB,
+			error: errorCB
+		});
+	};
+
+	window.UniBoard = UniBoard;
 })(window);
 
-
-
-//======================================================================
-// I S S U E  A N D  R U L E S
-//
 
 (function (window) {
 
@@ -121,43 +136,65 @@
 		});
 	}
 
+	//===========================================================================
+	// E L E C T I O N   D E T A I L S
+	//===========================================================================
 
-
+	/**
+	 *
+	 * @param {type} details
+	 * @returns {univote-util_L123.ElectionDetails}
+	 */
 	function ElectionDetails(details) {
 		details = details || {};
 
 		// Make sure, options are ordered by id (important for ballot encoding)
-		this.options = [];
+		this._options = [];
 		for (var i in details.options) {
 			var option = details.options[i];
-			this.options[option.id] = Option.createOption(option);
+			this._options[option.id] = Option.createOption(option);
 		}
 
 		// Create a Rule object for each rule
-		this.rules = [];
+		this._rules = [];
 		for (var i in details.rules) {
-			this.rules[i] = Rule.createRule(details.rules[i]);
+			this._rules[i] = Rule.createRule(details.rules[i]);
 		}
 
 		// Issues
-		this.issues = [];
+		this._issues = [];
 		for (var i in details.issues) {
 			var issue = details.issues[i];
-			this.issues[i] = Issue.createIssue(issue, this);
+			this._issues[i] = Issue.createIssue(issue, this);
 		}
 
 		// Ballot Encoding
-		this.ballotEncoding = details.ballotEncoding || '';
+		this._ballotEncoding = details.ballotEncoding || '';
 
 		// Users choice
-		this.vote = [];
+		this._vote = [];
 	}
 
 	ElectionDetails.prototype = {
+		getOptions: function () {
+			return this._options;
+		},
+		getRules: function () {
+			return this._rules;
+		},
+		getIssues: function () {
+			return this._issues;
+		},
+		getBallotEncoding: function () {
+			return this._ballotEncoding;
+		},
+		getVote: function () {
+			return this._vote;
+		},
 		verifyVote: function () {
 			var ret = Rule.SUCCESS;
-			for (var i in this.rules) {
-				ret = this.rules[i].verify(this.vote);
+			for (var i in this._rules) {
+				ret = this._rules[i].verify(this._vote);
 				if (ret != Rule.SUCCESS) {
 					return ret;
 				}
@@ -166,8 +203,8 @@
 		},
 		verifyVoteUpperBoundOnly: function () {
 			var ret = Rule.SUCCESS;
-			for (var i in this.rules) {
-				ret = this.rules[i].verifyUpperBoundOnly(this.vote);
+			for (var i in this._rules) {
+				ret = this._rules[i].verifyUpperBoundOnly(this._vote);
 				if (ret != Rule.SUCCESS) {
 					return ret;
 				}
@@ -176,48 +213,48 @@
 		},
 		// The choice is not validated against the rules. False is returned
 		// if the option is not in the set of options, otherwise true.
-		addChoice: function (option, count, increment) {
+		addChoice: function (optionId, count, increment) {
 			count = count || 1;
 			increment = increment || false;
-			if (this.options[option] != undefined) {
-				if (this.vote[option] == undefined || !increment) {
-					this.vote[option] = count;
+			if (this._options[optionId] != undefined) {
+				if (this._vote[optionId] == undefined || !increment) {
+					this._vote[optionId] = count;
 				} else {
-					this.vote[option] += count;
+					this._vote[optionId] += count;
 				}
 				return true;
 			} else {
 				return false;
 			}
 		},
-		removeChoice: function (option, count) {
+		removeChoice: function (optionId, count) {
 			count = count || -1;
 			if (count == -1) {
-				this.vote[option] = 0;
-			} else if (this.vote[option] != undefined) {
-				this.vote[option] = Math.max(this.vote[option] - count, 0);
+				this._vote[optionId] = 0;
+			} else if (this._vote[optionId] != undefined) {
+				this._vote[optionId] = Math.max(this._vote[optionId] - count, 0);
 			}
 		},
 		removeAllChoices: function () {
-			this.vote = [];
+			this._vote = [];
 		},
-		getVote: function () {
-			return this.vote;
+		getChoice: function (optionId) {
+			return this._vote[optionId] == undefined ? 0 : this._vote[optionId];
 		},
 		getOption: function (id) {
-			return this.options[id];
+			return this._options[id];
 		},
 		// Returns -1 if option not in options or no upper bound exists
-		getOptionUpperBound: function (option) {
-			if (this.options[option] == undefined) {
+		getOptionUpperBound: function (optionId) {
+			if (this._options[optionId] == undefined) {
 				return -1;
 			}
 			var upperBound = -1;
-			for (var i in this.rules) {
-				var rule = this.rules[i];
-				if (rule.containsOption(option)) {
-					if (upperBound == -1 || upperBound > rule.upperBound) {
-						upperBound = rule.upperBound;
+			for (var i in this._rules) {
+				var rule = this._rules[i];
+				if (rule.containsOption(optionId)) {
+					if (upperBound == -1 || upperBound > rule.getUpperBound()) {
+						upperBound = rule.getUpperBound();
 					}
 				}
 			}
@@ -227,6 +264,10 @@
 	window.ElectionDetails = ElectionDetails;
 
 
+	//===========================================================================
+	// I S S U E
+	//===========================================================================
+
 	/**
 	 *
 	 * @param {type} issue
@@ -235,26 +276,48 @@
 	 */
 	function Issue(issue, electionDetails) {
 		issue = issue || {};
-		this.electionDetails = electionDetails;
-		this.id = issue.id || 0;
-		this.type = issue.type || '';
-		this.title = getLocalizedText(issue.title);
-		this.description = getLocalizedText(issue.description);
-		this.options = [];
-		for (var i in issue.optionIds) {
-			var id = issue.optionIds[i];
-			this.options[id] = this.electionDetails.options[id];
-		}
-		this.rules = [];
-		for (var i in issue.rulesIds) {
-			var id = issue.rulesIds[i];
-			this.rules[id] = this.electionDetails.rules[id];
-		}
+		this._electionDetails = electionDetails;
+		this._id = issue.id || 0;
+		this._type = issue.type || '';
+		this._title = __(issue.title);
+		this._optionIds = issue.optionIds;
+		this._ruleIds = issue.rulesIds;
+		/*this._options = [];
+		 for (var i in this._optionIds) {
+		 var id = this._optionIds[i];
+		 this._options[id] = this._electionDetails.getOptions()[id];
+		 }
+		 this._rules = [];
+		 for (var i in issue.rulesIds) {
+		 var id = issue.rulesIds[i];
+		 this._rules[id] = this._electionDetails.getRules()[id];
+		 }*/
 	}
 
 	Issue.prototype = {
+		getElectionDetails: function () {
+			return this._electionDetails;
+		},
+		getId: function () {
+			return this._id;
+		},
+		getTitle: function () {
+			return this._title;
+		},
+		getOptionIds: function () {
+			return this._optionIds;
+		},
+		getRuleIds: function () {
+			return this._ruleIds;
+		},
+		/*getOptions: function () {
+		 return this._options;
+		 },
+		 getRules: function () {
+		 return this._rules;
+		 },*/
 		getOption: function (id) {
-			return this.electionDetails.getOption(id);
+			return this._electionDetails.getOption(id);
 		}
 	};
 
@@ -264,7 +327,9 @@
 			case 'listElection':
 				ret = new ListElectionIssue(issue, electionDetails);
 				break;
-
+			case 'vote':
+				ret = new VoteIssue(issue, electionDetails);
+				break;
 			default:
 				ret = new Issue(issue, electionDetails);
 		}
@@ -282,29 +347,31 @@
 	function ListElectionIssue(issue, electionDetails) {
 		Issue.call(this, issue, electionDetails);
 
+		this._description = __(issue.description);
+
 		// Sorted array of lists (index => option)
-		this.lists = [];
+		this._lists = [];
 		// Array of candidates (id => option)
-		this.candidates = [];
+		this._candidates = [];
 
 		var c = 0;
-		for (var i in this.options) {
-			var option = this.options[i];
+		for (var i = 0; i < this._optionIds.length; i++) {
+			var option = this.getOption(this._optionIds[i]);
 			if (option.isList()) {
-				this.lists[c++] = option;
+				this._lists[c++] = option;
 			} else if (option.isCandidate()) {
-				this.candidates[option.id] = option;
+				this._candidates[option.getId()] = option;
 			}
 		}
 
 		// Sort lists according to 'number'
-		for (var i = 0; i < this.lists.length; i++) {
-			var option = this.lists[i];
-			for (var j = i + 1; j < this.lists.length; j++) {
-				if (this.lists[j].number < option.number) {
-					this.lists[i] = this.lists[j];
-					this.lists[j] = option;
-					option = this.lists[j];
+		for (var i = 0; i < this._lists.length; i++) {
+			var option = this._lists[i];
+			for (var j = i + 1; j < this._lists.length; j++) {
+				if (this._lists[j].getNumber() < option.getNumber()) {
+					this._lists[i] = this._lists[j];
+					this._lists[j] = option;
+					option = this._lists[j];
 				}
 			}
 		}
@@ -313,20 +380,21 @@
 	ListElectionIssue.prototype = {
 		// Returns a sorted array of lists (according to the number)
 		getLists: function () {
-			return this.lists;
+			return this._lists;
 		},
 		// Returns a sorted array of candidates (according to the lists's candidateIds)
 		getListCandidates: function (listId) {
-			var list = this.options[listId] || {};
+			var list = this.getOption(listId);
 			var candidates = [];
-			for (var i = 0; i < list.candidateIds.length; i++) {
-				candidates[i] = this.options[list.candidateIds[i]];
+			var candidateIds = list.getCandidateIds();
+			for (var i = 0; i < candidateIds.length; i++) {
+				candidates[i] = this.getOption(candidateIds[i]);
 			}
 			return candidates;
 		},
 		listsAreChoosable: function () {
-			for (var i in this.lists) {
-				if (this.electionDetails.getOptionUpperBound(this.lists[i].id) > 0) {
+			for (var i in this._lists) {
+				if (this._electionDetails.getOptionUpperBound(this._lists[i].getId()) > 0) {
 					return true;
 				}
 			}
@@ -340,15 +408,43 @@
 
 	/**
 	 *
+	 * @param {type} issue
+	 * @param {type} electionDetails
+	 * @returns {univote-util_L126.VoteIssue}
+	 */
+	function VoteIssue(issue, electionDetails) {
+		Issue.call(this, issue, electionDetails);
+
+		this._question = __(issue.question);
+	}
+
+	VoteIssue.prototype = {
+		getQuestion: function () {
+			return this._question;
+		}
+	};
+	extend(Issue, VoteIssue);
+	window.VoteIssue = VoteIssue;
+
+
+	//===========================================================================
+	// O P T I O N
+	//===========================================================================
+
+	/**
+	 *
 	 * @param {type} option
 	 * @returns {univote-util_L107.Option}
 	 */
 	function Option(option) {
 		option = option || {};
-		this.id = option.id || 0;
+		this._id = option.id || 0;
 	}
 
 	Option.prototype = {
+		getId: function () {
+			return this._id;
+		},
 		isList: function () {
 			return this instanceof ListOption;
 		},
@@ -369,8 +465,8 @@
 			case 'candidateOption':
 				ret = new CandidateOption(option);
 				break;
-			case 'voteOption':
-				ret = new VoteOption(option);
+			case 'votingOption':
+				ret = new VotingOption(option);
 				break;
 			default:
 				ret = new Option(option);
@@ -387,15 +483,27 @@
 	 */
 	function ListOption(option) {
 		Option.call(this, option);
-		this.number = option.number || '';
-		this.listName = __(option.listName);
-		this.partyName = __(option.partyName);
-		this.candidateIds = option.candidateIds || [];
+		this._number = option.number || '';
+		this._listName = __(option.listName);
+		this._partyName = __(option.partyName);
+		this._candidateIds = option.candidateIds || [];
 	}
 
 	ListOption.prototype = {
+		getNumber: function () {
+			return this._number;
+		},
+		getListName: function () {
+			return this._listName;
+		},
+		getPartyName: function () {
+			return this._partyName;
+		},
+		getCandidateIds: function () {
+			return this._candidateIds;
+		},
 		getName: function () {
-			return this.partyName + ' - ' + this.listName;
+			return this._partyName + ' - ' + this._listName;
 		}
 	};
 	extend(Option, ListOption);
@@ -409,23 +517,47 @@
 	function CandidateOption(option) {
 		Option.call(this, option);
 
-		this.number = option.number || '';
-		this.lastName = option.lastName || '';
-		this.firstName = option.firstName || '';
-		this.sex = option.sex || '';
-		this.yearOfBirth = option.yearOfBirth || 0;
-		this.studyBranch = __(option.studyBranch);
-		this.studyDegree = __(option.studyDegree);
-		this.studySemester = option.studySemester || 0;
-		this.status = option.status || '';
+		this._number = option.number || '';
+		this._lastName = option.lastName || '';
+		this._firstName = option.firstName || '';
+		this._sex = option.sex || '';
+		this._yearOfBirth = option.yearOfBirth || 0;
+		this._studyBranch = __(option.studyBranch);
+		this._studyDegree = __(option.studyDegree);
+		this._studySemester = option.studySemester || 0;
+		this._status = option.status || '';
 	}
 
 	CandidateOption.prototype = {
+		getNumber: function () {
+			return this._number;
+		},
+		getLastName: function () {
+			return this._lastName;
+		},
+		getFirstName: function () {
+			return this._firstName;
+		},
+		getSex: function () {
+			return this._sex;
+		},
+		getYearOfBirth: function () {
+			return this._yearOfBirth;
+		},
+		getStudyBranch: function () {
+			return this._studyBranch;
+		},
+		getStudyDegree: function () {
+			return this._studyDegree;
+		},
+		getStudySemester: function () {
+			return this._studySemester;
+		},
 		getName: function () {
-			return this.lastName + ' ' + this.firstName;
+			return this._lastName + ' ' + this._firstName;
 		},
 		isPrevious: function () {
-			return this.status == 'OLD';
+			return this._status == 'OLD';
 		}
 	};
 	extend(Option, CandidateOption);
@@ -434,19 +566,25 @@
 	/**
 	 *
 	 * @param {type} option
-	 * @returns {univote-util_L107.VoteOption}
+	 * @returns {univote-util_L107.VotingOption}
 	 */
-	function VoteOption(option) {
+	function VotingOption(option) {
 		Option.call(this, option);
+		this._answer = __(option.answer);
 	}
 
-	VoteOption.prototype = {
-		//
+	VotingOption.prototype = {
+		getAnswer: function () {
+			return this._answer;
+		}
 	};
-	extend(Option, VoteOption);
-	window.VoteOption = VoteOption;
+	extend(Option, VotingOption);
+	window.VotingOption = VotingOption;
 
 
+	//===========================================================================
+	// R U L E
+	//===========================================================================
 
 	/**
 	 * Rule. Base object for voting rules.
@@ -455,16 +593,33 @@
 	 * @returns {univote-util_L112.Rule}
 	 */
 	function Rule(rule) {
-		this.rule = rule || {};
-		this.id = rule.id || 0;
-		this.options = rule.optionIds || [];
-		this.upperBound = rule.upperBound || 0;
-		this.lowerBound = rule.lowerBound || 0;
+		rule = rule || {};
+		this._id = rule.id || 0;
+		this._optionsIds = rule.optionIds || [];
+		this._upperBound = rule.upperBound || 0;
+		this._lowerBound = rule.lowerBound || 0;
 	}
 
 	Rule.prototype = {
-		containsOption: function (option) {
-			return this.options.indexOf(option) !== -1;
+		getId: function () {
+			return this._id;
+		},
+		getOptionIds: function () {
+			return this._optionsIds;
+		},
+		getUpperBound: function () {
+			return this._upperBound;
+		},
+		getLowerBound: function () {
+			return this._lowerBound;
+		},
+		containsOption: function (optionId) {
+			for (var i = 0; i < this._optionsIds.length; i++) {
+				if (this._optionsIds[i] == optionId) {
+					return true;
+				}
+			}
+			return false;
 		},
 		// Abstract functions: To be implemented by specialization
 		// Returns 0 on success or a value > 0 representing the error code
@@ -513,19 +668,19 @@
 			onlyUpperBound = onlyUpperBound || false;
 			var counter = 0;
 			// Loop through the concerned options
-			for (var i = 0; i < this.options.length; i++) {
-				var value = vote[this.options[i]];
+			for (var i = 0; i < this._optionsIds.length; i++) {
+				var value = vote[this._optionsIds[i]];
 				if (value != undefined) {
 					counter += value;
 				}
 				// If greater than upper bound => error
-				if (counter > this.upperBound) {
+				if (counter > this._upperBound) {
 					return Rule.ERROR_SUMMATION_UPPER;
 				}
 			}
 
 			// If smaller than lower bound => error
-			if (!onlyUpperBound && counter < this.lowerBound) {
+			if (!onlyUpperBound && counter < this._lowerBound) {
 				return Rule.ERROR_SUMMATION_LOWER;
 			}
 
@@ -549,18 +704,18 @@
 		verify: function (vote, onlyUpperBound) {
 			onlyUpperBound = onlyUpperBound || false;
 			// Loop through the options
-			for (var i = 0; i < this.options.length; i++) {
-				var value = vote[this.options[i]];
+			for (var i = 0; i < this._optionsIds.length; i++) {
+				var value = vote[this._optionsIds[i]];
 				if (value != undefined) {
 					// If greater than upper bound => error
-					if (value > this.upperBound) {
+					if (value > this._upperBound) {
 						return Rule.ERROR_CUMULATION_UPPER;
 					}
 					// If smaller than lower bound => error
-					if (!onlyUpperBound && value < this.lowerBound) {
+					if (!onlyUpperBound && value < this._lowerBound) {
 						return Rule.ERROR_CUMULATION_LOWER;
 					}
-				} else if (!onlyUpperBound && this.lowerBound > 0) {
+				} else if (!onlyUpperBound && this._lowerBound > 0) {
 					return Rule.ERROR_CUMULATION_LOWER;
 				}
 			}
@@ -570,10 +725,13 @@
 	extend(Rule, CumulationRule);
 	window.CumulationRule = CumulationRule;
 })(window);
-//======================================================================
+
+
+//===========================================================================
 // C O O K I E   S U P P O R T
 //
 // Based on http://www.quirksmode.org/js/cookies.html
+//===========================================================================
 
 (function (window) {
 

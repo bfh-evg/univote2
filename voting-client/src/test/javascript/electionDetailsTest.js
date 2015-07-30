@@ -144,7 +144,6 @@ describe('SummationRuleTest', function () {
 		var rule = new SummationRule(summationRule);
 		expect(rule.containsOption(1)).toEqual(true);
 		expect(rule.containsOption(54)).toEqual(true);
-		expect(rule.containsOption("1")).toEqual(false);
 		expect(rule.containsOption(7)).toEqual(false);
 	});
 });
@@ -190,7 +189,6 @@ describe('CumulationRuleTest', function () {
 		});
 		expect(rule.containsOption(1)).toEqual(true);
 		expect(rule.containsOption(54)).toEqual(true);
-		expect(rule.containsOption("1")).toEqual(false);
 		expect(rule.containsOption(7)).toEqual(false);
 	});
 });
@@ -215,19 +213,19 @@ describe('ElectionDetailsTest', function () {
 describe('ListElectionDetailsTest', function () {
 	it('creating and retreiving lists and listCandidates', function () {
 		var details = new ElectionDetails(listElectionDetails);
-		var issue = details.issues[0];
+		var issue = details.getIssues()[0];
 		var lists = issue.getLists();
-		expect(lists[0].id).toEqual(1);
-		expect(lists[1].id).toEqual(5);
+		expect(lists[0].getId()).toEqual(1);
+		expect(lists[1].getId()).toEqual(5);
 		var candidates = issue.getListCandidates(1);
-		expect(candidates[0].id).toEqual(2);
-		expect(candidates[1].id).toEqual(2);
-		expect(candidates[2].id).toEqual(3);
+		expect(candidates[0].getId()).toEqual(2);
+		expect(candidates[1].getId()).toEqual(2);
+		expect(candidates[2].getId()).toEqual(3);
 	});
 
 	it('lists are choosable', function () {
 		var details = new ElectionDetails(listElectionDetails);
-		var issue = details.issues[0];
+		var issue = details.getIssues()[0];
 		var listsAreChoosable = issue.listsAreChoosable();
 		expect(listsAreChoosable).toEqual(true);
 
@@ -236,9 +234,20 @@ describe('ListElectionDetailsTest', function () {
 		listElectionDetails2.rules[1].upperBound = 0;
 
 		var details = new ElectionDetails(listElectionDetails2);
-		var issue = details.issues[0];
+		var issue = details.getIssues()[0];
 		var listsAreChoosable = issue.listsAreChoosable();
 		expect(listsAreChoosable).toEqual(false);
+
+	});
+
+	it('upper bound', function () {
+		var details = new ElectionDetails(listElectionDetails);
+
+		expect(details.getOptionUpperBound(1)).toEqual(1);
+		expect(details.getOptionUpperBound(5)).toEqual(1);
+		expect(details.getOptionUpperBound(2)).toEqual(3);
+		expect(details.getOptionUpperBound(3)).toEqual(3);
+		expect(details.getOptionUpperBound(6)).toEqual(3);
 
 	});
 });

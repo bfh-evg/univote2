@@ -144,12 +144,12 @@ function retrieveElectionData() {
 		uvCrypto.setSignatureParameters(ss);
 		uvCrypto.setHashParameters(hs);
 
-		encryptionKey = message.encryptionKey || '';
-		signatureGenerator = message.signatureGenerator || '';
+		encryptionKey = leemon.str2bigInt(message.encryptionKey, 10, 1);
+		signatureGenerator = leemon.str2bigInt(message.signatureGenerator, 10, 1);
 
 		electionDetails = new ElectionDetails(message.details);
 
-		if (!(encryptionKey && signatureGenerator && electionDetails.issues.length > 0)) {
+		if (!(encryptionKey && signatureGenerator && electionDetails.getIssues().length > 0)) {
 			processFatalError(msg.incompatibleDataReceived);
 			return;
 		}
@@ -167,13 +167,13 @@ function retrieveElectionData() {
 	// TODO @DEV
 	var mock = true;
 	if (!mock) {
-		uniBoard.get(query, successCB, errorCB);
+		UniBoard.GET(query, successCB, errorCB);
 	} else {
 		//Ajax request
 		$.ajax({
 			//url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/src/main/resources/json-examples/sub-2015/votingData.json",
-			url: "http://uni.vote/listElection.php",
-			//url: "http://uni.vote/voteElection.php",
+			//url: "http://uni.vote/listElection.php",
+			url: "http://uni.vote/voteElection.php",
 			type: 'GET',
 			accept: "application/json",
 			dataType: 'json',
@@ -199,7 +199,7 @@ function uploadSecretKey() {
 	return;
 
 	// Hide previous error message
-	$(elements.uploadKeyError).html('').css('opacity', '0.01');
+	$(elements.uploadKeyError).html('&nbsp;').css('opacity', '0');
 
 	// Get password
 	var pw = elements.password.value;
@@ -260,7 +260,7 @@ function gotoStep2() {
 	// Currently only the following issue combinations are supported:
 	//   - 1 issue of type 'listElection'
 	//   - n issues of tpye 'vote'
-	var issues = electionDetails.issues;
+	var issues = electionDetails.getIssues();
 	if (issues[0] instanceof ListElectionIssue) {
 		createListElectionContent(issues[0]);
 	} else {
@@ -315,11 +315,21 @@ function processFatalError(errorMsg) {
 
 
 
+
+
+
+
+
+
+//===========================================================================
+// C R E A T I N G   E L E C T I O N   C O N T E N T S
+//===========================================================================
+
 function createListElectionContent(issue) {
 
 	// TODO: Support for no-list (only candidates, not belonging to a list)
 
-	var electionDetails = issue.electionDetails;
+	var electionDetails = issue.getElectionDetails();
 
 	$('#list_vote_description').html(issue.description);
 	if (!issue.listsAreChoosable()) {
@@ -332,8 +342,8 @@ function createListElectionContent(issue) {
 	for (var i in lists) {
 		var list = lists[i];
 
-		var $listLabel = $('<li class="button-like"><a href="#">' + msg.list + ' ' + list.number + '</a></li>');
-		$listLabel.data('id', list.id);
+		var $listLabel = $('<li class="button-like"><a href="#">' + msg.list + ' ' + list.getNumber() + '</a></li>');
+		$listLabel.data('id', list.getId());
 		if (issue.listsAreChoosable()) {
 			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('add icon-plus-circled'));
 			$listLabel.append($tools);
@@ -341,14 +351,14 @@ function createListElectionContent(issue) {
 
 		$listLabels.append($listLabel);
 
-		var $list = $('<div>').attr('id', 'list-' + list.id).addClass('list prim-border').hide();
+		var $list = $('<div>').attr('id', 'list-' + list.getId()).addClass('list prim-border').hide();
 		$list.append($('<h5>').html(list.getName()));
 		var $ul = $('<ul>');
-		var candidates = issue.getListCandidates(list.id);
+		var candidates = issue.getListCandidates(list.getId());
 		for (var j in candidates) {
 			var cand = candidates[j];
 			var $name = $('<span>').html(cand.getName());
-			var $cand = $('<li>').append($name).addClass('button-like').data('id', cand.id);
+			var $cand = $('<li>').append($name).addClass('button-like').data('id', cand.getId());
 			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('info icon-info-circled')).append($('<span>').addClass('add icon-plus-circled'));
 			$cand.append($tools);
 
@@ -419,9 +429,9 @@ function createListElectionContent(issue) {
 				}
 			}
 			electionDetails.addChoice(id);
-			console.log("Vote: " + electionDetails.vote);
+			console.log("Vote: " + electionDetails.getVote());
 			$("#choice-list li").removeClass("placeholder-item").data('id', id);
-			$("#choice-list li>span").html(msg.list + ' ' + list.number);
+			$("#choice-list li>span").html(msg.list + ' ' + list.getNumber());
 			$('#choice h5').html(list.getName());
 		};
 
@@ -598,64 +608,140 @@ function createListElectionContent(issue) {
 		}
 	});
 
-
-
 	// Finally show content!
 	$('#list_election_content').show();
-
 }
 
 
 function createVoteContent(issues) {
 	console.log("Creating vote content...");
 
+	var $issues = $('#vote_issues');
+	for (var i = 0; i < issues.length; i++) {
+		var issue = issues[i];
+		var $issue = $('<div>').addClass('issue clearfix');
+		var $title = $('<h4>').html(issue.getTitle());
+		var $question = $('<p>').html(issue.getQuestion());
+		var $answers = $('<div>');
+
+		var optionIds = issue.getOptionIds();
+		var nrRows = Math.ceil(optionIds.length / 3);
+		var $row = null;
+		for (var j = 0; j < optionIds.length; j++) {
+			if (j % 3 == 0) {
+				$row = $('<div>').addClass('row');
+				$answers.append($row);
+			}
+			var q = nrRows > 1 ? 4 : (12 / optionIds.length);
+			var option = issue.getOption(optionIds[j]);
+			var $answer = $('<div>').addClass('medium-' + q + ' columns');
+			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('add icon-plus-circled')).append($('<span>').addClass('remove icon-minus-circled'));
+			var $button = $('<div>').addClass('button-like').data('id', option.getId()).append('<span>' + option.getAnswer() + '</span>', $tools);
+			$answer.append($button);
+			$row.append($answer);
+		}
+
+		$issue.append($title, $question, $answers);
+		$issues.append($issue);
+	}
+
+	$('.issue .button-like').click(function () {
+		var $this = $(this);
+		var selectedClass = 'selected';
+		if ($this.hasClass(selectedClass)) {
+			electionDetails.removeChoice($this.data('id'));
+			$this.removeClass(selectedClass);
+		} else {
+			var $selected = $this.parents('.issue').find('.' + selectedClass);
+			if ($selected.size() > 0) {
+				electionDetails.removeChoice($selected.data('id'));
+				$selected.removeClass(selectedClass);
+			}
+			electionDetails.addChoice($this.data('id'));
+			$this.addClass(selectedClass);
+		}
+	});
 
 	// Finally show content!
 	$('#vote_content').show();
-
 }
 
 
 
 
 
+//===========================================================================
+// B A L L O T   C A S T I N G
+//===========================================================================
 
-
-
-
-
-// Finalize Vote
 function submitListBallot() {
+
+	// TODO: Verify vote, although there shouldn't be any rule violations!
 
 	var $dialog = $('<div>').attr('id', 'dialog-list-ballot').attr('title', msg.ballot);
 	var $listNr = $('<div>').addClass('button-like').html(msg.noListShort);
 	var $listName = $('<h5>').html(msg.noListLong);
 	var $candidates = $('<ul>');
 
-	var issue = electionDetails.issues[0];
+	var issue = electionDetails.getIssues()[0];
 	if (issue.listsAreChoosable()) {
 		$dialog.append($listNr).append($listName);
 	}
 	$dialog.append($candidates);
 	var vote = electionDetails.getVote();
-	// TODO: Error handling if more than one list in vote! (what in fact should never be the case!!)
 	for (var id in vote) {
 		if (vote[id] == 0) {
 			continue;
 		}
 		var option = electionDetails.getOption(id);
 		if (option.isList()) {
-			$listNr.html(msg.list + ' ' + option.number);
+			$listNr.html(msg.list + ' ' + option.getNumber());
 			$listName.html(option.getName());
 		} else if (option.isCandidate()) {
 			var $name = $('<span>').html(vote[id] + ' x ' + option.getName());
 			var $cand = $('<li>').append($name).addClass('button-like');
 			$candidates.append($cand);
 		} else {
-			// TODO: Error handling!
+			// If vote was verified, this can never happen!
 		}
 	}
 
+	showSubmitBallotDialog($dialog);
+
+	return false;
+}
+
+
+function submitVoteBallot() {
+// TODO: Verify vote, although there shouldn't be any rule violations!
+
+	var $dialog = $('<div>').attr('id', 'dialog-vote-ballot').attr('title', msg.ballot);
+
+	var issues = electionDetails.getIssues();
+
+	for (var i = 0; i < issues.length; i++) {
+		var issue = issues[i];
+		var optionIds = issue.getOptionIds();
+		$dialog.append('<h4>' + issue.getTitle() + '</h4>');
+		var noChoice = true;
+		for (var j = 0; j < optionIds.length; j++) {
+			var optionId = optionIds[j];
+			if (electionDetails.getChoice(optionId) > 0) {
+				$dialog.append('<div class="button-like"><span>' + electionDetails.getOption(optionId).getAnswer() + '</span></div>');
+				noChoice = false;
+			}
+		}
+		if (noChoice) {
+			$dialog.append('<p>' + msg.noChoice + '</p>');
+		}
+	}
+
+	showSubmitBallotDialog($dialog);
+
+	return false;
+}
+
+function showSubmitBallotDialog($dialog) {
 	var buttons = {};
 	buttons[msg.confirm] = function () {
 		$(this).dialog("close");
@@ -682,122 +768,230 @@ function submitListBallot() {
 			$("a.ui-dialog-titlebar-close").remove();
 		}
 	});
-
-	return false;
 }
-
-
-function submitVoteBallot() {
-
-	return false;
-}
-
-
-
-
-function finalizeVote() {
-
-}
-
-
-
-
-//===========================================================================
-// Get and process data from election board service
-
-
-
-///////////////////////////////////////////////////////////////////////////
-////////// O L D //////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////
 
 
 /**
- * The callback for the verification of the election data signature. If the
- * signature is correct then the election data are processed, otherwise a
- * fatal error.
- *
- * @param success - true if the signature is correct otherwise false.
+ * Finalizes the vote. After encoding, encrypting, proofing, and signing the
+ * vote is finally casted. The confirmMap must be filled up prior to calling
+ * this function!
+ * In order to be able to give feedback to the user that something is happening, this function is implemented
+ * on an asynchronous manner
  */
-function verifySignature(success) {
+function finalizeVote() {
 
-	if (!success) {
-		processFatalError(msg.signatureError);
-		return;
-	}
+	var ballotData = {};
 
-	//
-	// The signature is correct, so process election data.
-	// Doing all in once is too much for IE < 9!!
-	// So it is done in a few asynchronous steps.
-	//
-	var choices, rules, lists, choicesMap;
+	var updateProcessing = function () {
+		$('#blockui-processing').append('.');
+	};
 
-	// Step 1: Process cryptographic parameters
-	// Set Elgamal parameters, election generator and encryption key
-	uvCrypto.setEncryptionParameters(electionData.encryptionSetting.p, electionData.encryptionSetting.q, electionData.encryptionSetting.g, 10);
-	uvCrypto.setSignatureParameters(electionData.signatureSetting.p, electionData.signatureSetting.q, electionData.signatureSetting.g, electionData.signatureSetting.ghat, 10);
-	electionGenerator = leemon.str2bigInt(electionData.signatureSetting.ghat, 10, 1);
-	encryptionKey = leemon.str2bigInt(electionData.encryptionSetting.encryptionKey, 10, 1);
+	var step1 = function () {
+		try {
+			// 1 - Encode vote (BigInt) (LATER: Based on electionDetails.ballotEncoding)
+			console.log("1. Encode Vote");
+			var encodedVote = uvCrypto.encodeVote(electionDetails);
 
-	// Step 2: Process election details like title, choices and rules
-	// Set title
-	$(elements.electionTitle).html(getLocalizedText(electionData.title, lang));
+			// 2 - represent encodedvote in Gq
+			console.log("2. Vote in Gq");
+			var voteInGq = uvCrypto.mapZq2Gq(encodedVote);
 
-	// Initilize arrays for choices and rules
-	choiceIds = new Array();
-	sumRules = new Array();
-	forAllRules = new Array();
-	choicesMap = new Map();
+			ballotData.electionId = electionId;
 
-	// Get the choices and rules
-	choices = electionData.choices;
-	rules = electionData.rules;
-	lists = [];
-	if (electionData.type === CLASS_NAME_CANDIDATE_ELECTION) {
-		lists = electionData.candidateLists === undefined ? new Array() : electionData.candidateLists;
-	} else if (electionData.type === CLASS_NAME_PARTY_ELECTION) {
-		lists = electionData.partyLists;
-	}
-
-	// Add candidates to the coresponding PoliticalList
-	for (i = 0; i < choices.length; i++) {
-		choicesMap.put(choices[i].choiceId, choices[i]);
-	}
-
-	// If no list exists, create one and put afterwards every candidate into it
-	if (lists.length === 0) {
-		var uniqueList = "{ \"choicesIds\": " + JSON.stringify(choicesMap.listKeys()) + "}";
-		lists.push(JSON.parse(uniqueList));
-		noList = true;
-	}
-
-	// Step 3: Process rules
-	// Split different rules
-	for (i = 0; i < rules.length; i++) {
-		var rule = rules[i];
-		if (rule.type === CLASS_NAME_SUMMATION_RULE) {
-			sumRules.push(rule);
+			updateProcessing();
+			setTimeout(function () {
+				step2(voteInGq);
+			}, 100);
+		} catch (error) {
+			processExceptionInFinalizeVote(msg.encodeVoteError);
+			return;
 		}
-		else if (rule.type === CLASS_NAME_FORALL_RULE) {
-			forAllRules.push(rule);
-		}
+	};
+
+	var step2 = function (voteInGq) {
+		// 3 - Encrypt vote (encrypted vote is stored in ballotData.encryptedVote.encVote)
+		console.log("3. Encrypt Vote");
+		ballotData.encryptedVote = uvCrypto.encryptVote(voteInGq, encryptionKey);
+
+		updateProcessing();
+		setTimeout(step3, 100);
+	};
+
+	var step3 = function () {
+		// 4 - Compute anonymous verification key (verification key is stored in ballotData.verifKey.vkString)
+		console.log("4. Compute Election Verififcation Key");
+		ballotData.verifKey = uvCrypto.computeElectionVerificationKey(signatureGenerator, secretKey);
+
+		updateProcessing();
+		setTimeout(step4, 100);
+	};
+
+	var step4 = function () {
+		// 5 - Generate NIZKP (Proof is stored in ballotData.proof)
+		console.log("5. Compute Proof");
+		ballotData.proof = uvCrypto.computeVoteProof(ballotData.encryptedVote.r, ballotData.encryptedVote.a, ballotData.verifKey.vk);
+
+		var ballot = {encryptedVote: ballotData.encryptedVote.encVote, proof: ballotData.proof};
+
+		updateProcessing();
+		setTimeout(function () {
+			step5(ballot);
+		}, 100);
+	};
+
+	var step5 = function (ballot) {
+		//6 - Sign post
+		console.log("6. Sign Post");
+		var post = {
+			message: B64.encode(JSON.stringify(ballot)),
+			alpha: {
+				attribute: [
+					{key: "section", value: {type: "stringValue", value: electionId}},
+					{key: "group", value: {type: "stringValue", value: "ballot"}}
+				]}
+		};
+
+		ballotData.signature = uvCrypto.signPost(post, signatureGenerator, secretKey);
+
+		updateProcessing();
+		setTimeout(function () {
+			step6(post);
+		}, 100);
+	};
+
+	var step6 = function (post) {
+		post.alpha.attribute[2] = {key: "signature", value: {type: "stringValue", value: ballotData.signature.sigString}};
+		post.alpha.attribute[3] = {key: "publickey", value: {type: "stringValue", value: ballotData.verifKey.vkString}};
+
+		// 7 - Finally cast ballot
+		console.log("7. Cast Ballot");
+		var update = setInterval(updateProcessing, 1000);
+		var successCB = function (beta) {
+			clearInterval(update);
+			var msg = beta.attribute[0].key;
+			if (msg == "rejected" || msg == "error") {
+				castVoteErrorCallback(beta.attribute[0].value.value);
+				return;
+			}
+			castVoteSuccessCallback(ballotData, {signature: {timestamp: beta.attribute[0].value.value, value: beta.attribute[2].value.value}});
+		};
+		var errorCB = function () {
+			clearInterval(update);
+			castVoteErrorCallback();
+		};
+		UniBoard.POST(post, successCB, errorCB);
+	};
+
+	step1();
+}
+
+/**
+ * Processes an exception during finalizing the vote. A message is displayed to
+ * the user for about 3s.
+ *
+ * @param msgToDisplay - The message to display.
+ */
+function processExceptionInFinalizeVote(msgToDisplay) {
+	$.unblockUI();
+	$.blockUI({
+		message: '<p>' + msgToDisplay + '</p>',
+		timeout: 3000
+	});
+}
+
+/**
+ * Error callback to handle vote casting faults.
+ *
+ *  @param message - error message
+ */
+function castVoteErrorCallback(message) {
+	message = message || "";
+	var errorCode = message.substring(0, 7);
+	var errorMsg = "";
+	switch (errorCode) {
+		case "BAC-002":
+			errorMsg = msg.sendVoteErrorNoEligibleVoter;
+			break;
+		case "BAC-003":
+			errorMsg = msg.sendVoteErrorInvalidSignatureError;
+			break;
+		case "BAC-004":
+			errorMsg = msg.sendVoteErrorInvalidElectionState;
+			break;
+		case "BAC-005":
+			errorMsg = msg.sendVoteErrorInvalidElectionState;
+			break;
+		case "BAC-007":
+			errorMsg = msg.sendVoteErrorAllreadyVoted;
+			break;
+		default:
+			errorMsg = msg.sendVoteErrorInternalServerError;
 	}
 
-	// Figure out whether the voter can vote for candidates and a list or
-	// only for candidates
-	listsAreSelectable = electionData.type === CLASS_NAME_PARTY_ELECTION;
+	// Set error message and hide success div but show error div on step 3
+	elements.sendVoteErrorMessage.innerHTML = errorMsg;
+	$(elements.sendVoteSuccess).addClass('hidden');
+	$(elements.sendVoteError).removeClass('hidden');
 
-	// Render the vote view: Add lists and candidates to the view
-	renderVoteView(lists, choicesMap);
-
-	// Finally unblock the GUI
+	// Go to step 3
+	gotoStep3();
 	$.unblockUI();
 }
 
+/**
+ * Success callback of vote casting. A qr-code is created holding the whole ballot
+ * and the signature received from the voting service. Finally the last step is
+ * displayed.
+ *
+ * @param ballotData
+ * @param response - The response
+ */
+function castVoteSuccessCallback(ballotData, response) {
 
-function isNumber(n) {
-	return !isNaN(parseFloat(n)) && isFinite(n);
+	var blindedRandomness = uvCrypto.blindRandomization(ballotData.encryptedVote.r, secretKey);
+
+	// Put content of qr-code together. The content represents an object json
+	// encoded holding the different values of ballot and signature.
+	// => Do it manually, so we know exactly what's going on!
+	try {
+		var base = 64;
+		var qrContent = [];
+		qrContent.push('{');
+		qrContent.push('"eID":', '"' + ballotData.electionId + '"');
+		qrContent.push(',"eVa":', '"' + leemon.bigInt2str(ballotData.encryptedVote.a, base) + '"');		// 1024 bits
+		qrContent.push(',"eVb":', '"' + leemon.bigInt2str(ballotData.encryptedVote.b, base) + '"');		// 1024 bits
+		qrContent.push(',"rB":', '"' + leemon.bigInt2str(blindedRandomness, base) + '"');			// 1024 bits
+		qrContent.push(',"vk":', '"' + leemon.bigInt2str(ballotData.verifKey.vk, base) + '"');		// 1024 bits
+		qrContent.push(',"pC":', '"' + leemon.bigInt2str(leemon.str2bigInt(ballotData.proof.commitment, 10), base) + '"');	// 1024 bits
+		qrContent.push(',"pR":', '"' + leemon.bigInt2str(leemon.str2bigInt(ballotData.proof.response, 10), base) + '"');	// 1024 bits
+		qrContent.push(',"vS":', '"' + leemon.bigInt2str(ballotData.signature.sig, base) + '"');			//  512 bits (2x 256)
+		qrContent.push(',"sT":', '"' + response.signature.timestamp + '"');
+		qrContent.push(',"sV":', '"' + leemon.bigInt2str(leemon.str2bigInt(response.signature.value, 10, 1), base) + '"'); //512 bits
+		qrContent.push('}');
+
+		// Create qr-code and add data
+		//To determine the size see http://blog.qr4.nl/page/QR-Code-Data-Capacity.aspx
+		//If size is to small, qr code is not generated
+		var qr = qrcode(26, 'L');
+		qr.addData(qrContent.join(''));
+		qr.make();
+
+		// Create img tag representing the qr-code
+		var $qrcode = $(qr.createImgTag());
+		// Enlarge the code a little bit, so it can be better read by smart phone
+		$qrcode.attr('height', $qrcode.attr('height') * 1.4);
+		$qrcode.attr('width', $qrcode.attr('width') * 1.4);
+		// Append qr-code
+
+		$(elements.qrcodeHolder).append($qrcode);
+		// Go to step 3
+		gotoStep3();
+		$.unblockUI();
+
+	} catch (e) {
+		// Go to step 3 in any case!!
+		console.log("ERROR: " + e);
+		gotoStep3();
+		$.unblockUI();
+	}
 }
-
-//===========================================================================
