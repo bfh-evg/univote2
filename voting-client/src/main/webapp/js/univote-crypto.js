@@ -824,7 +824,7 @@
 		this.computeVoteProof = function (r, a, vk) {
 
 			var result = this.NIZKP(encryptionSetting.p, encryptionSetting.q, encryptionSetting.g, r, a, leemon.bigInt2str(vk, 10));
-			var proof = {commitment: leemon.bigInt2str(result.t, 10), response: leemon.bigInt2str(result.s, 10)};
+			var proof = {commitment: leemon.bigInt2str(result.t, 10), challenge: leemon.bigInt2str(result.c, 10), response: leemon.bigInt2str(result.s, 10)};
 			return proof;
 		};
 

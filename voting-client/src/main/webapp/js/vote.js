@@ -20,11 +20,6 @@
 var elements = {};
 
 /**
- * Holds the used dialogs.
- */
-var dialogs = {};
-
-/**
  * Holds voter's secret key (bigInt).
  */
 var secretKey;
@@ -69,15 +64,10 @@ $(document).ready(function () {
 
 	elements.electionTitle = document.getElementById('election-title');
 
-
 	elements.sendVoteSuccess = document.getElementById('send-vote-success');
 	elements.sendVoteError = document.getElementById('send-vote-error');
 	elements.sendVoteErrorMessage = document.getElementById('send-vote-error-message');
 	elements.qrcodeHolder = document.getElementById('qrcode-holder');
-
-	// Get dialogs
-	dialogs.confirm = document.getElementById('dialog-confirm');
-	dialogs.$confirm = $(dialogs.confirm);
 
 	// Get election id and user's language/locale
 	electionId = $('#election-title').data('electionId');
@@ -90,7 +80,6 @@ $(document).ready(function () {
 
 	// Initiate retrieving election data from voting service
 	setTimeout(retrieveElectionData, 50);
-
 });
 
 
@@ -195,8 +184,8 @@ function retrieveElectionData() {
 function uploadSecretKey() {
 
 	// TODO @DEV
-	gotoStep2();
-	return;
+	//gotoStep2();
+	//return;
 
 	// Hide previous error message
 	$(elements.uploadKeyError).html('&nbsp;').css('opacity', '0');
@@ -842,6 +831,7 @@ function finalizeVote() {
 	var step5 = function (ballot) {
 		//6 - Sign post
 		console.log("6. Sign Post");
+		console.log("message: " + JSON.stringify(ballot, null, 4));
 		var post = {
 			message: B64.encode(JSON.stringify(ballot)),
 			alpha: {
@@ -855,7 +845,7 @@ function finalizeVote() {
 
 		updateProcessing();
 		setTimeout(function () {
-			step6(post);
+			step6(post2);
 		}, 100);
 	};
 
