@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -56,17 +57,33 @@ import javax.xml.transform.stream.StreamSource;
  */
 public class Converter {
 
+	/**
+	 * Initilizes the JAXB context.
+	 * @param <T> the Java type of the domain class the converstion takes place
+	 * @param type the actual type object
+	 * @return the JAXB context
+	 * @throws Exception if the context cannot be established
+	 */
 	private static <T> JAXBContext initJAXBContext(Class<T> type) throws Exception {
-		Map<String, Object> properties = new HashMap();
+		Map<String, Object> properties = new HashMap<>();
 		properties.put("eclipselink.media-type", "application/json");
 		properties.put("eclipselink.json.include-root", false);
-		return JAXBContext.newInstance(new Class[]{type}, properties);
+		return JAXBContext.newInstance(new Class<?>[]{type}, properties);
 	}
 
+	/**
+	 * Converst a JSON 'ResultDTO' byte array into the corresponding domain class.
+	 * @param <T> the Java type of the domain class the converstion takes place
+	 * @param type the actual type object
+	 * @param message a JSON 'ResultDTO' byte array
+	 * @return the Java instance of the domain class
+	 * @throws Exception if the conversion cannot be made
+	 */
 	public static <T> T unmarshal(Class<T> type, byte[] message) throws Exception {
 		JAXBContext jaxbContext = Converter.initJAXBContext(type);
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-		InputStream stream = type.getResourceAsStream("");
+		InputStream stream = new ByteArrayInputStream(message);
+		// 	InputStream stream = type.getResourceAsStream(path);
 		return unmarshaller.unmarshal(new StreamSource(stream), type).getValue();
 	}
 
