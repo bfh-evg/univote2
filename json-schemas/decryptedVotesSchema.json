@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of decrypted votes.",
+	"type": "object",
+	"properties": {
+		"decryptedVotes":  { 
+			"type": "array",
+			"items": { "type": "string"} 
+		}
+	},
+	"required": ["partialDecryptions"],
+	"additionalProperties": false
+}

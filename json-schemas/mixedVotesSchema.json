@@ -1,0 +1,21 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of mixed encrypted votes",
+	"type": "object",
+	"properties": {
+		"mixedVotes": { 
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"firstValue":  { "type": "string" },
+					"secondValue": { "type": "string" }
+				},
+				"required": ["firstValue", "secondValue"],
+				"additionalProperties": false
+			}
+		}
+	},
+	"required": ["mixedVotes"],
+	"additionalProperties": false
+}

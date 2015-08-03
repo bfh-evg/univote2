@@ -1,0 +1,15 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a mixing request to mix public keys",
+	"type": "object",
+	"properties": {
+		"mixerId": { "type": "string" },
+		"keys":  { 
+			"type": "array",
+			"items": { "type": "string"} 
+		},
+		"generator" : { "type": "string" }
+	},
+	"required": ["mixerId", "keys", "generator"],
+	"additionalProperties": false
+}

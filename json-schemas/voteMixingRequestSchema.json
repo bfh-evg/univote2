@@ -1,0 +1,22 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a mixing request to mix encrypted votes",
+	"type": "object",
+	"properties": {
+		"mixerId": { "type": "string" },
+		"votesToMix": { 
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"firstValue":  { "type": "string" },
+					"secondValue": { "type": "string" }
+				},
+				"required": ["firstValue", "secondValue"],
+				"additionalProperties": false
+			}
+		}
+	},
+	"required": ["mixerId", "votesToMix"],
+	"additionalProperties": false
+}

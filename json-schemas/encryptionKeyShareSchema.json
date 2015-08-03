@@ -8,15 +8,8 @@
 			"type": "string"
 		},
 		"proof": {
-			"description": "Encryption proof",
-			"type": "object",
-			"properties": {
-				"commitment": { "type": "string" },
-				"challenge":  { "type": "string" },
-				"response":   { "type": "string" }
-			},
-			"required": ["commitment", "challenge", "response"],
-			"additionalProperties": false
+			"description": "ZKP for DL",
+			"$ref": "proofSchema.json"
 		}
 	},
 	"required": ["keyShare, proof"],

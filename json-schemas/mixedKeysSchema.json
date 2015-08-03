@@ -1,0 +1,14 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of mixed public keys",
+	"type": "object",
+	"properties": {
+		"mixedKeys":  { 
+			"type": "array",
+			"items": { "type": "string"} 
+		},
+		"generator" : { "type": "string" }
+	},
+	"required": ["mixedKeys", "generator"],
+	"additionalProperties": false
+}

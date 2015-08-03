@@ -1,0 +1,97 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "accessRight",
+	"type": "object",
+	"id": "http://uniboard.bfh.ch/accessRight",
+	"properties": {
+		"group": {
+			"type": "string"
+		},
+		"crypto": {
+			"type": "object",
+			"oneOf": [
+				{
+					"$ref": "#/definitions/RSA"
+				},
+				{
+					"$ref": "#/definitions/DL"
+				},
+				{
+					"$ref": "#/definitions/ECDL"
+				}
+			]
+		},
+		"amount": {
+			"type": "number"
+		},
+		"startTime": {
+			"format": "date-time",
+			"type": "string"
+		},
+		"endTime": {
+			"format": "date-time",
+			"type": "string"
+		}
+	},
+	"required": ["group", "crypto"],
+	"additionalProperties": false,
+	"definitions": {
+		"RSA": {
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": [
+						"RSA"
+					]
+				},
+				"publickey": {
+					"type": "string"
+				}
+			},
+			"required": ["type", "publickey"],
+			"additionalProperties": false
+		},
+		"DL": {
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": [
+						"DL"
+					]
+				},
+				"p": {
+					"type": "string"
+				},
+				"q": {
+					"type": "string"
+				},
+				"g": {
+					"type": "string"
+				},
+				"publickey": {
+					"type": "string"
+				}
+			},
+			"required": ["type", "p", "q", "g", "publickey"],
+			"additionalProperties": false
+		},
+		"ECDL": {
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": [
+						"ECDL"
+					]
+				},
+				"curve": {
+					"type": "string"
+				},
+				"publickey": {
+					"type": "string"
+				}
+			},
+			"required": ["type", "curve", "publickey"],
+			"additionalProperties": false
+		}
+	}
+}
