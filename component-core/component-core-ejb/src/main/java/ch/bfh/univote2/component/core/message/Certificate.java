@@ -1,0 +1,223 @@
+/*
+ * UniVote2
+ *
+ *  UniVote2(tm): An Internet-based, verifiable e-voting system for student elections in Switzerland
+ *  Copyright (c) 2015 Bern University of Applied Sciences (BFH),
+ *  Research Institute for Security in the Information Society (RISIS), E-Voting Group (EVG),
+ *  Quellgasse 21, CH-2501 Biel, Switzerland
+ *
+ *  Licensed under Dual License consisting of:
+ *  1. GNU Affero General Public License (AGPL) v3
+ *  and
+ *  2. Commercial license
+ *
+ *
+ *  1. This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU Affero General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Affero General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ *  2. Licensees holding valid commercial licenses for UniVote2 may use this file in
+ *   accordance with the commercial license agreement provided with the
+ *   Software or, alternatively, in accordance with the terms contained in
+ *   a written agreement between you and Bern University of Applied Sciences (BFH),
+ *   Research Institute for Security in the Information Society (RISIS), E-Voting Group (EVG),
+ *   Quellgasse 21, CH-2501 Biel, Switzerland.
+ *
+ *
+ *   For further information contact <e-mail: univote@bfh.ch>
+ *
+ *
+ * Redistributions of files must retain the above copyright notice.
+ */
+package ch.bfh.univote2.component.core.message;
+
+import java.util.Date;
+import java.util.List;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+/**
+ *
+ * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ */
+public class Certificate {
+
+	private String commonName;
+	private String uniqueIdentifier;
+	private String organisation;
+	private String countryName;
+	private String state;
+	private String locality;
+	private String surname;
+	private String givenName;
+	private String issuer;
+	private String serialNumber;
+	@XmlJavaTypeAdapter(DateAdapter.class)
+	private Date validFrom;
+	@XmlJavaTypeAdapter(DateAdapter.class)
+	private Date validUntil;
+	private String applicationIdentifier;
+	private List<String> roles;
+	private String identityProvider;
+	private String pem;
+
+	public Certificate(String commonName, String uniqueIdentifier, String organisation, String countryName,
+			String state, String locality, String surname, String givenName, String issuer, String serialNumber,
+			Date validFrom, Date validUntil, String applicationIdentifier, List<String> roles, String identityProvider,
+			String pem) {
+		this.commonName = commonName;
+		this.uniqueIdentifier = uniqueIdentifier;
+		this.organisation = organisation;
+		this.countryName = countryName;
+		this.state = state;
+		this.locality = locality;
+		this.surname = surname;
+		this.givenName = givenName;
+		this.issuer = issuer;
+		this.serialNumber = serialNumber;
+		this.validFrom = validFrom;
+		this.validUntil = validUntil;
+		this.applicationIdentifier = applicationIdentifier;
+		this.roles = roles;
+		this.identityProvider = identityProvider;
+		this.pem = pem;
+	}
+
+	public String getCommonName() {
+		return commonName;
+	}
+
+	public void setCommonName(String commonName) {
+		this.commonName = commonName;
+	}
+
+	public String getUniqueIdentifier() {
+		return uniqueIdentifier;
+	}
+
+	public void setUniqueIdentifier(String uniqueIdentifier) {
+		this.uniqueIdentifier = uniqueIdentifier;
+	}
+
+	public String getOrganisation() {
+		return organisation;
+	}
+
+	public void setOrganisation(String organisation) {
+		this.organisation = organisation;
+	}
+
+	public String getCountryName() {
+		return countryName;
+	}
+
+	public void setCountryName(String countryName) {
+		this.countryName = countryName;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getLocality() {
+		return locality;
+	}
+
+	public void setLocality(String locality) {
+		this.locality = locality;
+	}
+
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
+	public String getGivenName() {
+		return givenName;
+	}
+
+	public void setGivenName(String givenName) {
+		this.givenName = givenName;
+	}
+
+	public String getIssuer() {
+		return issuer;
+	}
+
+	public void setIssuer(String issuer) {
+		this.issuer = issuer;
+	}
+
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+
+	public Date getValidFrom() {
+		return validFrom;
+	}
+
+	public void setValidFrom(Date validFrom) {
+		this.validFrom = validFrom;
+	}
+
+	public Date getValidUntil() {
+		return validUntil;
+	}
+
+	public void setValidUntil(Date validUntil) {
+		this.validUntil = validUntil;
+	}
+
+	public String getApplicationIdentifier() {
+		return applicationIdentifier;
+	}
+
+	public void setApplicationIdentifier(String applicationIdentifier) {
+		this.applicationIdentifier = applicationIdentifier;
+	}
+
+	public List<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
+	}
+
+	public String getIdentityProvider() {
+		return identityProvider;
+	}
+
+	public void setIdentityProvider(String identityProvider) {
+		this.identityProvider = identityProvider;
+	}
+
+	public String getPem() {
+		return pem;
+	}
+
+	public void setPem(String pem) {
+		this.pem = pem;
+	}
+
+}
