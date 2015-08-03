@@ -46,23 +46,21 @@ import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.ec.ActionManagerMock;
 import ch.bfh.univote2.ec.InformationServiceMock;
 import ch.bfh.univote2.ec.UniboardServiceMock;
-import java.io.StringReader;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
 import javax.ejb.EJB;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import static junit.framework.Assert.assertEquals;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -164,7 +162,7 @@ public class GrantEncryptionKeyShareAction1Test {
 	 * Test parseTrusteeCerts with a valid message
 	 */
 	@Test
-	public void testParseTrusteeCerts1() {
+	public void testParseTrusteeCerts1() throws Exception {
 		try {
 			String tenant = "parseTrusteeCerts1";
 			String section = "section";
@@ -197,10 +195,10 @@ public class GrantEncryptionKeyShareAction1Test {
 					+ "fU86PTjTOLBhzS9rGtSsxQ32D3t0ftDIa2jDVBPfE+eTDKF2qm+dxXkgAmP+aRmW"
 					+ "qZ1aWTxkEL2KHkryh0py3Rs1/4jLAFPHT5TwDRrsbmUoVLGMLLn+XWDFAKZv"
 					+ "-----END CERTIFICATE-----\"}]}";
-			JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-			JsonObject message = jsonReader.readObject();
+			TrusteeCertificates trusteeCertificates;
+			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
 
-			this.grantEKSAction.parseTrusteeCerts(message, actionContext);
+			this.grantEKSAction.parseTrusteeCerts(trusteeCertificates, actionContext);
 			assertEquals(1, actionContext.getTalliers().size());
 		} catch (UnivoteException ex) {
 			fail();
@@ -220,15 +218,14 @@ public class GrantEncryptionKeyShareAction1Test {
 		GrantEncryptionKeyShareActionContext actionContext = new GrantEncryptionKeyShareActionContext(ack);
 		try {
 			String messageString = "{\"tallierCertificates\": [1,2,3]}";
-			JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-			JsonObject message = jsonReader.readObject();
+			TrusteeCertificates trusteeCertificates;
+			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
 
-			this.grantEKSAction.parseTrusteeCerts(message, actionContext);
+			this.grantEKSAction.parseTrusteeCerts(trusteeCertificates, actionContext);
 			fail();
-		} catch (UnivoteException ex) {
+		} catch (Exception ex) {
 			assertEquals(0, actionContext.getTalliers().size());
 		}
-
 	}
 
 	/**
@@ -243,12 +240,12 @@ public class GrantEncryptionKeyShareAction1Test {
 		GrantEncryptionKeyShareActionContext actionContext = new GrantEncryptionKeyShareActionContext(ack);
 		try {
 			String messageString = "{\"tallierCertificates\": [{\"pem\": \"asasdfalsfalsdf\"}]}";
-			JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-			JsonObject message = jsonReader.readObject();
+			TrusteeCertificates trusteeCertificates;
+			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
 
-			this.grantEKSAction.parseTrusteeCerts(message, actionContext);
+			this.grantEKSAction.parseTrusteeCerts(trusteeCertificates, actionContext);
 			fail();
-		} catch (UnivoteException ex) {
+		} catch (Exception ex) {
 			assertEquals(0, actionContext.getTalliers().size());
 		}
 

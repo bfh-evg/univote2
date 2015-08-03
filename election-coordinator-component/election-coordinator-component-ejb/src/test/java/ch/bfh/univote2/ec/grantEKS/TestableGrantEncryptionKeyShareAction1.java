@@ -43,10 +43,10 @@ package ch.bfh.univote2.ec.grantEKS;
 
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import java.security.PublicKey;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
-import javax.json.JsonObject;
 
 /**
  * To test the protected methods
@@ -72,8 +72,8 @@ public class TestableGrantEncryptionKeyShareAction1 extends GrantEncryptionKeySh
 	}
 
 	@Override
-	public void parseTrusteeCerts(JsonObject message, GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
-		super.parseTrusteeCerts(message, actionContext);
+	public void parseTrusteeCerts(TrusteeCertificates trusteeCertificates, GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
+		super.parseTrusteeCerts(trusteeCertificates, actionContext);
 	}
 
 	@Override

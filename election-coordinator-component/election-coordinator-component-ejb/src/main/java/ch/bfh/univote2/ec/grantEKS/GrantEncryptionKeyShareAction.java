@@ -50,6 +50,9 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.message.Certificate;
+import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -58,8 +61,6 @@ import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -68,12 +69,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
-import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonException;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonValue;
 
 /**
  *
@@ -159,8 +155,10 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 
 				} catch (UnivoteException ex) {
 					logger.log(Level.WARNING, "Could not request trustee certificates.", ex);
-					this.informationService.informTenant(actionContext.getActionContextKey(),
-							"Could not request trustee certificates.");
+					if (ex.getCause() != null) {
+						logger.log(Level.WARNING, ex.getCause().getMessage());
+					}
+					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 				}
 			}
@@ -179,10 +177,14 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
 				try {
-					String messageString = new String(post.getMessage(), Charset.forName("UTF-8"));
-					JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-					JsonObject message = jsonReader.readObject();
-					this.parseTrusteeCerts(message, geksac);
+					byte[] message = post.getMessage();
+					TrusteeCertificates trusteeCertificates;
+					try {
+						trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+					} catch (Exception ex) {
+						throw new UnivoteException("Invalid trustees certificates message. Can't be unmarshalled.", ex);
+					}
+					this.parseTrusteeCerts(trusteeCertificates, geksac);
 					this.runInternal(geksac);
 				} catch (UnivoteException | JsonException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -208,31 +210,26 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
-		//Prepare JsonObject for trustees
-		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-				Charset.forName("UTF-8"));
-		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-		this.parseTrusteeCerts(jsonReader.readObject(), actionContext);
+
+		byte[] message = result.getResult().getPost().get(0).getMessage();
+		TrusteeCertificates trusteeCertificates;
+		try {
+			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+		} catch (Exception ex) {
+			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.", ex);
+		}
+		this.parseTrusteeCerts(trusteeCertificates, actionContext);
 	}
 
-	protected void parseTrusteeCerts(JsonObject message, GrantEncryptionKeyShareActionContext actionContext)
+	protected void parseTrusteeCerts(TrusteeCertificates trusteeCertificates,
+			GrantEncryptionKeyShareActionContext actionContext)
 			throws UnivoteException {
-		JsonValue talliersValue = message.get("tallierCertificates");
-		if (talliersValue == null || !talliersValue.getValueType().equals(JsonValue.ValueType.ARRAY)) {
-			throw new UnivoteException(
-					"Invalid trustees certificates message. tallierCertificates is missing or no array.");
-		}
-		JsonArray talliers = (JsonArray) talliersValue;
-		for (JsonValue jv : talliers) {
+		for (Certificate tallier : trusteeCertificates.getTallierCertificates()) {
+			String pem = tallier.getPem();
+			if (pem == null) {
+				throw new UnivoteException("Invalid trustees certificates message. Pem missing.");
+			}
 			try {
-				if (!jv.getValueType().equals(JsonValue.ValueType.OBJECT)) {
-					throw new UnivoteException("Invalid trustees certificates message. Could not parse certificate.");
-				}
-				JsonObject jsonCert = (JsonObject) jv;
-				String pem = jsonCert.getString("pem");
-				if (pem == null) {
-					throw new UnivoteException("Invalid trustees certificates message. Pem missing.");
-				}
 				CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 				InputStream in = new ByteArrayInputStream(pem.getBytes());
 				X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);

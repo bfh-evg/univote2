@@ -15,7 +15,8 @@
 				"challenge":  { "type": "string" },
 				"response":   { "type": "string" }
 			},
-			"required": ["commitment", "challenge", "response"]
+			"required": ["commitment", "challenge", "response"],
+			"additionalProperties": false
 		}
 	},
 	"required": ["keyShare, proof"],

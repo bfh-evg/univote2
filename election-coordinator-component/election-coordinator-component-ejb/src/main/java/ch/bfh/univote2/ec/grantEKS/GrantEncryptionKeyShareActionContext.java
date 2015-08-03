@@ -43,7 +43,6 @@ package ch.bfh.univote2.ec.grantEKS;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +67,5 @@ public class GrantEncryptionKeyShareActionContext extends ActionContext {
 	public List<AccessRightCandidate> getTalliers() {
 		return talliers;
 	}
-
 
 }

@@ -51,21 +51,23 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.message.Certificate;
+import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.QueryFactory;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.json.JsonValue;
 
 /**
  *
@@ -166,20 +168,18 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
-		//Prepare JsonObject for trustees
-		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-				Charset.forName("UTF-8"));
-		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-		JsonObject message = jsonReader.readObject();
-		JsonArray mixers = message.getJsonArray("mixerCertificates");
-		if (mixers == null) {
+		byte[] message = result.getResult().getPost().get(0).getMessage();
+		TrusteeCertificates trusteeCertificates;
+		try {
+			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+		} catch (Exception ex) {
+			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.");
+		}
+		List<Certificate> mixers = trusteeCertificates.getMixerCertificates();
+		if (mixers == null || mixers.isEmpty()) {
 			throw new UnivoteException("Invalid trustees certificates message. mixerCertificates is missing.");
 		}
-		for (JsonValue jv : mixers) {
-			if (!jv.getValueType().equals(JsonValue.ValueType.OBJECT)) {
-				throw new UnivoteException("Invalid trustees certificates message. Could not parse certificate.");
-			}
-			JsonObject jsonCert = (JsonObject) jv;
+		for (Certificate c : trusteeCertificates.getMixerCertificates()) {
 
 		}
 

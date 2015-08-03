@@ -70,6 +70,9 @@ public class Certificate {
 	private String identityProvider;
 	private String pem;
 
+	public Certificate() {
+	}
+
 	public Certificate(String commonName, String uniqueIdentifier, String organisation, String countryName,
 			String state, String locality, String surname, String givenName, String issuer, String serialNumber,
 			Date validFrom, Date validUntil, String applicationIdentifier, List<String> roles, String identityProvider,
