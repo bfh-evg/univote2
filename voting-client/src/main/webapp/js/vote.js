@@ -161,8 +161,8 @@ function retrieveElectionData() {
 		//Ajax request
 		$.ajax({
 			//url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/src/main/resources/json-examples/sub-2015/votingData.json",
-			//url: "http://uni.vote/listElection.php",
-			url: "http://uni.vote/voteElection.php",
+			url: "http://uni.vote/listElection.php",
+			//url: "http://uni.vote/voteElection.php",
 			type: 'GET',
 			accept: "application/json",
 			dataType: 'json',
@@ -365,6 +365,18 @@ function createListElectionContent(issue) {
 		}
 	}
 
+	var candidateTooltip = function () {
+		var cand = issue.getOption($(this).parents('.button-like').data('id'));
+		var tp = '<strong>' + cand.getNumber() + '<br/>' + cand.getName() + '</strong><br/>';
+		if (cand.isPrevious()) {
+			tp += '<i>(' + msg.previous + ')</i><br/>';
+		}
+		tp += cand.getStudyBranch() + (cand.getStudyDegree() ? (cand.getStudyBranch() ? ' / ' : '') + cand.getStudyDegree() : '') + '<br/>';
+		tp += msg.semester + ': ' + cand.getStudySemester() + '<br/>';
+		tp += (cand.getYearOfBirth() > 0 ? cand.getYearOfBirth() : '') + (cand.getSex() ? (cand.getYearOfBirth() ? ' / ' : '') + cand.getSexSymbol() : '');
+
+		return tp;
+	};
 
 	var addCandidate = function (id) {
 		electionDetails.addChoice(id, 1, true);
@@ -481,6 +493,7 @@ function createListElectionContent(issue) {
 					removeCandidate(id);
 					$candidate.remove();
 				});
+		$candidate.tooltip({items: '.info', content: candidateTooltip});
 	};
 
 
@@ -595,6 +608,11 @@ function createListElectionContent(issue) {
 			updateCandidateTools($clone);
 			$('#choice-candidates').append($clone);
 		}
+	});
+
+	$(document).tooltip({
+		items: '#lists .info',
+		content: candidateTooltip
 	});
 
 	// Finally show content!
@@ -845,7 +863,7 @@ function finalizeVote() {
 
 		updateProcessing();
 		setTimeout(function () {
-			step6(post2);
+			step6(post);
 		}, 100);
 	};
 

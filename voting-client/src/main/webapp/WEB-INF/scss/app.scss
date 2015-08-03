@@ -382,6 +382,7 @@ footer {
 
 		 .button-like { margin-bottom: rem-calc(20); cursor: pointer;
 						.tools .remove { display:none; }
+						&:hover {background-color: $black; }
 						&.selected { background-color: $black; /*@include gradient;*/
 									 .tools {
 										 .add { display:none; }
@@ -400,3 +401,10 @@ footer {
 
 
 .send-vote-icon { text-align: center; padding: rem-calc(20) 0;  }
+
+
+/* jQuery UI overrides */
+body .ui-widget { font-family: MuseoSlab-300; font-size: 1em; }
+body .ui-widget button { font-family: MuseoSlab-300; }
+
+

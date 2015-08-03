@@ -558,6 +558,9 @@
 		},
 		isPrevious: function () {
 			return this._status == 'OLD';
+		},
+		getSexSymbol: function () {
+			return this._sex == 'M' ? '&#9794' : (this._sex == 'F' ? '&#9792' : '');
 		}
 	};
 	extend(Option, CandidateOption);
@@ -640,10 +643,10 @@
 	Rule.createRule = function (rule) {
 		var ret;
 		switch (rule.type) {
-			case 'summation':
+			case 'summationRule':
 				ret = new SummationRule(rule);
 				break;
-			case 'cumulation':
+			case 'cumulationRule':
 				ret = new CumulationRule(rule);
 				break;
 			default:
