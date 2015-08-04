@@ -710,20 +710,19 @@ The notification property of the board allows an entity  $e$ to register itself 
 For UniVote and UniCert a bulletin board that supports all properties described in the previous sections is used. This results in our UniBoard configuration supporting following four operations. Also note that Schnorr signatures are used for signing. Therefore every sign operation needs an additional random value $r$ (Chapter \ref{schnorrsig}).
 
 \subsection{Post}
-$\mathrm{Post}(m, (s, g, S_m, vk)):(n, t , h, S_p)$
+$\mathrm{Post}(m, (s, g, S_m, vk)):(t, n, S_p)$
 \begin{enumerate}
 	\item Check that section $s$ exists.
 	\item Check that group $g$ exists.
 	\item Check if message $m$ is of the type of group $g$.
 	\item Check that $S_m$ is a correct signature of $(m, (s, g))$ and belongs to $vk$.
 	\item Check that $k$ is authorized by checking $\mathcal{K}$.
-	\item Define the total order $n$ of the message in $s$ .
 	\item Add the current time $t$ to the message.
-	\item Create the hash $h$ for the message.
-	\item Create the signature for the post $S_p=Sign_{sk_{BB}}(m, (s, g, S_m , vk), (n, t, h))$
+	\item Define the total order $n$ of the message in $s$ .
+	\item Create the signature for the post $S_p=Sign_{sk_{BB}}(m, (s, g, S_m , vk), (t, n))$
 	\item Send notifications for this message if necessary.
 	\item Save the post.
-	\item Return $(n, t, h, S_p)$ to the user.
+	\item Return $(t, n, S_p)$ to the user.
 \end{enumerate}
 
 A user can use the compact notation $\mathrm{Post}(m, s, g)$, which represents the following three steps:
@@ -1840,12 +1839,36 @@ For hashing any part of a post, this needs to be converted to a byte array.
 To create a signature a recursive hash-algorithm is used.
 To sign the post the author hashes [message,alpha] where alpha  = [section, group].
 To sign the post UniBoard  hashes [message,alpha,beta] where alpha = [section,group, signature,key] and
-beta = [timestamp,rank, hash].
+beta = [timestamp,rank].
 \section{Read Signature}
 To create a signature a recursive hash-algorithm is used.
 To sign the result of the query UniBoard hashes [query,resultcontainer] where query=[contraints,order,limit]
 constraint=[type,identifier,value1,...] identifier=[type,s1,s2,s3,...] order=[identifier,ascDesc] resultcontainer=[result,gamma]
-result [p1,p2,...] post=[message,alpha,beta] alpha=[section,group,signature,key] beta=[timestamp,rank,hash,boardSignature] gamma=[timestamp]
+result [p1,p2,...] post=[message,alpha,beta] alpha=[section,group,signature,key] beta=[timestamp,rank,boardSignature] gamma=[timestamp]
+
+\section{Error and Rejects}
+\begin{tabularx}{\linewidth}{|c|c|X|}
+\hline Type & Code & Description \\
+\hline R & BAC-001 & There is no authorization for the provided key\\
+\hline R & BAC-002 & The provided signature is not valid\\
+\hline R & BAC-003 & Authorization is not active yet\\
+\hline R & BAC-004 & Authorization expired\\
+\hline R & BAC-005 & Amount of allowed posts used up\\
+\hline E & BAC-006 & Internal server error\\
+\hline R & BGT-001 & Attribute missing\\
+\hline R & BGT-002 & Attribute is not a StringValue\\
+\hline R & BGT-003 & Configuration for section-bfh is missing\\
+\hline R & BGT-004 & Specified section is not known on this UniBoard\\
+\hline R & BGT-005 & Message is not valid in typed only modus\\
+\hline R & BGT-006 & Message is not valid for the selected group\\
+\hline R & BSE-001 & Attribute missing\\
+\hline R & BSE-002 & Attribute is not a StringValue\\
+\hline R & BSE-003 & Configuration for section-bfh is missing\\
+\hline R & BSE-004 & Specified section is not known on this UniBoard\\
+\hline E & BCG-001 & Internal server error\\
+\hline E & BCP-001 & Internal server error\\
+\hline
+\end{tabularx}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{UniCert}
