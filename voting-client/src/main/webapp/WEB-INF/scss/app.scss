@@ -212,8 +212,10 @@ dl {
 	p { margin-bottom: rem-calc(5); }
 	textarea { width: 100%; height: rem-calc(140); }
 	input[type=password] {width: 50%; display: inline; margin-right: rem-calc(20); }
-	#password-check-icon { padding-left: 10px; opacity: 0.1; filter: alpha(opacity = 10); }
-	#password-check-icon.ok { opacity: 1; filter: alpha(opacity = 100); }
+	#password-check-icon { width:rem-calc(30); padding-left: 0; opacity: 0.1; filter: alpha(opacity = 10);
+						   &.ok { opacity: 1; filter: alpha(opacity = 100); }
+	}
+
 	#pwderror { color: #c00;}
 }
 
@@ -400,7 +402,9 @@ footer {
 
 
 
-.send-vote-icon { text-align: center; padding: rem-calc(20) 0;  }
+.send-vote-icon { text-align: center; padding: rem-calc(20) 0;
+				  img { width: rem-calc(80); }
+}
 
 
 /* jQuery UI overrides */

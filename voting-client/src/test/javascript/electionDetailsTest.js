@@ -1,13 +1,13 @@
 var summationRule = {
 	id: 1,
-	type: "summation",
+	type: "summationRule",
 	optionIds: [1, 5, 23, 54, 75, 99, 120],
 	lowerBound: 0,
 	upperBound: 5
 };
 var cumulationRule = {
 	id: 1,
-	type: "cumulation",
+	type: "cumulationRule",
 	optionIds: [1, 5, 23, 54, 75, 99, 120],
 	lowerBound: 0,
 	upperBound: 2
@@ -73,28 +73,28 @@ var listElectionDetails = {
 	"rules": [
 		{
 			"id": 1,
-			"type": "summation",
+			"type": "summationRule",
 			"optionIds": [1, 5],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 2,
-			"type": "cumulation",
+			"type": "cumulationRule",
 			"optionIds": [1, 5],
 			"lowerBound": 0,
 			"upperBound": 1
 		},
 		{
 			"id": 3,
-			"type": "summation",
+			"type": "summationRule",
 			"optionIds": [2, 3, 6],
 			"lowerBound": 0,
 			"upperBound": 40
 		},
 		{
 			"id": 4,
-			"type": "cumulation",
+			"type": "cumulationRule",
 			"optionIds": [2, 3, 6],
 			"lowerBound": 0,
 			"upperBound": 3
