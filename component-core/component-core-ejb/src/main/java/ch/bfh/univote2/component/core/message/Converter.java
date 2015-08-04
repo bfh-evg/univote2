@@ -83,7 +83,6 @@ public class Converter {
 		JAXBContext jaxbContext = Converter.initJAXBContext(type);
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 		InputStream stream = new ByteArrayInputStream(message);
-		// 	InputStream stream = type.getResourceAsStream(path);
 		return unmarshaller.unmarshal(new StreamSource(stream), type).getValue();
 	}
 

@@ -41,79 +41,47 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import javax.xml.bind.annotation.XmlType;
-
 /**
  * <pre>
  * ...
- *		"DL": {
+ * 		"encryptedVote": {
+ *			"description": "ElGamal encryption of a vote",
+ *			"type": "object",
  *			"properties": {
- *				"type": {
- *					"type": "string",
- *					"enum": [
- *						"DL"
- *					]
- *				},
- *				"p": {
- *					"type": "string"
- *				},
- *				"q": {
- *					"type": "string"
- *				},
- *				"g": {
- *					"type": "string"
- *				},
- *				"publickey": {
- *					"type": "string"
- *				}
+ *				"firstValue":  { "type": "string" },
+ *				"secondValue": { "type": "string" }
  *			},
- *			"required": ["type", "p", "q", "g", "publickey"],
- *			"additionalProperties": false
- *		},
+ *			"required": ["firstValue", "secondValue"]
+ *		}
  * ...
  * </pre>
- *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(name="DL")
-public class DL extends Crypto {
+public class EncryptedVote {
+	private String firstValue;
+	private String secondValue;
 
-	private String p;
-	private String q;
-	private String g;
-
-	public DL() {
+	public EncryptedVote() {
 	}
 
-	public DL(String p, String q, String g, String publickey) {
-		super(publickey);
-		this.p = p;
-		this.q = q;
-		this.g = g;
+	public EncryptedVote(String firstValue, String secondValue) {
+		this.firstValue = firstValue;
+		this.secondValue = secondValue;
 	}
 
-	public String getP() {
-		return p;
+	public String getFirstValue() {
+		return firstValue;
 	}
 
-	public void setP(String p) {
-		this.p = p;
+	public void setFirstValue(String firstValue) {
+		this.firstValue = firstValue;
 	}
 
-	public String getQ() {
-		return q;
+	public String getSecondValue() {
+		return secondValue;
 	}
 
-	public void setQ(String q) {
-		this.q = q;
-	}
-
-	public String getG() {
-		return g;
-	}
-
-	public void setG(String g) {
-		this.g = g;
+	public void setSecondValue(String secondValue) {
+		this.secondValue = secondValue;
 	}
 }

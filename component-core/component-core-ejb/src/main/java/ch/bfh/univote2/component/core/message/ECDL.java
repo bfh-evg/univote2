@@ -41,10 +41,35 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlType;
+
 /**
+ * <pre>
+ * ...
+ *		"ECDL": {
+ *			"properties": {
+ *				"type": {
+ *					"type": "string",
+ *					"enum": [
+ *						"ECDL"
+ *					]
+ *				},
+ *				"curve": {
+ *					"type": "string"
+ *				},
+ *				"publickey": {
+ *					"type": "string"
+ *				}
+ *			},
+ *			"required": ["type", "curve", "publickey"],
+ *			"additionalProperties": false
+ *		}
+ * ...
+ * </pre>
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
+@XmlType(name="ECDL")
 public class ECDL extends Crypto {
 
 	private String curve;

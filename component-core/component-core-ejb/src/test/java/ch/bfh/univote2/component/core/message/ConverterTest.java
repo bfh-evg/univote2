@@ -46,6 +46,7 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
@@ -99,5 +100,198 @@ public class ConverterTest {
 		Date votingPeriodEnd = ed.getVotingPeriodEnd();
 		assertNotNull(votingPeriodEnd);
 		assertEquals(new DateAdapter().unmarshal("2015-03-26T11:00:00Z"), votingPeriodEnd);
+	}
+
+	@Test
+	public void testConvertJSONEncryptedBallot() throws Exception {
+		String jsonBallot
+				= "{\n"
+				+ "  \"encryptedVote\": {\n"
+				+ "    \"firstValue\": \"1234567890\",\n"
+				+ "    \"secondValue\": \"9876543210\"\n"
+				+ "  },\n"
+				+ "  \"proof\": {\n"
+				+ "    \"commitment\": \"1234567890\",\n"
+				+ "    \"challenge\": \"9876543210\",\n"
+				+ "    \"response\": \"1234567890\"\n"
+				+ "  }\n"
+				+ "}";
+		Ballot eb
+				= Converter.unmarshal(Ballot.class,
+						jsonBallot.getBytes(Charset.forName("UTF-8")));
+
+		EncryptedVote ev = eb.getEncryptedVote();
+		assertNotNull(ev);
+		assertEquals("1234567890", ev.getFirstValue());
+		assertEquals("9876543210", ev.getSecondValue());
+
+		Proof p = eb.getProof();
+		assertNotNull(p);
+		assertEquals("1234567890", p.getCommitment());
+		assertEquals("9876543210", p.getChallenge());
+		assertEquals("1234567890", p.getResponse());
+	}
+
+	@Test
+	public void testConvertJSONEncryptionSetting() throws Exception {
+		// Values chosen from Chapt. 7, "Cryptographic Settings"
+		String jsonCryptoSetting
+				= "{\n"
+				+ "  \"encryptionSetting\": \"RC1e\",\n"
+				+ "  \"signatureSetting\": \"RC1s\",\n"
+				+ "  \"hashSetting\": \"H2\"\n"
+				+ "}";
+		CryptoSetting cs
+				= Converter.unmarshal(CryptoSetting.class,
+						jsonCryptoSetting.getBytes(Charset.forName("UTF-8")));
+
+		assertEquals("RC1e", cs.getEncryptionSetting());
+		assertEquals("RC1s", cs.getSignatureSetting());
+		assertEquals("H2", cs.getHashSetting());
+	}
+
+	@Test
+	public void testConvertJSONSecurityLevel() throws Exception {
+		String jsonSecurityLevel
+				= "{\n"
+				+ "  \"securityLevel\": 3"
+				+ "}";
+
+		SecurityLevel sl
+				= Converter.unmarshal(SecurityLevel.class,
+						jsonSecurityLevel.getBytes(Charset.forName("UTF-8")));
+
+		assertEquals(Integer.valueOf("3"), sl.getSecurityLevel());
+	}
+
+	@Test
+	public void testConvertJSONEncryptionKeyShare() throws Exception {
+		String jsonBallot
+				= "{\n"
+				+ "  \"keyShare\": \"1234567890\",\n"
+				+ "  \"proof\": {\n"
+				+ "    \"commitment\": \"1234567890\",\n"
+				+ "    \"challenge\": \"9876543210\",\n"
+				+ "    \"response\": \"1234567890\"\n"
+				+ "  }\n"
+				+ "}";
+		EncryptionKeyShare eks
+				= Converter.unmarshal(EncryptionKeyShare.class,
+						jsonBallot.getBytes(Charset.forName("UTF-8")));
+
+		assertEquals("1234567890", eks.getKeyShare());
+
+		Proof p = eks.getProof();
+		assertNotNull(p);
+		assertEquals("1234567890", p.getCommitment());
+		assertEquals("9876543210", p.getChallenge());
+		assertEquals("1234567890", p.getResponse());
+	}
+
+	@Test
+	public void testConvertJSONAccessRight_1() throws Exception {
+		String jsonAccessRight
+				= "{\n"
+				+ "	\"group\": \"g1\",\n"
+				+ "	\"crypto\": {\n"
+				+ "		\"type\": \"RSA\",\n"
+				+ "		\"publickey\": \"1234567890\"\n"
+				+ "	},\n"
+				+ "	\"amount\": 2,\n"
+				+ "	\"startTime\": \"2015-03-08T23:00:00Z\",\n"
+				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
+				+ "}";
+		AccessRight ar
+				= Converter.unmarshal(AccessRight.class,
+						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(ar);
+
+		assertEquals("g1", ar.getGroup());
+
+		Crypto crypto = ar.getCrypto();
+		assertNotNull(crypto);
+		assertTrue(crypto instanceof RSA);
+		RSA rsa = (RSA) crypto;
+		assertEquals("1234567890", rsa.getPublickey());
+
+		assertEquals(Integer.valueOf(2), ar.getAmount());
+
+		assertEquals(new DateAdapter().unmarshal("2015-03-08T23:00:00Z"), ar.getStartTime());
+		assertEquals(new DateAdapter().unmarshal("2015-03-26T11:00:00Z"), ar.getEndTime());
+	}
+
+	@Test
+	public void testConvertJSONAccessRight_2() throws Exception {
+		String jsonAccessRight
+				= "{\n"
+				+ "	\"group\": \"g1\",\n"
+				+ "	\"crypto\": {\n"
+				+ "		\"type\": \"DL\",\n"
+				+ "		\"p\": \"161931481198\",\n"
+				+ "		\"q\": \"6513368382\",\n"
+				+ "		\"g\": \"109291242\",\n"
+				+ "		\"publickey\": \"1234567890\"\n"
+				+ "	},\n"
+				+ "	\"amount\": 2,\n"
+				+ "	\"startTime\": \"2015-03-08T23:00:00Z\",\n"
+				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
+				+ "}";
+		AccessRight ar
+				= Converter.unmarshal(AccessRight.class,
+						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(ar);
+
+		assertEquals("g1", ar.getGroup());
+
+		Crypto crypto = ar.getCrypto();
+		assertNotNull(crypto);
+		assertTrue(crypto instanceof DL);
+		DL dl = (DL) crypto;
+		assertEquals("161931481198", dl.getP());
+		assertEquals("6513368382", dl.getQ());
+		assertEquals("109291242", dl.getG());
+		assertEquals("1234567890", dl.getPublickey());
+
+		assertEquals(Integer.valueOf(2), ar.getAmount());
+
+		assertEquals(new DateAdapter().unmarshal("2015-03-08T23:00:00Z"), ar.getStartTime());
+		assertEquals(new DateAdapter().unmarshal("2015-03-26T11:00:00Z"), ar.getEndTime());
+	}
+
+	@Test
+	public void testConvertJSONAccessRight_3() throws Exception {
+		String jsonAccessRight
+				= "{\n"
+				+ "	\"group\": \"g1\",\n"
+				+ "	\"crypto\": {\n"
+				+ "		\"type\": \"ECDL\",\n"
+				+ "		\"curve\": \"NIST_xyz\",\n"
+				+ "		\"publickey\": \"1234567890\"\n"
+				+ "	},\n"
+				+ "	\"amount\": 2,\n"
+				+ "	\"startTime\": \"2015-03-08T23:00:00Z\",\n"
+				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
+				+ "}";
+		AccessRight ar
+				= Converter.unmarshal(AccessRight.class,
+						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(ar);
+
+		assertEquals("g1", ar.getGroup());
+
+		Crypto crypto = ar.getCrypto();
+		assertNotNull(crypto);
+		assertTrue(crypto instanceof ECDL);
+		ECDL ecdl = (ECDL) crypto;
+		assertEquals("NIST_xyz", ecdl.getCurve());
+		assertEquals("1234567890", ecdl.getPublickey());
+
+		assertEquals(Integer.valueOf(2), ar.getAmount());
+
+		assertEquals(new DateAdapter().unmarshal("2015-03-08T23:00:00Z"), ar.getStartTime());
+		assertEquals(new DateAdapter().unmarshal("2015-03-26T11:00:00Z"), ar.getEndTime());
 	}
 }
