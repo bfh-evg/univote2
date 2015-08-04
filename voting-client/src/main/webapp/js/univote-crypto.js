@@ -53,10 +53,6 @@
 		// Encryption setting (set at runtime)
 		this.encryptionSetting = {};
 
-		// Hash setting (set at runtime)
-		this.hashSetting = {};
-
-
 		/**
 		 * Sets the encryption parameters.
 		 *
@@ -91,9 +87,7 @@
 		 * @param {type} setting
 		 */
 		this.setHashParameters = function (setting) {
-			this.hashSetting = {
-				setting: setting,
-				bitLength: setting.BIT_LENGTH};
+			Hash.setHashMethod(setting.STANDARD);
 		};
 
 
@@ -121,17 +115,17 @@
 
 			//3. Compute c = H(H(H(publicInput)||H(t))||H(otherInput))
 			//3.1 Hash of public input
-			var hashPI = sha256.hashBigInt(publicInput);
+			var hashPI = Hash.doBigInt(publicInput);
 			//3.2 Hash of commitment
-			var hashCommitment = sha256.hashBigInt(t);
+			var hashCommitment = Hash.doBigInt(t);
 			//3.3 Hash of the hash of public input concatenated with hash of commitment
 			//(Steps 3.1 to 3.3 are the computation of to the recursive hash of a Pair[publicInput, Commitment] in UniCrypt)
-			var hashPIAndCommitment = sha256.hashHexStr(hashPI + hashCommitment);
+			var hashPIAndCommitment = Hash.doHexStr(hashPI + hashCommitment);
 			//3.4 Hash of other input
-			var hashOtherInput = sha256.hashString(otherInput);
+			var hashOtherInput = Hash.doString(otherInput);
 			//3.5 Hash of hashPIAndCommitment concatenated with hashOtherInput
 			//(Steps 3.1 to 3.5 are the computation of to the recursive hash of a Pair[Pair[publicInput, Commitment], otherInput] in UniCrypt)
-			var cStr = sha256.hashHexStr(hashPIAndCommitment + hashOtherInput);
+			var cStr = Hash.doHexStr(hashPIAndCommitment + hashOtherInput);
 			var c = leemon.mod(leemon.str2bigInt(cStr, 16, 1), q);
 
 			//4. Compute s = omega+c*secretInput mod q
@@ -160,8 +154,8 @@
 			var a2 = leemon.powMod(g, r, p);
 
 			// 2. Hash and calculate second part of signature
-			var a2Hash = sha256.hashBigInt(a2);
-			var aStr = sha256.hashHexStr(messageHash + a2Hash);
+			var a2Hash = Hash.doBigInt(a2);
+			var aStr = Hash.doHexStr(messageHash + a2Hash);
 			var a = leemon.mod(leemon.str2bigInt(aStr, 16), q);
 
 			var b = leemon.add(r, leemon.mult(a, privateKey));
@@ -192,7 +186,7 @@
 			var d = leemon.powMod(publicKey, b, p);
 
 			var a2Verif = leemon.multMod(c, leemon.inverseMod(d, p), p);
-			var bVerif = sha256.hashHexStr(messageHash + sha256.hashBigInt(a2Verif));
+			var bVerif = Hash.doHexStr(messageHash + Hash.doBigInt(a2Verif));
 
 			return leemon.equals(b, leemon.mod(leemon.str2bigInt(bVerif, 16), q));
 		};
@@ -369,7 +363,7 @@
 		 */
 		this.computeRSASignature = function (sk, vk, modulo, message) {
 			//hash the message
-			var hashedMessage = sha256.hashString(message); //base 16 encoded string
+			var hashedMessage = Hash.doString(message); //base 16 encoded string
 			//Create a BigInteger with the hashedMessage
 			var messageBigInt = leemon.str2bigInt(hashedMessage, 16);
 			//Computes the new BigInt modulo n since RSA message space in between 0 and n-1
@@ -923,7 +917,7 @@
 			//Get message and alpha attributes
 			var message = post.message;
 			var alpha = post.alpha.attribute;
-			var messageHash = sha256.hashString(B64.decode(message));
+			var messageHash = Hash.doString(B64.decode(message));
 			var concatenatedAlphaHashes = ""
 			for (var i = 0; i < alpha.length; i++) {
 				var attribute = alpha[i];
@@ -936,18 +930,18 @@
 				}
 
 				if (attribute.value.type === "stringValue") {
-					concatenatedAlphaHashes += sha256.hashString(attribute.value.value);
+					concatenatedAlphaHashes += Hash.doString(attribute.value.value);
 				} else if (attribute.value.type === "integerValue") {
-					concatenatedAlphaHashes += sha256.hashInt(attribute.value.value);
+					concatenatedAlphaHashes += Hash.doInt(attribute.value.value);
 				} else if (attribute.value.type === "dateValue") {
-					concatenatedAlphaHashes += sha256.hashDate(new Date(attribute.value.value));
+					concatenatedAlphaHashes += Hash.doDate(new Date(attribute.value.value));
 				} else if (attribute.value.type === "integerValue") {
-					concatenatedAlphaHashes += sha256.hashByteArray(attribute.value.value);
+					concatenatedAlphaHashes += Hash.doByteArray(attribute.value.value);
 				} else {
 					throw "Error: unknown type of alpha attribute.";
 				}
 			}
-			var alphaHash = sha256.hashHexStr(concatenatedAlphaHashes);
+			var alphaHash = Hash.doHexStr(concatenatedAlphaHashes);
 			if (includeBeta) {
 				var betaHash = "";
 				var beta = JSON.parse(JSON.stringify(post.beta.attribute).replace(/@/g, ""));
@@ -962,25 +956,137 @@
 						continue;
 					}
 					if (attribute.value.type === "stringValue") {
-						concatenatedBetaHashes += sha256.hashString(attribute.value.value);
+						concatenatedBetaHashes += Hash.doString(attribute.value.value);
 					} else if (attribute.value.type === "integerValue") {
-						concatenatedBetaHashes += sha256.hashInt(attribute.value.value);
+						concatenatedBetaHashes += Hash.doInt(attribute.value.value);
 					} else if (attribute.value.type === "dateValue") {
-						concatenatedBetaHashes += sha256.hashDate(new Date(attribute.value.value));
+						concatenatedBetaHashes += Hash.doDate(new Date(attribute.value.value));
 					} else if (attribute.value.type === "integerValue") {
-						concatenatedBetaHashes += sha256.hashByteArray(attribute.value.value);
+						concatenatedBetaHashes += Hash.doByteArray(attribute.value.value);
 					} else {
 						throw "Error: unknown type of beta attribute.";
 					}
 				}
-				betaHash = sha256.hashHexStr(concatenatedBetaHashes);
-				return sha256.hashHexStr(messageHash + alphaHash + betaHash);
+				betaHash = Hash.doHexStr(concatenatedBetaHashes);
+				return Hash.doHexStr(messageHash + alphaHash + betaHash);
 			} else {
-				return sha256.hashHexStr(messageHash + alphaHash);
+				return Hash.doHexStr(messageHash + alphaHash);
 			}
 		}
 	}
 
 	window.uvCrypto = new Crypto();
+
+})(window);
+
+
+(function (window) {
+
+	var Hash = new function () {
+
+		var hashMethod = CryptoJS.SHA256;
+
+		this.setHashMethod = function (method) {
+			switch (method) {
+				case 'SHA-1':
+					hashMethod = CryptoJS.SHA1;
+					break;
+				case 'SHA-224':
+					hashMethod = CryptoJS.SHA224;
+					break;
+				case 'SHA-256':
+					hashMethod = CryptoJS.SHA256;
+					break;
+				case 'SHA-384':
+					hashMethod = CryptoJS.SHA384;
+					break;
+				case 'SHA-512':
+					hashMethod = CryptoJS.SHA512;
+					break;
+				default:
+					// Unsupported!
+					Console.log("Unsupported hash algorithm: '" + method + "'");
+			}
+		};
+
+		/*
+		 * Hashes a UTF-8 string
+		 * returns a hex representation of the hash
+		 */
+		this.doString = function (msg) {
+			var hash = hashMethod(msg);
+			return hash.toString(CryptoJS.enc.Hex).toUpperCase();
+		};
+
+		/*
+		 * Hashes a leemon BigInteger
+		 * returns a hex representation of the hash
+		 */
+		this.doBigInt = function (bigInteger) {
+
+			//In UniCrypt (Java) the BigInteger as considered as positive before being hashed (0s are added in front of the byte
+			//array in case of a negative big int. So, we do the same here
+			var hexStr = leemon.bigInt2str(bigInteger, 16);
+
+			if (parseInt(hexStr.substr(0, 2), 16) > 127) {
+				hexStr = "0" + hexStr;
+			}
+
+			return this.doHexStr(hexStr);
+		};
+
+		/*
+		 * Hashes an integer
+		 * returns a hex representation of the hash
+		 */
+		this.doInt = function (long) {
+
+			var bigint = leemon.int2bigInt(long, 1);
+			return this.doBigInt(bigint);
+		};
+
+		/*
+		 * Hashes a date
+		 * Computes the hash of the ISO format without milliseconds
+		 * returns a hex representation of the hash
+		 */
+		this.doDate = function (date) {
+
+			var dateFormatted = date.toISOString();
+
+			//Workaround because current Java implementation does not includes milliseconds
+			dateFormatted = dateFormatted.substring(0, dateFormatted.length - 5) + "Z";
+
+			return this.doString(dateFormatted);
+		};
+
+		/*
+		 * Hashes a base 64 representation of a byte array
+		 * returns a hex representation of the hash
+		 */
+		this.doByteArray = function (base64ByteArray) {
+
+			var byteArray = B64.decode(base64ByteArray);
+			return this.doBigInt(byteArray);
+		};
+
+		/*
+		 * Hashes a hexadecimal representation
+		 * returns a hex representation of the hash
+		 */
+		this.doHexStr = function (hexStr) {
+
+			// If the length of the string is not a multiple of 2, "0" is added at the
+			// beginning of the string.
+			// Reason: CryptoJS.enc.Hex.parse('ABC').toString() results in 'AB0C'!
+			if (hexStr.length % 2 != 0) {
+				hexStr = "0" + hexStr;
+			}
+			var hash = hashMethod(CryptoJS.enc.Hex.parse(hexStr));
+			return hash.toString(CryptoJS.enc.Hex).toUpperCase();
+		};
+	};
+
+	window.Hash = Hash;
 
 })(window);

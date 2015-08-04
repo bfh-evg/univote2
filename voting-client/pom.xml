@@ -40,12 +40,10 @@
 					<jsSrcDir>${project.basedir}/src/main/webapp/js</jsSrcDir>
 					<sourceIncludes>
 						<include>lib/base64.js</include>
-						<include>lib/sha256.js</include>
+						<include>lib/CryptoJS.js</include>
 						<include>lib/map.js</include>
 						<include>lib/leemon.js</include>
 						<include>lib/jquery.min.js</include>
-						<include>lib/aes.js</include>
-						<include>lib/pbkdf2.js</include>
 						<include>lib/seedrandom.js</include>
 						<include>univote-config.js</include>
 						<include>univote-crypto.js</include>
