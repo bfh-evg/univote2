@@ -41,10 +41,8 @@
 					<sourceIncludes>
 						<include>lib/base64.js</include>
 						<include>lib/CryptoJS.js</include>
-						<include>lib/map.js</include>
 						<include>lib/leemon.js</include>
 						<include>lib/jquery.min.js</include>
-						<include>lib/seedrandom.js</include>
 						<include>univote-config.js</include>
 						<include>univote-crypto.js</include>
 						<include>univote-util.js</include>

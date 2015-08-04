@@ -23,9 +23,9 @@
 
 (function (window) {
 
-// Check for leemon and seedrandom library and configuration. If they aren't loaded,
-// an error message is displayed at the top of the page.
-	if (!leemon || !Math.seedrandom || !uvConfig) {
+	// Check for leemon and configuration. If they aren't loaded,
+	// an error message is displayed at the top of the page.
+	if (!leemon || !uvConfig) {
 		window.onload = function () {
 			var body = document.getElementsByTagName('body')[0];
 			var errorDiv = document.createElement('div');
