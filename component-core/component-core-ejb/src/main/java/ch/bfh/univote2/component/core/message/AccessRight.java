@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.Date;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -148,6 +149,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder = {"group", "crypto", "amount", "startTime", "endTime"})
 public class AccessRight {
 
 	private String group;

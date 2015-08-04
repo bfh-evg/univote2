@@ -12,7 +12,7 @@
 package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.uniboard.data.QueryDTO;
-import static ch.bfh.unicrypt.helper.Alphabet.UPPER_CASE;
+import static ch.bfh.unicrypt.helper.math.Alphabet.UPPER_CASE;
 import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.services.RegistrationService;

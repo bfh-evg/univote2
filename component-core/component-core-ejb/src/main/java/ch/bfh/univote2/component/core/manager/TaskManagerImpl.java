@@ -41,7 +41,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import static ch.bfh.unicrypt.helper.Alphabet.UPPER_CASE;
+import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
@@ -77,7 +77,7 @@ public class TaskManagerImpl implements TaskManager {
 
 	@Override
 	public String addUserInputTask(UserInputTask userInputTask) {
-		FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
+		FixedStringSet fixedStringSet = FixedStringSet.getInstance(Alphabet.UPPER_CASE, 20);
 		String notificationCode = fixedStringSet.getRandomElement().getValue();
 		userInputTask.setNotificationCode(notificationCode);
 		this.tasks.put(notificationCode, userInputTask);
@@ -86,7 +86,7 @@ public class TaskManagerImpl implements TaskManager {
 
 	@Override
 	public void addRunActionTask(RunActionTask runActionTask) {
-		FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
+		FixedStringSet fixedStringSet = FixedStringSet.getInstance(Alphabet.UPPER_CASE, 20);
 		String notificationCode = fixedStringSet.getRandomElement().getValue();
 		runActionTask.setNotificationCode(notificationCode);
 		this.tasks.put(notificationCode, runActionTask);

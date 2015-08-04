@@ -72,9 +72,11 @@ public class MessageFactoryTest {
 		Date startTime = new Date(new Long("1435242934856"));
 		Date endTime = new Date(new Long("1435242994846"));
 
-		String expectedMessageStr = "{\"group\":\"accessRight\",\"amount\": 1,\"startTime\":\"2015-06-25T14:35:34Z\","
-				+ "\"endTime\":\"2015-06-25T14:36:34Z\","
-				+ "\"crypto\":{\"type\":\"DL\", \"p\":\"1\",\"q\":\"1\",\"g\":\"1\",\"publickey\":\"1\"}}";;
+		String expectedMessageStr = "{\"group\":\"accessRight\","
+				+ "\"crypto\":{\"type\":\"DL\",\"publickey\":\"1\",\"p\":\"1\",\"q\":\"1\",\"g\":\"1\"},"
+				+ "\"amount\":1,\"startTime\":\"2015-06-25T14:35:34Z\","
+				+ "\"endTime\":\"2015-06-25T14:36:34Z\""
+				+ "}";
 		try {
 			byte[] message = MessageFactory.createAccessRight(group, publicKey, amount, startTime, endTime);
 			Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));
@@ -92,8 +94,9 @@ public class MessageFactoryTest {
 		Date startTime = new Date(new Long("1435242934856"));
 		Date endTime = new Date(new Long("1435242994846"));
 
-		String expectedMessageStr = "{\"group\":\"accessRight\",\"amount\": 1,"
-				+ "\"crypto\":{\"type\":\"DL\", \"p\":\"1\",\"q\":\"1\",\"g\":\"1\",\"publickey\":\"1\"}}";;
+		String expectedMessageStr = "{\"group\":\"accessRight\","
+				+ "\"crypto\":{\"type\":\"DL\",\"publickey\":\"1\",\"p\":\"1\",\"q\":\"1\",\"g\":\"1\"}"
+				+ ",\"amount\":1}";
 		try {
 			byte[] message = MessageFactory.createAccessRight(group, publicKey, amount);
 			Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));
@@ -111,7 +114,7 @@ public class MessageFactoryTest {
 		Date endTime = new Date(new Long("1435242994846"));
 
 		String expectedMessageStr = "{\"group\":\"accessRight\","
-				+ "\"crypto\":{\"type\":\"DL\", \"p\":\"1\",\"q\":\"1\",\"g\":\"1\",\"publickey\":\"1\"}}";;
+				+ "\"crypto\":{\"type\":\"DL\",\"publickey\":\"1\",\"p\":\"1\",\"q\":\"1\",\"g\":\"1\"}}";
 		try {
 			byte[] message = MessageFactory.createAccessRight(group, publicKey);
 			Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));
@@ -128,9 +131,10 @@ public class MessageFactoryTest {
 		Date startTime = new Date(new Long("1435242934856"));
 		Date endTime = new Date(new Long("1435242994846"));
 
-		String expectedMessageStr = "{\"group\":\"accessRight\",\"startTime\":\"2015-06-25T14:35:34Z\","
-				+ "\"endTime\":\"2015-06-25T14:36:34Z\","
-				+ "\"crypto\":{\"type\":\"DL\", \"p\":\"1\",\"q\":\"1\",\"g\":\"1\",\"publickey\":\"1\"}}";;
+		String expectedMessageStr = "{\"group\":\"accessRight\","
+				+ "\"crypto\":{\"type\":\"DL\",\"publickey\":\"1\",\"p\":\"1\",\"q\":\"1\",\"g\":\"1\"},"
+				+ "\"startTime\":\"2015-06-25T14:35:34Z\","
+				+ "\"endTime\":\"2015-06-25T14:36:34Z\"}";
 		try {
 			byte[] message = MessageFactory.createAccessRight(group, publicKey, startTime, endTime);
 			Assert.assertArrayEquals(message, expectedMessageStr.getBytes(Charset.forName("UTF-8")));

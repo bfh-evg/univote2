@@ -43,16 +43,18 @@ package ch.bfh.univote2.ec;
 
 import ch.bfh.unicrypt.helper.MathUtil;
 import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.component.core.message.AccessRight;
+import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.DL;
+import ch.bfh.univote2.component.core.message.RSA;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  *
@@ -63,38 +65,39 @@ public class MessageFactory {
 	public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Integer amount, Date startTime,
 			Date endTime) throws UnivoteException {
 
-		String message = "{";
-		message += "\"group\":\"" + group.getValue() + "\",";
+		AccessRight accessRight = new AccessRight();
+		accessRight.setGroup(group.getValue());
 		if (amount != null) {
-			message += "\"amount\": " + amount + ",";
+			accessRight.setAmount(amount);
 		}
-		SimpleDateFormat iso8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-		iso8601.setTimeZone(TimeZone.getTimeZone("GMT"));
 		if (startTime != null) {
-			message += "\"startTime\":\"" + iso8601.format(startTime) + "\",";
+			accessRight.setStartTime(startTime);
 		}
 		if (endTime != null) {
-			message += "\"endTime\":\"" + iso8601.format(endTime) + "\",";
+			accessRight.setEndTime(endTime);
 		}
 		if (publicKey instanceof DSAPublicKey) {
 			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
-			message += "\"crypto\":{\"type\":\"DL\", \"p\":\""
-					+ dsaPubKey.getParams().getP().toString(10)
-					+ "\",\"q\":\"" + dsaPubKey.getParams().getQ().toString(10)
-					+ "\",\"g\":\"" + dsaPubKey.getParams().getG().toString(10)
-					+ "\",\"publickey\":\""
-					+ dsaPubKey.getY().toString(10) + "\"}";
+			DL dl = new DL();
+			dl.setP(dsaPubKey.getParams().getP().toString(10));
+			dl.setQ(dsaPubKey.getParams().getQ().toString(10));
+			dl.setG(dsaPubKey.getParams().getG().toString(10));
+			dl.setPublickey(dsaPubKey.getY().toString(10));
+			accessRight.setCrypto(dl);
 		} else if (publicKey instanceof RSAPublicKey) {
 			RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
 			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
-			//Create correct json message
-			message += "\"crypto\":{\"type\":\"RSA\",\"publickey\":\""
-					+ unicertRsaPubKey.toString(10) + "\"}";
+
+			RSA rsa = new RSA(unicertRsaPubKey.toString(10));
+			accessRight.setCrypto(rsa);
 		} else {
 			throw new UnivoteException("Unsupported public key: " + publicKey.getClass());
 		}
-		message += "}";
-		return message.getBytes(Charset.forName("UTF-8"));
+		try {
+			return Converter.marshal(accessRight).getBytes(Charset.forName("UTF-8"));
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 
 	public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Integer amount)

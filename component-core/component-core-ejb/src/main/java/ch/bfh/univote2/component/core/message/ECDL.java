@@ -69,7 +69,7 @@ import javax.xml.bind.annotation.XmlType;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@XmlType(name="ECDL")
+@XmlType(name = "ECDL", propOrder = {"publickey", "cure"})
 public class ECDL extends Crypto {
 
 	private String curve;

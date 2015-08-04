@@ -76,7 +76,7 @@ import javax.xml.bind.annotation.XmlType;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(name="DL")
+@XmlType(name = "DL", propOrder = {"publickey", "p", "q", "g"})
 public class DL extends Crypto {
 
 	private String p;
