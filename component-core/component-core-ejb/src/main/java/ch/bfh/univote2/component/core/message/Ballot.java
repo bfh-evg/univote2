@@ -41,79 +41,64 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import javax.xml.bind.annotation.XmlType;
-
 /**
  * <pre>
- * ...
- *		"DL": {
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a ballot",
+ *	"type": "object",
+ *	"properties": {
+ *		"encryptedVote": {
+ *			"description": "ElGamal encryption of a vote",
+ *			"type": "object",
  *			"properties": {
- *				"type": {
- *					"type": "string",
- *					"enum": [
- *						"DL"
- *					]
- *				},
- *				"p": {
- *					"type": "string"
- *				},
- *				"q": {
- *					"type": "string"
- *				},
- *				"g": {
- *					"type": "string"
- *				},
- *				"publickey": {
- *					"type": "string"
- *				}
+ *				"firstValue":  { "type": "string" },
+ *				"secondValue": { "type": "string" }
  *			},
- *			"required": ["type", "p", "q", "g", "publickey"],
- *			"additionalProperties": false
+ *			"required": ["firstValue", "secondValue"]
  *		},
- * ...
+ *		"proof": {
+ *			"description": "Encryption proof",
+ *			"type": "object",
+ *			"properties": {
+ *				"commitment": { "type": "string" },
+ *				"challenge":  { "type": "string" },
+ *				"response":   { "type": "string" }
+ *			},
+ *			"required": ["commitment", "challenge", "response"]
+ *		}
+ *	},
+ *	"required": ["encryptedVote", "proof"],
+ *	"additionalProperties": false
+ * }
  * </pre>
- *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(name="DL")
-public class DL extends Crypto {
+public class Ballot {
+	private EncryptedVote encryptedVote;
+	private Proof proof;
 
-	private String p;
-	private String q;
-	private String g;
-
-	public DL() {
+	public Ballot() {
 	}
 
-	public DL(String p, String q, String g, String publickey) {
-		super(publickey);
-		this.p = p;
-		this.q = q;
-		this.g = g;
+	public Ballot(EncryptedVote encryptedVote, Proof proof) {
+		this.encryptedVote = encryptedVote;
+		this.proof = proof;
 	}
 
-	public String getP() {
-		return p;
+	public EncryptedVote getEncryptedVote() {
+		return encryptedVote;
 	}
 
-	public void setP(String p) {
-		this.p = p;
+	public void setEncryptedVote(EncryptedVote encryptedVote) {
+		this.encryptedVote = encryptedVote;
 	}
 
-	public String getQ() {
-		return q;
+	public Proof getProof() {
+		return proof;
 	}
 
-	public void setQ(String q) {
-		this.q = q;
-	}
-
-	public String getG() {
-		return g;
-	}
-
-	public void setG(String g) {
-		this.g = g;
+	public void setProof(Proof proof) {
+		this.proof = proof;
 	}
 }

@@ -41,79 +41,48 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import javax.xml.bind.annotation.XmlType;
-
 /**
  * <pre>
- * ...
- *		"DL": {
- *			"properties": {
- *				"type": {
- *					"type": "string",
- *					"enum": [
- *						"DL"
- *					]
- *				},
- *				"p": {
- *					"type": "string"
- *				},
- *				"q": {
- *					"type": "string"
- *				},
- *				"g": {
- *					"type": "string"
- *				},
- *				"publickey": {
- *					"type": "string"
- *				}
- *			},
- *			"required": ["type", "p", "q", "g", "publickey"],
- *			"additionalProperties": false
- *		},
- * ...
+ * TO BE PROVIDED...
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(name="DL")
-public class DL extends Crypto {
+public class Proof {
+	private String commitment;
+	private String challenge;
+	private String response;
 
-	private String p;
-	private String q;
-	private String g;
-
-	public DL() {
+	public Proof() {
 	}
 
-	public DL(String p, String q, String g, String publickey) {
-		super(publickey);
-		this.p = p;
-		this.q = q;
-		this.g = g;
+	public Proof(String commitment, String challenge, String response) {
+		this.commitment = commitment;
+		this.challenge = challenge;
+		this.response = response;
 	}
 
-	public String getP() {
-		return p;
+	public String getCommitment() {
+		return commitment;
 	}
 
-	public void setP(String p) {
-		this.p = p;
+	public void setCommitment(String commitment) {
+		this.commitment = commitment;
 	}
 
-	public String getQ() {
-		return q;
+	public String getChallenge() {
+		return challenge;
 	}
 
-	public void setQ(String q) {
-		this.q = q;
+	public void setChallenge(String challenge) {
+		this.challenge = challenge;
 	}
 
-	public String getG() {
-		return g;
+	public String getResponse() {
+		return response;
 	}
 
-	public void setG(String g) {
-		this.g = g;
+	public void setResponse(String response) {
+		this.response = response;
 	}
 }

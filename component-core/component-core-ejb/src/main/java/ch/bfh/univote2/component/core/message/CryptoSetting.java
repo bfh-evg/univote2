@@ -41,79 +41,68 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import javax.xml.bind.annotation.XmlType;
-
 /**
  * <pre>
- * ...
- *		"DL": {
- *			"properties": {
- *				"type": {
- *					"type": "string",
- *					"enum": [
- *						"DL"
- *					]
- *				},
- *				"p": {
- *					"type": "string"
- *				},
- *				"q": {
- *					"type": "string"
- *				},
- *				"g": {
- *					"type": "string"
- *				},
- *				"publickey": {
- *					"type": "string"
- *				}
- *			},
- *			"required": ["type", "p", "q", "g", "publickey"],
- *			"additionalProperties": false
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a crypto setting",
+ *	"type": "object",
+ *	"properties": {
+ *		"encryptionSetting": {
+ *			"description": "Identifier of the encryption setting",
+ *			"type": "string"
  *		},
- * ...
+ *		"signatureSetting": {
+ *			"description": "Identifier of the signature setting",
+ *			"type": "string"
+ *		},
+ *		"hashSetting": {
+ *			"description": "Identifier of the hash setting",
+ *			"type": "string"
+ *		}
+ *	},
+ *	"required": ["encryptionSetting", "signatureSetting", "hashSetting"],
+ *	"additionalProperties": false
+ * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(name="DL")
-public class DL extends Crypto {
+public class CryptoSetting {
+	private String encryptionSetting;
+	private String signatureSetting;
+	private String hashSetting;
 
-	private String p;
-	private String q;
-	private String g;
-
-	public DL() {
+	public CryptoSetting() {
 	}
 
-	public DL(String p, String q, String g, String publickey) {
-		super(publickey);
-		this.p = p;
-		this.q = q;
-		this.g = g;
+	public CryptoSetting(String encryptionSetting, String signatureSetting, String hashSetting) {
+		this.encryptionSetting = encryptionSetting;
+		this.signatureSetting = signatureSetting;
+		this.hashSetting = hashSetting;
 	}
 
-	public String getP() {
-		return p;
+	public String getEncryptionSetting() {
+		return encryptionSetting;
 	}
 
-	public void setP(String p) {
-		this.p = p;
+	public void setEncryptionSetting(String encryptionSetting) {
+		this.encryptionSetting = encryptionSetting;
 	}
 
-	public String getQ() {
-		return q;
+	public String getSignatureSetting() {
+		return signatureSetting;
 	}
 
-	public void setQ(String q) {
-		this.q = q;
+	public void setSignatureSetting(String signatureSetting) {
+		this.signatureSetting = signatureSetting;
 	}
 
-	public String getG() {
-		return g;
+	public String getHashSetting() {
+		return hashSetting;
 	}
 
-	public void setG(String g) {
-		this.g = g;
+	public void setHashSetting(String hashSetting) {
+		this.hashSetting = hashSetting;
 	}
 }

@@ -439,18 +439,7 @@
 				return str;
 			}
 
-//	    // 1. Check and erase pre- and postfix
-//	    // -> even \n and \r should be included in \s, only \s does not work!!!
-//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX) + "([0-9A-Za-z=_+/]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX));
-//	    var match = pattern.exec(cleanStr(key));
-//	    if (match == null || match.length != 2) {
-//		errorCb('invalidUploadedKey');
-//		return false;
-//	    }
-//
-//	    var keyC = match[1];
-
-// 1. Check and erase pre- and postfix
+			// 1. Check and erase pre- and postfix
 			var keyC = key.replace(/[-]*/g, "");
 			keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_PREFIX.replace(/[-]*/g, ""), "");
 			keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_POSTFIX.replace(/[-]*/g, ""), "");
@@ -502,41 +491,6 @@
 		this.encryptSecretKey = function (sk, password) {
 
 			return this.encryptSecretKeyAES(sk, password);
-//	    // 1. Add pre- and postfix to key
-//	    var key = uvConfig.PRIVATE_KEY_PREFIX + sk + uvConfig.PRIVATE_KEY_POSTFIX;
-//
-//	    // 2. Convert key into bigInt
-//	    key = leemon.str2bigInt(key, 64, 0);
-//
-//	    //3. Create a salt of exactly 128 bits
-//	    var salt;
-//	    do {
-//		salt = leemon.randBigInt(128);
-//	    } while (leemon.bitSize(salt) != 128)
-//	    salt = leemon.bigInt2str(salt, 64)
-//
-//	    // 4. Seed rng with password and salt (save current RNG temporary to not
-//	    // lose accumulated data for future randomness)
-//	    var cRNG = Math.random;
-//	    Math.seedrandom(password + "" + salt);
-//
-//	    // 5. Get one-time-pad and reassign old rng
-//	    //compute the size of the pre/postfixed key
-//	    var keyLength = leemon.bitSize(key);
-//	    //compute the required size for one time pad, we want it to be a multiple of 16, in order
-//	    //to be able to recover more easily the same size for decryption
-//	    var oneTimePadSize = keyLength + (16 - keyLength % 16) + uvConfig.PRIVATE_KEY_ONE_TIME_PAD_PREPOSTFIX_SIZE;
-//	    var r = leemon.randBigInt(oneTimePadSize);
-//	    Math.random = cRNG;
-//
-//	    // 6. Encrypt key using one-time-pad
-//	    var keyC = leemon.xor(key, r);
-//	    // 7. Convert key to string with base 64
-//	    keyC = leemon.bigInt2str(keyC, 64);
-//	    // 8. Pad encrypted key with pre- and postfix and add salt
-//	    keyC = uvConfig.ENC_PRIVATE_KEY_PREFIX + '\n' + salt + keyC + '\n' + uvConfig.ENC_PRIVATE_KEY_POSTFIX;
-//	    // 9. Return encrypted and padded key
-//	    return keyC;
 		};
 
 		/**
@@ -562,122 +516,8 @@
 
 			result = this.decryptSecretKeyAES(key, password, callback);
 			return result;
-//	    // Cleans a string (removes all special charaters but =, -, _)
-//	    function cleanStr(str) {
-//		return str.replace(/[^\w=_\-]/gi, '');
-//	    }
-//
-//
-//	    // 1. Check and erase pre- and postfix
-//	    // -> even \n and \r should be included in \s, only \s does not work!!!
-//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX) + "([0-9A-Za-z=_]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX));
-//	    var match = pattern.exec(cleanStr(key));
-//	    if (match == null || match.length != 2) {
-//		errorCb('invalidUploadedKey');
-//		return false;
-//	    }
-//
-//	    var keyC = match[1];
-//
-//	    //2. extract salt (128 bits => 22 base64 chars)
-//	    var salt = keyC.substring(0, 22);
-//	    //salt = leemon.str2bigInt(salt, 64, 0);
-//	    keyC = keyC.substring(22);
-//
-//	    // 3. Decrypt key with password
-//	    keyC = leemon.str2bigInt(keyC, 64, 0);
-//	    // Save current RNG temporary to not lose accumulated data for future randomness
-//	    var cRNG = Math.random;
-//	    Math.seedrandom(password + "" + salt);
-//	    //Compute the size of the pre/post fixed encrypted key
-//	    var keyLength = leemon.bitSize(keyC);
-//	    //look for a multiple of 16, since the size of the one time pad used for encryption was
-//	    //also a multiple of 16
-//	    var oneTimePadSize = keyLength;
-//	    if (keyLength % 16 != 0) {
-//		oneTimePadSize = keyLength + (16 - keyLength % 16);
-//	    }
-//
-//	    var r = leemon.randBigInt(oneTimePadSize);
-//
-//	    // 4. Reassign old rng
-//	    Math.random = cRNG;
-//	    var keyP = leemon.xor(keyC, r);
-//	    keyP = leemon.bigInt2str(keyP, 64);
-//
-//	    // 5. Check and erase pre- and postfix
-//	    pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX + "([0-9A-Za-z=_]*)" + uvConfig.PRIVATE_KEY_POSTFIX);
-//	    match = pattern.exec(keyP);
-//	    if (match == null || match.length != 2) {
-//		errorCb('wrongPassword');
-//		return false;
-//	    }
-//
-//	    // 6. Finally return sk
-//	    return leemon.str2bigInt(match[1], 64, 1);
 		};
 
-		/**
-		 * LEGACY SUPPORT: UniVote 1 keys
-		 * Decrypts an encrypted secret key (counterpart to encryptSecretKey).
-		 * If the key is not properly padded or the password is wrong then
-		 * the error callback is called with a string denoting the error.
-		 *
-		 * IMPORTANT: The complete step 2 MUST be synchronized (mutex lock). As univote-random
-		 * is collecting data all the time in the background and may seed rng. Currently,
-		 * as long as JS is single threaded, the synchronization is implicitly given.
-		 *
-		 * @param key - Encrypted and padded secret key as string.
-		 * @param password - The password used for encryption.
-		 * @param errorCb - Callback to notify errors (type of error is passed as string).
-		 * @return Secret key as bigInt.
-		 */
-		this.decryptSecretKeyUniVote1 = function (key, password, errorCb) {
-
-			// Cleans a string (removes all special charaters but =, -, _)
-			function cleanStr(str) {
-				return str.replace(/[^\w=_\-]/gi, '');
-			}
-
-//	    // 1. Check and erase pre- and postfix
-//	    // -> even \n and \r should be included in \s, only \s does not work!!!
-//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX_UNIVOTE_1) + "([0-9A-Za-z=_]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX_UNIVOTE_1));
-//	    var match = pattern.exec(cleanStr(key));
-//	    if (match == null || match.length != 2) {
-//		errorCb('invalidUploadedKey');
-//		return false;
-//	    }
-//
-//	    var keyC = match[1];
-
-			// 1. Check and erase pre- and postfix
-			var keyC = key.replace(/[-]*/g, "");
-			keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_PREFIX_UNIVOTE_1.replace(/[-]*/g, ""), "");
-			keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_POSTFIX_UNIVOTE_1.replace(/[-]*/g, ""), "");
-			keyC = cleanStr(keyC);
-
-			// 2. Decrypt key with password
-			keyC = leemon.str2bigInt(keyC, 64, 0);
-			// Save current RNG temporary to not lose accumulated data for future randomness
-			var cRNG = Math.random;
-			Math.seedrandom(password);
-			var r = leemon.randBigInt(uvConfig.PRIVATE_KEY_ONE_TIME_PAD_SIZE_UNIVOTE_1);
-			// Reassign old rng
-			Math.random = cRNG;
-			var keyP = leemon.xor(keyC, r);
-			keyP = leemon.bigInt2str(keyP, 64);
-
-			// 3. Check and erase pre- and postfix
-			pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX_UNIVOTE_1 + "([0-9A-Za-z=_]*)" + uvConfig.PRIVATE_KEY_POSTFIX_UNIVOTE_1);
-			match = pattern.exec(keyP);
-			if (match == null || match.length != 2) {
-				errorCb('wrongPasswordInvalidKey');
-				return false;
-			}
-
-			// 4. Finally return sk
-			return leemon.str2bigInt(match[1], 64, 1);
-		};
 
 		/**
 		 * Removes leading and trailing spaces and line breaks from a string.
@@ -826,17 +666,6 @@
 // Post signatures crypto
 ////////////////////////////////////////////////////////////////////////
 
-		/*
-		 * Signs a ballot: S = Sign_sk(id||E||pi) using electionGenerator.
-		 *
-		 *     Sign_sk(m,r) = (a,r-a*sk),  where a=H(m||g^r)
-		 *
-		 * @param ballot - An object holding all ballot data.
-		 * @param generator - The election generator as bigInt.
-		 * @param sk - The secret key as bigInt.
-		 * @return An object with the signature (univote_bfh_ch_common_voterSignature)
-		 * and the single signature values as bigInt.
-		 */
 		/**
 		 * Signs the post that will be posted on UniBoard using hte given generator (Schnorr signature)
 		 * @param post Message to be signed

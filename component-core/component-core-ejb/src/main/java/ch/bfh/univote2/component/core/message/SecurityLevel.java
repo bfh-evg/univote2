@@ -41,79 +41,40 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import javax.xml.bind.annotation.XmlType;
-
 /**
  * <pre>
- * ...
- *		"DL": {
- *			"properties": {
- *				"type": {
- *					"type": "string",
- *					"enum": [
- *						"DL"
- *					]
- *				},
- *				"p": {
- *					"type": "string"
- *				},
- *				"q": {
- *					"type": "string"
- *				},
- *				"g": {
- *					"type": "string"
- *				},
- *				"publickey": {
- *					"type": "string"
- *				}
- *			},
- *			"required": ["type", "p", "q", "g", "publickey"],
- *			"additionalProperties": false
- *		},
- * ...
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a security level message",
+ *	"type": "object",
+ *	"properties": {
+ *		"securityLevel": {
+ *			"description": "Security level of the election",
+ *			"type": "integer"
+ *		}
+ *	},
+ *	"required": ["securityLevel"],
+ *	"additionalProperties": false
+ * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(name="DL")
-public class DL extends Crypto {
+public class SecurityLevel {
+	private Integer securityLevel;
 
-	private String p;
-	private String q;
-	private String g;
-
-	public DL() {
+	public SecurityLevel() {
 	}
 
-	public DL(String p, String q, String g, String publickey) {
-		super(publickey);
-		this.p = p;
-		this.q = q;
-		this.g = g;
+	public SecurityLevel(Integer securityLevel) {
+		this.securityLevel = securityLevel;
 	}
 
-	public String getP() {
-		return p;
+	public Integer getSecurityLevel() {
+		return securityLevel;
 	}
 
-	public void setP(String p) {
-		this.p = p;
-	}
-
-	public String getQ() {
-		return q;
-	}
-
-	public void setQ(String q) {
-		this.q = q;
-	}
-
-	public String getG() {
-		return g;
-	}
-
-	public void setG(String g) {
-		this.g = g;
+	public void setSecurityLevel(Integer securityLevel) {
+		this.securityLevel = securityLevel;
 	}
 }

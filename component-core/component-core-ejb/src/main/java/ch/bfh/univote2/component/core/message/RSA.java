@@ -41,10 +41,38 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlType;
+
 /**
+ * <pre>
+ * ...
+ *		"RSA": {
+ *			"properties": {
+ *				"type": {
+ *					"type": "string",
+ *					"enum": [
+ *						"RSA"
+ *					]
+ *				},
+ *				"publickey": {
+ *					"type": "string"
+ *				}
+ *			},
+ *			"required": ["type", "publickey"],
+ *			"additionalProperties": false
+ *		},
+ * ...
+ * </pre>
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
+@XmlType(name="RSA")
 public class RSA extends Crypto {
 
+	public RSA() {
+	}
+
+	public RSA(String publickey) {
+		super(publickey);
+	}
 }

@@ -44,6 +44,24 @@ package ch.bfh.univote2.component.core.message;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
+ * <pre>
+ * ...
+ *		"crypto": {
+ *			"type": "object",
+ *			"oneOf": [
+ *				{
+ *					"$ref": "#/definitions/RSA"
+ *				},
+ *				{
+ *					"$ref": "#/definitions/DL"
+ *				},
+ *				{
+ *					"$ref": "#/definitions/ECDL"
+ *				}
+ *			]
+ *		},
+ * ...
+ * </pre>
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
@@ -66,5 +84,4 @@ public abstract class Crypto {
 	public void setPublickey(String publickey) {
 		this.publickey = publickey;
 	}
-
 }
