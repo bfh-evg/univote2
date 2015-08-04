@@ -23,9 +23,9 @@
 
 (function (window) {
 
-// Check for leemon and seedrandom library and configuration. If they aren't loaded,
-// an error message is displayed at the top of the page.
-	if (!leemon || !Math.seedrandom || !uvConfig) {
+	// Check for leemon and configuration. If they aren't loaded,
+	// an error message is displayed at the top of the page.
+	if (!leemon || !uvConfig) {
 		window.onload = function () {
 			var body = document.getElementsByTagName('body')[0];
 			var errorDiv = document.createElement('div');
@@ -52,10 +52,6 @@
 
 		// Encryption setting (set at runtime)
 		this.encryptionSetting = {};
-
-		// Hash setting (set at runtime)
-		this.hashSetting = {};
-
 
 		/**
 		 * Sets the encryption parameters.
@@ -91,9 +87,7 @@
 		 * @param {type} setting
 		 */
 		this.setHashParameters = function (setting) {
-			this.hashSetting = {
-				setting: setting,
-				bitLength: setting.BIT_LENGTH};
+			Hash.setHashMethod(setting.STANDARD);
 		};
 
 
@@ -121,17 +115,17 @@
 
 			//3. Compute c = H(H(H(publicInput)||H(t))||H(otherInput))
 			//3.1 Hash of public input
-			var hashPI = sha256.hashBigInt(publicInput);
+			var hashPI = Hash.doBigInt(publicInput);
 			//3.2 Hash of commitment
-			var hashCommitment = sha256.hashBigInt(t);
+			var hashCommitment = Hash.doBigInt(t);
 			//3.3 Hash of the hash of public input concatenated with hash of commitment
 			//(Steps 3.1 to 3.3 are the computation of to the recursive hash of a Pair[publicInput, Commitment] in UniCrypt)
-			var hashPIAndCommitment = sha256.hashHexStr(hashPI + hashCommitment);
+			var hashPIAndCommitment = Hash.doHexStr(hashPI + hashCommitment);
 			//3.4 Hash of other input
-			var hashOtherInput = sha256.hashString(otherInput);
+			var hashOtherInput = Hash.doString(otherInput);
 			//3.5 Hash of hashPIAndCommitment concatenated with hashOtherInput
 			//(Steps 3.1 to 3.5 are the computation of to the recursive hash of a Pair[Pair[publicInput, Commitment], otherInput] in UniCrypt)
-			var cStr = sha256.hashHexStr(hashPIAndCommitment + hashOtherInput);
+			var cStr = Hash.doHexStr(hashPIAndCommitment + hashOtherInput);
 			var c = leemon.mod(leemon.str2bigInt(cStr, 16, 1), q);
 
 			//4. Compute s = omega+c*secretInput mod q
@@ -160,8 +154,8 @@
 			var a2 = leemon.powMod(g, r, p);
 
 			// 2. Hash and calculate second part of signature
-			var a2Hash = sha256.hashBigInt(a2);
-			var aStr = sha256.hashHexStr(messageHash + a2Hash);
+			var a2Hash = Hash.doBigInt(a2);
+			var aStr = Hash.doHexStr(messageHash + a2Hash);
 			var a = leemon.mod(leemon.str2bigInt(aStr, 16), q);
 
 			var b = leemon.add(r, leemon.mult(a, privateKey));
@@ -192,7 +186,7 @@
 			var d = leemon.powMod(publicKey, b, p);
 
 			var a2Verif = leemon.multMod(c, leemon.inverseMod(d, p), p);
-			var bVerif = sha256.hashHexStr(messageHash + sha256.hashBigInt(a2Verif));
+			var bVerif = Hash.doHexStr(messageHash + Hash.doBigInt(a2Verif));
 
 			return leemon.equals(b, leemon.mod(leemon.str2bigInt(bVerif, 16), q));
 		};
@@ -369,7 +363,7 @@
 		 */
 		this.computeRSASignature = function (sk, vk, modulo, message) {
 			//hash the message
-			var hashedMessage = sha256.hashString(message); //base 16 encoded string
+			var hashedMessage = Hash.doString(message); //base 16 encoded string
 			//Create a BigInteger with the hashedMessage
 			var messageBigInt = leemon.str2bigInt(hashedMessage, 16);
 			//Computes the new BigInt modulo n since RSA message space in between 0 and n-1
@@ -445,18 +439,7 @@
 				return str;
 			}
 
-//	    // 1. Check and erase pre- and postfix
-//	    // -> even \n and \r should be included in \s, only \s does not work!!!
-//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX) + "([0-9A-Za-z=_+/]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX));
-//	    var match = pattern.exec(cleanStr(key));
-//	    if (match == null || match.length != 2) {
-//		errorCb('invalidUploadedKey');
-//		return false;
-//	    }
-//
-//	    var keyC = match[1];
-
-// 1. Check and erase pre- and postfix
+			// 1. Check and erase pre- and postfix
 			var keyC = key.replace(/[-]*/g, "");
 			keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_PREFIX.replace(/[-]*/g, ""), "");
 			keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_POSTFIX.replace(/[-]*/g, ""), "");
@@ -508,41 +491,6 @@
 		this.encryptSecretKey = function (sk, password) {
 
 			return this.encryptSecretKeyAES(sk, password);
-//	    // 1. Add pre- and postfix to key
-//	    var key = uvConfig.PRIVATE_KEY_PREFIX + sk + uvConfig.PRIVATE_KEY_POSTFIX;
-//
-//	    // 2. Convert key into bigInt
-//	    key = leemon.str2bigInt(key, 64, 0);
-//
-//	    //3. Create a salt of exactly 128 bits
-//	    var salt;
-//	    do {
-//		salt = leemon.randBigInt(128);
-//	    } while (leemon.bitSize(salt) != 128)
-//	    salt = leemon.bigInt2str(salt, 64)
-//
-//	    // 4. Seed rng with password and salt (save current RNG temporary to not
-//	    // lose accumulated data for future randomness)
-//	    var cRNG = Math.random;
-//	    Math.seedrandom(password + "" + salt);
-//
-//	    // 5. Get one-time-pad and reassign old rng
-//	    //compute the size of the pre/postfixed key
-//	    var keyLength = leemon.bitSize(key);
-//	    //compute the required size for one time pad, we want it to be a multiple of 16, in order
-//	    //to be able to recover more easily the same size for decryption
-//	    var oneTimePadSize = keyLength + (16 - keyLength % 16) + uvConfig.PRIVATE_KEY_ONE_TIME_PAD_PREPOSTFIX_SIZE;
-//	    var r = leemon.randBigInt(oneTimePadSize);
-//	    Math.random = cRNG;
-//
-//	    // 6. Encrypt key using one-time-pad
-//	    var keyC = leemon.xor(key, r);
-//	    // 7. Convert key to string with base 64
-//	    keyC = leemon.bigInt2str(keyC, 64);
-//	    // 8. Pad encrypted key with pre- and postfix and add salt
-//	    keyC = uvConfig.ENC_PRIVATE_KEY_PREFIX + '\n' + salt + keyC + '\n' + uvConfig.ENC_PRIVATE_KEY_POSTFIX;
-//	    // 9. Return encrypted and padded key
-//	    return keyC;
 		};
 
 		/**
@@ -568,122 +516,8 @@
 
 			result = this.decryptSecretKeyAES(key, password, callback);
 			return result;
-//	    // Cleans a string (removes all special charaters but =, -, _)
-//	    function cleanStr(str) {
-//		return str.replace(/[^\w=_\-]/gi, '');
-//	    }
-//
-//
-//	    // 1. Check and erase pre- and postfix
-//	    // -> even \n and \r should be included in \s, only \s does not work!!!
-//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX) + "([0-9A-Za-z=_]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX));
-//	    var match = pattern.exec(cleanStr(key));
-//	    if (match == null || match.length != 2) {
-//		errorCb('invalidUploadedKey');
-//		return false;
-//	    }
-//
-//	    var keyC = match[1];
-//
-//	    //2. extract salt (128 bits => 22 base64 chars)
-//	    var salt = keyC.substring(0, 22);
-//	    //salt = leemon.str2bigInt(salt, 64, 0);
-//	    keyC = keyC.substring(22);
-//
-//	    // 3. Decrypt key with password
-//	    keyC = leemon.str2bigInt(keyC, 64, 0);
-//	    // Save current RNG temporary to not lose accumulated data for future randomness
-//	    var cRNG = Math.random;
-//	    Math.seedrandom(password + "" + salt);
-//	    //Compute the size of the pre/post fixed encrypted key
-//	    var keyLength = leemon.bitSize(keyC);
-//	    //look for a multiple of 16, since the size of the one time pad used for encryption was
-//	    //also a multiple of 16
-//	    var oneTimePadSize = keyLength;
-//	    if (keyLength % 16 != 0) {
-//		oneTimePadSize = keyLength + (16 - keyLength % 16);
-//	    }
-//
-//	    var r = leemon.randBigInt(oneTimePadSize);
-//
-//	    // 4. Reassign old rng
-//	    Math.random = cRNG;
-//	    var keyP = leemon.xor(keyC, r);
-//	    keyP = leemon.bigInt2str(keyP, 64);
-//
-//	    // 5. Check and erase pre- and postfix
-//	    pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX + "([0-9A-Za-z=_]*)" + uvConfig.PRIVATE_KEY_POSTFIX);
-//	    match = pattern.exec(keyP);
-//	    if (match == null || match.length != 2) {
-//		errorCb('wrongPassword');
-//		return false;
-//	    }
-//
-//	    // 6. Finally return sk
-//	    return leemon.str2bigInt(match[1], 64, 1);
 		};
 
-		/**
-		 * LEGACY SUPPORT: UniVote 1 keys
-		 * Decrypts an encrypted secret key (counterpart to encryptSecretKey).
-		 * If the key is not properly padded or the password is wrong then
-		 * the error callback is called with a string denoting the error.
-		 *
-		 * IMPORTANT: The complete step 2 MUST be synchronized (mutex lock). As univote-random
-		 * is collecting data all the time in the background and may seed rng. Currently,
-		 * as long as JS is single threaded, the synchronization is implicitly given.
-		 *
-		 * @param key - Encrypted and padded secret key as string.
-		 * @param password - The password used for encryption.
-		 * @param errorCb - Callback to notify errors (type of error is passed as string).
-		 * @return Secret key as bigInt.
-		 */
-		this.decryptSecretKeyUniVote1 = function (key, password, errorCb) {
-
-			// Cleans a string (removes all special charaters but =, -, _)
-			function cleanStr(str) {
-				return str.replace(/[^\w=_\-]/gi, '');
-			}
-
-//	    // 1. Check and erase pre- and postfix
-//	    // -> even \n and \r should be included in \s, only \s does not work!!!
-//	    var pattern = new RegExp(cleanStr(uvConfig.ENC_PRIVATE_KEY_PREFIX_UNIVOTE_1) + "([0-9A-Za-z=_]*)" + cleanStr(uvConfig.ENC_PRIVATE_KEY_POSTFIX_UNIVOTE_1));
-//	    var match = pattern.exec(cleanStr(key));
-//	    if (match == null || match.length != 2) {
-//		errorCb('invalidUploadedKey');
-//		return false;
-//	    }
-//
-//	    var keyC = match[1];
-
-			// 1. Check and erase pre- and postfix
-			var keyC = key.replace(/[-]*/g, "");
-			keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_PREFIX_UNIVOTE_1.replace(/[-]*/g, ""), "");
-			keyC = keyC.replace(uvConfig.ENC_PRIVATE_KEY_POSTFIX_UNIVOTE_1.replace(/[-]*/g, ""), "");
-			keyC = cleanStr(keyC);
-
-			// 2. Decrypt key with password
-			keyC = leemon.str2bigInt(keyC, 64, 0);
-			// Save current RNG temporary to not lose accumulated data for future randomness
-			var cRNG = Math.random;
-			Math.seedrandom(password);
-			var r = leemon.randBigInt(uvConfig.PRIVATE_KEY_ONE_TIME_PAD_SIZE_UNIVOTE_1);
-			// Reassign old rng
-			Math.random = cRNG;
-			var keyP = leemon.xor(keyC, r);
-			keyP = leemon.bigInt2str(keyP, 64);
-
-			// 3. Check and erase pre- and postfix
-			pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX_UNIVOTE_1 + "([0-9A-Za-z=_]*)" + uvConfig.PRIVATE_KEY_POSTFIX_UNIVOTE_1);
-			match = pattern.exec(keyP);
-			if (match == null || match.length != 2) {
-				errorCb('wrongPasswordInvalidKey');
-				return false;
-			}
-
-			// 4. Finally return sk
-			return leemon.str2bigInt(match[1], 64, 1);
-		};
 
 		/**
 		 * Removes leading and trailing spaces and line breaks from a string.
@@ -832,17 +666,6 @@
 // Post signatures crypto
 ////////////////////////////////////////////////////////////////////////
 
-		/*
-		 * Signs a ballot: S = Sign_sk(id||E||pi) using electionGenerator.
-		 *
-		 *     Sign_sk(m,r) = (a,r-a*sk),  where a=H(m||g^r)
-		 *
-		 * @param ballot - An object holding all ballot data.
-		 * @param generator - The election generator as bigInt.
-		 * @param sk - The secret key as bigInt.
-		 * @return An object with the signature (univote_bfh_ch_common_voterSignature)
-		 * and the single signature values as bigInt.
-		 */
 		/**
 		 * Signs the post that will be posted on UniBoard using hte given generator (Schnorr signature)
 		 * @param post Message to be signed
@@ -923,7 +746,7 @@
 			//Get message and alpha attributes
 			var message = post.message;
 			var alpha = post.alpha.attribute;
-			var messageHash = sha256.hashString(B64.decode(message));
+			var messageHash = Hash.doString(B64.decode(message));
 			var concatenatedAlphaHashes = ""
 			for (var i = 0; i < alpha.length; i++) {
 				var attribute = alpha[i];
@@ -936,18 +759,18 @@
 				}
 
 				if (attribute.value.type === "stringValue") {
-					concatenatedAlphaHashes += sha256.hashString(attribute.value.value);
+					concatenatedAlphaHashes += Hash.doString(attribute.value.value);
 				} else if (attribute.value.type === "integerValue") {
-					concatenatedAlphaHashes += sha256.hashInt(attribute.value.value);
+					concatenatedAlphaHashes += Hash.doInt(attribute.value.value);
 				} else if (attribute.value.type === "dateValue") {
-					concatenatedAlphaHashes += sha256.hashDate(new Date(attribute.value.value));
+					concatenatedAlphaHashes += Hash.doDate(new Date(attribute.value.value));
 				} else if (attribute.value.type === "integerValue") {
-					concatenatedAlphaHashes += sha256.hashByteArray(attribute.value.value);
+					concatenatedAlphaHashes += Hash.doByteArray(attribute.value.value);
 				} else {
 					throw "Error: unknown type of alpha attribute.";
 				}
 			}
-			var alphaHash = sha256.hashHexStr(concatenatedAlphaHashes);
+			var alphaHash = Hash.doHexStr(concatenatedAlphaHashes);
 			if (includeBeta) {
 				var betaHash = "";
 				var beta = JSON.parse(JSON.stringify(post.beta.attribute).replace(/@/g, ""));
@@ -962,25 +785,137 @@
 						continue;
 					}
 					if (attribute.value.type === "stringValue") {
-						concatenatedBetaHashes += sha256.hashString(attribute.value.value);
+						concatenatedBetaHashes += Hash.doString(attribute.value.value);
 					} else if (attribute.value.type === "integerValue") {
-						concatenatedBetaHashes += sha256.hashInt(attribute.value.value);
+						concatenatedBetaHashes += Hash.doInt(attribute.value.value);
 					} else if (attribute.value.type === "dateValue") {
-						concatenatedBetaHashes += sha256.hashDate(new Date(attribute.value.value));
+						concatenatedBetaHashes += Hash.doDate(new Date(attribute.value.value));
 					} else if (attribute.value.type === "integerValue") {
-						concatenatedBetaHashes += sha256.hashByteArray(attribute.value.value);
+						concatenatedBetaHashes += Hash.doByteArray(attribute.value.value);
 					} else {
 						throw "Error: unknown type of beta attribute.";
 					}
 				}
-				betaHash = sha256.hashHexStr(concatenatedBetaHashes);
-				return sha256.hashHexStr(messageHash + alphaHash + betaHash);
+				betaHash = Hash.doHexStr(concatenatedBetaHashes);
+				return Hash.doHexStr(messageHash + alphaHash + betaHash);
 			} else {
-				return sha256.hashHexStr(messageHash + alphaHash);
+				return Hash.doHexStr(messageHash + alphaHash);
 			}
 		}
 	}
 
 	window.uvCrypto = new Crypto();
+
+})(window);
+
+
+(function (window) {
+
+	var Hash = new function () {
+
+		var hashMethod = CryptoJS.SHA256;
+
+		this.setHashMethod = function (method) {
+			switch (method) {
+				case 'SHA-1':
+					hashMethod = CryptoJS.SHA1;
+					break;
+				case 'SHA-224':
+					hashMethod = CryptoJS.SHA224;
+					break;
+				case 'SHA-256':
+					hashMethod = CryptoJS.SHA256;
+					break;
+				case 'SHA-384':
+					hashMethod = CryptoJS.SHA384;
+					break;
+				case 'SHA-512':
+					hashMethod = CryptoJS.SHA512;
+					break;
+				default:
+					// Unsupported!
+					Console.log("Unsupported hash algorithm: '" + method + "'");
+			}
+		};
+
+		/*
+		 * Hashes a UTF-8 string
+		 * returns a hex representation of the hash
+		 */
+		this.doString = function (msg) {
+			var hash = hashMethod(msg);
+			return hash.toString(CryptoJS.enc.Hex).toUpperCase();
+		};
+
+		/*
+		 * Hashes a leemon BigInteger
+		 * returns a hex representation of the hash
+		 */
+		this.doBigInt = function (bigInteger) {
+
+			//In UniCrypt (Java) the BigInteger as considered as positive before being hashed (0s are added in front of the byte
+			//array in case of a negative big int. So, we do the same here
+			var hexStr = leemon.bigInt2str(bigInteger, 16);
+
+			if (parseInt(hexStr.substr(0, 2), 16) > 127) {
+				hexStr = "0" + hexStr;
+			}
+
+			return this.doHexStr(hexStr);
+		};
+
+		/*
+		 * Hashes an integer
+		 * returns a hex representation of the hash
+		 */
+		this.doInt = function (long) {
+
+			var bigint = leemon.int2bigInt(long, 1);
+			return this.doBigInt(bigint);
+		};
+
+		/*
+		 * Hashes a date
+		 * Computes the hash of the ISO format without milliseconds
+		 * returns a hex representation of the hash
+		 */
+		this.doDate = function (date) {
+
+			var dateFormatted = date.toISOString();
+
+			//Workaround because current Java implementation does not includes milliseconds
+			dateFormatted = dateFormatted.substring(0, dateFormatted.length - 5) + "Z";
+
+			return this.doString(dateFormatted);
+		};
+
+		/*
+		 * Hashes a base 64 representation of a byte array
+		 * returns a hex representation of the hash
+		 */
+		this.doByteArray = function (base64ByteArray) {
+
+			var byteArray = B64.decode(base64ByteArray);
+			return this.doBigInt(byteArray);
+		};
+
+		/*
+		 * Hashes a hexadecimal representation
+		 * returns a hex representation of the hash
+		 */
+		this.doHexStr = function (hexStr) {
+
+			// If the length of the string is not a multiple of 2, "0" is added at the
+			// beginning of the string.
+			// Reason: CryptoJS.enc.Hex.parse('ABC').toString() results in 'AB0C'!
+			if (hexStr.length % 2 != 0) {
+				hexStr = "0" + hexStr;
+			}
+			var hash = hashMethod(CryptoJS.enc.Hex.parse(hexStr));
+			return hash.toString(CryptoJS.enc.Hex).toUpperCase();
+		};
+	};
+
+	window.Hash = Hash;
 
 })(window);

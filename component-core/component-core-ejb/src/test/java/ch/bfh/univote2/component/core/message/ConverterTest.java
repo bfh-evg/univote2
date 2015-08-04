@@ -56,6 +56,51 @@ import org.junit.Test;
 public class ConverterTest {
 
 	@Test
+	public void testComvertJSONCertificate() throws Exception {
+		String jsonCertificate
+				= "{\n"
+				+ "	\"commonName\": \"hans.muster@bfh.ch\",\n"
+				+ "	\"uniqueIdentifier\": \"mth1\",\n"
+				+ "	\"organisation\": \"BFH\",\n"
+				+ "	\"organisationUnit\": \"BFH-TI\",\n"
+				+ "	\"countryName\": \"Switzerland\",\n"
+				+ "	\"state\": \"Bern\",\n"
+				+ "	\"locality\": \"Biel\",\n"
+				+ "	\"surname\": \"Muster\",\n"
+				+ "	\"givenName\": \"Hans\",\n"
+				+ "	\"issuer\": \"CN=UniCert BFH\",\n"
+				+ "	\"serialNumber\": \"765428343514349\",\n"
+				+ "	\"validFrom\": \"2015-06-22T12:35:42Z\",\n"
+				+ "	\"validUntil\": \"2025-06-22T12:35:42Z\",\n"
+				+ "	\"applicationIdentifier\": \"UniVote\",\n"
+				+ "	\"roles\": [\"Voter\"],\n"
+				+ "	\"identityProvider\": \"SwitchAAI\",\n"
+				+ "	\"pem\": \"UsAMBYxFDASBWQWFgNasdVBAMMnCdfZIMB4XDTE1MDYyMjEjEAWUWQyMzU0MloXDTI1MDYyMfjEyMzUigM\"\n"
+				+ "}";
+		Certificate cert
+				= Converter.unmarshal(Certificate.class,
+						jsonCertificate.getBytes(Charset.forName("UTF-8")));
+
+		assertEquals("hans.muster@bfh.ch", cert.getCommonName());
+		assertEquals("mth1", cert.getUniqueIdentifier());
+		assertEquals("BFH", cert.getOrganisation());
+		assertEquals("BFH-TI", cert.getOrganisationUnit());
+		assertEquals("Switzerland", cert.getCountryName());
+		assertEquals("Bern", cert.getState());
+		assertEquals("Biel", cert.getLocality());
+		assertEquals("Muster", cert.getSurname());
+		assertEquals("Hans", cert.getGivenName());
+		assertEquals("CN=UniCert BFH", cert.getIssuer());
+		assertEquals("765428343514349", cert.getSerialNumber());
+		assertEquals(new DateAdapter().unmarshal("2015-06-22T12:35:42Z"), cert.getValidFrom());
+		assertEquals(new DateAdapter().unmarshal("2025-06-22T12:35:42Z"), cert.getValidUntil());
+		assertEquals("UniVote", cert.getApplicationIdentifier());
+		assertEquals("SwitchAAI", cert.getIdentityProvider());
+		assertEquals("UsAMBYxFDASBWQWFgNasdVBAMMnCdfZIMB4XDTE1MDYyMjEjEAWUWQyMzU0MloXDTI1MDYyMfjEyMzUigM",
+				cert.getPem());
+	}
+
+	@Test
 	public void testConvertJSONElectionDefinition() throws Exception {
 		String jsonElectionDefinition
 				= "{\n"
@@ -293,5 +338,199 @@ public class ConverterTest {
 
 		assertEquals(new DateAdapter().unmarshal("2015-03-08T23:00:00Z"), ar.getStartTime());
 		assertEquals(new DateAdapter().unmarshal("2015-03-26T11:00:00Z"), ar.getEndTime());
+	}
+
+	@Test
+	public void testConvertJSONTrustees() throws Exception {
+		String jsonTrustees
+				= "{\n"
+				+ "	\"mixerIds\": [\"mixerBaldr\", \"mixerUlla\", \"mixerFrigg\"],\n"
+				+ "	\"tallierIds\": [\"tallierBaldr\", \"tallierUlla\", \"tallierFrigg\"]\n"
+				+ "}";
+		Trustees ts
+				= Converter.unmarshal(Trustees.class,
+						jsonTrustees.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(ts);
+
+		assertNotNull(ts.getMixerIds());
+		assertEquals(3, ts.getMixerIds().size());
+		assertEquals("mixerBaldr", ts.getMixerIds().get(0));
+		assertEquals("mixerUlla", ts.getMixerIds().get(1));
+		assertEquals("mixerFrigg", ts.getMixerIds().get(2));
+
+		assertNotNull(ts.getTallierIds());
+		assertEquals(3, ts.getTallierIds().size());
+		assertEquals("tallierBaldr", ts.getTallierIds().get(0));
+		assertEquals("tallierUlla", ts.getTallierIds().get(1));
+		assertEquals("tallierFrigg", ts.getTallierIds().get(2));
+	}
+
+	@Test
+	public void testConvertJSONTrusteeCertificates() throws Exception {
+		String jsonTrusteeCertificates
+				= "{\n"
+				+ "	\"mixerCertificates\": [\n"
+				+ "		{\n"
+				+ "			\"commonName\": \"XXXXXXXXX\",\n"
+				+ "			\"uniqueIdentifier\": \"XXXXXXXXXXX\",\n"
+				+ "			\"organisation\": \"bfh.ch\",\n"
+				+ "			\"issuer\": \"CN=UniCert BFH\",\n"
+				+ "			\"serialNumber\": \"765428343514349\",\n"
+				+ "			\"validFrom\": \"2015-06-22T12:35:42.000+0000\",\n"
+				+ "			\"validUntil\": \"2025-06-22T12:35:42.000+0000\",\n"
+				+ "			\"applicationIdentifier\": \"UniVote\",\n"
+				+ "			\"roles\": [ \"Mixer\" ],\n"
+				+ "			\"identityProvider\": \"SwitchAAI\",\n"
+				+ "			\"pem\": \"UsAMBYxFDASBWQWFgNasd...fjEyMzUigM\"\n"
+				+ "		},\n"
+				+ "		{\n"
+				+ "			\"commonName\": \"XXXXXXXXX\",\n"
+				+ "			\"uniqueIdentifier\": \"XXXXXXXXXXX\",\n"
+				+ "			\"organisation\": \"bfh.ch\",\n"
+				+ "			\"issuer\": \"CN=UniCert BFH\",\n"
+				+ "			\"serialNumber\": \"765428343514349\",\n"
+				+ "			\"validFrom\": \"2015-06-22T12:35:42.000+0000\",\n"
+				+ "			\"validUntil\": \"2025-06-22T12:35:42.000+0000\",\n"
+				+ "			\"applicationIdentifier\": \"UniVote\",\n"
+				+ "			\"roles\": [ \"Mixer\" ],\n"
+				+ "			\"identityProvider\": \"SwitchAAI\",\n"
+				+ "			\"pem\": \"UsAMBYxFDASBWQWFgNasd...fjEyMzUigM\"\n"
+				+ "		}\n"
+				+ "	],\n"
+				+ "	\"tallierCertificates\": [\n"
+				+ "		{\n"
+				+ "			\"commonName\": \"XXXXXXXXX\",\n"
+				+ "			\"uniqueIdentifier\": \"XXXXXXXXXXX\",\n"
+				+ "			\"organisation\": \"bfh.ch\",\n"
+				+ "			\"issuer\": \"CN=UniCert BFH\",\n"
+				+ "			\"serialNumber\": \"765428343514349\",\n"
+				+ "			\"validFrom\": \"2015-06-22T12:35:42.000+0000\",\n"
+				+ "			\"validUntil\": \"2025-06-22T12:35:42.000+0000\",\n"
+				+ "			\"applicationIdentifier\": \"UniVote\",\n"
+				+ "			\"roles\": [ \"Tallier\" ],\n"
+				+ "			\"identityProvider\": \"SwitchAAI\",\n"
+				+ "			\"pem\": \"UsAMBYxFDASBWQWFgNasd...fjEyMzUigM\"\n"
+				+ "		},\n"
+				+ "		{\n"
+				+ "			\"commonName\": \"XXXXXXXXX\",\n"
+				+ "			\"uniqueIdentifier\": \"XXXXXXXXXXX\",\n"
+				+ "			\"organisation\": \"bfh.ch\",\n"
+				+ "			\"issuer\": \"CN=UniCert BFH\",\n"
+				+ "			\"serialNumber\": \"765428343514349\",\n"
+				+ "			\"validFrom\": \"2015-06-22T12:35:42.000+0000\",\n"
+				+ "			\"validUntil\": \"2025-06-22T12:35:42.000+0000\",\n"
+				+ "			\"applicationIdentifier\": \"UniVote\",\n"
+				+ "			\"roles\": [ \"Talier\" ],\n"
+				+ "			\"identityProvider\": \"SwitchAAI\",\n"
+				+ "			\"pem\": \"UsAMBYxFDASBWQWFgNasd...fjEyMzUigM\"\n"
+				+ "		}\n"
+				+ "	]\n"
+				+ "}";
+
+		TrusteeCertificates certs
+				= Converter.unmarshal(TrusteeCertificates.class,
+						jsonTrusteeCertificates.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(certs);
+
+		assertNotNull(certs.getMixerCertificates());
+		assertEquals(2, certs.getMixerCertificates().size());
+
+		assertNotNull(certs.getTallierCertificates());
+		assertEquals(2, certs.getTallierCertificates().size());
+	}
+
+	@Test
+	public void testConvertJSONEnryptionKey() throws Exception {
+		String jsonEncryptionKey
+				= "{\n"
+				+ "	\"encryptionKey\": \"1234567890\"\n"
+				+ "}";
+
+		EncryptionKey ek
+				= Converter.unmarshal(EncryptionKey.class,
+						jsonEncryptionKey.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(ek);
+		assertEquals("1234567890", ek.getEncryptionKey());
+	}
+
+
+	@Test
+	public void testConvertJSONVoterCertificates() throws Exception {
+		String jsonVoterCertificates
+				= "{\n"
+				+ "	\"voterCertificates\": [\n"
+				+ "		{\n"
+				+ "			\"commonName\": \"XXXXXXXXX\",\n"
+				+ "			\"uniqueIdentifier\": \"XXXXXXXXXXX\",\n"
+				+ "			\"organisation\": \"bfh.ch\",\n"
+				+ "			\"issuer\": \"CN=UniCert BFH\",\n"
+				+ "			\"serialNumber\": \"765428343514349\",\n"
+				+ "			\"validFrom\": \"2015-06-22T12:35:42.000+0000\",\n"
+				+ "			\"validUntil\": \"2025-06-22T12:35:42.000+0000\",\n"
+				+ "			\"applicationIdentifier\": \"UniVote\",\n"
+				+ "			\"roles\": [ \"Voter\" ],\n"
+				+ "			\"identityProvider\": \"SwitchAAI\",\n"
+				+ "			\"pem\": \"UsAMBYxFDASBWQWFgNasd...fjEyMzUigM\"\n"
+				+ "		},\n"
+				+ "		{\n"
+				+ "			\"commonName\": \"XXXXXXXXX\",\n"
+				+ "			\"uniqueIdentifier\": \"XXXXXXXXXXX\",\n"
+				+ "			\"organisation\": \"bfh.ch\",\n"
+				+ "			\"issuer\": \"CN=UniCert BFH\",\n"
+				+ "			\"serialNumber\": \"765428343514349\",\n"
+				+ "			\"validFrom\": \"2015-06-22T12:35:42.000+0000\",\n"
+				+ "			\"validUntil\": \"2025-06-22T12:35:42.000+0000\",\n"
+				+ "			\"applicationIdentifier\": \"UniVote\",\n"
+				+ "			\"roles\": [ \"Voter\" ],\n"
+				+ "			\"identityProvider\": \"SwitchAAI\",\n"
+				+ "			\"pem\": \"UsAMBYxFDASBWQWFgNasd...fjEyMzUigM\"\n"
+				+ "		}\n"
+				+ "	]\n"
+				+ "}";
+
+		VoterCertificates certs
+				= Converter.unmarshal(VoterCertificates.class,
+						jsonVoterCertificates.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(certs);
+
+		assertNotNull(certs.getVoterCertificates());
+		assertEquals(2, certs.getVoterCertificates().size());
+	}
+
+	@Test
+	public void testConvertJSONKeyMixingResult() throws Exception {
+		String jsonKeyMixingResult
+				= "{\n"
+				+ "	\"mixedKeys\": [\"1234\", \"5678\", \"9012\"],\n"
+				+ "	\"generator\": \"1234567890\",\n"
+				+ "	\"proof\": {\n"
+				+ "		\"commitment\": \"1234567890\",\n"
+				+ "		\"challenge\": \"9876543210\",\n"
+				+ "		\"response\": \"1234567890\"\n"
+				+ "	}\n"
+				+ "}";
+
+		KeyMixingResult mkr
+				= Converter.unmarshal(KeyMixingResult.class,
+						jsonKeyMixingResult.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(mkr);
+
+		assertNotNull(mkr.getMixedKeys());
+		assertEquals(3, mkr.getMixedKeys().size());
+		assertEquals("1234", mkr.getMixedKeys().get(0));
+		assertEquals("5678", mkr.getMixedKeys().get(1));
+		assertEquals("9012", mkr.getMixedKeys().get(2));
+
+		assertEquals("1234567890", mkr.getGenerator());
+
+		assertNotNull(mkr.getProof());
+		assertEquals("1234567890", mkr.getProof().getCommitment());
+		assertEquals("9876543210", mkr.getProof().getChallenge());
+		assertEquals("1234567890", mkr.getProof().getResponse());
 	}
 }

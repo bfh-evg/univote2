@@ -46,14 +46,97 @@ import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
+ * Represents an X.509 certificate.
+ * <pre>
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a certificate",
+ *	"type":"object",
+ *	"properties": {
+ *		"commonName": {
+ *			"type": "string",
+ *			"description": "Common name of the certificate owner"
+ *		},
+ *		"uniqueIdentifier": {
+ *			"type": "string",
+ *			"description":  "Unique identifier of the certificate owner"
+ *		},
+ *		"organisation": {
+ *			"type": "string",
+ *			"description": "Organisation of the certificate owner"
+ *		},
+ *		"organisationUnit": {
+ *			"type": "string",
+ *			"description": "Organisation unit of the certificate owner"
+ *		},
+ *		"countryName": {
+ *			"type": "string",
+ *			"description": "Country of the certificate owner"
+ *		},
+ *		"state": {
+ *			"type": "string",
+ *			"description": "State of the certificate owner"
+ *		},
+ *		"locality": {
+ *			"type": "string",
+ *			"description": "Locality of the certificate owner"
+ *		},
+ *		"surname": {
+ *			"type": "string",
+ *			"description": "Surname of the certificate owner"
+ *		},
+ *		"givenName": {
+ *			"type": "string",
+ *			"description": "Given name of the certificate owner"
+ *		},
+ *	   	"issuer": {
+ *			"type": "string",
+ *			"description": "Issuer of the certificate"
+ *		},
+ *		"serialNumber": {
+ *			"type":"string",
+ *			"description": "Serial number of the certificate"
+ *		},
+ *		"validFrom": {
+ *			"type": "string",
+ *			"description": "Date when the certificate starts to be valid"
+ *		},
+ *		"validUntil": {
+ *			"type": "string",
+ *			"description": "Date when the certificate ends to be valid"
+ *		},
+ *		"applicationIdentifier": {
+ *			"type": "string",
+ *			"description": "Application the certificate has been issued for"
+ *		},
+ *		"roles": {
+ *			"type":"array",
+ *			"description": "Roles the certificate has been issued for",
+ *			"items": { "type":"string" }
+ *		},
+ *		"identityProvider": {
+ *			"type": "string",
+ *			"description": "Identity provider used to verify the identity of the certificate owner"
+ *		},
+ *		"pem": {
+ *			"type": "string",
+ *			"description": "Certificate in PEM format"
+ *		}
+ *	},
+ *	"required": ["commonName", "issuer", "serialNumber", "validFrom", "validUntil", "identityProvider", "pem"],
+ *	"additionalProperties": false
+ * }
+ * </pre>
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
 public class Certificate {
 
 	private String commonName;
 	private String uniqueIdentifier;
 	private String organisation;
+	private String organisationUnit;
 	private String countryName;
 	private String state;
 	private String locality;
@@ -117,6 +200,14 @@ public class Certificate {
 
 	public void setOrganisation(String organisation) {
 		this.organisation = organisation;
+	}
+
+	public String getOrganisationUnit() {
+		return organisationUnit;
+	}
+
+	public void setOrganisationUnit(String organisationUnit) {
+		this.organisationUnit = organisationUnit;
 	}
 
 	public String getCountryName() {

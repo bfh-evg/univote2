@@ -47,57 +47,58 @@ import java.util.List;
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of trustees certificates",
+ *	"title": "UniVote2: Schema of a mixing result of mixed public keys",
  *	"type": "object",
  *	"properties": {
- *		"mixerCertificates": {
- *			"description": "Certificates of the mixers",
+ *		"mixedKeys":  {
  *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *			"items": { "type": "string"}
  *		},
- *		"tallierCertificates": {
- *			"description": "Certificates of the talliers",
- *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
- *		}
+ *		"generator" : { "type": "string" },
+ *		"proof" : { "$ref": "proofSchema.json" }
  *	},
- *	"required": ["mixerCertificates", "tallierCertificates"],
+ *	"required": ["mixedKeys", "generator", "proof"],
  *	"additionalProperties": false
  * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class TrusteeCertificates {
+public class KeyMixingResult {
+	private List<String> mixedKeys;
+	private String generator;
+	private Proof proof;
 
-	private List<Certificate> mixerCertificates;
-	private List<Certificate> tallierCertificates;
-
-	public TrusteeCertificates() {
+	public KeyMixingResult() {
 	}
 
-	public TrusteeCertificates(List<Certificate> mixerCertificates, List<Certificate> tallierCertificates) {
-		this.mixerCertificates = mixerCertificates;
-		this.tallierCertificates = tallierCertificates;
+	public KeyMixingResult(List<String> mixedKeys, String generator, Proof proof) {
+		this.mixedKeys = mixedKeys;
+		this.generator = generator;
+		this.proof = proof;
 	}
 
-	public List<Certificate> getMixerCertificates() {
-		return mixerCertificates;
+	public List<String> getMixedKeys() {
+		return mixedKeys;
 	}
 
-	public void setMixerCertificates(List<Certificate> mixerCertificates) {
-		this.mixerCertificates = mixerCertificates;
+	public void setMixedKeys(List<String> mixedKeys) {
+		this.mixedKeys = mixedKeys;
 	}
 
-	public List<Certificate> getTallierCertificates() {
-		return tallierCertificates;
+	public String getGenerator() {
+		return generator;
 	}
 
-	public void setTallierCertificates(List<Certificate> tallierCertificates) {
-		this.tallierCertificates = tallierCertificates;
+	public void setGenerator(String generator) {
+		this.generator = generator;
+	}
+
+	public Proof getProof() {
+		return proof;
+	}
+
+	public void setProof(Proof proof) {
+		this.proof = proof;
 	}
 }

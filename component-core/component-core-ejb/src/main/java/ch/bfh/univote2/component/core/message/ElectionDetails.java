@@ -42,62 +42,90 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.List;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of trustees certificates",
+ *	"title": "UniVote2: Schema of election details",
  *	"type": "object",
  *	"properties": {
- *		"mixerCertificates": {
- *			"description": "Certificates of the mixers",
+ *		"options": {
+ *			"description": "Election options",
  *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *			"items": { "$ref": "electionOptionSchema.json" }
  *		},
- *		"tallierCertificates": {
- *			"description": "Certificates of the talliers",
+ *		"rules": {
+ *			"description": "Election rules",
  *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *			"items": { "$ref": "electionRuleSchema.json" }
+ *		},
+ *		"issues": {
+ *			"description": "Election issues",
+ *			"type": "array",
+ *			"items": { "$ref": "electionIssueSchema.json" }
+ *		},
+ *		"ballotEncoding": {
+ *			"description": "Identifier of the ballot encoding scheme",
+ *			"type": "string"
  *		}
  *	},
- *	"required": ["mixerCertificates", "tallierCertificates"],
+ *	"required": ["options", "rules", "issues", "ballotEncoding"],
  *	"additionalProperties": false
  * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class TrusteeCertificates {
+@XmlType(propOrder={"options", "rules" , "issues", "ballotEncoding"})
+public class ElectionDetails {
 
-	private List<Certificate> mixerCertificates;
-	private List<Certificate> tallierCertificates;
+	private List<ElectionOption> options;
+	private List<ElectionRule> rules;
+	private List<ElectionIssue> issues;
+	private String ballotEncoding;
 
-	public TrusteeCertificates() {
+	public ElectionDetails() {
 	}
 
-	public TrusteeCertificates(List<Certificate> mixerCertificates, List<Certificate> tallierCertificates) {
-		this.mixerCertificates = mixerCertificates;
-		this.tallierCertificates = tallierCertificates;
+	public ElectionDetails(List<ElectionOption> options, List<ElectionRule> rules, List<ElectionIssue> issues,
+			String ballotEncoding) {
+		this.options = options;
+		this.rules = rules;
+		this.issues = issues;
+		this.ballotEncoding = ballotEncoding;
 	}
 
-	public List<Certificate> getMixerCertificates() {
-		return mixerCertificates;
+	public List<ElectionOption> getOptions() {
+		return options;
 	}
 
-	public void setMixerCertificates(List<Certificate> mixerCertificates) {
-		this.mixerCertificates = mixerCertificates;
+	public void setOptions(List<ElectionOption> options) {
+		this.options = options;
 	}
 
-	public List<Certificate> getTallierCertificates() {
-		return tallierCertificates;
+	public List<ElectionRule> getRules() {
+		return rules;
 	}
 
-	public void setTallierCertificates(List<Certificate> tallierCertificates) {
-		this.tallierCertificates = tallierCertificates;
+	public void setRules(List<ElectionRule> rules) {
+		this.rules = rules;
+	}
+
+	public List<ElectionIssue> getIssues() {
+		return issues;
+	}
+
+	public void setIssues(List<ElectionIssue> issues) {
+		this.issues = issues;
+	}
+
+	public String getBallotEncoding() {
+		return ballotEncoding;
+	}
+
+	public void setBallotEncoding(String ballotEncoding) {
+		this.ballotEncoding = ballotEncoding;
 	}
 }

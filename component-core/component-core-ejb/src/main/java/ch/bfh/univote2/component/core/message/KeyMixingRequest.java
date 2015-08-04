@@ -41,63 +41,27 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import java.util.List;
-
 /**
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of trustees certificates",
+ *	"title": "UniVote2: Schema of a mixing request to mix public keys",
  *	"type": "object",
  *	"properties": {
- *		"mixerCertificates": {
- *			"description": "Certificates of the mixers",
+ *		"mixerId": { "type": "string" },
+ *		"keys":  {
  *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *			"items": { "type": "string"}
  *		},
- *		"tallierCertificates": {
- *			"description": "Certificates of the talliers",
- *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
- *		}
+ *		"generator" : { "type": "string" }
  *	},
- *	"required": ["mixerCertificates", "tallierCertificates"],
+ *	"required": ["mixerId", "keys", "generator"],
  *	"additionalProperties": false
  * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class TrusteeCertificates {
-
-	private List<Certificate> mixerCertificates;
-	private List<Certificate> tallierCertificates;
-
-	public TrusteeCertificates() {
-	}
-
-	public TrusteeCertificates(List<Certificate> mixerCertificates, List<Certificate> tallierCertificates) {
-		this.mixerCertificates = mixerCertificates;
-		this.tallierCertificates = tallierCertificates;
-	}
-
-	public List<Certificate> getMixerCertificates() {
-		return mixerCertificates;
-	}
-
-	public void setMixerCertificates(List<Certificate> mixerCertificates) {
-		this.mixerCertificates = mixerCertificates;
-	}
-
-	public List<Certificate> getTallierCertificates() {
-		return tallierCertificates;
-	}
-
-	public void setTallierCertificates(List<Certificate> tallierCertificates) {
-		this.tallierCertificates = tallierCertificates;
-	}
+public class KeyMixingRequest {
+	// TODO provide an implementation...
 }

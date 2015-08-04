@@ -41,63 +41,75 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import java.util.List;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of trustees certificates",
+ *	"title": "UniVote2: Schema of an election rule",
  *	"type": "object",
  *	"properties": {
- *		"mixerCertificates": {
- *			"description": "Certificates of the mixers",
- *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *		"id": {
+ *			"description": "Rule identifier",
+ *			"type": "integer"
  *		},
- *		"tallierCertificates": {
- *			"description": "Certificates of the talliers",
+ *		"type": {
+ *			"description": "Rule type",
+ *			"type": "string"
+ *		},
+ *		"optionIds": {
+ *			"description": "Identifiers of referenced options",
  *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *			"items": { "type": "integer" }
  *		}
  *	},
- *	"required": ["mixerCertificates", "tallierCertificates"],
- *	"additionalProperties": false
+ *	"required": ["id", "type", "optionIds"],
+ *	"additionalProperties": true
  * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class TrusteeCertificates {
+@XmlType(propOrder={"id", "type", "others"})
+public class ElectionRule {
 
-	private List<Certificate> mixerCertificates;
-	private List<Certificate> tallierCertificates;
+	private Integer id;
+	private String type;
+	@XmlAnyElement(lax=false)
+	private Object[] others;
 
-	public TrusteeCertificates() {
+	public ElectionRule() {
 	}
 
-	public TrusteeCertificates(List<Certificate> mixerCertificates, List<Certificate> tallierCertificates) {
-		this.mixerCertificates = mixerCertificates;
-		this.tallierCertificates = tallierCertificates;
+	public ElectionRule(Integer id, String type,Object[] others) {
+		this.id = id;
+		this.type = type;
+		this.others = others;
 	}
 
-	public List<Certificate> getMixerCertificates() {
-		return mixerCertificates;
+	public Integer getId() {
+		return id;
 	}
 
-	public void setMixerCertificates(List<Certificate> mixerCertificates) {
-		this.mixerCertificates = mixerCertificates;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
-	public List<Certificate> getTallierCertificates() {
-		return tallierCertificates;
+	public String getType() {
+		return type;
 	}
 
-	public void setTallierCertificates(List<Certificate> tallierCertificates) {
-		this.tallierCertificates = tallierCertificates;
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public Object[] getOthers() {
+		return others;
+	}
+
+	public void setOthers(Object[] others) {
+		this.others = others;
 	}
 }

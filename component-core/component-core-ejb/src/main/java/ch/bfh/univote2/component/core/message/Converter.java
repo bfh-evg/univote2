@@ -90,6 +90,7 @@ public class Converter {
 		JAXBContext jaxbContext = Converter.initJAXBContext(object.getClass());
 		StringWriter writer = new StringWriter();
 		Marshaller marshaller = jaxbContext.createMarshaller();
+		System.out.println("Marshaller class: " + marshaller.getClass().toString());
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		marshaller.marshal(object, writer);
 		return writer.toString();

@@ -41,63 +41,43 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import java.util.List;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of trustees certificates",
+ *	"title": "UniVote2: Schema of an encrytpion key",
  *	"type": "object",
  *	"properties": {
- *		"mixerCertificates": {
- *			"description": "Certificates of the mixers",
- *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
- *		},
- *		"tallierCertificates": {
- *			"description": "Certificates of the talliers",
- *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *		"encryptionKey": {
+ *			"description": "Encryption key",
+ *			"type": "string"
  *		}
  *	},
- *	"required": ["mixerCertificates", "tallierCertificates"],
+ *	"required": ["encryptionKey"],
  *	"additionalProperties": false
  * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class TrusteeCertificates {
+@XmlType(propOrder={"encryptionKey"}) // probably superfluous
+public class EncryptionKey {
+	private String encryptionKey;
 
-	private List<Certificate> mixerCertificates;
-	private List<Certificate> tallierCertificates;
-
-	public TrusteeCertificates() {
+	public EncryptionKey() {
 	}
 
-	public TrusteeCertificates(List<Certificate> mixerCertificates, List<Certificate> tallierCertificates) {
-		this.mixerCertificates = mixerCertificates;
-		this.tallierCertificates = tallierCertificates;
+	public EncryptionKey(String encryptionKey) {
+		this.encryptionKey = encryptionKey;
 	}
 
-	public List<Certificate> getMixerCertificates() {
-		return mixerCertificates;
+	public String getEncryptionKey() {
+		return encryptionKey;
 	}
 
-	public void setMixerCertificates(List<Certificate> mixerCertificates) {
-		this.mixerCertificates = mixerCertificates;
-	}
-
-	public List<Certificate> getTallierCertificates() {
-		return tallierCertificates;
-	}
-
-	public void setTallierCertificates(List<Certificate> tallierCertificates) {
-		this.tallierCertificates = tallierCertificates;
+	public void setEncryptionKey(String encryptionKey) {
+		this.encryptionKey = encryptionKey;
 	}
 }

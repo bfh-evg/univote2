@@ -161,8 +161,8 @@ function retrieveElectionData() {
 		//Ajax request
 		$.ajax({
 			//url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/src/main/resources/json-examples/sub-2015/votingData.json",
-			url: "http://uni.vote/listElection.php",
-			//url: "http://uni.vote/voteElection.php",
+			//url: "http://uni.vote/listElection.php",
+			url: "http://uni.vote/voteElection.php",
 			type: 'GET',
 			accept: "application/json",
 			dataType: 'json',
@@ -881,6 +881,8 @@ function finalizeVote() {
 				castVoteErrorCallback(beta.attribute[0].value.value);
 				return;
 			}
+			// TODO: Verify signature!
+			// TODO: Order of post is currently ignored!
 			castVoteSuccessCallback(ballotData, {signature: {timestamp: beta.attribute[0].value.value, value: beta.attribute[2].value.value}});
 		};
 		var errorCB = function () {

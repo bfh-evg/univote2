@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.Date;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -80,6 +81,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * </pre>
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder={"title", "administration" , "description", "votingPeriodBegin", "votingPeriodEnd"})
 public class ElectionDefinition {
 	private I18nText title;
 	private I18nText administration;

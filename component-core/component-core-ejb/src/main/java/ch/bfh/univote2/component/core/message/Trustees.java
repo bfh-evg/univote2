@@ -47,57 +47,53 @@ import java.util.List;
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of trustees certificates",
+ *	"title": "UniVote2: Schema of a trustees message",
  *	"type": "object",
  *	"properties": {
- *		"mixerCertificates": {
- *			"description": "Certificates of the mixers",
+ *		"mixerIds": {
+ *			"description": "Identifiers of the mixers",
  *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *			"items": { "type": "string" }
  *		},
- *		"tallierCertificates": {
- *			"description": "Certificates of the talliers",
+ *		"tallierIds": {
+ *			"description": "Identifiers of the talliers",
  *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
+ *			"items": { "type": "string" }
  *		}
  *	},
- *	"required": ["mixerCertificates", "tallierCertificates"],
+ *	"required": ["mixerIds", "tallierIds"],
  *	"additionalProperties": false
  * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class TrusteeCertificates {
+public class Trustees {
 
-	private List<Certificate> mixerCertificates;
-	private List<Certificate> tallierCertificates;
+	private List<String> mixerIds;
+	private List<String> tallierIds;
 
-	public TrusteeCertificates() {
+	public Trustees() {
 	}
 
-	public TrusteeCertificates(List<Certificate> mixerCertificates, List<Certificate> tallierCertificates) {
-		this.mixerCertificates = mixerCertificates;
-		this.tallierCertificates = tallierCertificates;
+	public Trustees(List<String> mixerIds, List<String> tallierIds) {
+		this.mixerIds = mixerIds;
+		this.tallierIds = tallierIds;
 	}
 
-	public List<Certificate> getMixerCertificates() {
-		return mixerCertificates;
+	public List<String> getMixerIds() {
+		return mixerIds;
 	}
 
-	public void setMixerCertificates(List<Certificate> mixerCertificates) {
-		this.mixerCertificates = mixerCertificates;
+	public void setMixerIds(List<String> mixerIds) {
+		this.mixerIds = mixerIds;
 	}
 
-	public List<Certificate> getTallierCertificates() {
-		return tallierCertificates;
+	public List<String> getTallierIds() {
+		return tallierIds;
 	}
 
-	public void setTallierCertificates(List<Certificate> tallierCertificates) {
-		this.tallierCertificates = tallierCertificates;
+	public void setTallierIds(List<String> tallierIds) {
+		this.tallierIds = tallierIds;
 	}
 }

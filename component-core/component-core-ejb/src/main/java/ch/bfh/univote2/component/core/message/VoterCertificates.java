@@ -47,57 +47,32 @@ import java.util.List;
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of trustees certificates",
- *	"type": "object",
- *	"properties": {
- *		"mixerCertificates": {
- *			"description": "Certificates of the mixers",
- *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
- *		},
- *		"tallierCertificates": {
- *			"description": "Certificates of the talliers",
- *			"type": "array",
- *			"items": {
- *				"$ref": "certificateSchema.json"
- *			}
- *		}
- *	},
- *	"required": ["mixerCertificates", "tallierCertificates"],
- *	"additionalProperties": false
+ *	"title": "UniVote2: Schema of voter certificates",
+ *	"type": "array",
+ *	"items": {
+ *		"$ref": "certificateSchema.json"
+ *	}
  * }
  * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class TrusteeCertificates {
+public class VoterCertificates {
 
-	private List<Certificate> mixerCertificates;
-	private List<Certificate> tallierCertificates;
+	private List<Certificate> voterCertificates;
 
-	public TrusteeCertificates() {
+	public VoterCertificates() {
 	}
 
-	public TrusteeCertificates(List<Certificate> mixerCertificates, List<Certificate> tallierCertificates) {
-		this.mixerCertificates = mixerCertificates;
-		this.tallierCertificates = tallierCertificates;
+	public VoterCertificates(List<Certificate> voterCertificates) {
+		this.voterCertificates = voterCertificates;
 	}
 
-	public List<Certificate> getMixerCertificates() {
-		return mixerCertificates;
+	public List<Certificate> getVoterCertificates() {
+		return voterCertificates;
 	}
 
-	public void setMixerCertificates(List<Certificate> mixerCertificates) {
-		this.mixerCertificates = mixerCertificates;
-	}
-
-	public List<Certificate> getTallierCertificates() {
-		return tallierCertificates;
-	}
-
-	public void setTallierCertificates(List<Certificate> tallierCertificates) {
-		this.tallierCertificates = tallierCertificates;
+	public void setVoterCertificates(List<Certificate> voterCertificates) {
+		this.voterCertificates = voterCertificates;
 	}
 }
