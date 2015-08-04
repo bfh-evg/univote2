@@ -488,7 +488,7 @@ One of the most fundamental zero-knowledge proofs of knowledge is the \emph{prei
 \begin{enumerate}
 	\item Choose $\omega\in_R X$ uniformly at random.
 	\item Compute $t=\phi(\omega)$.
-	\item Compute $c = \mathit{hash}(b,t,\Prover) \bmod{q}$, for $q=|\mathit{image}(\phi)|$.
+	\item Compute $c = \mathit{hash}((b,t),\Prover) \bmod{q}$, for $q=|\mathit{image}(\phi)|$.
 	\item Compute $s = \omega + c\cdot a$.
 \end{enumerate}
 The triple $(t,c,s)=\mathit{NIZKP}\{(a):b=\phi(a)\}$ is the resulting non-interactive preimage proof, which can be published without revealing any information about $a$. Note that $\mathit{image}(\phi)=Y$ holds in many concrete instantiations of the  preimage proof, which implies $q=|Y|$. To verify a given proof $\pi=(t,c,s)$, $\Verifier$ performs the following check:
