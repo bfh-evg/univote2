@@ -3526,7 +3526,8 @@ dl dd a {
   margin-right: 1.25rem;
 }
 .chooser_content #password-check-icon {
-  padding-left: 10px;
+  width: 1.875rem;
+  padding-left: 0;
   opacity: 0.1;
   filter: alpha(opacity=10);
 }
@@ -3903,6 +3904,9 @@ footer .copyright {
 .send-vote-icon {
   text-align: center;
   padding: 1.25rem 0;
+}
+.send-vote-icon img {
+  width: 5rem;
 }
 
 /* jQuery UI overrides */
