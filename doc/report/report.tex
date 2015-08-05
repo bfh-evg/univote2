@@ -185,12 +185,12 @@ For a person or party involved in cryptographic protocols, we use upper-case lat
 \section{Byte Arrays}
 %-----------------------------------------------------------------------------------------------
 
-Let $B=\langle b_0,\ldots,b_{n-1}\rangle$ denote an array of bytes $b_i\in\{\bin{0},\bin{1}\}^8$. Its length is denoted by $|B|=n$. We use standard array notation $B[i]=b_i$ to select from $B$ the byte at index $i\in\{0,\ldots,n-1\}$ and hexadecimal notation for individual bytes. For example, $B=\langle \hex{0A},\hex{23},\hex{EF}\rangle$ denotes a byte array containing three bytes $B[0]=\HEX{0A}=\BIN{00001010}$, $B[1]=\HEX{23}=\BIN{001000011}$, and $B[2]=\HEX{EF}=\BIN{11101111}$.
+Let $B=\langle b_0,\ldots,b_{n-1}\rangle$ denote an array of bytes $b_i\in\mathcal{B}$, where $\mathcal{B}=\{\bin{0},\bin{1}\}^8$ the set of all 256 bytes. Its length is denoted by $|B|=n$. We use standard array notation $B[i]=b_i$ to select from $B$ the byte at index $i\in\{0,\ldots,n-1\}$ and hexadecimal notation for individual bytes. For example, $B=\langle \hex{0A},\hex{23},\hex{EF}\rangle$ denotes a byte array containing three bytes $B[0]=\HEX{0A}=\BIN{00001010}$, $B[1]=\HEX{23}=\BIN{001000011}$, and $B[2]=\HEX{EF}=\BIN{11101111}$.
 
 If $B'$ is a second byte array of length $n'=|B'|$, then $B\conc B'$ denotes the concatenated byte array of length $n+n'$ with the bytes of $B$ placed before the bytes of $B'$. Furthermore, we write $B\wedge B'$, $B\vee B'$, and $B \oplus B'$ for the byte array of length $\min(n,n')$ obtained from applying bit-wise the logical AND, OR, and XOR operators, respectively (the additional bytes of the longer byte array are discarded). Similarly, $\neg B$ denotes the result of applying bit-wise the NOT operator. Finally, if $x\in\mathbb{N}$ is a natural number with bit length $|x|\leq 8{\cdot}|B|$, we write $B+x$ for result of adding $x$ to $B$ in base two (the overflow bit is discarded).
 
 \subsection{Representing Integers}
-Let $x\in \mathbb{Z}$ be an integer. We use $\mathit{bytes}_k(x)$ to denote the byte array obtained from truncating the $k$ least significant bytes from the (infinitely long) two's complement representation of $x$ in big-endian order, where $k\geq \lceil(|x|+1)/8\rceil$. We use $\mathit{bytes}(x)$ as a short-cut notation for the shortest possible such byte array representation of length $k=\lceil(|x|+1)/8\rceil$. Note that the most significant bit of $\mathit{bytes}(x)[0]$ is always the sign bit, also for $\mathit{bytes}(0)=\langle\hex{00}\rangle$, which contains a single zero byte. The empty byte array is not a valid integer representation.
+Let $x\in \mathbb{Z}$ be an integer. We use $\mathit{bytes}_k(x)\in\mathcal{B}^k$ to denote the byte array obtained from truncating the $k$ least significant bytes from the (infinitely long) two's complement representation of $x$ in big-endian order, where $k\geq \lceil(|x|+1)/8\rceil$. We use $\mathit{bytes}(x)$ as a short-cut notation for the shortest possible such byte array representation of length $k=\lceil(|x|+1)/8\rceil$. Note that the most significant bit of $\mathit{bytes}(x)[0]$ is always the sign bit, also for $\mathit{bytes}(0)=\langle\hex{00}\rangle$, which contains a single zero byte. The empty byte array is not a valid integer representation.
 
 The following table shows the byte array representations for different integers $x$ and $k\leq 4$:
 
@@ -488,7 +488,7 @@ One of the most fundamental zero-knowledge proofs of knowledge is the \emph{prei
 \begin{enumerate}
 	\item Choose $\omega\in_R X$ uniformly at random.
 	\item Compute $t=\phi(\omega)$.
-	\item Compute $c = \mathit{hash}((b,t),\Prover) \bmod{q}$, for $q=|\mathit{image}(\phi)|$.
+	\item Compute $c = \mathit{hash}((b,t),\Prover) \bmod{q}$, for $q=|\mathit{image}(\phi)|$.\footnote{Making the challenge $c$ dependent on the prover's identity \Prover prevents attacks based on copying proofs from another prover. We do not specify the exact format of the identifier. When generating the challenge for $b$, $t$, and $\Prover$, we apply $\mathit{hash}$ recursively, first on $b$ and $t$, and then on $\Prover$, i.e.,  $\mathit{hash}((b,t),\Prover)=\mathit{hash}(\mathit{hash}(\mathit{hash}(b)||\mathit{hash}(t))||\mathit{hash}(\Prover))$.}
 	\item Compute $s = \omega + c\cdot a$.
 \end{enumerate}
 The triple $(t,c,s)=\mathit{NIZKP}\{(a):b=\phi(a)\}$ is the resulting non-interactive preimage proof, which can be published without revealing any information about $a$. Note that $\mathit{image}(\phi)=Y$ holds in many concrete instantiations of the  preimage proof, which implies $q=|Y|$. To verify a given proof $\pi=(t,c,s)$, $\Verifier$ performs the following check:
