@@ -175,7 +175,6 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 				return;
 			}
 			PostDTO post = result.getResult().getPost().get(0);
-            //TODO Check signature of unicert?
 
 			//Create message from the retrieved certificate
 			byte[] message = post.getMessage();

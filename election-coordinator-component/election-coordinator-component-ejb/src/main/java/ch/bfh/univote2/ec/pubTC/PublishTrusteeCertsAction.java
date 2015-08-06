@@ -58,7 +58,6 @@ import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,13 +66,7 @@ import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonException;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.json.JsonValue;
 
 /**
  *
@@ -169,11 +162,8 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
 
-				String messageString = new String(post.getMessage(), Charset.forName("UTF-8"));
-				JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-				JsonObject message = jsonReader.readObject();
 				try {
-					this.fillContext(ptcac, message);
+					this.fillContext(ptcac, post.getMessage());
 					this.runInternal(ptcac);
 				} catch (UnivoteException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
@@ -193,37 +183,24 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 
 	}
 
-	protected JsonObject retrieveTrustees(ActionContext actionContext) throws JsonException, UnivoteException {
+	protected byte[] retrieveTrustees(ActionContext actionContext) throws JsonException, UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrustees(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Trustees not published yet.");
 		}
-		//Prepare JsonObject for trustees
-		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-				Charset.forName("UTF-8"));
-		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-		return jsonReader.readObject();
+		return result.getResult().getPost().get(0).getMessage();
 
 	}
 
-	protected void fillContext(PublishTrusteeCertsActionContext ptcac, JsonObject message) throws UnivoteException {
-		JsonArray mixers = message.getJsonArray("mixerIds");
-		if (mixers == null) {
-			throw new UnivoteException("Invalid trustees message. mixerIds is missing.");
-		}
-		for (JsonValue jv : mixers) {
-			JsonString js = (JsonString) jv;
-			ptcac.getMixers().add(js.getString());
-		}
-		JsonArray talliers = message.getJsonArray("tallierIds");
-		if (talliers == null) {
-			throw new UnivoteException("Invalid trustees message. tallierIds is missing.");
-		}
-		for (JsonValue jv : talliers) {
-			JsonString js = (JsonString) jv;
-			ptcac.getTalliers().add(js.getString());
-		}
+	protected void fillContext(PublishTrusteeCertsActionContext ptcac, byte[] message) throws UnivoteException {
+//		Trustees trustees;
+//		try {
+//			trustees = Converter.unmarshal(Trustees.class, message);
+//		} catch (Exception ex) {
+//			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.", ex);
+//		}
+		//TODO save trustees in context
 	}
 
 	private void runInternal(PublishTrusteeCertsActionContext actionContext) {

@@ -13,7 +13,7 @@ package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.uniboard.clientlib.KeyHelper;
 import ch.bfh.unicrypt.crypto.schemes.hashing.classes.FixedByteArrayHashingScheme;
-import ch.bfh.unicrypt.helper.Alphabet;
+import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
 import ch.bfh.unicrypt.math.algebra.dualistic.classes.Z;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
@@ -62,7 +62,7 @@ public class TenantManagerImplTest {
 
 		FixedByteArrayHashingScheme scheme = FixedByteArrayHashingScheme.getInstance(pair.getSet());
 
-		BigInteger hash = scheme.hash(pair).getBigInteger();
+		BigInteger hash = scheme.hash(pair).convertToBigInteger();
 		assertTrue(tenantManagerImpl.checkHash(password, hash, salt));
 	}
 
@@ -83,7 +83,7 @@ public class TenantManagerImplTest {
 
 		FixedByteArrayHashingScheme scheme = FixedByteArrayHashingScheme.getInstance(passwordElement.getSet());
 
-		BigInteger hash = scheme.hash(passwordElement).getBigInteger();
+		BigInteger hash = scheme.hash(passwordElement).convertToBigInteger();
 		assertFalse(tenantManagerImpl.checkHash(password, hash, salt));
 	}
 

@@ -43,7 +43,7 @@ package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.univote2.component.core.services.InitialisationService;
 import ch.bfh.uniboard.data.PostDTO;
-import static ch.bfh.unicrypt.helper.Alphabet.UPPER_CASE;
+import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -472,7 +472,7 @@ public class ActionManagerImpl implements ActionManager {
 	}
 
 	protected String createTimer(TimerPreconditionQuery timerNotificationCondition) {
-		FixedStringSet fixedStringSet = FixedStringSet.getInstance(UPPER_CASE, 20);
+		FixedStringSet fixedStringSet = FixedStringSet.getInstance(Alphabet.UPPER_CASE, 20);
 		String notificationCode = fixedStringSet.getRandomElement().getValue();
 		this.timerService.createTimer(timerNotificationCondition.getDate(), notificationCode);
 		logger.log(Level.FINE, "Created new timer notificationCode = {0} and Date {1}",

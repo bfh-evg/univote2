@@ -59,6 +59,7 @@ public class Converter {
 
 	/**
 	 * Initilizes the JAXB context.
+	 *
 	 * @param <T> the Java type of the domain class the converstion takes place
 	 * @param type the actual type object
 	 * @return the JAXB context
@@ -73,6 +74,7 @@ public class Converter {
 
 	/**
 	 * Converst a JSON 'ResultDTO' byte array into the corresponding domain class.
+	 *
 	 * @param <T> the Java type of the domain class the converstion takes place
 	 * @param type the actual type object
 	 * @param message a JSON 'ResultDTO' byte array
@@ -90,7 +92,7 @@ public class Converter {
 		JAXBContext jaxbContext = Converter.initJAXBContext(object.getClass());
 		StringWriter writer = new StringWriter();
 		Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
 		marshaller.marshal(object, writer);
 		return writer.toString();
 	}

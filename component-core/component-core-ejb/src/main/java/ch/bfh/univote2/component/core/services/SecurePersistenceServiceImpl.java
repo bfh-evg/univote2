@@ -84,7 +84,7 @@ public class SecurePersistenceServiceImpl implements SecurePersistenceService {
 		Element aesKey = aes.getEncryptionKeySpace().getElement(this.tenantManager.getAESKey(tenant));
 		Element bigInt = aes.getMessageSpace().getElementFrom(value);
 		Element encBigIntElement = aes.encrypt(aesKey, bigInt);
-		encBigInt.setBigInteger(encBigIntElement.getBigInteger());
+		encBigInt.setBigInteger(encBigIntElement.convertToBigInteger());
 		this.persist(encBigInt);
 	}
 
@@ -100,7 +100,7 @@ public class SecurePersistenceServiceImpl implements SecurePersistenceService {
 		Element aesKey = aes.getEncryptionKeySpace().getElement(this.tenantManager.getAESKey(tenant));
 		Element encBigInt = aes.getMessageSpace().getElementFrom(encBigIntEntity.getBigInteger());
 		Element bigInt = aes.decrypt(aesKey, encBigInt);
-		return bigInt.getBigInteger();
+		return bigInt.convertToBigInteger();
 	}
 
 	protected EncryptedBigIntEntity getEncryptedBigInteger(String tenant, String section, String type)

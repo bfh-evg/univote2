@@ -59,6 +59,8 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
@@ -70,7 +72,6 @@ import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -212,16 +213,14 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
-		//Prepare JsonObject for trustees
-		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-				Charset.forName("UTF-8"));
-		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-		JsonObject message = jsonReader.readObject();
-		JsonArray talliers = message.getJsonArray("tallierCertificates");
-		if (talliers == null) {
-			throw new UnivoteException("Invalid trustees certificates message. tallierCertificates is missing.");
+		byte[] message = result.getResult().getPost().get(0).getMessage();
+		TrusteeCertificates trusteeCertificates;
+		try {
+			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+		} catch (Exception ex) {
+			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.", ex);
 		}
-		actionContext.setAmount(talliers.size());
+		actionContext.setAmount(trusteeCertificates.getTallierCertificates().size());
 	}
 
 	protected boolean validateAndAddKeyShare(CombineEncryptionKeyShareActionContext actionContext, PostDTO post) {

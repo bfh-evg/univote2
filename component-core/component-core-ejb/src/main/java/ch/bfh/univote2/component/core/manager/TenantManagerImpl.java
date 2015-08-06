@@ -44,11 +44,11 @@ package ch.bfh.univote2.component.core.manager;
 import ch.bfh.uniboard.clientlib.KeyHelper;
 import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
 import ch.bfh.unicrypt.crypto.schemes.hashing.classes.FixedByteArrayHashingScheme;
-import ch.bfh.unicrypt.helper.Alphabet;
 import ch.bfh.unicrypt.helper.array.classes.ByteArray;
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
 import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.helper.hash.HashMethod;
+import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
 import ch.bfh.unicrypt.math.algebra.dualistic.classes.Z;
 import ch.bfh.unicrypt.math.algebra.general.classes.FiniteByteArrayElement;
@@ -112,14 +112,14 @@ public class TenantManagerImpl implements TenantManager {
 				//TODO Compute aes key
 				Element encPrivKey = aes.getMessageSpace().getElement(tenantEntity.getEncPrivateKey());
 				//Load tenant from persistence
-				BigInteger dsaPrivKey = aes.decrypt(aesKey, encPrivKey).getBigInteger();
+				BigInteger dsaPrivKey = aes.decrypt(aesKey, encPrivKey).convertToBigInteger();
                 //Decrypt the private key
 
 				//Create the private key
 				PrivateKey privKey = KeyHelper.createDSAPrivateKey(tenantEntity.getModulus(),
 						tenantEntity.getOrderFactor(), tenantEntity.getGenerator(), dsaPrivKey);
 				//Add tenant
-				this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey.getByteArray(), privKey));
+				this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey.getValue(), privKey));
 				return true;
 			} catch (InvalidKeySpecException | NoSuchAlgorithmException | IllegalArgumentException ex) {
 				//throw new UnivoteException("Could not retrieve privateKey: " + tenant, ex);

@@ -520,20 +520,20 @@ function completeCertRequest(byMail) {
 
 	// (1) Compute verification key proof / signature
 	var valuesToSign = requester.idp.value + SEPARATOR + requester.email.value + SEPARATOR + requester.id.value;
-	valuesToSign = valuesToSign + SEPARATOR + elements.cryptoSetupType.value + SEPARATOR + elements.cryptoSetupSize.value;
-	valuesToSign = valuesToSign + SEPARATOR + leemon.bigInt2str(publicKey, 10);
+	valuesToSign += SEPARATOR + elements.cryptoSetupType.value + SEPARATOR + elements.cryptoSetupSize.value;
+	valuesToSign += SEPARATOR + leemon.bigInt2str(publicKey, uvConfig.BASE);
 
 	$.blockUI({message: '<p id="blockui-processing">' + msg.processing + '...</p>'});
 	if (keyType == RSA) {
-		valuesToSign = valuesToSign + SEPARATOR + leemon.bigInt2str(modulo, 10);
-		valuesToSign = valuesToSign + SEPARATOR + elements.identity_function.value + SEPARATOR + elements.application.value + SEPARATOR + elements.role.value;
+		valuesToSign += SEPARATOR + leemon.bigInt2str(modulo, uvConfig.BASE);
+		valuesToSign += SEPARATOR + elements.identity_function.value + SEPARATOR + elements.application.value + SEPARATOR + elements.role.value;
 		var signature = uvCrypto.computeRSASignature(secretKey, publicKey, modulo, valuesToSign);
 		// (2) Send verification key to CA and get the certificate
-		createRSACertificate(elements.cryptoSetupSize.value, modulo, elements.identity_function.value, publicKey, leemon.bigInt2str(signature, 10),
+		createRSACertificate(elements.cryptoSetupSize.value, modulo, elements.identity_function.value, publicKey, leemon.bigInt2str(signature, uvConfig.BASE),
 				elements.application.value, elements.role.value, createCertDoneCb, createCertErrorCb, computeUpdateCb);
 	} else if (keyType == DLOG) {
-		valuesToSign = valuesToSign + SEPARATOR + leemon.bigInt2str(p, 10) + SEPARATOR + leemon.bigInt2str(q, 10) + SEPARATOR + leemon.bigInt2str(g, 10);
-		valuesToSign = valuesToSign + SEPARATOR + elements.identity_function.value + SEPARATOR + elements.application.value + SEPARATOR + elements.role.value;
+		valuesToSign += SEPARATOR + leemon.bigInt2str(p, uvConfig.BASE) + SEPARATOR + leemon.bigInt2str(q, uvConfig.BASE) + SEPARATOR + leemon.bigInt2str(g, uvConfig.BASE);
+		valuesToSign += SEPARATOR + elements.identity_function.value + SEPARATOR + elements.application.value + SEPARATOR + elements.role.value;
 		var proof = uvCrypto.computeVerificationKeyProof(p, q, g, secretKey, publicKey, valuesToSign);
 		// (2) Send verification key to CA and get the certificate
 		createDLogCertificate(elements.cryptoSetupSize.value, p, q, g, elements.identity_function.value, publicKey, proof,

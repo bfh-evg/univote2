@@ -50,6 +50,8 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.message.Certificate;
+import ch.bfh.univote2.component.core.message.Converter;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -58,8 +60,6 @@ import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -68,9 +68,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 /**
  *
@@ -164,13 +161,8 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 			if (actionContext instanceof GrantAccessRightEAActionContext) {
 				GrantAccessRightEAActionContext gedac = (GrantAccessRightEAActionContext) actionContext;
 				PostDTO post = (PostDTO) notification;
-				//TODO Load pem from message from post
-				String messageString = new String(post.getMessage(),
-						Charset.forName("UTF-8"));
 				try {
-					JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-					JsonObject message = jsonReader.readObject();
-					this.parseEACert(message, gedac);
+					this.parseEACert(post.getMessage(), gedac);
 					this.runInternal(gedac);
 				} catch (UnivoteException ex) {
 					this.getLogger().log(Level.WARNING, "Could not parse ea certificate.", ex);
@@ -225,16 +217,18 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("EA certificate not published yet.");
 		}
-		//Prepare JsonObject for trustees
-		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-				Charset.forName("UTF-8"));
-		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-		this.parseEACert(jsonReader.readObject(), actionContext);
+		this.parseEACert(result.getResult().getPost().get(0).getMessage(), actionContext);
 	}
 
-	private void parseEACert(JsonObject message, GrantAccessRightEAActionContext actionContext)
+	private void parseEACert(byte[] message, GrantAccessRightEAActionContext actionContext)
 			throws UnivoteException {
-		String pem = message.getString("pem");
+		Certificate eaCertificate;
+		try {
+			eaCertificate = Converter.unmarshal(Certificate.class, message);
+		} catch (Exception ex) {
+			throw new UnivoteException("Invalid ea certificate message. Can't be unmarshalled.", ex);
+		}
+		String pem = eaCertificate.getPem();
 		if (pem == null) {
 			throw new UnivoteException("Invalid certificate message. pem is missing.");
 		}

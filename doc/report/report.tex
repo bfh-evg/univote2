@@ -145,7 +145,7 @@
 		\vhEntry{0.6.4}{26.06.2015}{Rolf Haenni}{Table in Section 7 adjusted.}
 		\vhEntry{0.6.5}{20.07.2015}{Rolf Haenni}{Updated tables in Section 7; Updated late registration procedure.}
 		\vhEntry{0.6.6}{22.07.2015}{Rolf Haenni}{Final minor protocol adjustments.}
-		
+		\vhEntry{0.6.7}{04.08.2015}{Rolf Haenni}{Cleanup in encoding and hashing.}	
 	\end{versionhistory}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -185,12 +185,13 @@ For a person or party involved in cryptographic protocols, we use upper-case lat
 \section{Byte Arrays}
 %-----------------------------------------------------------------------------------------------
 
-Let $B=\langle b_0,\ldots,b_{n-1}\rangle$ denote an array of bytes $b_i\in\{\bin{0},\bin{1}\}^8$. Its length is denoted by $|B|=n$. We use standard array notation $B[i]=b_i$ to select from $B$ the byte at index $i\in\{0,\ldots,n-1\}$ and hexadecimal notation for individual bytes. For example, $B=\langle \hex{0A},\hex{23},\hex{EF}\rangle$ denotes a byte array containing three bytes $B[0]=\HEX{0A}=\BIN{00001010}$, $B[1]=\HEX{23}=\BIN{001000011}$, and $B[2]=\HEX{EF}=\BIN{11101111}$.
+Let $B=\langle b_0,\ldots,b_{n-1}\rangle$ denote an array of bytes $b_i\in\mathcal{B}$, where $\mathcal{B}=\{\bin{0},\bin{1}\}^8$ the set of all 256 bytes. Its length is denoted by $|B|=n$. We use standard array notation $B[i]=b_i$ to select from $B$ the byte at index $i\in\{0,\ldots,n-1\}$ and hexadecimal notation for individual bytes. For example, $B=\langle \hex{0A},\hex{23},\hex{EF}\rangle$ denotes a byte array containing three bytes $B[0]=\HEX{0A}=\BIN{00001010}$, $B[1]=\HEX{23}=\BIN{001000011}$, and $B[2]=\HEX{EF}=\BIN{11101111}$.
 
 If $B'$ is a second byte array of length $n'=|B'|$, then $B\conc B'$ denotes the concatenated byte array of length $n+n'$ with the bytes of $B$ placed before the bytes of $B'$. Furthermore, we write $B\wedge B'$, $B\vee B'$, and $B \oplus B'$ for the byte array of length $\min(n,n')$ obtained from applying bit-wise the logical AND, OR, and XOR operators, respectively (the additional bytes of the longer byte array are discarded). Similarly, $\neg B$ denotes the result of applying bit-wise the NOT operator. Finally, if $x\in\mathbb{N}$ is a natural number with bit length $|x|\leq 8{\cdot}|B|$, we write $B+x$ for result of adding $x$ to $B$ in base two (the overflow bit is discarded).
 
 \subsection{Representing Integers}
-Let $x\in \mathbb{Z}$ be an integer. We use $\mathit{bytes}_k(x)$ to denote the byte array obtained from truncating the $k$ least significant bytes from the (infinitely long) two's complement representation of $x$ in big-endian order, where $k\geq \lceil(|x|+1)/8\rceil$. We use $\mathit{bytes}(x)$ as a short-cut notation for the shortest possible such byte array representation of length $k=\lceil(|x|+1)/8\rceil$. Note that the most significant bit of $\mathit{bytes}(x)[0]$ is always the sign bit, also for $\mathit{bytes}(0)=\langle\hex{00}\rangle$, which contains a single zero byte. The empty byte array is not a valid integer representation.
+Let $x\in \mathbb{Z}$ be an integer. We use $\mathit{bytes}_k(x)\in\mathcal{B}^k$ to denote the byte array obtained from truncating the $k$ least significant bytes from the (infinitely long) two's complement representation of $x$ in big-endian order, where $k\geq \lceil(|x|+1)/8\rceil\geq 1$. We use $\mathit{bytes}(x)$ as a short-cut notation for the shortest possible such byte array representation of length $k=\lceil(|x|+1)/8\rceil$. Note that the most significant bit of $\mathit{bytes}(x)[0]$ always represents the sign of $x$, also for 
+$\mathit{bytes}(0)=\langle\hex{00}\rangle$, which contains a single zero byte. The empty byte array is not a valid integer representation.
 
 The following table shows the byte array representations for different integers $x$ and $k\leq 4$:
 
@@ -218,7 +219,7 @@ The following table shows the byte array representations for different integers 
 		-65536 & -- & -- & $\langle\hex{FF},\hex{00},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{00},\hex{00}\rangle$\\
 	\end{tabular} 
 \end{center}
-The two's complement representation in big-endian byte order is the only integer representation considered in this document. 
+The two's complement representation in big-endian byte order is the default integer representation considered in this document. It is also used to reconstruct a non-negative integer $x=\mathit{bytes}_k^{-1}(B)$ from an arbitrary byte array $B\in\mathcal{B}^k$ of length $k\geq 1$.
 
 \subsection{Representing Strings}
 
@@ -226,33 +227,33 @@ Let $U$ be the \emph{Universal Character Set} (UCS) as defined by ISO/IEC 10646.
 
 To encode a string $S\in U^*$ as byte array, we use the UTF-8 character encoding as defined in ISO/IEC 10646 (Annex D). Let $\mathit{bytes}(S)$ denote the corresponding byte array, in which characters use 1, 2, 3, or 4 bytes of space depending on the type of character. For example, $\mathit{bytes}(\str{Hello})=\langle\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F}\rangle$ is a byte array of length $5$, because it only consists of Basic Latin characters, whereas $\mathit{bytes}(\str{Voilà})=\langle\hex{56},\hex{6F},\hex{69},\hex{6C},\hex{C3},\hex{A0}\rangle$ contains $6$ bytes due to the Latin-1 Supplement character $\chr{à}$ translating into two bytes. UTF-8 is the only character encoding used in this document.
 
-%-----------------------------------------------------------------------------------------------
-\section{Byte Trees}
-%-----------------------------------------------------------------------------------------------
-
-Following the definition given in \cite{wikstrom12}, a \emph{byte tree} is either a \emph{leaf} containing an array of bytes, or a \emph{node} containing other byte trees. The purpose of a byte tree is to provide a simple byte-oriented representation of complex mathematical objects consisting of values of different types (integers, strings, etc.). Constructing a byte tree $T=\mathit{byteTree}(\phi)$ from such a mathematical object $\phi$ means replacing each individual value by its byte array representation (see previous section). 
-
-A byte tree $T$ itself can be transformed into a single byte array $B=\mathit{bytes}(T)$, which may then be given as input to a hash function, a random oracle, or an encryption function. This transformation is defined as follows:
-\begin{itemize}
-	\item If $T$ is a node containing byte trees $T_1,\ldots,T_k$, then $$\mathit{bytes}(T)=\langle\hex{00}\rangle\conc _4(k)\conc \mathit{bytes}(T_1)\conc \cdots\conc \mathit{bytes}(T_k).$$
-	\item If $T$ is a leaf containing a byte array $B$ of length $n$, then $$\mathit{bytes}(T)=\langle\hex{01}\rangle\conc \mathit{bytes}_4(n)\conc B.$$
-\end{itemize}
-In each case, the first byte specifies the type of the byte tree and the following four bytes its size. Note that this transformation restricts the maximal number of children in a node and the maximal number of bytes in leaf to $2^{31}-1$.
-
-As an example, consider the mathematical object $\phi=(\str{Hello},(256, -32769))$, which is a pair consisting of a string and a pair of integers. From
-\begin{align*}
-	\mathit{bytes}(\str{Hello})&=\langle\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F}\rangle,\\
-	\mathit{bytes}(256)&=\langle\hex{01},\hex{00}\rangle,\\
-	\mathit{bytes}(-32769)&=\langle\hex{FF},\hex{7F},\hex{FF}\rangle,
-\end{align*}
-we obtain the byte tree $T=\mathit{byteTree}(\phi)=(\langle\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F}\rangle,(\langle\hex{01},\hex{00}\rangle,\langle\hex{FF},\hex{7F},\hex{FF}\rangle))$, which finally leads to the following byte array:
-\begin{align*}
-	\mathit{bytes}(T)=\langle\hex{00},&\hex{00},\hex{00},\hex{00},\hex{02},\\
-	&\hex{01},\hex{00},\hex{00},\hex{00},\hex{05},\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F},\\
-	&\hex{00},\hex{00},\hex{00},\hex{00},\hex{02},\\
-	&~~~~~\!\hex{01},\hex{00},\hex{00},\hex{00},\hex{02},\hex{01},\hex{00},\\
-	&~~~~~\!\hex{01},\hex{00},\hex{00},\hex{00},\hex{03},\hex{FF},\hex{7F},\hex{FF}\rangle.
-\end{align*}
+%%-----------------------------------------------------------------------------------------------
+%\section{Byte Trees}
+%%-----------------------------------------------------------------------------------------------
+%
+%Following the definition given in \cite{wikstrom12}, a \emph{byte tree} is either a \emph{leaf} containing an array of bytes, or a \emph{node} containing other byte trees. The purpose of a byte tree is to provide a simple byte-oriented representation of complex mathematical objects consisting of values of different types (integers, strings, etc.). Constructing a byte tree $T=\mathit{byteTree}(\phi)$ from such a mathematical object $\phi$ means replacing each individual value by its byte array representation (see previous section). 
+%
+%A byte tree $T$ itself can be transformed into a single byte array $B=\mathit{bytes}(T)$, which may then be given as input to a hash function, a random oracle, or an encryption function. This transformation is defined as follows:
+%\begin{itemize}
+%	\item If $T$ is a node containing byte trees $T_1,\ldots,T_k$, then $$\mathit{bytes}(T)=\langle\hex{00}\rangle\conc _4(k)\conc \mathit{bytes}(T_1)\conc \cdots\conc \mathit{bytes}(T_k).$$
+%	\item If $T$ is a leaf containing a byte array $B$ of length $n$, then $$\mathit{bytes}(T)=\langle\hex{01}\rangle\conc \mathit{bytes}_4(n)\conc B.$$
+%\end{itemize}
+%In each case, the first byte specifies the type of the byte tree and the following four bytes its size. Note that this transformation restricts the maximal number of children in a node and the maximal number of bytes in leaf to $2^{31}-1$.
+%
+%As an example, consider the mathematical object $\phi=(\str{Hello},(256, -32769))$, which is a pair consisting of a string and a pair of integers. From
+%\begin{align*}
+%	\mathit{bytes}(\str{Hello})&=\langle\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F}\rangle,\\
+%	\mathit{bytes}(256)&=\langle\hex{01},\hex{00}\rangle,\\
+%	\mathit{bytes}(-32769)&=\langle\hex{FF},\hex{7F},\hex{FF}\rangle,
+%\end{align*}
+%we obtain the byte tree $T=\mathit{byteTree}(\phi)=(\langle\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F}\rangle,(\langle\hex{01},\hex{00}\rangle,\langle\hex{FF},\hex{7F},\hex{FF}\rangle))$, which finally leads to the following byte array:
+%\begin{align*}
+%	\mathit{bytes}(T)=\langle\hex{00},&\hex{00},\hex{00},\hex{00},\hex{02},\\
+%	&\hex{01},\hex{00},\hex{00},\hex{00},\hex{05},\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F},\\
+%	&\hex{00},\hex{00},\hex{00},\hex{00},\hex{02},\\
+%	&~~~~~\!\hex{01},\hex{00},\hex{00},\hex{00},\hex{02},\hex{01},\hex{00},\\
+%	&~~~~~\!\hex{01},\hex{00},\hex{00},\hex{00},\hex{03},\hex{FF},\hex{7F},\hex{FF}\rangle.
+%\end{align*}
 %-----------------------------------------------------------------------------------------------
 \section{Pairing}
 %-----------------------------------------------------------------------------------------------
@@ -280,29 +281,50 @@ The following table lists the paired values for all $x,y\leq 5$.
 Note that the bit length of a paired value $z=\mathit{pair}(x,y)$ is either $|z| =2|m|$ or $|z|=2|m|-1$, where $m=\max(x,y)$ denotes the maximum of the two inputs. In other words, elegant pairing doubles the length of the larger input.
 
 In case of elegant pairing, the corresponding unpairing function is defined by
-\begin{align}
+\begin{align*}
 	\mathit{unpair}(z)=\begin{cases}(t,s),~\text{if}~t<s,\\(s,t-s),~\text{otherwise},\end{cases}
-\end{align}
+\end{align*}
 where $s=\lfloor\sqrt{z}\rfloor$ and $t=z-s^2$.
 
-There are two important generalizations of a pairing functions, which can be added individually or jointly. The first one extends the domain from $\mathbb{N}\times\mathbb{N}$ to $\mathbb{Z}\times\mathbb{Z}$ by first mapping each input $x\in\mathbb{Z}$ into a non-negative integer $\mathit{fold}(x)\in\mathbb{N}$, where
-\begin{align}
+There are three important generalizations of a pairing functions, which can be added individually or jointly. The first one extends the domain from $\mathbb{N}\times\mathbb{N}$ to $\mathbb{Z}\times\mathbb{Z}$ by first mapping each input $x\in\mathbb{Z}$ into a non-negative integer $\mathit{fold}(x)\in\mathbb{N}$, where
+\begin{align*}
 	\mathit{fold}(x)=\begin{cases}2x,~\text{if}~x\geq 0,\\2|x|-1,~\text{otherwise},\end{cases}
-\end{align}
+\end{align*}
 denotes the \emph{folding function}. The corresponding \emph{unfolding function} is defined by
-\begin{align}
+\begin{align*}
 	\mathit{unfold}(x)=\begin{cases}\frac{1}{2}x,~\text{if $x$ is even},\\
 		-\frac{1}{2}(x+1),~\text{otherwise}.\end{cases}
-\end{align}
+\end{align*}
 
-The second generalization extends the domain of the pairing function from $\mathbb{N}\times\mathbb{N}$ to $\mathbb{N}^k$ for $k\geq 2$. There are multiple ways of defining such a $k$-ary pairing function $\mathit{pair}_k:\mathbb{N}^k\rightarrow \mathbb{N}$ recursively. If we assume that all input values are equally long, then a length-optimal recursive definition is as follows:
+The second generalization extends the domain of the pairing function from $\mathbb{N}\times\mathbb{N}$ to $\mathbb{N}^k$ for $k\geq 0$. There are multiple ways of defining such a $k$-ary pairing function $\mathit{pair}_k:\mathbb{N}^k\rightarrow \mathbb{N}$ recursively. If we assume that all input values are equally long, then a length-optimal recursive definition is as follows:
 \begin{align}
 	\mathit{pair}_k(x_1,\ldots,x_k) = \begin{cases}
 		\mathit{pair}_{\frac{k}{2}}(\mathit{pair}(x_1,x_2),\ldots,\mathit{pair}(x_{k-1},x_k)),~\text{if $k>2$ is even},\\
 		\mathit{pair}_{\frac{k+1}{2}}(\mathit{pair}(x_1,x_2),\ldots,\mathit{pair}(x_{k-2},x_{k-1}),x_k),~\text{if $k>2$ is odd},\\
-		\mathit{pair}(x_1,x_2),~\text{if $k=2$}.			
+		\mathit{pair}(x_1,x_2),~\text{if $k=2$},\\	
+		x_1,~\text{if $k=1$},\\	
+		0,~\text{if $k=0$}.	
 	\end{cases}
 \end{align}
+To define a corresponding function $\mathit{unpair}_k:\mathbb{N}\rightarrow \mathbb{N}^k$, the number $k$ of output values must be known. This problem can be solved by an additional pairing with $k$:
+\begin{align*}
+	\mathit{pair}'(x_1,\ldots,x_k) &= \mathit{pair}(\mathit{pair}_k(x_1,\ldots,x_k),k),\\
+	\mathit{unpair}'(z) &= \mathit{unpair}_k(z'),~\text{for}~(z',k) = \mathit{unpair}(z).
+\end{align*}
+The third generalization allows the pairing of even more complex structures containing non-negative integers, for example $X=(127,(1,15),0)$. Let $\mathcal{X}$ denote the set of all such composed structures. Then we obtain a function $\mathit{pair}:\mathcal{X}\rightarrow\mathbb{N}$ by applying the above generalized pairing function recursively:
+\begin{align*}
+	\mathit{pair}(X) = \begin{cases}
+		\mathit{pair}'(\mathit{pair}(X_1),\ldots,\mathit{pair}(X_k)),~\text{if $X=(X_1,\ldots,X_k)$},\\
+		X,~\text{if $X$ is an integer}.
+	\end{cases}
+\end{align*}
+To define a corresponding function $\mathit{unpair}:\mathbb{N}\rightarrow\mathcal{X}$, the two cases of the recursion must be distinguishable. This problem can be solved by returning a negative integer  $X'=-X-1$ instead of $X$ in the base case of the recursion and by applying $\mathit{fold}$ on top of it:
+\begin{align*}
+	\mathit{pair}'(X)&=\mathit{fold}(\mathit{pair}(X)),\\
+	\mathit{unpair}'(z) &= \mathit{unpair}(\mathit{unfold(z)}).
+\end{align*}
+In this way, if $\mathit{unfold(z)}$ yields a negative integer $X'$, then $X=-X'-1$ is returned. Otherwise, the structure is re-constructed recursively.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Cryptographic Primitives}
@@ -316,24 +338,32 @@ The UniVote system is based on several cryptographic building blocks. Apart from
 
 A \emph{hash function} defines a mapping $\mathit{hash}_n:\{0,1\}^*\rightarrow\{0,1\}^n$ from an arbitrarily long input bit sequences to a fixed-length output bit sequence of length $n$. For a given input bit string $B\in\{0,1\}^*$, we call $\mathit{hash}_n(B)\in\{0,1\}^n$ the \emph{hash value} of $B$. Whenever the output length $n$ is clear from the context, we allow $\mathit{hash}(B)$ as a shortcut notation.
 
-All hash functions relevant for practical applications restrict the length of the input and output bit sequence to a multiple of $8$. In other words, practical hash functions deal with bytes rather than bits. Therefore, if $\mathcal{B}=\{\bin{0},\bin{1}\}^8$ denotes the set of all possible bytes, then a practical hash function is a mapping $\mathit{hash}_n:\mathcal{B}^*\rightarrow\mathcal{B}^{\frac{n}{8}}$ from arbitrarily long byte arrays to fixed-length byte arrays. The only practical hash functions we consider in this document are the NIST standards SHA-256, SHA-384, and SHA-512, which output byte arrays of length 32 (256 bits), 48 (384 bits), and 64 (512 bits), respectively.
+All hash functions relevant for practical applications restrict the length of the input and output bit sequence to a multiple of $8$. In other words, practical hash functions deal with bytes rather than bits. Therefore, if $\mathcal{B}=\{\bin{0},\bin{1}\}^8$ denotes the set of all possible bytes, then a practical hash function is a mapping $\mathit{hash}_n:\mathcal{B}^*\rightarrow\mathcal{B}^{\frac{n}{8}}$ from arbitrarily long byte arrays to fixed-length byte arrays. The only hash functions we consider in this document are the NIST standards SHA-1, SHA-224, SHA-256, SHA-384, and SHA-512, which output byte arrays of length 20 (160 bits), 28 (224 bits), 32 (256 bits), 48 (384 bits), and 64 (512 bits), respectively (see \Cref{settings}).
 
-Let $\phi\in\Phi$ be an arbitrary mathematical object. Then we consider the following two generalized definitions of a hash function with a more general domain $\Phi$:
-\begin{itemize}
-	\item \emph{Byte Tree Hashing}: The input object $\phi$ is first encoded as a byte tree, which is then transformed into an input byte array for the hash function:
-	\begin{align}
-		\mathit{treeHash}(\phi)=\mathit{hash}(\mathit{bytes}(\mathit{byteTree}(\phi))).
-	\end{align}
-	\item \emph{Recursive Hashing}: Here we compute the hash value recursively from the hash values of the components of $\phi$ (unless $\phi$ is atomic):
-	\begin{align}
-		\mathit{recHash}(\phi)=
+To apply such a hash function to a simple mathematical object such as an integer or string $X$, we first convert $X$ into a byte array $B=\mathit{bytes}(X)$ and then apply the hash function to $B$. This allows us to write $\mathit{hash}(X)=\mathit{hash}(\mathit{bytes}(X))$ for more general inputs. In case of composed mathematical objects, for example $X=(127,(\texttt{"Hello"},1),-2)$, we apply the hash function recursively:
+\begin{align*}
+		\mathit{hash}(X)=
 		\begin{cases}
-			\mathit{hash}(\mathit{bytes}(\phi)), & \text{if $\phi$ is atomic}, \\
-			\mathit{hash}(\mathit{recHash}(\phi_1)\conc\cdots\conc\mathit{recHash}(\phi_k)), & \text{if $\phi=(\phi_1,\ldots,\phi_k)$}.
+			\mathit{hash}(\mathit{bytes}(X)), & \text{if $X$ is atomic}, \\
+			\mathit{hash}(\mathit{hash}(X_1)\conc\cdots\conc\mathit{hash}(X_k)), & \text{if $X=(X_1,\ldots,X_k)$}.
 		\end{cases}
-	\end{align}
-\end{itemize} 
-Sometimes, if we do not want to specify the concrete hash method applied to $\phi$, we simply write $\mathit{hash}(\phi)$ for the hash value of $\phi$. Furthermore, if $\phi=(\phi_1,\ldots,\phi_k)$ is a composed object, we sometimes write $\mathit{hash}(\phi)$ as the application $\mathit{hash}(\phi_1,\ldots,\phi_k)$ of a $k$-ary hash function to multiple arguments.
+\end{align*}
+Sometimes, if $X=(X_1,\ldots,X_k)$ is a composed object, we write $\mathit{hash}(X)$ as the application $\mathit{hash}(X_1,\ldots,X_k)$ of a $k$-ary hash function to multiple arguments.
+	
+%\begin{itemize}
+%	\item \emph{Byte Tree Hashing}: The input object $\phi$ is first encoded as a byte tree, which is then transformed into an input byte array for the hash function:
+%	\begin{align}
+%		\mathit{treeHash}(\phi)=\mathit{hash}(\mathit{bytes}(\mathit{byteTree}(\phi))).
+%	\end{align}
+%	\item \emph{Recursive Hashing}: Here we compute the hash value recursively from the hash values of the components of $\phi$ (unless $\phi$ is atomic):
+%	\begin{align}
+%		\mathit{recHash}(\phi)=
+%		\begin{cases}
+%			\mathit{hash}(\mathit{bytes}(\phi)), & \text{if $\phi$ is atomic}, \\
+%			\mathit{hash}(\mathit{recHash}(\phi_1)\conc\cdots\conc\mathit{recHash}(\phi_k)), & \text{if $\phi=(\phi_1,\ldots,\phi_k)$}.
+%		\end{cases}
+%	\end{align}
+%\end{itemize} 
 
 %-----------------------------------------------------------------------------------------------
 \section{Generating Random Bits and Random Numbers} 
@@ -488,7 +518,7 @@ One of the most fundamental zero-knowledge proofs of knowledge is the \emph{prei
 \begin{enumerate}
 	\item Choose $\omega\in_R X$ uniformly at random.
 	\item Compute $t=\phi(\omega)$.
-	\item Compute $c = \mathit{hash}(b,t,\Prover) \bmod{q}$, for $q=|\mathit{image}(\phi)|$.
+	\item Compute $c = \mathit{hash}((b,t),\Prover) \bmod{q}$, for $q=|\mathit{image}(\phi)|$.\footnote{Making the challenge $c$ dependent on the prover's identity \Prover prevents attacks based on copying proofs from another prover. We do not specify the exact format of the identifier. When generating the challenge for $b$, $t$, and $\Prover$, we apply $\mathit{hash}$ recursively, first on $b$ and $t$, and then on $\Prover$, i.e.,  $\mathit{hash}((b,t),\Prover)=\mathit{hash}(\mathit{hash}(\mathit{hash}(b)||\mathit{hash}(t))||\mathit{hash}(\Prover))$.}
 	\item Compute $s = \omega + c\cdot a$.
 \end{enumerate}
 The triple $(t,c,s)=\mathit{NIZKP}\{(a):b=\phi(a)\}$ is the resulting non-interactive preimage proof, which can be published without revealing any information about $a$. Note that $\mathit{image}(\phi)=Y$ holds in many concrete instantiations of the  preimage proof, which implies $q=|Y|$. To verify a given proof $\pi=(t,c,s)$, $\Verifier$ performs the following check:
@@ -710,20 +740,19 @@ The notification property of the board allows an entity  $e$ to register itself 
 For UniVote and UniCert a bulletin board that supports all properties described in the previous sections is used. This results in our UniBoard configuration supporting following four operations. Also note that Schnorr signatures are used for signing. Therefore every sign operation needs an additional random value $r$ (Chapter \ref{schnorrsig}).
 
 \subsection{Post}
-$\mathrm{Post}(m, (s, g, S_m, vk)):(n, t , h, S_p)$
+$\mathrm{Post}(m, (s, g, S_m, vk)):(t, n, S_p)$
 \begin{enumerate}
 	\item Check that section $s$ exists.
 	\item Check that group $g$ exists.
 	\item Check if message $m$ is of the type of group $g$.
 	\item Check that $S_m$ is a correct signature of $(m, (s, g))$ and belongs to $vk$.
 	\item Check that $k$ is authorized by checking $\mathcal{K}$.
-	\item Define the total order $n$ of the message in $s$ .
 	\item Add the current time $t$ to the message.
-	\item Create the hash $h$ for the message.
-	\item Create the signature for the post $S_p=Sign_{sk_{BB}}(m, (s, g, S_m , vk), (n, t, h))$
+	\item Define the total order $n$ of the message in $s$ .
+	\item Create the signature for the post $S_p=Sign_{sk_{BB}}(m, (s, g, S_m , vk), (t, n))$
 	\item Send notifications for this message if necessary.
 	\item Save the post.
-	\item Return $(n, t, h, S_p)$ to the user.
+	\item Return $(t, n, S_p)$ to the user.
 \end{enumerate}
 
 A user can use the compact notation $\mathrm{Post}(m, s, g)$, which represents the following three steps:
@@ -1582,7 +1611,7 @@ The following parameters are assumed to be known in advance and not to change ov
 		\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|}\hline
 			\centering\multirow{2}{*}{Security Level} & \multirow{2}{*}{Strength} & \multicolumn{3}{c|}{Residue Class Group} & \multirow{2}{*}{Hash Value} \\\cline{3-5}
 			& &  modulo & max.\ order & min.\ order & \\\hline
-			\centering 0 (for testing only) & 3   & 8    & 7    & 6  & 6 \\
+			\centering 0 (for testing only) & 3   & 8    & 7    & 6  & -- \\
 			\centering 1 & 80  & 1024 & 1023 & 160 & 160 \\
 			\centering 2 & 112 & 2048 & 2047 & 224 & 224 \\
 			\centering 3 & 128 & 3072 & 3071 & 256 & 256 \\
@@ -1840,12 +1869,36 @@ For hashing any part of a post, this needs to be converted to a byte array.
 To create a signature a recursive hash-algorithm is used.
 To sign the post the author hashes [message,alpha] where alpha  = [section, group].
 To sign the post UniBoard  hashes [message,alpha,beta] where alpha = [section,group, signature,key] and
-beta = [timestamp,rank, hash].
+beta = [timestamp,rank].
 \section{Read Signature}
 To create a signature a recursive hash-algorithm is used.
 To sign the result of the query UniBoard hashes [query,resultcontainer] where query=[contraints,order,limit]
 constraint=[type,identifier,value1,...] identifier=[type,s1,s2,s3,...] order=[identifier,ascDesc] resultcontainer=[result,gamma]
-result [p1,p2,...] post=[message,alpha,beta] alpha=[section,group,signature,key] beta=[timestamp,rank,hash,boardSignature] gamma=[timestamp]
+result [p1,p2,...] post=[message,alpha,beta] alpha=[section,group,signature,key] beta=[timestamp,rank,boardSignature] gamma=[timestamp]
+
+\section{Error and Rejects}
+\begin{tabularx}{\linewidth}{|c|c|X|}
+\hline Type & Code & Description \\
+\hline R & BAC-001 & There is no authorization for the provided key\\
+\hline R & BAC-002 & The provided signature is not valid\\
+\hline R & BAC-003 & Authorization is not active yet\\
+\hline R & BAC-004 & Authorization expired\\
+\hline R & BAC-005 & Amount of allowed posts used up\\
+\hline E & BAC-006 & Internal server error\\
+\hline R & BGT-001 & Attribute missing\\
+\hline R & BGT-002 & Attribute is not a StringValue\\
+\hline R & BGT-003 & Configuration for section-bfh is missing\\
+\hline R & BGT-004 & Specified section is not known on this UniBoard\\
+\hline R & BGT-005 & Message is not valid in typed only modus\\
+\hline R & BGT-006 & Message is not valid for the selected group\\
+\hline R & BSE-001 & Attribute missing\\
+\hline R & BSE-002 & Attribute is not a StringValue\\
+\hline R & BSE-003 & Configuration for section-bfh is missing\\
+\hline R & BSE-004 & Specified section is not known on this UniBoard\\
+\hline E & BCG-001 & Internal server error\\
+\hline E & BCP-001 & Internal server error\\
+\hline
+\end{tabularx}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{UniCert}

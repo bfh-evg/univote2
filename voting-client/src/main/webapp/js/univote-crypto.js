@@ -113,7 +113,7 @@
 			//2. Compute t = g^omega mod p
 			var t = leemon.powMod(g, omega, p);
 
-			//3. Compute c = H(H(H(publicInput)||H(t))||H(otherInput))
+			//3. Compute c = h((publicInput, t), otherInput) = H(H(H(publicInput)||H(t))||H(otherInput))
 			//3.1 Hash of public input
 			var hashPI = Hash.doBigInt(publicInput);
 			//3.2 Hash of commitment
@@ -343,13 +343,16 @@
 		 * @param {type} sk Value of private key as bigInt
 		 * @param {type} vk Value of verification key as bigInt
 		 * @param {type} otherInput Additional data that must be hashed in proof as string
-		 * @returns Proof as object containing t (commitment), c (challange) and s (response) as base 10 string.
+		 * @returns Proof as object containing t (commitment), c (challange) and s (response)
+		 * as base {uvConfig.BASE} strings.
 		 */
 		this.computeVerificationKeyProof = function (p, q, g, sk, vk, otherInput) {
-			var proof = this.NIZKP(p, q, g, sk, vk, otherInput);
-			proof.t = leemon.bigInt2str(proof.t, 10);
-			proof.c = leemon.bigInt2str(proof.c, 10);
-			proof.s = leemon.bigInt2str(proof.s, 10);
+			var result = this.NIZKP(p, q, g, sk, vk, otherInput);
+			var proof = {
+				"t": leemon.bigInt2str(result.t, uvConfig.BASE),
+				"c": leemon.bigInt2str(result.c, uvConfig.BASE),
+				"s": leemon.bigInt2str(result.s, uvConfig.BASE)
+			};
 			return proof;
 		};
 
@@ -509,13 +512,7 @@
 		 */
 		this.decryptSecretKey = function (key, password, errorCb) {
 
-			var result;
-			function callback(message) {
-				return result = uvCrypto.decryptSecretKeyUniVote1(key, password, errorCb);
-			}
-
-			result = this.decryptSecretKeyAES(key, password, callback);
-			return result;
+			return this.decryptSecretKeyAES(key, password, errorCb);
 		};
 
 
@@ -619,17 +616,18 @@
 		 *
 		 * @param vote - The vote as bigInt.
 		 * @param encryptionKey - The encryption key as bigInt.
-		 * @return An object with the encoded vote (univote_bfh_ch_common_encryptedVote) and
+		 * @return An object with the encoded vote (values as base {uvConfig.BASE} string) and
 		 * the single values (r, a, b) of the encryption as bigInt (for further processing).
 		 */
 		this.encryptVote = function (vote, encryptionKey) {
-
 
 			var r = leemon.randBigIntInZq(encryptionSetting.q);
 			var a = leemon.powMod(encryptionSetting.g, r, encryptionSetting.p);
 			var b = leemon.powMod(encryptionKey, r, encryptionSetting.p);
 			b = leemon.multMod(b, vote, encryptionSetting.p);
-			var encVote = {firstvalue: leemon.bigInt2str(a, uvConfig.BASE), secondvalue: leemon.bigInt2str(b, uvConfig.BASE)};
+			var encVote = {
+				firstvalue: leemon.bigInt2str(a, uvConfig.BASE),
+				secondvalue: leemon.bigInt2str(b, uvConfig.BASE)};
 			return {encVote: encVote, r: r, a: a, b: b};
 		};
 
@@ -638,11 +636,12 @@
 		 *
 		 * @param generator - The election generator as bigInt.
 		 * @param sk - Secret key as bigInt.
-		 * @return Object with anonymous election verification key as string and bigInt.
+		 * @return Object with anonymous election verification key as
+		 * base {uvConfig.BASE} string and bigInt.
 		 */
 		this.computeElectionVerificationKey = function (generator, sk) {
 			var vk = leemon.powMod(generator, sk, this.signatureSetting.p);
-			var vkString = leemon.bigInt2str(vk, 10);
+			var vkString = leemon.bigInt2str(vk, uvConfig.BASE);
 			return {vkString: vkString, vk: vk};
 		};
 
@@ -652,13 +651,17 @@
 		 * @param r - The random value used in vote encryption as bigInt.
 		 * @param a - The first value (public input) of the vote encryption as bigInt.
 		 * @param vk - The verification key as bigInt.
-		 * @return An object with the proof (univote_bfh_ch_common_proof) and the
-		 * single proof values (t, c, s) as bigInt.
+		 * @return An object representing the proof-triple (t, c, s) as base
+		 * {uvConfig.BASE} string values.
 		 */
 		this.computeVoteProof = function (r, a, vk) {
 
-			var result = this.NIZKP(encryptionSetting.p, encryptionSetting.q, encryptionSetting.g, r, a, leemon.bigInt2str(vk, 10));
-			var proof = {commitment: leemon.bigInt2str(result.t, 10), challenge: leemon.bigInt2str(result.c, 10), response: leemon.bigInt2str(result.s, 10)};
+			var result = this.NIZKP(encryptionSetting.p, encryptionSetting.q, encryptionSetting.g, r, a, leemon.bigInt2str(vk, uvConfig.BASE));
+			var proof = {
+				commitment: leemon.bigInt2str(result.t, uvConfig.BASE),
+				challenge: leemon.bigInt2str(result.c, uvConfig.BASE),
+				response: leemon.bigInt2str(result.s, uvConfig.BASE)
+			};
 			return proof;
 		};
 
@@ -671,7 +674,8 @@
 		 * @param post Message to be signed
 		 * @param generator Generator to be used in the signature
 		 * @param sk Private key used for signature
-		 * @returns Signature as object containing the paired value as bigInt (sig) and its base 10 string representation (sigString)
+		 * @returns Signature as object containing the paired value as
+		 * bigInt (sig) and its base {uvConfig.BASE} string representation (sigString)
 		 */
 		this.signPost = function (post, generator, sk) {
 
@@ -679,7 +683,7 @@
 			var postHash = this.hashPost(post, false, false);
 			var paired = this.createSchnorrSignature(postHash, sk, this.signatureSetting.p, this.signatureSetting.q, generator)
 
-			return {sig: paired, sigString: leemon.bigInt2str(paired, 10)};
+			return {sig: paired, sigString: leemon.bigInt2str(paired, uvConfig.BASE)};
 		};
 
 		/**
@@ -748,6 +752,25 @@
 			var alpha = post.alpha.attribute;
 			var messageHash = Hash.doString(B64.decode(message));
 			var concatenatedAlphaHashes = ""
+
+			var hashAttribute = function (attribute) {
+				var aHash = '';
+				var type = attribute.value.type;
+				var value = attribute.value.value;
+				if (type === "stringValue") {
+					aHash = Hash.doString(value);
+				} else if (type === "integerValue") {
+					aHash = Hash.doInt(value);
+				} else if (type === "dateValue") {
+					aHash = Hash.doDate(new Date(value));
+				} else if (type === "integerValue") {
+					aHash = Hash.doByteArray(value);
+				} else {
+					throw "Error: unknown type of attribute ('" + type + "').";
+				}
+				return aHash;
+			};
+
 			for (var i = 0; i < alpha.length; i++) {
 				var attribute = alpha[i];
 				if ((attribute.key === "signature" || attribute.key === "publickey") && includeBeta == false) {
@@ -757,22 +780,11 @@
 					//thus signature and key must be included
 					continue;
 				}
-
-				if (attribute.value.type === "stringValue") {
-					concatenatedAlphaHashes += Hash.doString(attribute.value.value);
-				} else if (attribute.value.type === "integerValue") {
-					concatenatedAlphaHashes += Hash.doInt(attribute.value.value);
-				} else if (attribute.value.type === "dateValue") {
-					concatenatedAlphaHashes += Hash.doDate(new Date(attribute.value.value));
-				} else if (attribute.value.type === "integerValue") {
-					concatenatedAlphaHashes += Hash.doByteArray(attribute.value.value);
-				} else {
-					throw "Error: unknown type of alpha attribute.";
-				}
+				concatenatedAlphaHashes += hashAttribute(attribute);
 			}
 			var alphaHash = Hash.doHexStr(concatenatedAlphaHashes);
+			var betaHash = '';
 			if (includeBeta) {
-				var betaHash = "";
 				var beta = JSON.parse(JSON.stringify(post.beta.attribute).replace(/@/g, ""));
 				var concatenatedBetaHashes = ""
 				for (var i = 0; i < beta.length; i++) {
@@ -784,23 +796,11 @@
 						//thus signature must be included
 						continue;
 					}
-					if (attribute.value.type === "stringValue") {
-						concatenatedBetaHashes += Hash.doString(attribute.value.value);
-					} else if (attribute.value.type === "integerValue") {
-						concatenatedBetaHashes += Hash.doInt(attribute.value.value);
-					} else if (attribute.value.type === "dateValue") {
-						concatenatedBetaHashes += Hash.doDate(new Date(attribute.value.value));
-					} else if (attribute.value.type === "integerValue") {
-						concatenatedBetaHashes += Hash.doByteArray(attribute.value.value);
-					} else {
-						throw "Error: unknown type of beta attribute.";
-					}
+					concatenatedBetaHashes += hashAttribute(attribute);
 				}
 				betaHash = Hash.doHexStr(concatenatedBetaHashes);
-				return Hash.doHexStr(messageHash + alphaHash + betaHash);
-			} else {
-				return Hash.doHexStr(messageHash + alphaHash);
 			}
+			return Hash.doHexStr(messageHash + alphaHash + betaHash);
 		}
 	}
 
@@ -834,7 +834,7 @@
 					break;
 				default:
 					// Unsupported!
-					Console.log("Unsupported hash algorithm: '" + method + "'");
+					console.log("Unsupported hash algorithm: '" + method + "'");
 			}
 		};
 
