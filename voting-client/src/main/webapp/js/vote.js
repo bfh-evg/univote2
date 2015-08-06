@@ -40,7 +40,7 @@ var signatureGenerator;
 var encryptionKey;
 
 /**
- *
+ * Holds the election details of the voting data (ElectionDetails)
  */
 var electionDetails;
 
@@ -161,8 +161,8 @@ function retrieveElectionData() {
 		//Ajax request
 		$.ajax({
 			//url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/src/main/resources/json-examples/sub-2015/votingData.json",
-			//url: "http://uni.vote/listElection.php",
-			url: "http://uni.vote/voteElection.php",
+			url: "http://uni.vote/listElection.php",
+			//url: "http://uni.vote/voteElection.php",
 			type: 'GET',
 			accept: "application/json",
 			dataType: 'json',
