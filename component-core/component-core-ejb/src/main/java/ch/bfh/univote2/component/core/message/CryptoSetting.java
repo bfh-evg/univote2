@@ -70,7 +70,7 @@ import javax.xml.bind.annotation.XmlType;
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"encryptionSetting", "signatureSetting" , "hashSetting"})
+@XmlType(propOrder={"encryptionSetting", "signatureSetting", "hashSetting"})
 public class CryptoSetting {
 	private String encryptionSetting;
 	private String signatureSetting;

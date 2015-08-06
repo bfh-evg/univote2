@@ -43,6 +43,7 @@ package ch.bfh.univote2.component.core.message;
 
 import java.util.Date;
 import java.util.List;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -131,6 +132,24 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder = {
+	"commonName",
+	"uniqueIdentifier",
+	"organisation",
+	"organisationUnit",
+	"countryName",
+	"state",
+	"locality",
+	"surname",
+	"givenName",
+	"issuer",
+	"serialNumber",
+	"validFrom",
+	"validUntil",
+	"applicationIdentifier",
+	"roles",
+	"identityProvider",
+	"pem"})
 public class Certificate {
 
 	private String commonName;

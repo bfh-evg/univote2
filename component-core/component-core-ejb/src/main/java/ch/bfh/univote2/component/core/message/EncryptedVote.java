@@ -41,6 +41,8 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * <pre>
  * ...
@@ -57,6 +59,7 @@ package ch.bfh.univote2.component.core.message;
  * </pre>
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder={"firstValue", "secondValue"})
 public class EncryptedVote {
 	private String firstValue;
 	private String secondValue;

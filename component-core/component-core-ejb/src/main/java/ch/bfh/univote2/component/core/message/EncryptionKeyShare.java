@@ -41,6 +41,8 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * <pre>
  * {
@@ -64,6 +66,7 @@ package ch.bfh.univote2.component.core.message;
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder={"keyShare", "proof"})
 public class EncryptionKeyShare {
 	private String keyShare;
 	private Proof proof;

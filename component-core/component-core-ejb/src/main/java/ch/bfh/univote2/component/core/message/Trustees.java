@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.List;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
@@ -68,6 +69,7 @@ import java.util.List;
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder={"mixerIds", "tallierIds"})
 public class Trustees {
 
 	private List<String> mixerIds;
