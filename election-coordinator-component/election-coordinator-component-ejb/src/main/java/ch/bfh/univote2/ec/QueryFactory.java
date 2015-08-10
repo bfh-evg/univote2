@@ -51,7 +51,7 @@ import ch.bfh.uniboard.data.MessageIdentifierDTO;
 import ch.bfh.uniboard.data.OrderDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
-import ch.bfh.unicrypt.helper.MathUtil;
+import ch.bfh.unicrypt.helper.math.MathUtil;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.BetaEnum;

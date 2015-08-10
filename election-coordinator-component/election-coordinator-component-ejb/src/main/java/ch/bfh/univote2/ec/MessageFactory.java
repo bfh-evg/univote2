@@ -41,7 +41,7 @@
  */
 package ch.bfh.univote2.ec;
 
-import ch.bfh.unicrypt.helper.MathUtil;
+import ch.bfh.unicrypt.helper.math.MathUtil;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.message.AccessRight;
 import ch.bfh.univote2.component.core.message.Converter;
