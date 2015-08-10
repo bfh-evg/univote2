@@ -68,10 +68,10 @@ public class InitAction extends AbstractAction implements NotifiableAction {
 	private static final String INPUT_NAME = "InitInput";
 
 	@EJB
-	ActionManager actionManager;
+	private ActionManager actionManager;
 
 	@EJB
-	InformationService informationService;
+	private InformationService informationService;
 
 	@Override
 	@Asynchronous

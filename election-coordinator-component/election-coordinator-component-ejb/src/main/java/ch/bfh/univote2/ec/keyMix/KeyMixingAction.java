@@ -80,11 +80,11 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	private static final Logger logger = Logger.getLogger(KeyMixingAction.class.getName());
 
 	@EJB
-	ActionManager actionManager;
+	private ActionManager actionManager;
 	@EJB
-	InformationService informationService;
+	private InformationService informationService;
 	@EJB
-	UniboardService uniboardService;
+	private UniboardService uniboardService;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -180,7 +180,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			throw new UnivoteException("Invalid trustees certificates message. mixerCertificates is missing.");
 		}
 		for (Certificate c : trusteeCertificates.getMixerCertificates()) {
-
+			// TODO Implement body of loop
 		}
 
 		//TODO

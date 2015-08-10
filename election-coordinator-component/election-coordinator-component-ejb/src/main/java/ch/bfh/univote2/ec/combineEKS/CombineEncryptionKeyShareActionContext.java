@@ -54,8 +54,8 @@ import java.util.Map;
  */
 public class CombineEncryptionKeyShareActionContext extends ActionContext {
 
-	int amount = -1;
-	Map<String, BigInteger> keyShares = new HashMap<>();
+	private int amount = -1;
+	private final Map<String, BigInteger> keyShares = new HashMap<>();
 
 	public CombineEncryptionKeyShareActionContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), false);
