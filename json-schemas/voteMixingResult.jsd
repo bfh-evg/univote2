@@ -15,7 +15,7 @@
 				"additionalProperties": false
 			}
 		},
-		"proof" : { "$ref": "proofSchema.json" }
+		"proof" : { "$ref": "proof.jsd" }
 	},
 	"required": ["mixedVotes", "proof"],
 	"additionalProperties": false
