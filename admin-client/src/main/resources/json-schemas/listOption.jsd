@@ -6,8 +6,8 @@
 		"id":        { "type": "integer" },
 		"type":      { "enum": ["listOption"] },
 		"number":    { "type": "string" },
-		"listName":  { "$ref": "i18nTextSchema.json" },
-		"partyName": { "$ref": "i18nTextSchema.json" },
+		"listName":  { "$ref": "i18nText.jsd" },
+		"partyName": { "$ref": "i18nText.jsd" },
 		"candidateIds": { "type": "array", "items": { "type": "integer" } }
 	},
 	"required": ["id", "type", "listName"],
