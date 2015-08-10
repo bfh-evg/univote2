@@ -39,7 +39,7 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.init;
+package ch.bfh.univote2.trustee.parallel;
 
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TaskManager;
@@ -52,12 +52,12 @@ import javax.inject.Inject;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Named(value = "initActionBean")
+@Named(value = "parallelActionBean")
 @ViewScoped
-public class InitActionBean implements Serializable {
+public class ParallelActionBean implements Serializable {
 
 	private String notificationCode;
-	private String section;
+	private String parallelValue;
 
 	@Inject
 	TaskManager taskManager;
@@ -65,7 +65,7 @@ public class InitActionBean implements Serializable {
 	/**
 	 * Creates a new instance of InitActionBean
 	 */
-	public InitActionBean() {
+	public ParallelActionBean() {
 	}
 
 	public String getNotificationCode() {
@@ -76,23 +76,22 @@ public class InitActionBean implements Serializable {
 		this.notificationCode = notificationCode;
 	}
 
-	public String getSection() {
-		return section;
+	public String getParallelValue() {
+		return parallelValue;
 	}
 
-	public void setSection(String section) {
-		this.section = section;
+	public void setParallelValue(String parallelValue) {
+		this.parallelValue = parallelValue;
 	}
 
 	public String sendInput() {
-		InitUserInput userInput = new InitUserInput(section);
+		ParallelUserInput userInput = new ParallelUserInput(parallelValue);
 		try {
 			this.taskManager.userInputReceived(notificationCode, userInput);
 		} catch (UnivoteException ex) {
-			System.out.println(ex.getMessage());
 			return "";
 		}
-		return "tasks.xhtml";
+		return "/secured/tasks";
 	}
 
 }
