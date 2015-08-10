@@ -102,7 +102,7 @@ function retrieveElectionData() {
 	var successCB = function (resultContainer) {
 
 		// TODO @DEV
-		if (!mock) {
+		if (!uvConfig.MOCK) {
 			if (!uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true)) {
 				processFatalError(msg.signatureError);
 				return;
@@ -153,9 +153,7 @@ function retrieveElectionData() {
 		processFatalError(msg.retreiveElectionDataError);
 	};
 
-	// TODO @DEV
-	var mock = false;
-	if (!mock) {
+	if (!uvConfig.MOCK) {
 		UniBoard.GET(query, successCB, errorCB);
 	} else {
 		//Ajax request

@@ -114,10 +114,10 @@ function retrieveElections() {
 				$item = $('<div class="row upcoming"><div class="small-12 columns"><span>' + administration + '</span><br />' + title + '</div></div>');
 				if (new Date(message.votingPeriodBegin).getTime() <= now) {
 					//Current election
-					$item.append('<div class="medium-4 columns"><a href="vote.xhtml?electionId=' + electionId + '" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div><div class="medium-8 columns"></div>');
+					$item.append('<div class="medium-4 columns end"><a href="vote.xhtml?electionId=' + electionId + '" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div>');
 				} else {
 					//Future election
-					$item.append('<div class="medium-4 columns"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div><div class="medium-8 columns"></div>');
+					$item.append('<div class="medium-4 columns end"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div>');
 				}
 				$(elements.currentElectionsList).append($item);
 			} else {
