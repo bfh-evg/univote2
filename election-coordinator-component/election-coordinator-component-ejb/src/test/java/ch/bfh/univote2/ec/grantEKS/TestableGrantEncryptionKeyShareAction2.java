@@ -87,7 +87,8 @@ public class TestableGrantEncryptionKeyShareAction2 extends GrantEncryptionKeySh
 	}
 
 	@Override
-	protected void parseTrusteeCerts(TrusteeCertificates trusteeCertificates, GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
+	protected void parseTrusteeCerts(TrusteeCertificates trusteeCertificates,
+			GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
 		if (parseTCThrow) {
 			throw new UnivoteException("Test");
 		}
@@ -96,7 +97,8 @@ public class TestableGrantEncryptionKeyShareAction2 extends GrantEncryptionKeySh
 	@Override
 	protected void retrieveTalliers(GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
 		try {
-			actionContext.getTalliers().add(new AccessRightCandidate(new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE)));
+			actionContext.getTalliers().add(new AccessRightCandidate(new DSAPublicKey(BigInteger.ONE, BigInteger.ONE,
+					BigInteger.ONE, BigInteger.ONE)));
 		} catch (InvalidKeyException ex) {
 
 		}

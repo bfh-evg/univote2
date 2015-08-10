@@ -41,7 +41,6 @@
  */
 package ch.bfh.univote2.ec.pubTC;
 
-import ch.bfh.univote2.ec.UniboardServiceMock;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -50,15 +49,16 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.ec.ActionManagerMock;
 import ch.bfh.univote2.ec.InformationServiceMock;
+import ch.bfh.univote2.ec.UniboardServiceMock;
 import java.nio.charset.Charset;
 import javax.ejb.EJB;
-import static junit.framework.Assert.assertEquals;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -92,13 +92,13 @@ public class PublishTrusteeCertsActionTest {
 	}
 
 	@EJB
-	UniboardServiceMock uniboardServiceMock;
+	private UniboardServiceMock uniboardServiceMock;
 
 	@EJB
-	NotifiableAction publishTrusteeCertsAction;
+	private NotifiableAction publishTrusteeCertsAction;
 
 	@EJB
-	ActionManagerMock actionManagerMock;
+	private ActionManagerMock actionManagerMock;
 
 	/**
 	 * Test of prepareContext with trusteesCerts published

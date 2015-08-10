@@ -96,13 +96,13 @@ public class GrantEncryptionKeyShareAction1Test {
 	}
 
 	@EJB
-	UniboardServiceMock uniboardServiceMock;
+	private UniboardServiceMock uniboardServiceMock;
 
 	@EJB
-	TestableGrantEncryptionKeyShareAction1 grantEKSAction;
+	private TestableGrantEncryptionKeyShareAction1 grantEKSAction;
 
 	@EJB
-	ActionManagerMock actionManagerMock;
+	private ActionManagerMock actionManagerMock;
 
 	/**
 	 * Test grantAccessRight working
