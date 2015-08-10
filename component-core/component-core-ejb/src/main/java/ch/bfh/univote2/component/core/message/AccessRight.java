@@ -149,7 +149,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder = {"group", "crypto", "amount", "startTime", "endTime"})
+@XmlType(propOrder={"group", "crypto", "amount" , "startTime", "endTime"})
 public class AccessRight {
 
 	private String group;

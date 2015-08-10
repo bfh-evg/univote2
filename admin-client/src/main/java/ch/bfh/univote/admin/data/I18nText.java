@@ -6,10 +6,10 @@ public class I18nText {
 
     @XmlElement(name = "default")
     private String defaultText;
-    private String german;
-    private String french;
-    private String italien;
-    private String english;
+    private String de;
+    private String fr;
+    private String it;
+    private String en;
 
     public I18nText() {
     }
@@ -18,12 +18,12 @@ public class I18nText {
 	this.defaultText = defaultText;
     }
 
-    public I18nText(String defaultText, String german, String french, String italien, String english) {
+    public I18nText(String defaultText, String de, String fr, String it, String en) {
 	this.defaultText = defaultText;
-	this.german = german;
-	this.french = french;
-	this.italien = italien;
-	this.english = english;
+	this.de = de;
+	this.fr = fr;
+	this.it = it;
+	this.en = en;
     }
 
     public String getDefault() {
@@ -34,35 +34,35 @@ public class I18nText {
 	this.defaultText = defaultText;
     }
 
-    public String getGerman() {
-	return german;
+    public String getDe() {
+	return de;
     }
 
-    public void setGerman(String german) {
-	this.german = german;
+    public void setDe(String de) {
+	this.de = de;
     }
 
-    public String getFrench() {
-	return french;
+    public String getFr() {
+	return fr;
     }
 
-    public void setFrench(String french) {
-	this.french = french;
+    public void setFr(String fr) {
+	this.fr = fr;
     }
 
-    public String getItalien() {
-	return italien;
+    public String getIt() {
+	return it;
     }
 
-    public void setItalien(String italien) {
-	this.italien = italien;
+    public void setIt(String it) {
+	this.it = it;
     }
 
-    public String getEnglish() {
-	return english;
+    public String getEn() {
+	return en;
     }
 
-    public void setEnglish(String english) {
-	this.english = english;
+    public void setEn(String en) {
+	this.en = en;
     }
 }

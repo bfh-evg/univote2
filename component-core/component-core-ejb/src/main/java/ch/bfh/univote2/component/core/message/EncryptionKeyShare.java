@@ -41,10 +41,32 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlType;
+
 /**
+ * <pre>
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of an encrytpion key share",
+ *	"type": "object",
+ *	"properties": {
+ *		"keyShare": {
+ *			"description": "Key share of the encryption key",
+ *			"type": "string"
+ *		},
+ *		"proof": {
+ *			"description": "ZKP for DL",
+ *			"$ref": "proofSchema.json"
+ *		}
+ *	},
+ *	"required": ["keyShare, proof"],
+ *	"additionalProperties": false
+ * }
+ * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder={"keyShare", "proof"})
 public class EncryptionKeyShare {
 	private String keyShare;
 	private Proof proof;

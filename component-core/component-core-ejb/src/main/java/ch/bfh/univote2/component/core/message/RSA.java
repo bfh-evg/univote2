@@ -66,7 +66,7 @@ import javax.xml.bind.annotation.XmlType;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@XmlType(name = "RSA", propOrder = {"publickey"})
+@XmlType(name="RSA", propOrder = {"publickey"})
 public class RSA extends Crypto {
 
 	public RSA() {

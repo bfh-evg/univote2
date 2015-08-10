@@ -42,11 +42,38 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.List;
+import javax.xml.bind.annotation.XmlType;
 
 /**
+ * <pre>
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of trustees certificates",
+ *	"type": "object",
+ *	"properties": {
+ *		"mixerCertificates": {
+ *			"description": "Certificates of the mixers",
+ *			"type": "array",
+ *			"items": {
+ *				"$ref": "certificateSchema.json"
+ *			}
+ *		},
+ *		"tallierCertificates": {
+ *			"description": "Certificates of the talliers",
+ *			"type": "array",
+ *			"items": {
+ *				"$ref": "certificateSchema.json"
+ *			}
+ *		}
+ *	},
+ *	"required": ["mixerCertificates", "tallierCertificates"],
+ *	"additionalProperties": false
+ * }
+ * </pre>
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
+@XmlType(propOrder={"mixerCertificates", "tallierCertificates"})
 public class TrusteeCertificates {
 
 	private List<Certificate> mixerCertificates;
@@ -75,5 +102,4 @@ public class TrusteeCertificates {
 	public void setTallierCertificates(List<Certificate> tallierCertificates) {
 		this.tallierCertificates = tallierCertificates;
 	}
-
 }

@@ -45,46 +45,39 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
- * ...
- * 		"encryptedVote": {
- *			"description": "ElGamal encryption of a vote",
- *			"type": "object",
- *			"properties": {
- *				"firstValue":  { "type": "string" },
- *				"secondValue": { "type": "string" }
- *			},
- *			"required": ["firstValue", "secondValue"]
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of an encrytpion key",
+ *	"type": "object",
+ *	"properties": {
+ *		"encryptionKey": {
+ *			"description": "Encryption key",
+ *			"type": "string"
  *		}
- * ...
+ *	},
+ *	"required": ["encryptionKey"],
+ *	"additionalProperties": false
+ * }
  * </pre>
+ *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"firstValue", "secondValue"})
-public class EncryptedVote {
-	private String firstValue;
-	private String secondValue;
+@XmlType(propOrder={"encryptionKey"}) // probably superfluous
+public class EncryptionKey {
+	private String encryptionKey;
 
-	public EncryptedVote() {
+	public EncryptionKey() {
 	}
 
-	public EncryptedVote(String firstValue, String secondValue) {
-		this.firstValue = firstValue;
-		this.secondValue = secondValue;
+	public EncryptionKey(String encryptionKey) {
+		this.encryptionKey = encryptionKey;
 	}
 
-	public String getFirstValue() {
-		return firstValue;
+	public String getEncryptionKey() {
+		return encryptionKey;
 	}
 
-	public void setFirstValue(String firstValue) {
-		this.firstValue = firstValue;
-	}
-
-	public String getSecondValue() {
-		return secondValue;
-	}
-
-	public void setSecondValue(String secondValue) {
-		this.secondValue = secondValue;
+	public void setEncryptionKey(String encryptionKey) {
+		this.encryptionKey = encryptionKey;
 	}
 }

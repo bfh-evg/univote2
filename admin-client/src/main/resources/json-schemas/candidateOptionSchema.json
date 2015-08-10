@@ -10,8 +10,8 @@
 		"firstName":     { "type": "string" },
 		"sex":           { "enum": ["M", "F"] },
 		"yearOfBirth":   { "type": "integer", "minimum": 1900, "maximum": 2100 },
-		"studyBranch":   { "type": "string" },
-		"studyDegree":   { "type": "string" },
+		"studyBranch":   { "$ref": "i18nTextSchema.json" },
+		"studyDegree":   { "$ref": "i18nTextSchema.json" },
 		"studySemester": { "type": "integer", "minimum": 1, "maximum": 20 },
 		"status":        { "enum": ["OLD", "NEW"] }
 	},

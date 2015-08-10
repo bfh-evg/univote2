@@ -41,50 +41,61 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
- * ...
- * 		"encryptedVote": {
- *			"description": "ElGamal encryption of a vote",
- *			"type": "object",
- *			"properties": {
- *				"firstValue":  { "type": "string" },
- *				"secondValue": { "type": "string" }
- *			},
- *			"required": ["firstValue", "secondValue"]
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a trustees message",
+ *	"type": "object",
+ *	"properties": {
+ *		"mixerIds": {
+ *			"description": "Identifiers of the mixers",
+ *			"type": "array",
+ *			"items": { "type": "string" }
+ *		},
+ *		"tallierIds": {
+ *			"description": "Identifiers of the talliers",
+ *			"type": "array",
+ *			"items": { "type": "string" }
  *		}
- * ...
+ *	},
+ *	"required": ["mixerIds", "tallierIds"],
+ *	"additionalProperties": false
+ * }
  * </pre>
+ *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"firstValue", "secondValue"})
-public class EncryptedVote {
-	private String firstValue;
-	private String secondValue;
+@XmlType(propOrder={"mixerIds", "tallierIds"})
+public class Trustees {
 
-	public EncryptedVote() {
+	private List<String> mixerIds;
+	private List<String> tallierIds;
+
+	public Trustees() {
 	}
 
-	public EncryptedVote(String firstValue, String secondValue) {
-		this.firstValue = firstValue;
-		this.secondValue = secondValue;
+	public Trustees(List<String> mixerIds, List<String> tallierIds) {
+		this.mixerIds = mixerIds;
+		this.tallierIds = tallierIds;
 	}
 
-	public String getFirstValue() {
-		return firstValue;
+	public List<String> getMixerIds() {
+		return mixerIds;
 	}
 
-	public void setFirstValue(String firstValue) {
-		this.firstValue = firstValue;
+	public void setMixerIds(List<String> mixerIds) {
+		this.mixerIds = mixerIds;
 	}
 
-	public String getSecondValue() {
-		return secondValue;
+	public List<String> getTallierIds() {
+		return tallierIds;
 	}
 
-	public void setSecondValue(String secondValue) {
-		this.secondValue = secondValue;
+	public void setTallierIds(List<String> tallierIds) {
+		this.tallierIds = tallierIds;
 	}
 }

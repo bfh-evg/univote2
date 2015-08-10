@@ -6,14 +6,14 @@ public class ListOption extends ElectionOption {
 
     private Integer id;
     private String number;
-    private String listName;
-    private String partyName;
+    private I18nText listName;
+    private I18nText partyName;
     private List<Integer> candidateIds;
 
     public ListOption() {
     }
 
-    public ListOption(Integer id, String number, String listName, String partyName, List<Integer> candidateIds) {
+    public ListOption(Integer id, String number, I18nText listName, I18nText partyName, List<Integer> candidateIds) {
 	this.id = id;
 	this.number = number;
 	this.listName = listName;
@@ -37,19 +37,19 @@ public class ListOption extends ElectionOption {
 	this.number = number;
     }
 
-    public String getListName() {
+    public I18nText getListName() {
 	return listName;
     }
 
-    public void setListName(String listName) {
+    public void setListName(I18nText listName) {
 	this.listName = listName;
     }
 
-    public String getPartyName() {
+    public I18nText getPartyName() {
 	return partyName;
     }
 
-    public void setPartyName(String partyName) {
+    public void setPartyName(I18nText partyName) {
 	this.partyName = partyName;
     }
 

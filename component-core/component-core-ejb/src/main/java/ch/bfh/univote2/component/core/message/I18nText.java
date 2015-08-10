@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
@@ -62,6 +63,7 @@ import javax.xml.bind.annotation.XmlElement;
  * </pre>
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder={"default", "defaultText", "german" , "french", "italian", "english"})
 public class I18nText {
 	@XmlElement(name = "default")
 	private String defaultText;

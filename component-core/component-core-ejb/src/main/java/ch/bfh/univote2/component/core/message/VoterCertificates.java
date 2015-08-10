@@ -41,50 +41,40 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
- * ...
- * 		"encryptedVote": {
- *			"description": "ElGamal encryption of a vote",
- *			"type": "object",
- *			"properties": {
- *				"firstValue":  { "type": "string" },
- *				"secondValue": { "type": "string" }
- *			},
- *			"required": ["firstValue", "secondValue"]
- *		}
- * ...
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of voter certificates",
+ *	"type": "array",
+ *	"items": {
+ *		"$ref": "certificateSchema.json"
+ *	}
+ * }
  * </pre>
+ *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"firstValue", "secondValue"})
-public class EncryptedVote {
-	private String firstValue;
-	private String secondValue;
+@XmlType(propOrder={"voterCertificates"})
+public class VoterCertificates {
 
-	public EncryptedVote() {
+	private List<Certificate> voterCertificates;
+
+	public VoterCertificates() {
 	}
 
-	public EncryptedVote(String firstValue, String secondValue) {
-		this.firstValue = firstValue;
-		this.secondValue = secondValue;
+	public VoterCertificates(List<Certificate> voterCertificates) {
+		this.voterCertificates = voterCertificates;
 	}
 
-	public String getFirstValue() {
-		return firstValue;
+	public List<Certificate> getVoterCertificates() {
+		return voterCertificates;
 	}
 
-	public void setFirstValue(String firstValue) {
-		this.firstValue = firstValue;
-	}
-
-	public String getSecondValue() {
-		return secondValue;
-	}
-
-	public void setSecondValue(String secondValue) {
-		this.secondValue = secondValue;
+	public void setVoterCertificates(List<Certificate> voterCertificates) {
+		this.voterCertificates = voterCertificates;
 	}
 }

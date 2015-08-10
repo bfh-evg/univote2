@@ -41,50 +41,27 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import javax.xml.bind.annotation.XmlType;
-
 /**
  * <pre>
- * ...
- * 		"encryptedVote": {
- *			"description": "ElGamal encryption of a vote",
- *			"type": "object",
- *			"properties": {
- *				"firstValue":  { "type": "string" },
- *				"secondValue": { "type": "string" }
- *			},
- *			"required": ["firstValue", "secondValue"]
- *		}
- * ...
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a mixing request to mix public keys",
+ *	"type": "object",
+ *	"properties": {
+ *		"mixerId": { "type": "string" },
+ *		"keys":  {
+ *			"type": "array",
+ *			"items": { "type": "string"}
+ *		},
+ *		"generator" : { "type": "string" }
+ *	},
+ *	"required": ["mixerId", "keys", "generator"],
+ *	"additionalProperties": false
+ * }
  * </pre>
+ *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"firstValue", "secondValue"})
-public class EncryptedVote {
-	private String firstValue;
-	private String secondValue;
-
-	public EncryptedVote() {
-	}
-
-	public EncryptedVote(String firstValue, String secondValue) {
-		this.firstValue = firstValue;
-		this.secondValue = secondValue;
-	}
-
-	public String getFirstValue() {
-		return firstValue;
-	}
-
-	public void setFirstValue(String firstValue) {
-		this.firstValue = firstValue;
-	}
-
-	public String getSecondValue() {
-		return secondValue;
-	}
-
-	public void setSecondValue(String secondValue) {
-		this.secondValue = secondValue;
-	}
+public class KeyMixingRequest {
+	// TODO provide an implementation...
 }

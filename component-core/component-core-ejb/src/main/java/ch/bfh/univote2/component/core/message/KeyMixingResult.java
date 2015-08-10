@@ -41,50 +41,66 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
- * ...
- * 		"encryptedVote": {
- *			"description": "ElGamal encryption of a vote",
- *			"type": "object",
- *			"properties": {
- *				"firstValue":  { "type": "string" },
- *				"secondValue": { "type": "string" }
- *			},
- *			"required": ["firstValue", "secondValue"]
- *		}
- * ...
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a mixing result of mixed public keys",
+ *	"type": "object",
+ *	"properties": {
+ *		"mixedKeys":  {
+ *			"type": "array",
+ *			"items": { "type": "string"}
+ *		},
+ *		"generator" : { "type": "string" },
+ *		"proof" : { "$ref": "proofSchema.json" }
+ *	},
+ *	"required": ["mixedKeys", "generator", "proof"],
+ *	"additionalProperties": false
+ * }
  * </pre>
+ *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"firstValue", "secondValue"})
-public class EncryptedVote {
-	private String firstValue;
-	private String secondValue;
+@XmlType(propOrder={"mixedKeys", "generator", "proof"})
+public class KeyMixingResult {
+	private List<String> mixedKeys;
+	private String generator;
+	private Proof proof;
 
-	public EncryptedVote() {
+	public KeyMixingResult() {
 	}
 
-	public EncryptedVote(String firstValue, String secondValue) {
-		this.firstValue = firstValue;
-		this.secondValue = secondValue;
+	public KeyMixingResult(List<String> mixedKeys, String generator, Proof proof) {
+		this.mixedKeys = mixedKeys;
+		this.generator = generator;
+		this.proof = proof;
 	}
 
-	public String getFirstValue() {
-		return firstValue;
+	public List<String> getMixedKeys() {
+		return mixedKeys;
 	}
 
-	public void setFirstValue(String firstValue) {
-		this.firstValue = firstValue;
+	public void setMixedKeys(List<String> mixedKeys) {
+		this.mixedKeys = mixedKeys;
 	}
 
-	public String getSecondValue() {
-		return secondValue;
+	public String getGenerator() {
+		return generator;
 	}
 
-	public void setSecondValue(String secondValue) {
-		this.secondValue = secondValue;
+	public void setGenerator(String generator) {
+		this.generator = generator;
+	}
+
+	public Proof getProof() {
+		return proof;
+	}
+
+	public void setProof(Proof proof) {
+		this.proof = proof;
 	}
 }

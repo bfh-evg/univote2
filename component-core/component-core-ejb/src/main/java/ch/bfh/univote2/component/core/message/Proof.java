@@ -41,13 +41,27 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * <pre>
- * TO BE PROVIDED...
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a cryptographic proof",
+ *	"type": "object",
+ *	"properties": {
+ *		"commitment": { "type": "string" },
+ *		"challenge":  { "type": "string" },
+ *		"response":   { "type": "string" }
+ *	},
+ *	"required": ["commitment", "challenge", "response"],
+ *	"additionalProperties": false
+ * }
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder={"commitment", "challenge", "response"})
 public class Proof {
 	private String commitment;
 	private String challenge;

@@ -96,5 +96,4 @@ public class Converter {
 		marshaller.marshal(object, writer);
 		return writer.toString();
 	}
-
 }
