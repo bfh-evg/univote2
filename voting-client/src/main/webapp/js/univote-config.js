@@ -19,21 +19,21 @@
 		/**
 		 * The urls of the certificate authority.
 		 */
-		//this.URL_UNICERT_CERTIFICATE_AUTHORITY = 'https://urd.bfh.ch/unicert-authentication/certificate-request/';
-		this.URL_UNICERT_CERTIFICATE_AUTHORITY = 'http://uni.vote/certificate-request.php';
-		//this.URL_PARAMETERS = 'https://urd.bfh.ch/voting-client2/parameters/';
-		this.URL_PARAMETERS = 'http://localhost:9080/voting-client2/parameters/';
+		this.URL_UNICERT_CERTIFICATE_AUTHORITY = '/unicert-authentication/certificate-request/';
+		//this.URL_UNICERT_CERTIFICATE_AUTHORITY = 'http://uni.vote/certificate-request.php';
+		this.URL_PARAMETERS = 'voting-client2/parameters/';
+		//this.URL_PARAMETERS = 'http://localhost:9080/voting-client2/parameters/';
 
 		/**
 		 * The url of the public board.
 		 */
-		//this.URL_UNIBOARD_GET = 'https://urd.bfh.ch/uniboard/messages/query';
+		this.URL_UNIBOARD_GET = '/uniboard/messages/query';
 		//this.URL_UNIBOARD_GET = 'http://urd.bfh.ch:9080/bfh-restservice-mock/messages/query'; //For 9000 domain
-		this.URL_UNIBOARD_GET = 'http://uni.vote/elections.php';
+		//this.URL_UNIBOARD_GET = 'http://uni.vote/elections.php';
 
-		//this.URL_UNIBOARD_POST = 'https://urd.bfh.ch/uniboard/messages/post';
+		this.URL_UNIBOARD_POST = '/uniboard/messages/post';
 		//this.URL_UNIBOARD_POST = 'http://urd.bfh.ch:9080/bfh-restservice-mock/messages/post'; //For 9000 domain
-		this.URL_UNIBOARD_POST = 'http://uni.vote/uniBoardPOST.php';
+		//this.URL_UNIBOARD_POST = 'http://uni.vote/uniBoardPOST.php';
 
 		/**
 		 * The home site.

@@ -7,14 +7,14 @@
 			"description": "Certificates of the mixers",
 			"type": "array",
 			"items": {
-				"$ref": "certificateSchema.json"
+				"$ref": "certificate.jsd"
 			}
 		},
 		"tallierCertificates": {
 			"description": "Certificates of the talliers",
 			"type": "array",
 			"items": {
-				"$ref": "certificateSchema.json"
+				"$ref": "certificate.jsd"
 			}
 		}
 	},

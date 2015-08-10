@@ -31,11 +31,11 @@ function showHelp() {
 		message: '<div id="help-box">' +
 				'<h2>' + msg.helpBoxTitle + '</h2>' +
 				'<p>' + msg.helpBoxText + '</p>' +
-				'<form action="" name="help"><div><span>' + msg.helpBoxEmail + '</span><input type="text" name="email" id="email"/>' +
+				'<form action="" name="help"><div><span>' + msg.helpBoxEmail + '</span><input type="email" name="email" id="email"/>' +
 				'<span>' + msg.helpBoxMessage + '</span><textarea name="message" id="message"></textarea>' +
 				'<span class="tiny">' + msg.helpBoxMessageAdds + '</span>' +
-				'<button class="button radius" onclick="$.unblockUI(); return false;">' + msg.close + '</button>' +
-				'<button class="button radius" onclick="return submitHelpForm($(\'#email\').val(),$(\'#message\').val());">' + msg.helpBoxSubmit + '</button>' + '</div></form>' +
+				'<button class="button radius" onclick="$.unblockUI(); return false;">' + msg.cancel + '</button>' +
+				'<button class="button radius" onclick="return submitHelpForm();">' + msg.helpBoxSubmit + '</button>' + '</div></form>' +
 				'</div>',
 		css: {top: '20%', left: '20%', width: '60%'}
 	});
@@ -46,8 +46,21 @@ function showHelp() {
 /**
  * Submits the help form.
  */
-function submitHelpForm(email, message) {
-	var dataString = 'email=' + email + '&message=' + message + '&useragent=' + navigator.userAgent;
+function submitHelpForm() {
+	var $email = $('#email');
+	var $message = $('#message');
+	if ($email.val() == '') {
+		$email.addClass('required');
+		$message.removeClass('required');
+		return false;
+	}
+	if ($message.val() == '') {
+		$message.addClass('required');
+		$email.removeClass('required');
+		return false;
+	}
+
+	var dataString = 'email=' + $email.val() + '&message=' + $message.val() + '&useragent=' + navigator.userAgent;
 	$.unblockUI();
 	$.blockUI({
 		message: '<p>' + msg.helpBoxWait + '</p>'

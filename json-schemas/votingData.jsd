@@ -5,15 +5,15 @@
 	"properties": {
 		"definition": {
 			"description": "Election definition",
-			"$ref": "electionDefinitionSchema.json"
+			"$ref": "electionDefinition.jsd"
 		},
 		"details": {
 			"description": "Election details",
-			"$ref": "electionDetailsSchema.json"
+			"$ref": "electionDetails.jsd"
 		},
 		"cryptoSetting": {
 			"description": "Crypto setting (encryption, signature, hashing)",
-			"$ref": "cryptoSettingSchema.json"
+			"$ref": "cryptoSetting.jsd"
 		},
 		"encryptionKey": {
 			"description": "Encryption key (decimal notation)",

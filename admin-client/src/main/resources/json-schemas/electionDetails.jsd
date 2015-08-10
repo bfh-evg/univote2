@@ -6,17 +6,17 @@
 		"options": {
 			"description": "Election options",
 			"type": "array",
-			"items": { "$ref": "electionOptionSchema.json" }
+			"items": { "$ref": "electionOption.jsd" }
 		},
 		"rules": {
 			"description": "Election rules",
 			"type": "array",
-			"items": { "$ref": "electionRuleSchema.json" }
+			"items": { "$ref": "electionRule.jsd" }
 		},
 		"issues": {
 			"description": "Election issues",
 			"type": "array",
-			"items": { "$ref": "electionIssueSchema.json" }
+			"items": { "$ref": "electionIssue.jsd" }
 		},
 		"ballotEncoding": {
 			"description": "Identifier of the ballot encoding scheme",

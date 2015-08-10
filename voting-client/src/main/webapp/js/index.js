@@ -106,21 +106,25 @@ function retrieveElections() {
 		for (var index in posts) {
 			var message = JSON.parse(B64.decode(posts[index].message));
 			var electionId = posts[index].alpha.attribute[0].value.value;
-			var administration = (message.administration != undefined) ? getLocalizedText(message.administration) : '';
-			var title = getLocalizedText(message.title);
+			var administration = (message.administration != undefined) ? __(message.administration) : '';
+			var title = __(message.title);
 			var now = new Date().getTime();
-			if (new Date(message.votingPeriodBegin).getTime() <= now) {
-				if (new Date(message.votingPeriodEnd).getTime() >= now) {
+			var $item = null;
+			if (new Date(message.votingPeriodEnd).getTime() >= now) {
+				$item = $('<div class="row upcoming"><div class="small-12 columns"><span>' + administration + '</span><br />' + title + '</div></div>');
+				if (new Date(message.votingPeriodBegin).getTime() <= now) {
 					//Current election
-					$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="vote.xhtml?electionId=' + electionId + '" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + administration + '</span><br />' + title + '</div></div>');
+					$item.append('<div class="medium-4 columns"><a href="vote.xhtml?electionId=' + electionId + '" class="button radius gradient icon-right-dir">' + msg.goVote + '</a></div><div class="medium-8 columns"></div>');
 				} else {
-					//Past election
-					$(elements.pastElectionsList).append('<dd><i class="red icon-right-dir"></i>' + administration + (administration != '' ? ': ' : '') + title + '</dd>');
+					//Future election
+					$item.append('<div class="medium-4 columns"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div><div class="medium-8 columns"></div>');
 				}
+				$(elements.currentElectionsList).append($item);
 			} else {
-				//Future election
-				$(elements.currentElectionsList).append('<div class="row upcoming"><div class="medium-4 columns"><a href="#" class="button radius icon-right-dir disabled">' + msg.goVote + '</a></div><div class="medium-8 columns"><span>' + administration + '</span><br />' + title + '</div></div>');
+				//Past election
+				$(elements.pastElectionsList).append('<dd><i class="red icon-right-dir"></i>' + administration + (administration != '' ? ': ' : '') + title + '</dd>');
 			}
+
 		}
 
 		// Show containers

@@ -3,6 +3,6 @@
 	"title": "UniVote2: Schema of voter certificates",
 	"type": "array",
 	"items": {
-		"$ref": "certificateSchema.json"
+		"$ref": "certificate.jsd"
 	}
 }
