@@ -10,18 +10,10 @@
 				"firstValue":  { "type": "string" },
 				"secondValue": { "type": "string" }
 			},
-			"required": ["firstValue", "secondValue"]
+			"required": ["firstValue", "secondValue"],
+			"additionalProperties": false
 		},	
-		"proof": {
-			"description": "Encryption proof",
-			"type": "object",
-			"properties": {
-				"commitment": { "type": "string" },
-				"challenge":  { "type": "string" },
-				"response":   { "type": "string" }
-			},
-			"required": ["commitment", "challenge", "response"]
-		}
+		"proof": { "$ref": "proofSchema.json" }
 	},
 	"required": ["encryptedVote", "proof"],
 	"additionalProperties": false

@@ -1,0 +1,14 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of the voter roll",
+	"type": "object",
+	"properties": {
+		"voterIds": {
+			"description": "Ids of the eligible voters",
+			"type": "array",
+			"items": { "type": "string" }
+		}
+	},
+	"required": ["voterIds"],
+	"additionalProperties": false
+}

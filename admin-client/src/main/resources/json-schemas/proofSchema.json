@@ -1,0 +1,12 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a cryptographic proof",
+	"type": "object",
+	"properties": {
+		"commitment": { "type": "string" },
+		"challenge":  { "type": "string" },
+		"response":   { "type": "string" }
+	},
+	"required": ["commitment", "challenge", "response"],
+	"additionalProperties": false
+}

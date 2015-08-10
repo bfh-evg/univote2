@@ -4,10 +4,10 @@
 	"type": "object",
 	"properties": {
 		"default": { "type": "string" },
-		"german":  { "type": "string" },
-		"french":  { "type": "string" },
-		"italien": { "type": "string" },
-		"english": { "type": "string" }
+		"de": { "type": "string" },
+		"fr": { "type": "string" },
+		"it": { "type": "string" },
+		"en": { "type": "string" }
 	},
 	"required": ["default"],
 	"additionalProperties": true
