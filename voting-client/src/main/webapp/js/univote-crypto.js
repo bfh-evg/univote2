@@ -423,10 +423,9 @@
 		 *
 		 * @param key - Encrypted and padded secret key as string.
 		 * @param password - The password used for encryption.
-		 * @param errorCb - Callback to notify errors (type of error is passed as string).
-		 * @return Secret key as bigInt.
+		 * @return Secret key as bigInt or false on error.
 		 */
-		this.decryptSecretKeyAES = function (key, password, errorCb) {
+		this.decryptSecretKeyAES = function (key, password) {
 
 			// Cleans a string (removes all special charaters but =, -, _, +, /)
 			function cleanStr(str) {
@@ -467,7 +466,7 @@
 			pattern = new RegExp(uvConfig.PRIVATE_KEY_PREFIX + "([0-9A-Za-z=_+/]*)" + uvConfig.PRIVATE_KEY_POSTFIX);
 			match = pattern.exec(decrypted);
 			if (match == null || match.length != 2) {
-				return errorCb('wrongPassword');
+				return false;
 			}
 
 			// 7. Finally return sk in leemon base 16 format
@@ -514,19 +513,6 @@
 
 			return this.decryptSecretKeyAES(key, password, errorCb);
 		};
-
-
-		/**
-		 * Removes leading and trailing spaces and line breaks from a string.
-		 *
-		 * @param str - The string to trim.
-		 * @return The trimmed string.
-		 */
-		function trim(str) {
-			return str.replace(/^[\s\n\r]+|[\s\n\r]+$/g, '');
-		}
-
-
 
 
 		////////////////////////////////////////////////////////////////////////

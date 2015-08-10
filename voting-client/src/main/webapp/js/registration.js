@@ -240,12 +240,16 @@ function retrieveData(params) {
  */
 function gotoStep21() {
 	$('.substep').removeClass('active done');
-	$('#substep_2_1').addClass('active');
+	$(elements.substep21).addClass('active');
 	$(elements.manualSetup).hide();
 	elements.generateKeyButton.disabled = true;
+	$(elements.generateKeyButton).addClass('gradient');
 	elements.password.disabled = true;
+	elements.password.value = '';
 	elements.password2.disabled = true;
+	elements.password2.value = '';
 	elements.retreiveSecretKeyButton.disabled = true;
+	elements.secretKey.value = '';
 }
 
 /**
@@ -327,45 +331,35 @@ function generateKeyPair() {
 
 	var sk = null;
 
+	var done = function () {
+		// Display secret key to the voter and unblock UI
+		elements.secretKey.value = leemon.bigInt2str(secretKey, skBaseTextField);
+		$.unblockUI();
+
+		// Enable/disable next substep
+		$(elements.generateKeyButton).removeClass('gradient');
+		$(elements.substep22).removeClass('active').addClass('done');
+		$(elements.substep221).animate({opacity: 1}, FAST);
+		$(elements.substep23).addClass('active');
+		elements.password.disabled = false;
+		elements.password2.disabled = false;
+	};
+
 	// Done callback of verification key computation
 	var doneCbDlog = function (vk) {
 		// Store keys
 		secretKey = sk;
 		publicKey = vk;
-
-		// Display secret key to the voter and unblock UI
-		elements.secretKey.value = leemon.bigInt2str(secretKey, skBaseTextField);
-
-
-		$.unblockUI();
-
-		// Enable/disable next substep
-		$(elements.substep22).removeClass('active').addClass('done');
-		$(elements.substep221).animate({opacity: 1}, FAST);
-		$(elements.substep23).addClass('active');
-		elements.password.disabled = false;
-		elements.password2.disabled = false;
-
+		done();
 	};
 
 	// Done callback of keys computation
 	var doneCbRSA = function (keys) {
-
+		// Store keys
 		secretKey = keys[0];
 		publicKey = keys[1];
 		modulo = keys[2];
-
-		elements.secretKey.value = leemon.bigInt2str(secretKey, skBaseTextField);
-
-		$.unblockUI();
-
-		// Enable/disable next substep
-		$(elements.substep22).removeClass('active').addClass('done');
-		$(elements.substep221).animate({opacity: 1}, FAST);
-		$(elements.substep23).addClass('active');
-		elements.password.disabled = false;
-		elements.password2.disabled = false;
-
+		done();
 	};
 
 	// Update callback of verification key computation

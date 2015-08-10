@@ -232,7 +232,7 @@ a.button, .arrow_box {
 }
 .arrow_box { padding-left: rem-calc(10); }
 
-button.gradient { padding-top:rem-calc(10); padding-left:0; height: 2.5em; text-align: left; font-family: MuseoSlab-700;    }
+button.gradient { padding-top:rem-calc(10); padding-left:0; height: 2.5em; text-align: left; font-family: MuseoSlab-700; }
 a.gradient, a.button.active, button.gradient, button.active, div.gradient { @include gradient; }
 .arrow_box:hover { background-color: $primary-color; }
 button.gradient:hover, a.button:hover { @include background-image(linear-gradient(left,  $darkred 0%, black 100%)); }
@@ -264,9 +264,11 @@ a.button.disabled, button[disabled] {color: $silver !important; background-color
 
 // form stuff
 form {
-	button.gradient { width: 100%; padding-bottom: rem-calc(10); }
-	button:disabled { width: 100%; padding: rem-calc(10); height: 2.5em; text-align: left; color: $silver !important; background-color: $iron !important; font-family: MuseoSlab-700;  }
-	select { font-size: 100%; color: $red; }
+	button.gradient, button.grey { width: 100%; padding-bottom: rem-calc(10); }
+	button.grey {padding-top:rem-calc(10); padding-left:0; text-align: left; }
+	button:disabled { width: 100%; padding-top: rem-calc(10); height: 2.5em; text-align: left; color: $silver !important; background-color: $iron !important; font-family: MuseoSlab-700;  }
+	select { font-size: 100%; /*color: $red;*/ }
+	.required { border-color: $red !important; border-width: 2px;  }
 }
 
 xinput, xselect, xtextarea {
@@ -303,7 +305,8 @@ footer {
 }
 
 
-
+// index.xhtml
+#currentElections h3, #pastElections h3 { padding-top: rem-calc(16); }
 
 
 
@@ -320,6 +323,7 @@ footer {
 
 .tools { font-size:rem-calc(35); line-height:1; position: absolute; top: rem-calc(5); right: rem-calc(5);
 		 span:before { font-size: 100%; margin: 0; cursor: pointer; }
+		 .icon-radio { background-color: $white; display:inline-block; width:rem-calc(35); height:rem-calc(35); border-radius: rem-calc(35);}
 }
 
 #candidates, #choice-holder { margin-bottom: rem-calc(20); position:relative; }
@@ -383,13 +387,10 @@ footer {
 .issue { margin-top: rem-calc(20);
 
 		 .button-like { margin-bottom: rem-calc(20); cursor: pointer;
-						.tools .remove { display:none; }
-						&:hover {background-color: $black; }
+						.icon-radio img { display:none; }
+						/*&:hover { background-color: $black; }*/
 						&.selected { background-color: $black; /*@include gradient;*/
-									 .tools {
-										 .add { display:none; }
-										 .remove { display:block; }
-									 }
+									 .icon-radio img { display:block; }
 						}
 		 }
 }
@@ -402,8 +403,9 @@ footer {
 
 
 
-.send-vote-icon { text-align: center; padding: rem-calc(20) 0;
-				  img { width: rem-calc(80); }
+.send-vote-icon,
+.register-success-icon { text-align: center; padding: rem-calc(20) 0;
+						 img { width: rem-calc(80); }
 }
 
 

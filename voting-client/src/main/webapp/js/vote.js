@@ -143,7 +143,7 @@ function retrieveElectionData() {
 			return;
 		}
 
-		var title = getLocalizedText(message.definition.title);
+		var title = __(message.definition.title);
 
 		$(elements.electionTitle).html(title);
 		$.unblockUI();
@@ -154,14 +154,14 @@ function retrieveElectionData() {
 	};
 
 	// TODO @DEV
-	var mock = true;
+	var mock = false;
 	if (!mock) {
 		UniBoard.GET(query, successCB, errorCB);
 	} else {
 		//Ajax request
 		$.ajax({
 			//url: "https://raw.githubusercontent.com/bfh-evg/univote2/development/admin-client/src/main/resources/json-examples/sub-2015/votingData.json",
-			url: "http://uni.vote/listElection.php",
+			url: "http://uni.vote/listElection.php?electionId=" + electionId,
 			//url: "http://uni.vote/voteElection.php",
 			type: 'GET',
 			accept: "application/json",
@@ -182,10 +182,6 @@ function retrieveElectionData() {
  * is set.
  */
 function uploadSecretKey() {
-
-	// TODO @DEV
-	//gotoStep2();
-	//return;
 
 	// Hide previous error message
 	$(elements.uploadKeyError).html('&nbsp;').css('opacity', '0');
@@ -216,14 +212,12 @@ function uploadSecretKey() {
 function decryptSecretKey(key, pw) {
 
 	// Decrypt secret key using crypto library
-	var sk = "";
-
-	sk = uvCrypto.decryptSecretKey(key, pw, function (errorMsg) {
-		showUploadKeyError(errorMsg);
-	});
+	var sk = uvCrypto.decryptSecretKey(key, pw);
 
 	// On success go to step 2
-	if (sk !== false) {
+	if (sk === false) {
+		showUploadKeyError('wrongPasswordInvalidKey');
+	} else {
 		secretKey = sk;
 		gotoStep2();
 	}
@@ -632,22 +626,22 @@ function createVoteContent(issues) {
 		var $answers = $('<div>');
 
 		var optionIds = issue.getOptionIds();
-		var nrRows = Math.ceil(optionIds.length / 3);
 		var $row = null;
 		for (var j = 0; j < optionIds.length; j++) {
-			if (j % 3 == 0) {
+			// The answers are in a 4 column-layout
+			if (j % 4 == 0) {
 				$row = $('<div>').addClass('row');
 				$answers.append($row);
 			}
-			var q = nrRows > 1 ? 4 : (12 / optionIds.length);
+			var q = 3;//nrRows > 1 ? 4 : (12 / optionIds.length);
 			var option = issue.getOption(optionIds[j]);
-			var $answer = $('<div>').addClass('medium-' + q + ' columns');
-			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('add icon-plus-circled')).append($('<span>').addClass('remove icon-minus-circled'));
+			var $answer = $('<div>').addClass('medium-' + 3 + ' columns' + (j == optionIds.length - 1 ? ' end' : ''));
+			//var $tools = $('<div>').addClass('tools').append($('<span>').addClass('add icon-plus-circled')).append($('<span>').addClass('remove icon-minus-circled'));
+			var $tools = $('<div>').addClass('tools').append($('<span>').addClass('icon-radio').html('<img src="images/cross.svg"/>'));
 			var $button = $('<div>').addClass('button-like').data('id', option.getId()).append('<span>' + option.getAnswer() + '</span>', $tools);
 			$answer.append($button);
 			$row.append($answer);
 		}
-
 		$issue.append($title, $question, $answers);
 		$issues.append($issue);
 	}
