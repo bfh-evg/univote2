@@ -39,46 +39,24 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
-
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import ch.bfh.univote2.component.core.message.CryptoSetting;
-import java.util.List;
+package ch.bfh.univote2.trustee;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class SharedKeyCreationActionContext extends ActionContext {
+public enum BoardsEnum {
 
-    private CryptoSetting cryptoSetting;
-    private Boolean accessRight;
+	UNIVOTE("univote-board"),
+	UNICERT("unicert-board");
 
-    public SharedKeyCreationActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-	super(actionContextKey, preconditionQueries, true);
-    }
+	private final String value;
 
-    @Override
-    protected void purgeData() {
-	this.cryptoSetting = null;
-    }
+	BoardsEnum(String value) {
+		this.value = value;
+	}
 
-    public void setCryptoSetting(CryptoSetting cryptoSetting) {
-	this.cryptoSetting = cryptoSetting;
-    }
-
-    public CryptoSetting getCryptoSetting() {
-	return cryptoSetting;
-    }
-
-    public Boolean getAccessRight() {
-	return accessRight;
-    }
-
-    public void setAccessRight(Boolean accessRight) {
-	this.accessRight = accessRight;
-    }
-
+	public String getValue() {
+		return value;
+	}
 }

@@ -41,26 +41,36 @@
  */
 package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
 
-import ch.bfh.univote2.trustee.mixer.keyAdding.KeyAddingActionContext;
-import ch.bfh.univote2.trustee.parallel.*;
+import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
+import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
-import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
-import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
-import ch.bfh.univote2.component.core.data.UserInputTask;
+import ch.bfh.univote2.component.core.manager.TenantManager;
+import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
+import ch.bfh.univote2.component.core.services.SecurePersistenceService;
+import ch.bfh.univote2.component.core.services.UniboardService;
+import ch.bfh.univote2.trustee.BoardsEnum;
+import ch.bfh.univote2.trustee.QueryFactory;
+import ch.bfh.univote2.trustee.parallel.ParallelUserInput;
+import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.Timer;
+import javax.json.JsonException;
 
 /**
  *
@@ -69,72 +79,135 @@ import javax.ejb.Timer;
 @Stateless
 public class SharedKeyCreationAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "ParallelAction";
-	private static final String INPUT_NAME = "ParallelValue";
+    private static final String ACTION_NAME = SharedKeyCreationAction.class.getSimpleName();
+    private static final String PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE = "SECRET_KEY_FOR_KEY_SHARE";
 
-	@EJB
-	ActionManager actionManager;
-	@EJB
-	InformationService informationService;
+    private static final Logger logger = Logger.getLogger(SharedKeyCreationAction.class.getName());
 
-	@Override
-	protected ActionContext createContext(String tenant, String section) {
-		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
-		return new KeyAddingActionContext(ack, preconditionsQuerys);
+    @EJB
+    ActionManager actionManager;
+    @EJB
+    TenantManager tenantManager;
+    @EJB
+    InformationService informationService;
+    @EJB
+    private UniboardService uniboardService;
+    @EJB
+    private SecurePersistenceService securePersistenceService;
+
+    @Override
+    protected ActionContext createContext(String tenant, String section) {
+	ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
+	List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
+	return new SharedKeyCreationActionContext(ack, preconditionsQuerys);
+    }
+
+    @Override
+    protected boolean checkPostCondition(ActionContext actionContext) {
+	try {
+	    PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
+	    ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+								 QueryFactory.getQueryForEncryptionKeyShare(actionContext.getSection(), publicKey));
+	    return !result.getResult().getPost().isEmpty();
+	} catch (UnivoteException ex) {
+	    logger.log(Level.WARNING, "Could not request encryption key share.", ex);
+	    this.informationService.informTenant(actionContext.getActionContextKey(),
+						 "Could not check post condition.");
+	    return false;
+	}
+    }
+
+    @Override
+    protected void definePreconditions(ActionContext actionContext) {
+	ActionContextKey actionContextKey = actionContext.getActionContextKey();
+	String section = actionContext.getSection();
+	if (!(actionContext instanceof SharedKeyCreationActionContext)) {
+	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
+	    return;
+	}
+	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
+	try {
+	    CryptoSetting cryptoSetting = this.retrieveCryptoSetting(skcac);
+	    skcac.setCryptoSetting(cryptoSetting);
+	} catch (UnivoteException ex) {
+	    //Add Notification
+	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
+	    actionContext.getPreconditionQueries().add(bQuery);
+	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
+	    this.informationService.informTenant(actionContextKey,
+						 "Error retrieving securitySetting: " + ex.getMessage());
+	} catch (JsonException ex) {
+	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
+	    this.informationService.informTenant(actionContextKey,
+						 "Error reading securitySetting.");
+	} catch (Exception ex) {
+	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
+	    this.informationService.informTenant(actionContextKey,
+						 "Error reading securitySetting.");
 	}
 
-	@Override
-	protected boolean checkPostCondition(ActionContext actionContext) {
-		if (actionContext instanceof KeyAddingActionContext) {
-			KeyAddingActionContext para = (KeyAddingActionContext) actionContext;
-			if (para.getTimeOut().before(new Date())) {
-				return true;
-			}
-		}
-		return false;
+	BoardPreconditionQuery bQuery = null;
+	try {
+	    //Check if there is an initial AccessRight for this tenant
+	    //TODO: Check if there is an actual valid access right... Right now it is only checking if there is any access right.
+	    String tenant = actionContext.getTenant();
+	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
+	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.TRUSTEES), BoardsEnum.UNIVOTE.getValue());
+	    if (uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty()) {
+		skcac.setAccessRight(false);
+		actionContext.getPreconditionQueries().add(bQuery);
+
+	    } else {
+		skcac.setAccessRight(true);
+	    }
+
+	} catch (UnivoteException ex) {
+	    //Add Notification
+	    actionContext.getPreconditionQueries().add(bQuery);
 	}
 
-	@Override
-	protected void definePreconditions(ActionContext actionContext) {
-		//Add UserInput
-		UserInputPreconditionQuery uiQuery = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
-				actionContext.getActionContextKey().getTenant(),
-				actionContext.getActionContextKey().getSection()));
-		actionContext.getPreconditionQueries().add(uiQuery);
-		//Add Timer
-		TimerPreconditionQuery timerQuery = new TimerPreconditionQuery(
-				new Date(System.currentTimeMillis() + (5 * 60000)));
-		actionContext.getPreconditionQueries().add(timerQuery);
-	}
+    }
 
-	@Override
-	@Asynchronous
-	public void run(ActionContext actionContext) {
-		if (actionContext instanceof KeyAddingActionContext) {
-			KeyAddingActionContext para = (KeyAddingActionContext) actionContext;
-			if (para.getTimeOut().before(new Date())) {
-				this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-			}
-			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
-		}
-		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	}
+    @Override
+    @Asynchronous
+    public void run(ActionContext actionContext) {
+	if (actionContext instanceof SharedKeyCreationActionContext) {
+	    SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 
-	@Override
-	@Asynchronous
-	public void notifyAction(ActionContext actionContext, Object notification) {
-		if (notification instanceof ParallelUserInput) {
-			ParallelUserInput para = (ParallelUserInput) notification;
-			this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-					actionContext.getActionContextKey().getSection(), "Entred value: " + para.getParallelValue());
-
-			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
-		} else if (notification instanceof Timer) {
-			this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-					actionContext.getActionContextKey().getSection(), "Time did run out.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-		}
+	    {
+		this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+	    }
+	    this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
 	}
+	this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+    }
+
+    @Override
+    @Asynchronous
+    public void notifyAction(ActionContext actionContext, Object notification) {
+	if (notification instanceof ParallelUserInput) {
+	    ParallelUserInput para = (ParallelUserInput) notification;
+	    this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
+						 actionContext.getActionContextKey().getSection(), "Entred value: " + para.getParallelValue());
+
+	    this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+	} else if (notification instanceof Timer) {
+	    this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
+						 actionContext.getActionContextKey().getSection(), "Time did run out.");
+	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+	}
+    }
+
+    protected CryptoSetting retrieveCryptoSetting(ActionContext actionContext) throws UnivoteException, Exception {
+	ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+							     QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
+	if (result.getResult().getPost().isEmpty()) {
+	    throw new UnivoteException("Cryptosetting not published yet.");
+	}
+	CryptoSetting cryptoSetting = Converter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
+	return cryptoSetting;
+
+    }
 
 }
