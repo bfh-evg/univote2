@@ -799,6 +799,7 @@
 
 	var Hash = new function () {
 
+		// Default hash method
 		var hashMethod = CryptoJS.SHA256;
 
 		this.setHashMethod = function (method) {
