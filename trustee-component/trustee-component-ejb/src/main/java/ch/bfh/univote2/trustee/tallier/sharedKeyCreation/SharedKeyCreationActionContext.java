@@ -67,6 +67,7 @@ public class SharedKeyCreationActionContext extends ActionContext {
 	this.cryptoSetting = null;
 	this.accessRight = null;
 	this.encryptionKeyShare = null;
+
     }
 
     public void setCryptoSetting(CryptoSetting cryptoSetting) {
