@@ -87,6 +87,7 @@ import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -199,11 +200,18 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    return;
 	}
 	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
+	//The following if is strange, as the run should not happen in this case?!
+	if (skcac.getEncryptionKeyShare() != null) {
+	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+	    logger.log(Level.WARNING, "Run was called but keyShare exists in Context.");
+	    return;
+
+	}
 	String tenant = actionContext.getTenant();
 	String section = actionContext.getSection();
 
 	Boolean boardWriteAccess = skcac.getAccessRight();
-	if (boardWriteAccess == null || boardWriteAccess == Boolean.FALSE) {
+	if (boardWriteAccess == null || Objects.equals(boardWriteAccess, Boolean.FALSE)) {
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    return;
 	}
@@ -214,8 +222,8 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	}
 	try {
 	    UniCryptCryptoSetting uniCryptCryptoSetting = getUnicryptCryptoSetting(cryptoSetting);
-	    BigInteger privateKey = null;
-	    EnhancedEncryptionKeyShare enhancedEncryptionKeyShare = null;
+	    BigInteger privateKey;
+	    EnhancedEncryptionKeyShare enhancedEncryptionKeyShare;
 	    try {
 		privateKey = securePersistenceService.retrieve(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE);
 		enhancedEncryptionKeyShare = createEncryptionKeyShare(tenant, uniCryptCryptoSetting, privateKey);
@@ -233,16 +241,16 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE, privateKey);
 
 	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.TRUSTEES.getValue(), encryptionKeyShareByteArray, tenant);
+	    //Sollte hier wohl das signierte Resultat noch persistieren?
+	    skcac.setEncryptionKeyShare(encryptionKeyShare);
 	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
 
 	} catch (UnivoteException ex) {
 	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
 	} catch (Exception ex) {
 	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-
 	}
     }
 
