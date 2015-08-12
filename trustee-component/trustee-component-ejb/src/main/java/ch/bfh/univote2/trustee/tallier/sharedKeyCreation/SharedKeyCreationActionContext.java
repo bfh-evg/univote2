@@ -45,6 +45,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import java.util.List;
 
 /**
@@ -55,6 +56,7 @@ public class SharedKeyCreationActionContext extends ActionContext {
 
     private CryptoSetting cryptoSetting;
     private Boolean accessRight;
+    private EncryptionKeyShare encryptionKeyShare;
 
     public SharedKeyCreationActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
 	super(actionContextKey, preconditionQueries, true);
@@ -63,6 +65,8 @@ public class SharedKeyCreationActionContext extends ActionContext {
     @Override
     protected void purgeData() {
 	this.cryptoSetting = null;
+	this.accessRight = null;
+	this.encryptionKeyShare = null;
     }
 
     public void setCryptoSetting(CryptoSetting cryptoSetting) {
@@ -79,6 +83,14 @@ public class SharedKeyCreationActionContext extends ActionContext {
 
     public void setAccessRight(Boolean accessRight) {
 	this.accessRight = accessRight;
+    }
+
+    public void setEncryptionKeyShare(EncryptionKeyShare encryptionKeyShare) {
+	this.encryptionKeyShare = encryptionKeyShare;
+    }
+
+    public EncryptionKeyShare getEncryptionKeyShare() {
+	return encryptionKeyShare;
     }
 
 }

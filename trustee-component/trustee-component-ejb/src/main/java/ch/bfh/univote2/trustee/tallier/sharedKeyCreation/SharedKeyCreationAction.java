@@ -42,6 +42,26 @@
 package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
 
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
+import ch.bfh.unicrypt.crypto.schemes.encryption.classes.ElGamalEncryptionScheme;
+import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
+import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
+import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
+import ch.bfh.unicrypt.helper.hash.HashMethod;
+import ch.bfh.unicrypt.helper.math.Alphabet;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
+import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
+import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
+import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -52,15 +72,17 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
-import ch.bfh.univote2.component.core.message.Converter;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
+import ch.bfh.univote2.component.core.message.Proof;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.QueryFactory;
-import ch.bfh.univote2.trustee.parallel.ParallelUserInput;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +91,6 @@ import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.ejb.Timer;
 import javax.json.JsonException;
 
 /**
@@ -174,10 +195,27 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
     public void run(ActionContext actionContext) {
 	if (actionContext instanceof SharedKeyCreationActionContext) {
 	    SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
-
-	    {
-		this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+	    Boolean boardWriteAccess = skcac.getAccessRight();
+	    if (boardWriteAccess == null || boardWriteAccess == Boolean.FALSE) {
+		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		return;
 	    }
+	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
+	    if (cryptoSetting == null) {
+		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		return;
+	    }
+	    EncryptionKeyShare encryptionKeyShare = skcac.getEncryptionKeyShare();
+	    if (encryptionKeyShare == null) {
+		try {
+		    EnhancedEncryptionKeyShare enhancedEncryptionKeyShare = createEncryptionKeyShare(actionContext.getTenant(), cryptoSetting);
+		} catch (UnivoteException ex) {
+		    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
+		}
+
+	    }
+	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+
 	    this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
 	}
 	this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -186,17 +224,86 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
     @Override
     @Asynchronous
     public void notifyAction(ActionContext actionContext, Object notification) {
-	if (notification instanceof ParallelUserInput) {
-	    ParallelUserInput para = (ParallelUserInput) notification;
-	    this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-						 actionContext.getActionContextKey().getSection(), "Entred value: " + para.getParallelValue());
 
-	    this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
-	} else if (notification instanceof Timer) {
-	    this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-						 actionContext.getActionContextKey().getSection(), "Time did run out.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+    }
+
+    protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, CryptoSetting setting) throws UnivoteException {
+
+	CyclicGroup cyclicGroup = null;
+	Element generator = null;
+	HashAlgorithm hashAlgorithm = null;
+	switch (setting.getEncryptionSetting()) {
+	    case "RC0e":
+		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
+		generator = cyclicGroup.getDefaultGenerator();
+		break;
+	    case "RC1e":
+		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
+		generator = cyclicGroup.getDefaultGenerator();
+		break;
+	    case "RC2e":
+		cyclicGroup = GStarModSafePrime.getFirstInstance(1024);
+		generator = cyclicGroup.getDefaultGenerator();
+		break;
+	    case "RC3e":
+		cyclicGroup = GStarModSafePrime.getFirstInstance(2048);
+		generator = cyclicGroup.getDefaultGenerator();
+		break;
+	    default:
+		throw new UnivoteException("Unknown RC_e level");
 	}
+	switch (setting.getHashSetting()) {
+	    case "H1":
+		hashAlgorithm = HashAlgorithm.SHA1;
+		break;
+	    case "H2":
+		hashAlgorithm = HashAlgorithm.SHA224;
+		break;
+	    case "H3":
+		hashAlgorithm = HashAlgorithm.SHA256;
+		break;
+	    case "H4":
+		hashAlgorithm = HashAlgorithm.SHA384;
+		break;
+	    case "H5":
+		hashAlgorithm = HashAlgorithm.SHA512;
+	    default:
+		throw new UnivoteException("Unknown H_ level");
+	}
+
+	// Create ElGamal encryption scheme
+	ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(generator);
+
+	// Generate keys
+	KeyPairGenerator kpg = elGamal.getKeyPairGenerator();
+	Element privateKey = kpg.generatePrivateKey();
+	Element publicKey = kpg.generatePublicKey(privateKey);
+
+	// Generate proof generator
+	Function function = kpg.getPublicKeyGenerationFunction();
+	StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
+	HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
+	ConvertMethod convertMethod = ConvertMethod.getInstance(
+		BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+		StringToByteArray.getInstance(Charset.forName("UTF-8")));
+
+	Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
+
+	SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+		cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
+
+	PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(challengeGenerator, function);
+	Triple proof = pg.generate(privateKey, publicKey);
+	boolean success = pg.verify(proof, publicKey);
+	if (!success) {
+	    throw new UnivoteException("Math for proof system broken.");
+	}
+	Proof proofDTO = new Proof(pg.getCommitment(proof).getValue().toString(), pg.getChallenge(proof).getValue().toString(), pg.getResponse(proof).getValue().toString());
+
+	EnhancedEncryptionKeyShare enhancedEncryptionKeyShare = new EnhancedEncryptionKeyShare();
+	enhancedEncryptionKeyShare.privateKey = privateKey;
+	EncryptionKeyShare encryptionKeyShare = new EncryptionKeyShare(publicKey.getHashValue().toString(), proofDTO);
+	return enhancedEncryptionKeyShare;
     }
 
     protected CryptoSetting retrieveCryptoSetting(ActionContext actionContext) throws UnivoteException, Exception {
@@ -205,9 +312,15 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	if (result.getResult().getPost().isEmpty()) {
 	    throw new UnivoteException("Cryptosetting not published yet.");
 	}
-	CryptoSetting cryptoSetting = Converter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
+	CryptoSetting cryptoSetting = ch.bfh.univote2.component.core.message.Converter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
 	return cryptoSetting;
 
+    }
+
+    private class EnhancedEncryptionKeyShare {
+
+	protected EncryptionKeyShare encryptionKeyShare;
+	protected Element privateKey;
     }
 
 }
