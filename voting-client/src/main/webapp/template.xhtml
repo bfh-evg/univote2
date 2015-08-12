@@ -60,7 +60,7 @@
 					<div class="small-8 columns">
 						<a href="index.xhtml"><img src="images/univote.svg" alt="UniVote Logo" /></a>
 					</div>
-					<c:if test="#{request.requestURI.endsWith('index.xhtml')}">
+					<c:if test="#{request.requestURI.endsWith('index.xhtml') || request.requestURI.endsWith('/')}">
 						<div class="small-4 columns">
 							<h:form>
 								<div class="round-button"><div class="round-button-circle #{languageDetails.locale == 'en' ? 'active' : ''}"><h:commandLink action="#{languageDetails.setLocale('en')}">E</h:commandLink></div></div>
