@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
 
+import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
@@ -72,6 +73,7 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
+import ch.bfh.univote2.component.core.message.AccessRight;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.Proof;
@@ -127,17 +129,30 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 
     @Override
     protected boolean checkPostCondition(ActionContext actionContext) {
+	if (!(actionContext instanceof SharedKeyCreationActionContext)) {
+	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
+	    return false;
+	}
+	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
+	if (Objects.equals(Boolean.TRUE, skcac.getIsPostConditionReached())) {
+	    return true;
+	}
+
 	try {
 	    PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 	    ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 								 QueryFactory.getQueryForEncryptionKeyShare(actionContext.getSection(), publicKey));
-	    return !result.getResult().getPost().isEmpty();
+	    if (!result.getResult().getPost().isEmpty()) {
+		skcac.setIsPostConditionReached(Boolean.TRUE);
+		return true;
+	    }
 	} catch (UnivoteException ex) {
 	    logger.log(Level.WARNING, "Could not request encryption key share.", ex);
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
 						 "Could not check post condition.");
 	    return false;
 	}
+	return false;
     }
 
     @Override
@@ -148,10 +163,16 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 	    return;
 	}
+	boolean isPreconditionReached = false;
 	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 	try {
-	    CryptoSetting cryptoSetting = this.retrieveCryptoSetting(skcac);
-	    skcac.setCryptoSetting(cryptoSetting);
+	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
+	    if (cryptoSetting == null) {
+		cryptoSetting = this.retrieveCryptoSetting(skcac);
+		skcac.setCryptoSetting(cryptoSetting);
+	    }
+	    isPreconditionReached = true;
+
 	} catch (UnivoteException ex) {
 	    //Add Notification
 	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
@@ -178,17 +199,18 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
 	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.TRUSTEES), BoardsEnum.UNIVOTE.getValue());
 	    if (uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty()) {
-		skcac.setAccessRight(false);
 		actionContext.getPreconditionQueries().add(bQuery);
-
+		isPreconditionReached &= false;
 	    } else {
-		skcac.setAccessRight(true);
+		isPreconditionReached &= true;
 	    }
 
 	} catch (UnivoteException ex) {
+	    isPreconditionReached &= false;
 	    //Add Notification
 	    actionContext.getPreconditionQueries().add(bQuery);
 	}
+	skcac.setIsPreconditionReached(isPreconditionReached);
 
     }
 
@@ -201,22 +223,37 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	}
 	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 	//The following if is strange, as the run should not happen in this case?!
-	if (skcac.getEncryptionKeyShare() != null) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-	    logger.log(Level.WARNING, "Run was called but keyShare exists in Context.");
+	if (skcac.getIsPostConditionReached() == null) {
+	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	    logger.log(Level.WARNING, "Run was called but postCondition is unknown in Context.");
 	    return;
+	}
+	if (Objects.equals(skcac.getIsPostConditionReached(), Boolean.TRUE)) {
+	    logger.log(Level.WARNING, "Run was called but postCondition is already reached in Context.");
+	    this.informationService.informTenant(actionContext.getActionContextKey(),
+						 "A key share is already published. Action finished.");
+	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+	    return;
+	}
+	if (skcac.getIsPreconditionReached() == null) {
+	    logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
+	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 
+	    return;
+	}
+	if (Objects.equals(skcac.getIsPreconditionReached(), Boolean.FALSE)) {
+	    logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
+	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	    return;
 	}
 	String tenant = actionContext.getTenant();
 	String section = actionContext.getSection();
 
-	Boolean boardWriteAccess = skcac.getAccessRight();
-	if (boardWriteAccess == null || Objects.equals(boardWriteAccess, Boolean.FALSE)) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
-	}
 	CryptoSetting cryptoSetting = skcac.getCryptoSetting();
 	if (cryptoSetting == null) {
+	    logger.log(Level.SEVERE, "Precondition is reached but crypto setting is empty in Context. That is bad.");
+	    this.informationService.informTenant(actionContext.getActionContextKey(),
+						 "Error: Precondition reached, but no crypto setting available.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    return;
 	}
@@ -241,15 +278,19 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE, privateKey);
 
 	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.TRUSTEES.getValue(), encryptionKeyShareByteArray, tenant);
-	    //Sollte hier wohl das signierte Resultat noch persistieren?
-	    skcac.setEncryptionKeyShare(encryptionKeyShare);
+	    this.informationService.informTenant(actionContext.getActionContextKey(),
+						 "Posted key share for encrcyption. Action finished.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
 
 	} catch (UnivoteException ex) {
+	    this.informationService.informTenant(actionContext.getActionContextKey(),
+						 "Could not post key share for encrcyption. Action failed.");
 	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	} catch (Exception ex) {
 	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
+	    this.informationService.informTenant(actionContext.getActionContextKey(),
+						 "Could not marshal key share for encrcyption. Action failed.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	}
     }
@@ -257,7 +298,38 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
     @Override
     @Asynchronous
     public void notifyAction(ActionContext actionContext, Object notification) {
-	//TODO
+	if (!(actionContext instanceof SharedKeyCreationActionContext)) {
+	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	    return;
+	}
+	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
+
+	this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
+
+	if (!(notification instanceof PostDTO)) {
+	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	    return;
+	}
+	PostDTO post = (PostDTO) notification;
+	byte[] message = post.getMessage();
+	try {
+	    CryptoSetting cryptoSetting = ch.bfh.univote2.component.core.message.Converter.unmarshal(CryptoSetting.class, post.getMessage());
+	    skcac.setCryptoSetting(cryptoSetting);
+	} catch (UnivoteException ex) {
+	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	} catch (Exception ex) {
+	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
+	}
+	try {
+	    AccessRight accessRight = ch.bfh.univote2.component.core.message.Converter.unmarshal(AccessRight.class, post.getMessage());
+	    //Well... We do know now, that it is an accessRight... but what shall we do with it?
+	} catch (UnivoteException ex) {
+	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	} catch (Exception ex) {
+	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
+	}
     }
 
     protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting) throws UnivoteException {

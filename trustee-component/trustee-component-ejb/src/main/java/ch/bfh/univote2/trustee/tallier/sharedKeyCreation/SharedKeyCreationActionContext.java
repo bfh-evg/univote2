@@ -45,7 +45,6 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
-import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import java.util.List;
 
 /**
@@ -54,9 +53,9 @@ import java.util.List;
  */
 public class SharedKeyCreationActionContext extends ActionContext {
 
+    private Boolean isPostConditionReached;
+    private Boolean isPreconditionReached;
     private CryptoSetting cryptoSetting;
-    private Boolean accessRight;
-    private EncryptionKeyShare encryptionKeyShare;
 
     public SharedKeyCreationActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
 	super(actionContextKey, preconditionQueries, true);
@@ -64,34 +63,34 @@ public class SharedKeyCreationActionContext extends ActionContext {
 
     @Override
     protected void purgeData() {
+	this.isPostConditionReached = null;
+	this.isPreconditionReached = null;
 	this.cryptoSetting = null;
-	this.accessRight = null;
-	this.encryptionKeyShare = null;
 
     }
 
-    public void setCryptoSetting(CryptoSetting cryptoSetting) {
-	this.cryptoSetting = cryptoSetting;
+    public void setIsPostConditionReached(Boolean isPostConditionReached) {
+	this.isPostConditionReached = isPostConditionReached;
+    }
+
+    public Boolean getIsPostConditionReached() {
+	return isPostConditionReached;
+    }
+
+    public Boolean getIsPreconditionReached() {
+	return isPreconditionReached;
+    }
+
+    public void setIsPreconditionReached(Boolean isPreconditionReached) {
+	this.isPreconditionReached = isPreconditionReached;
     }
 
     public CryptoSetting getCryptoSetting() {
 	return cryptoSetting;
     }
 
-    public Boolean getAccessRight() {
-	return accessRight;
-    }
-
-    public void setAccessRight(Boolean accessRight) {
-	this.accessRight = accessRight;
-    }
-
-    public void setEncryptionKeyShare(EncryptionKeyShare encryptionKeyShare) {
-	this.encryptionKeyShare = encryptionKeyShare;
-    }
-
-    public EncryptionKeyShare getEncryptionKeyShare() {
-	return encryptionKeyShare;
+    public void setCryptoSetting(CryptoSetting cryptoSetting) {
+	this.cryptoSetting = cryptoSetting;
     }
 
 }
