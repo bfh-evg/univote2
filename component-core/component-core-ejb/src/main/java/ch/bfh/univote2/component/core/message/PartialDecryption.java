@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -77,6 +78,7 @@ public class PartialDecryption {
 		this.proof = proof;
 	}
 
+	@XmlElement(required=true)
 	public List<String> getPartiallyDecryptedVotes() {
 		return partiallyDecryptedVotes;
 	}
@@ -85,6 +87,7 @@ public class PartialDecryption {
 		this.partiallyDecryptedVotes = partiallyDecryptedVotes;
 	}
 
+	@XmlElement(required=true)
 	public Proof getProof() {
 		return proof;
 	}

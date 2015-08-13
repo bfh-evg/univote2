@@ -43,6 +43,7 @@ package ch.bfh.univote2.component.core.message;
 
 import java.util.Date;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -197,6 +198,7 @@ public class Certificate {
 		this.pem = pem;
 	}
 
+	@XmlElement(required=true)
 	public String getCommonName() {
 		return commonName;
 	}
@@ -269,6 +271,7 @@ public class Certificate {
 		this.givenName = givenName;
 	}
 
+	@XmlElement(required=true)
 	public String getIssuer() {
 		return issuer;
 	}
@@ -277,6 +280,7 @@ public class Certificate {
 		this.issuer = issuer;
 	}
 
+	@XmlElement(required=true)
 	public String getSerialNumber() {
 		return serialNumber;
 	}
@@ -285,6 +289,7 @@ public class Certificate {
 		this.serialNumber = serialNumber;
 	}
 
+	@XmlElement(required=true)
 	public Date getValidFrom() {
 		return validFrom;
 	}
@@ -293,6 +298,7 @@ public class Certificate {
 		this.validFrom = validFrom;
 	}
 
+	@XmlElement(required=true)
 	public Date getValidUntil() {
 		return validUntil;
 	}
@@ -317,6 +323,7 @@ public class Certificate {
 		this.roles = roles;
 	}
 
+	@XmlElement(required=true)
 	public String getIdentityProvider() {
 		return identityProvider;
 	}
@@ -325,6 +332,7 @@ public class Certificate {
 		this.identityProvider = identityProvider;
 	}
 
+	@XmlElement(required=true)
 	public String getPem() {
 		return pem;
 	}

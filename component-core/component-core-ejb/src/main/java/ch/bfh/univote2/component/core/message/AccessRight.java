@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.Date;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -171,6 +172,7 @@ public class AccessRight {
 		this.endTime = endTime;
 	}
 
+	@XmlElement(required=true)
 	public String getGroup() {
 		return group;
 	}
@@ -179,6 +181,7 @@ public class AccessRight {
 		this.group = group;
 	}
 
+	@XmlElement(required=true)
 	public Crypto getCrypto() {
 		return crypto;
 	}

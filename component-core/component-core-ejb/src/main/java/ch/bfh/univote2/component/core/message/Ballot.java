@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -89,6 +90,7 @@ public class Ballot {
 		this.proof = proof;
 	}
 
+	@XmlElement(required=true)
 	public EncryptedVote getEncryptedVote() {
 		return encryptedVote;
 	}
@@ -97,6 +99,7 @@ public class Ballot {
 		this.encryptedVote = encryptedVote;
 	}
 
+	@XmlElement(required=true)
 	public Proof getProof() {
 		return proof;
 	}

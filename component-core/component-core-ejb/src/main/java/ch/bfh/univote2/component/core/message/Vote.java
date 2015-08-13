@@ -41,9 +41,20 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
+ * <pre>
+ * ...
+ *				"properties": {
+ *					"firstValue":  { "type": "string" },
+ *					"secondValue": { "type": "string" }
+ *				},
+ *				"required": ["firstValue", "secondValue"],
+ *				"additionalProperties": false
+ * ...
+ * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
@@ -61,6 +72,7 @@ public class Vote {
 		this.secondValue = secondValue;
 	}
 
+	@XmlElement(required=true)
 	public String getFirstValue() {
 		return firstValue;
 	}
@@ -69,6 +81,7 @@ public class Vote {
 		this.firstValue = firstValue;
 	}
 
+	@XmlElement(required=true)
 	public String getSecondValue() {
 		return secondValue;
 	}

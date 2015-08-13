@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -87,6 +88,7 @@ public class TrusteeCertificates {
 		this.tallierCertificates = tallierCertificates;
 	}
 
+	@XmlElement(required=true)
 	public List<Certificate> getMixerCertificates() {
 		return mixerCertificates;
 	}
@@ -95,6 +97,7 @@ public class TrusteeCertificates {
 		this.mixerCertificates = mixerCertificates;
 	}
 
+	@XmlElement(required=true)
 	public List<Certificate> getTallierCertificates() {
 		return tallierCertificates;
 	}

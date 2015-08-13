@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.Date;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -103,6 +104,7 @@ public class ElectionDefinition {
 		this.votingPeriodEnd = votingPeriodEnd;
 	}
 
+	@XmlElement(required=true)
 	public I18nText getTitle() {
 		return title;
 	}
@@ -127,6 +129,7 @@ public class ElectionDefinition {
 		this.description = description;
 	}
 
+	@XmlElement(required=true)
 	public Date getVotingPeriodBegin() {
 		return votingPeriodBegin;
 	}
@@ -135,6 +138,7 @@ public class ElectionDefinition {
 		this.votingPeriodBegin = votingPeriodBegin;
 	}
 
+	@XmlElement(required=true)
 	public Date getVotingPeriodEnd() {
 		return votingPeriodEnd;
 	}

@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -79,6 +80,7 @@ public class EncryptionKeyShare {
 		this.proof = proof;
 	}
 
+	@XmlElement(required=true)
 	public String getKeyShare() {
 		return keyShare;
 	}
@@ -87,6 +89,7 @@ public class EncryptionKeyShare {
 		this.keyShare = keyShare;
 	}
 
+	@XmlElement(required=true)
 	public Proof getProof() {
 		return proof;
 	}

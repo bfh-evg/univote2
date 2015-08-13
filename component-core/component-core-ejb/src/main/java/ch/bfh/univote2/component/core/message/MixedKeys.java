@@ -42,6 +42,7 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -77,6 +78,7 @@ public class MixedKeys {
 		this.generator = generator;
 	}
 
+	@XmlElement(required=true)
 	public List<String> getMixedKeys() {
 		return mixedKeys;
 	}
@@ -85,6 +87,7 @@ public class MixedKeys {
 		this.mixedKeys = mixedKeys;
 	}
 
+	@XmlElement(required=true)
 	public String getGenerator() {
 		return generator;
 	}

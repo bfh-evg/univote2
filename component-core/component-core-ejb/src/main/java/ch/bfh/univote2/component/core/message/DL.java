@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -93,6 +94,7 @@ public class DL extends Crypto {
 		this.g = g;
 	}
 
+	@XmlElement(required=true)
 	public String getP() {
 		return p;
 	}
@@ -101,6 +103,7 @@ public class DL extends Crypto {
 		this.p = p;
 	}
 
+	@XmlElement(required=true)
 	public String getQ() {
 		return q;
 	}
@@ -109,6 +112,7 @@ public class DL extends Crypto {
 		this.q = q;
 	}
 
+	@XmlElement(required=true)
 	public String getG() {
 		return g;
 	}

@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -76,6 +77,7 @@ public class Proof {
 		this.response = response;
 	}
 
+	@XmlElement(required=true)
 	public String getCommitment() {
 		return commitment;
 	}
@@ -84,6 +86,7 @@ public class Proof {
 		this.commitment = commitment;
 	}
 
+	@XmlElement(required=true)
 	public String getChallenge() {
 		return challenge;
 	}
@@ -92,6 +95,7 @@ public class Proof {
 		this.challenge = challenge;
 	}
 
+	@XmlElement(required=true)
 	public String getResponse() {
 		return response;
 	}

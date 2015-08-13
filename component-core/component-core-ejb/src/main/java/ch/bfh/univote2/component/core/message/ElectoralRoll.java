@@ -42,12 +42,25 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
+ * <pre>
  * {
- * "$schema": "http://json-schema.org/draft-04/schema", "title": "UniVote2: Schema of the voter roll", "type": "object",
- * "properties": { "voterIds": { "description": "Ids of the eligible voters", "type": "array", "items": { "type":
- * "string" } } }, "required": ["voterIds"], "additionalProperties": false }
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of the voter roll",
+ *	"type": "object",
+ *	"properties": {
+ *		"voterIds": {
+ *			"description": "Ids of the eligible voters",
+ *			"type": "array",
+ *			"items": { "type": "string" }
+ *		}
+ *	},
+ *	"required": ["voterIds"],
+ *	"additionalProperties": false
+ * }
+ * </pre>
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
@@ -62,6 +75,7 @@ public class ElectoralRoll {
 		this.voterIds = voterIds;
 	}
 
+	@XmlElement(required=true)
 	public List<String> getVoterIds() {
 		return voterIds;
 	}

@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -73,6 +74,7 @@ public class SecurityLevel {
 		this.securityLevel = securityLevel;
 	}
 
+	@XmlElement(required=true)
 	public Integer getSecurityLevel() {
 		return securityLevel;
 	}

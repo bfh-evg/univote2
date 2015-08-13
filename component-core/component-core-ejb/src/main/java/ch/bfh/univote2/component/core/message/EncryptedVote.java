@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -72,6 +73,7 @@ public class EncryptedVote {
 		this.secondValue = secondValue;
 	}
 
+	@XmlElement(required=true)
 	public String getFirstValue() {
 		return firstValue;
 	}
@@ -80,6 +82,7 @@ public class EncryptedVote {
 		this.firstValue = firstValue;
 	}
 
+	@XmlElement(required=true)
 	public String getSecondValue() {
 		return secondValue;
 	}

@@ -83,6 +83,7 @@ public class I18nText {
 		this.english = english;
 	}
 
+	@XmlElement(required=true)
 	public String getDefault() {
 		return defaultText;
 	}

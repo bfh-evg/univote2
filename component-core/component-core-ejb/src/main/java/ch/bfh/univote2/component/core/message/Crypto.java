@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
@@ -77,6 +78,7 @@ public abstract class Crypto {
 		this.publickey = publickey;
 	}
 
+	@XmlElement(required=true)
 	public String getPublickey() {
 		return publickey;
 	}

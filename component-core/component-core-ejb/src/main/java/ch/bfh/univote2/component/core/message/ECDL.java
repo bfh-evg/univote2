@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -82,6 +83,7 @@ public class ECDL extends Crypto {
 		this.curve = curve;
 	}
 
+	@XmlElement(required=true)
 	public String getCurve() {
 		return curve;
 	}

@@ -45,11 +45,14 @@ import ch.bfh.univote2.component.core.UnivoteException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.transform.stream.StreamSource;
 
 /**
@@ -138,7 +141,13 @@ public class JSONConverter {
 	public <T> boolean isOfType(Class<T> type, byte[] message) {
 		try {
 			domainObject = unmarshal(type, message);
-			return true;
+			// TODO fix me: domainObject is NOT null, but empty...
+			if (notEmptyGetters(type)) {
+				return true;
+			} else {
+				domainObject = null;
+				return false;
+			}
 		} catch (UnivoteException ex) { // ex expected, not used
 			domainObject = null;
 			return false;
@@ -154,5 +163,33 @@ public class JSONConverter {
 	@SuppressWarnings("unchecked")
 	public <T> T getUnmarshalledMessage() {
 		return (T) domainObject;
+	}
+
+	/**
+	 * Checks if the getters of the domain object are not null. If at least one
+	 * required getter returns null then assume that the message does not match the
+	 * given type and, therefore, this method returns false.
+	 * @param <T> the type of the given type
+	 * @param type the given type
+	 * @return true if all required getters return non-null values
+	 */
+	private <T> boolean notEmptyGetters(Class<T> type) {
+		Method[] getters = type.getDeclaredMethods();
+		for (Method m : getters) {
+			// We do not dig into the depth of the XmlElement annotation instance in order
+			// to figure out whether the 'required' value is set to true. Its presence
+			// suffices to check and test that the getter's return value is not null.
+			if (m.getName().startsWith("get") && m.getAnnotation(XmlElement.class)!= null) {
+				try {
+					Object rval = m.invoke(domainObject, (Object[]) null);
+					if (rval == null) {
+						return false;
+					}
+				}catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+					// left intentionally empty -- iterate over all remaining fields
+				}
+			}
+		}
+		return true;
 	}
 }

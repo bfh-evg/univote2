@@ -44,6 +44,7 @@ package ch.bfh.univote2.component.core.message;
 import java.nio.charset.Charset;
 import java.util.Date;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -696,5 +697,8 @@ public class JSONConverterTest {
 		assertTrue(converter.isOfType(ElectionDefinition.class, message.getBytes(Charset.forName("UTF-8"))));
 		assertNotNull(converter.getUnmarshalledMessage());
 		assertTrue(converter.getUnmarshalledMessage() instanceof ElectionDefinition);
+
+		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
+		assertNull(converter.getUnmarshalledMessage());
 	}
 }

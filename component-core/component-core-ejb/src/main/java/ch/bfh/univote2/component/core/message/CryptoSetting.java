@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -85,6 +86,7 @@ public class CryptoSetting {
 		this.hashSetting = hashSetting;
 	}
 
+	@XmlElement(required=true)
 	public String getEncryptionSetting() {
 		return encryptionSetting;
 	}
@@ -93,6 +95,7 @@ public class CryptoSetting {
 		this.encryptionSetting = encryptionSetting;
 	}
 
+	@XmlElement(required=true)
 	public String getSignatureSetting() {
 		return signatureSetting;
 	}
@@ -101,6 +104,7 @@ public class CryptoSetting {
 		this.signatureSetting = signatureSetting;
 	}
 
+	@XmlElement(required=true)
 	public String getHashSetting() {
 		return hashSetting;
 	}
