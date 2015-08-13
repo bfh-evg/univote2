@@ -54,7 +54,7 @@ import java.util.List;
 public class SharedKeyCreationActionContext extends ActionContext {
 
     private CryptoSetting cryptoSetting;
-    private Boolean accessRight;
+    private Boolean accessRightGranted;
 
     public SharedKeyCreationActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
 	super(actionContextKey, preconditionQueries, true);
@@ -63,22 +63,31 @@ public class SharedKeyCreationActionContext extends ActionContext {
     @Override
     protected void purgeData() {
 	this.cryptoSetting = null;
+	this.accessRightGranted = null;
+
     }
 
-    public void setCryptoSetting(CryptoSetting cryptoSetting) {
-	this.cryptoSetting = cryptoSetting;
+    public Boolean getAccessRightGranted() {
+	return accessRightGranted;
+    }
+
+    public void setAccessRightGranted(Boolean accessRightGranted) {
+	this.accessRightGranted = accessRightGranted;
     }
 
     public CryptoSetting getCryptoSetting() {
 	return cryptoSetting;
     }
 
-    public Boolean getAccessRight() {
-	return accessRight;
+    public void setCryptoSetting(CryptoSetting cryptoSetting) {
+	this.cryptoSetting = cryptoSetting;
     }
 
-    public void setAccessRight(Boolean accessRight) {
-	this.accessRight = accessRight;
+    public Boolean isPreconditionReached() {
+	if (cryptoSetting == null || accessRightGranted == null) {
+	    return null;
+	}
+	return accessRightGranted.booleanValue() && cryptoSetting != null;
     }
 
 }

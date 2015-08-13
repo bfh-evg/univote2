@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import ch.bfh.univote2.component.core.UnivoteException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -52,10 +53,13 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 /**
+ * Utility class that allows to convert JSON byte[] messages to objects of domain classes
+ * as well as to convert these instances to JSON message strings.
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class Converter {
+public class JSONConverter {
 
 	/**
 	 * Initilizes the JAXB context.
@@ -75,25 +79,40 @@ public class Converter {
 	/**
 	 * Converst a JSON 'ResultDTO' byte array into the corresponding domain class.
 	 *
-	 * @param <T> the Java type of the domain class the converstion takes place
+	 * @param <T> the Java type of the domain class the conversion takes place
 	 * @param type the actual type object
 	 * @param message a JSON 'ResultDTO' byte array
 	 * @return the Java instance of the domain class
-	 * @throws Exception if the conversion cannot be made
+	 * @throws UnivoteException if the conversion cannot be made
 	 */
-	public static <T> T unmarshal(Class<T> type, byte[] message) throws Exception {
-		JAXBContext jaxbContext = Converter.initJAXBContext(type);
-		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-		InputStream stream = new ByteArrayInputStream(message);
-		return unmarshaller.unmarshal(new StreamSource(stream), type).getValue();
+	public static <T> T unmarshal(Class<T> type, byte[] message) throws UnivoteException {
+		try {
+			JAXBContext jaxbContext = JSONConverter.initJAXBContext(type);
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			InputStream stream = new ByteArrayInputStream(message);
+			return unmarshaller.unmarshal(new StreamSource(stream), type).getValue();
+		} catch (Exception ex) {
+			throw new UnivoteException(ex.getMessage(), ex);
+		}
 	}
 
-	public static String marshal(Object object) throws Exception {
-		JAXBContext jaxbContext = Converter.initJAXBContext(object.getClass());
-		StringWriter writer = new StringWriter();
-		Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
-		marshaller.marshal(object, writer);
-		return writer.toString();
+	/**
+	 * Given an instance of a domain class denoting a JSON object, converts it
+	 * into a JSON string.
+	 * @param object an instance of a domain class denoting a JSON object
+	 * @return a JSON string
+	 * @throws UnivoteException if there is an error
+	 */
+	public static String marshal(Object object) throws UnivoteException {
+		try {
+			JAXBContext jaxbContext = JSONConverter.initJAXBContext(object.getClass());
+			StringWriter writer = new StringWriter();
+			Marshaller marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+			marshaller.marshal(object, writer);
+			return writer.toString();
+		} catch (Exception ex) {
+			throw new UnivoteException(ex.getMessage(), ex);
+		}
 	}
 }

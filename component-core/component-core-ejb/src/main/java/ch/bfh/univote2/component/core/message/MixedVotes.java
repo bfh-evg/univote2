@@ -48,59 +48,46 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of a mixing request to mix public keys",
+ *	"title": "UniVote2: Schema of mixed encrypted votes",
  *	"type": "object",
  *	"properties": {
- *		"mixerId": { "type": "string" },
- *		"keys":  {
+ *		"mixedVotes": {
  *			"type": "array",
- *			"items": { "type": "string"}
- *		},
- *		"generator" : { "type": "string" }
+ *			"items": {
+ *				"type": "object",
+ *				"properties": {
+ *					"firstValue":  { "type": "string" },
+ *					"secondValue": { "type": "string" }
+ *				},
+ *				"required": ["firstValue", "secondValue"],
+ *				"additionalProperties": false
+ *			}
+ *		}
  *	},
- *	"required": ["mixerId", "keys", "generator"],
+ *	"required": ["mixedVotes"],
  *	"additionalProperties": false
  * }
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixerId", "keys", "generator"})
-public class KeyMixingRequest {
-	private String mixerId;
-	private List<String> keys;
-	private String generator;
+@XmlType(propOrder={"mixedVotes"})
+public class MixedVotes {
 
-	public KeyMixingRequest() {
+	private List<Vote> mixedVotes;
+
+	public MixedVotes() {
 	}
 
-	public KeyMixingRequest(String mixerId, List<String> keys, String generator) {
-		this.mixerId = mixerId;
-		this.keys = keys;
-		this.generator = generator;
+	public MixedVotes(List<Vote> mixedVotes) {
+		this.mixedVotes = mixedVotes;
 	}
 
-	public String getMixerId() {
-		return mixerId;
+	public List<Vote> getMixedVotes() {
+		return mixedVotes;
 	}
 
-	public void setMixerId(String mixerId) {
-		this.mixerId = mixerId;
-	}
-
-	public List<String> getKeys() {
-		return keys;
-	}
-
-	public void setKeys(List<String> keys) {
-		this.keys = keys;
-	}
-
-	public String getGenerator() {
-		return generator;
-	}
-
-	public void setGenerator(String generator) {
-		this.generator = generator;
+	public void setMixedVotes(List<Vote> mixedVotes) {
+		this.mixedVotes = mixedVotes;
 	}
 }

@@ -46,61 +46,50 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
- * {
- *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of a mixing request to mix public keys",
- *	"type": "object",
- *	"properties": {
- *		"mixerId": { "type": "string" },
- *		"keys":  {
- *			"type": "array",
- *			"items": { "type": "string"}
- *		},
- *		"generator" : { "type": "string" }
- *	},
- *	"required": ["mixerId", "keys", "generator"],
- *	"additionalProperties": false
- * }
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of partially decrypted votes.",
+	"type": "object",
+	"properties": {
+		"partiallyDecryptedVotes":  {
+			"type": "array",
+			"items": { "type": "string"}
+		},
+		"proof" : { "$ref": "proof.jsd" }
+	},
+	"required": ["partiallyDecryptedVotes", "proof"],
+	"additionalProperties": false
+}
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixerId", "keys", "generator"})
-public class KeyMixingRequest {
-	private String mixerId;
-	private List<String> keys;
-	private String generator;
+@XmlType(propOrder={"partiallyDecryptedVotes", "proof"})
+public class PartialDecryption {
+	private List<String> partiallyDecryptedVotes;
+	private Proof proof;
 
-	public KeyMixingRequest() {
+	public PartialDecryption() {
 	}
 
-	public KeyMixingRequest(String mixerId, List<String> keys, String generator) {
-		this.mixerId = mixerId;
-		this.keys = keys;
-		this.generator = generator;
+	public PartialDecryption(List<String> partiallyDecryptedVotes, Proof proof) {
+		this.partiallyDecryptedVotes = partiallyDecryptedVotes;
+		this.proof = proof;
 	}
 
-	public String getMixerId() {
-		return mixerId;
+	public List<String> getPartiallyDecryptedVotes() {
+		return partiallyDecryptedVotes;
 	}
 
-	public void setMixerId(String mixerId) {
-		this.mixerId = mixerId;
+	public void setPartiallyDecryptedVotes(List<String> partiallyDecryptedVotes) {
+		this.partiallyDecryptedVotes = partiallyDecryptedVotes;
 	}
 
-	public List<String> getKeys() {
-		return keys;
+	public Proof getProof() {
+		return proof;
 	}
 
-	public void setKeys(List<String> keys) {
-		this.keys = keys;
-	}
-
-	public String getGenerator() {
-		return generator;
-	}
-
-	public void setGenerator(String generator) {
-		this.generator = generator;
+	public void setProof(Proof proof) {
+		this.proof = proof;
 	}
 }

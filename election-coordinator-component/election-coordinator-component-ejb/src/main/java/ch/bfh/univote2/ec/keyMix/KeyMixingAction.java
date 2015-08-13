@@ -52,22 +52,23 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.message.Certificate;
-import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.JSONConverter;
+import ch.bfh.univote2.component.core.message.ElectoralRoll;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.QueryFactory;
-import java.io.StringReader;
-import java.nio.charset.Charset;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.Json;
-import javax.json.JsonException;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 /**
  *
@@ -147,17 +148,20 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 	}
 
-	protected JsonObject retrieveElectoralRoll(ActionContext actionContext) throws JsonException, UnivoteException {
+	protected ElectoralRoll retrieveElectoralRoll(ActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForElectoralRoll(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Electoral roll not published yet.");
 		}
-		//Prepare JsonObject
-		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-				Charset.forName("UTF-8"));
-		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-		return jsonReader.readObject();
+		byte[] message = result.getResult().getPost().get(0).getMessage();
+		ElectoralRoll electoralRoll;
+		try {
+			electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, message);
+		} catch (Exception ex) {
+			throw new UnivoteException("Invalid electoral roll message. Can not be unmarshalled.");
+		}
+		return electoralRoll;
 
 	}
 
@@ -171,7 +175,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		byte[] message = result.getResult().getPost().get(0).getMessage();
 		TrusteeCertificates trusteeCertificates;
 		try {
-			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
 		} catch (Exception ex) {
 			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.");
 		}
@@ -180,14 +184,21 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			throw new UnivoteException("Invalid trustees certificates message. mixerCertificates is missing.");
 		}
 		for (Certificate c : trusteeCertificates.getMixerCertificates()) {
-			// TODO Implement body of loop
+			try {
+				CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+				InputStream in = new ByteArrayInputStream(c.getPem().getBytes());
+				X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
+				PublicKey pk = cert.getPublicKey();
+				actionContext.getMixerKeys().put(c.getCommonName(), pk);
+			} catch (CertificateException ex) {
+				throw new UnivoteException("Invalid trustees certificates message. Could not load pem.", ex);
+			}
 		}
-
-		//TODO
 	}
 
 	protected void createMixingRequest(KeyMixingActionContext actionContext, String mixer) {
 		//TODO
+
 	}
 
 	protected void validteMixingResult(KeyMixingActionContext actionContext, Object mixingResult, String mixer) throws

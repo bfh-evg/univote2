@@ -42,65 +42,32 @@
 package ch.bfh.univote2.component.core.message;
 
 import java.util.List;
-import javax.xml.bind.annotation.XmlType;
 
 /**
- * <pre>
  * {
- *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of a mixing request to mix public keys",
- *	"type": "object",
- *	"properties": {
- *		"mixerId": { "type": "string" },
- *		"keys":  {
- *			"type": "array",
- *			"items": { "type": "string"}
- *		},
- *		"generator" : { "type": "string" }
- *	},
- *	"required": ["mixerId", "keys", "generator"],
- *	"additionalProperties": false
- * }
- * </pre>
+ * "$schema": "http://json-schema.org/draft-04/schema", "title": "UniVote2: Schema of the voter roll", "type": "object",
+ * "properties": { "voterIds": { "description": "Ids of the eligible voters", "type": "array", "items": { "type":
+ * "string" } } }, "required": ["voterIds"], "additionalProperties": false }
  *
- * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
+ * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixerId", "keys", "generator"})
-public class KeyMixingRequest {
-	private String mixerId;
-	private List<String> keys;
-	private String generator;
+public class ElectoralRoll {
 
-	public KeyMixingRequest() {
+	private List<String> voterIds;
+
+	public ElectoralRoll() {
 	}
 
-	public KeyMixingRequest(String mixerId, List<String> keys, String generator) {
-		this.mixerId = mixerId;
-		this.keys = keys;
-		this.generator = generator;
+	public ElectoralRoll(List<String> voterIds) {
+		this.voterIds = voterIds;
 	}
 
-	public String getMixerId() {
-		return mixerId;
+	public List<String> getVoterIds() {
+		return voterIds;
 	}
 
-	public void setMixerId(String mixerId) {
-		this.mixerId = mixerId;
+	public void setVoterIds(List<String> voterIds) {
+		this.voterIds = voterIds;
 	}
 
-	public List<String> getKeys() {
-		return keys;
-	}
-
-	public void setKeys(List<String> keys) {
-		this.keys = keys;
-	}
-
-	public String getGenerator() {
-		return generator;
-	}
-
-	public void setGenerator(String generator) {
-		this.generator = generator;
-	}
 }

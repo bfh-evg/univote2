@@ -48,6 +48,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  *
@@ -78,7 +79,7 @@ public class ConverterTest {
 				+ "	\"pem\": \"UsAMBYxFDASBWQWFgNasdVBAMMnCdfZIMB4XDTE1MDYyMjEjEAWUWQyMzU0MloXDTI1MDYyMfjEyMzUigM\"\n"
 				+ "}";
 		Certificate cert
-				= Converter.unmarshal(Certificate.class,
+				= JSONConverter.unmarshal(Certificate.class,
 						jsonCertificate.getBytes(Charset.forName("UTF-8")));
 
 		assertEquals("hans.muster@bfh.ch", cert.getCommonName());
@@ -118,7 +119,7 @@ public class ConverterTest {
 				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		ElectionDefinition ed
-				= Converter.unmarshal(ElectionDefinition.class,
+				= JSONConverter.unmarshal(ElectionDefinition.class,
 						jsonElectionDefinition.getBytes(Charset.forName("UTF-8")));
 
 		// Check the content of the ElectionDefinition object.
@@ -162,7 +163,7 @@ public class ConverterTest {
 				+ "  }\n"
 				+ "}";
 		Ballot eb
-				= Converter.unmarshal(Ballot.class,
+				= JSONConverter.unmarshal(Ballot.class,
 						jsonBallot.getBytes(Charset.forName("UTF-8")));
 
 		EncryptedVote ev = eb.getEncryptedVote();
@@ -187,7 +188,7 @@ public class ConverterTest {
 				+ "  \"hashSetting\": \"H2\"\n"
 				+ "}";
 		CryptoSetting cs
-				= Converter.unmarshal(CryptoSetting.class,
+				= JSONConverter.unmarshal(CryptoSetting.class,
 						jsonCryptoSetting.getBytes(Charset.forName("UTF-8")));
 
 		assertEquals("RC1e", cs.getEncryptionSetting());
@@ -203,7 +204,7 @@ public class ConverterTest {
 				+ "}";
 
 		SecurityLevel sl
-				= Converter.unmarshal(SecurityLevel.class,
+				= JSONConverter.unmarshal(SecurityLevel.class,
 						jsonSecurityLevel.getBytes(Charset.forName("UTF-8")));
 
 		assertEquals(Integer.valueOf("3"), sl.getSecurityLevel());
@@ -221,7 +222,7 @@ public class ConverterTest {
 				+ "  }\n"
 				+ "}";
 		EncryptionKeyShare eks
-				= Converter.unmarshal(EncryptionKeyShare.class,
+				= JSONConverter.unmarshal(EncryptionKeyShare.class,
 						jsonBallot.getBytes(Charset.forName("UTF-8")));
 
 		assertEquals("1234567890", eks.getKeyShare());
@@ -247,7 +248,7 @@ public class ConverterTest {
 				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		AccessRight ar
-				= Converter.unmarshal(AccessRight.class,
+				= JSONConverter.unmarshal(AccessRight.class,
 						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ar);
@@ -283,7 +284,7 @@ public class ConverterTest {
 				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		AccessRight ar
-				= Converter.unmarshal(AccessRight.class,
+				= JSONConverter.unmarshal(AccessRight.class,
 						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ar);
@@ -320,7 +321,7 @@ public class ConverterTest {
 				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		AccessRight ar
-				= Converter.unmarshal(AccessRight.class,
+				= JSONConverter.unmarshal(AccessRight.class,
 						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ar);
@@ -348,7 +349,7 @@ public class ConverterTest {
 				+ "	\"tallierIds\": [\"tallierBaldr\", \"tallierUlla\", \"tallierFrigg\"]\n"
 				+ "}";
 		Trustees ts
-				= Converter.unmarshal(Trustees.class,
+				= JSONConverter.unmarshal(Trustees.class,
 						jsonTrustees.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ts);
@@ -429,7 +430,7 @@ public class ConverterTest {
 				+ "}";
 
 		TrusteeCertificates certs
-				= Converter.unmarshal(TrusteeCertificates.class,
+				= JSONConverter.unmarshal(TrusteeCertificates.class,
 						jsonTrusteeCertificates.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(certs);
@@ -449,7 +450,7 @@ public class ConverterTest {
 				+ "}";
 
 		EncryptionKey ek
-				= Converter.unmarshal(EncryptionKey.class,
+				= JSONConverter.unmarshal(EncryptionKey.class,
 						jsonEncryptionKey.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ek);
@@ -492,13 +493,43 @@ public class ConverterTest {
 				+ "}";
 
 		VoterCertificates certs
-				= Converter.unmarshal(VoterCertificates.class,
+				= JSONConverter.unmarshal(VoterCertificates.class,
 						jsonVoterCertificates.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(certs);
 
 		assertNotNull(certs.getVoterCertificates());
 		assertEquals(2, certs.getVoterCertificates().size());
+	}
+
+	@Test
+	public void testConvertJSONKeyMixingRequest() throws Exception {
+		String jsonKeyMixingRequest
+				= "{\n"
+				+ "	\"mixerId\": \"mixer1\",\n"
+				+ "	\"keys\": [\"1234\", \"5678\", \"9012\"],\n"
+				+ "	\"generator\": \"1234567890\"\n"
+				+ "}";
+
+		KeyMixingRequest kmr
+				= JSONConverter.unmarshal(KeyMixingRequest.class,
+						jsonKeyMixingRequest.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(kmr);
+
+		assertEquals("mixer1", kmr.getMixerId());
+
+		assertEquals(3, kmr.getKeys().size());
+		assertEquals("1234", kmr.getKeys().get(0));
+		assertEquals("5678", kmr.getKeys().get(1));
+		assertEquals("9012", kmr.getKeys().get(2));
+
+		assertEquals("1234567890", kmr.getGenerator());
+
+		String marshalledKeyMixingRequest
+				= JSONConverter.marshal(kmr);
+
+		JSONAssert.assertEquals(jsonKeyMixingRequest, marshalledKeyMixingRequest, true);
 	}
 
 	@Test
@@ -515,7 +546,7 @@ public class ConverterTest {
 				+ "}";
 
 		KeyMixingResult mkr
-				= Converter.unmarshal(KeyMixingResult.class,
+				= JSONConverter.unmarshal(KeyMixingResult.class,
 						jsonKeyMixingResult.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(mkr);
@@ -532,5 +563,114 @@ public class ConverterTest {
 		assertEquals("1234567890", mkr.getProof().getCommitment());
 		assertEquals("9876543210", mkr.getProof().getChallenge());
 		assertEquals("1234567890", mkr.getProof().getResponse());
+	}
+
+	@Test
+	public void testConvertJSONMixedKeys() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"mixedKeys\": [\"1234\", \"5678\", \"9012\"],\n"
+				+ "	\"generator\": \"1234567890\"\n"
+				+ "}";
+
+		MixedKeys dto
+				= JSONConverter.unmarshal(MixedKeys.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertNotNull(dto.getMixedKeys());
+		assertEquals(3, dto.getMixedKeys().size());
+		assertEquals("1234", dto.getMixedKeys().get(0));
+		assertEquals("5678", dto.getMixedKeys().get(1));
+		assertEquals("9012", dto.getMixedKeys().get(2));
+
+		assertEquals("1234567890", dto.getGenerator());
+
+		String output
+				= JSONConverter.marshal(dto);
+
+		JSONAssert.assertEquals(input, output, true);
+	}
+
+	@Test
+	public void testConvertJSONMixedVotes() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"mixedVotes\": [\n"
+				+ "		{\n"
+				+ "			\"firstValue\": \"1234\",\n"
+				+ "			\"secondValue\": \"4321\"\n"
+				+ "		},\n"
+				+ "		{\n"
+				+ "			\"firstValue\": \"5678\",\n"
+				+ "			\"secondValue\": \"8765\"\n"
+				+ "		},\n"
+				+ "		{\n"
+				+ "			\"firstValue\": \"9012\",\n"
+				+ "			\"secondValue\": \"2109\"\n"
+				+ "		}\n"
+				+ "	]\n"
+				+ "}";
+
+		MixedVotes dto
+				= JSONConverter.unmarshal(MixedVotes.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertNotNull(dto.getMixedVotes());
+		assertEquals(3, dto.getMixedVotes().size());
+		assertEquals("1234", dto.getMixedVotes().get(0).getFirstValue());
+		assertEquals("4321", dto.getMixedVotes().get(0).getSecondValue());
+		assertEquals("5678", dto.getMixedVotes().get(1).getFirstValue());
+		assertEquals("8765", dto.getMixedVotes().get(1).getSecondValue());
+		assertEquals("9012", dto.getMixedVotes().get(2).getFirstValue());
+		assertEquals("2109", dto.getMixedVotes().get(2).getSecondValue());
+
+		String output
+				= JSONConverter.marshal(dto);
+
+		JSONAssert.assertEquals(input, output, true);
+	}
+
+	@Test
+	public void testConvertJSONPartiallyDecryptedVotes() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"partiallyDecryptedVotes\": [\n"
+				+ "		\"1234\",\n"
+				+ "		\"5678\",\n"
+				+ "		\"9012\"\n"
+				+ "	],\n"
+				+ " \"proof\": {\n"
+				+ "    \"commitment\": \"1234567890\",\n"
+				+ "    \"challenge\": \"9876543210\",\n"
+				+ "    \"response\": \"1234567890\"\n"
+				+ " }\n"
+				+ "}";
+
+		PartialDecryption dto
+				= JSONConverter.unmarshal(PartialDecryption.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertNotNull(dto.getPartiallyDecryptedVotes());
+		assertEquals(3, dto.getPartiallyDecryptedVotes().size());
+		assertEquals("1234", dto.getPartiallyDecryptedVotes().get(0));
+		assertEquals("5678", dto.getPartiallyDecryptedVotes().get(1));
+		assertEquals("9012", dto.getPartiallyDecryptedVotes().get(2));
+
+		assertNotNull(dto.getProof());
+		assertEquals("1234567890", dto.getProof().getCommitment());
+		assertEquals("9876543210", dto.getProof().getChallenge());
+		assertEquals("1234567890", dto.getProof().getResponse());
+
+		String output
+				= JSONConverter.marshal(dto);
+		System.out.println(output);
+
+		JSONAssert.assertEquals(input, output, true);
 	}
 }

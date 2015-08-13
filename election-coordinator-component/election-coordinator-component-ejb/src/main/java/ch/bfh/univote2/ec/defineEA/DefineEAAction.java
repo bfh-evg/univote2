@@ -52,7 +52,6 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputTask;
-import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -81,13 +80,14 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	private InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
-	@EJB
-	private ConfigurationManager configurationManager;
+	// TODO Add field when used
+	//@EJB
+	//private ConfigurationManager configurationManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		this.informationService.informTenant(ack, "Created new context.");
+		this.informationService.informTenant(ack, "Created new context for " + ACTION_NAME);
 		return new DefineEAActionContext(ack);
 	}
 
@@ -99,9 +99,9 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 					QueryFactory.getQueryForEACert(actionContext.getSection()));
 			return !result.getResult().getPost().isEmpty();
 		} catch (UnivoteException ex) {
-			logger.log(Level.WARNING, "Could not request ea certificate.", ex);
+			logger.log(Level.WARNING, "No certificate for EA found on board, or another error occured.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not check post condition.");
+					"No certificate for EA found on board, or another error occured.");
 			return false;
 		}
 	}
@@ -125,7 +125,7 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 				this.runInternal(deaa);
 			} else {
 				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"No name set for ea.");
+						"No name set for EA.");
 				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			}
 		} else {
@@ -152,8 +152,8 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			}
 		} else {
-			this.informationService.informTenant(actionContext.getActionContextKey(), "Unknown notification: "
-					+ notification.toString());
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Unknown notification: " + notification.toString());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 

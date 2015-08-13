@@ -48,52 +48,41 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of a mixing request to mix public keys",
+ *	"title": "UniVote2: Schema of mixed public keys",
  *	"type": "object",
  *	"properties": {
- *		"mixerId": { "type": "string" },
- *		"keys":  {
+ *		"mixedKeys":  {
  *			"type": "array",
  *			"items": { "type": "string"}
  *		},
  *		"generator" : { "type": "string" }
  *	},
- *	"required": ["mixerId", "keys", "generator"],
+ *	"required": ["mixedKeys", "generator"],
  *	"additionalProperties": false
  * }
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixerId", "keys", "generator"})
-public class KeyMixingRequest {
-	private String mixerId;
-	private List<String> keys;
+@XmlType(propOrder={"mixedKeys", "generator"})
+public class MixedKeys {
+	private List<String> mixedKeys;
 	private String generator;
 
-	public KeyMixingRequest() {
+	public MixedKeys() {
 	}
 
-	public KeyMixingRequest(String mixerId, List<String> keys, String generator) {
-		this.mixerId = mixerId;
-		this.keys = keys;
+	public MixedKeys(List<String> mixedKeys, String generator) {
+		this.mixedKeys = mixedKeys;
 		this.generator = generator;
 	}
 
-	public String getMixerId() {
-		return mixerId;
+	public List<String> getMixedKeys() {
+		return mixedKeys;
 	}
 
-	public void setMixerId(String mixerId) {
-		this.mixerId = mixerId;
-	}
-
-	public List<String> getKeys() {
-		return keys;
-	}
-
-	public void setKeys(List<String> keys) {
-		this.keys = keys;
+	public void setMixedKeys(List<String> mixedKeys) {
+		this.mixedKeys = mixedKeys;
 	}
 
 	public String getGenerator() {
