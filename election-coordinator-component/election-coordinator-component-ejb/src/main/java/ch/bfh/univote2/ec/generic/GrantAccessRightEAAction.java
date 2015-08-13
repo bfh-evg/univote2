@@ -51,7 +51,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.message.Certificate;
-import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -224,7 +224,7 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 			throws UnivoteException {
 		Certificate eaCertificate;
 		try {
-			eaCertificate = Converter.unmarshal(Certificate.class, message);
+			eaCertificate = JSONConverter.unmarshal(Certificate.class, message);
 		} catch (Exception ex) {
 			throw new UnivoteException("Invalid ea certificate message. Can't be unmarshalled.", ex);
 		}

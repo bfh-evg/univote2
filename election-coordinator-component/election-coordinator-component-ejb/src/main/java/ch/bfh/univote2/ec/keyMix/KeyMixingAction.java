@@ -52,7 +52,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.message.Certificate;
-import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.ElectoralRoll;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.services.InformationService;
@@ -157,7 +157,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		byte[] message = result.getResult().getPost().get(0).getMessage();
 		ElectoralRoll electoralRoll;
 		try {
-			electoralRoll = Converter.unmarshal(ElectoralRoll.class, message);
+			electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, message);
 		} catch (Exception ex) {
 			throw new UnivoteException("Invalid electoral roll message. Can not be unmarshalled.");
 		}
@@ -175,7 +175,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		byte[] message = result.getResult().getPost().get(0).getMessage();
 		TrusteeCertificates trusteeCertificates;
 		try {
-			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
 		} catch (Exception ex) {
 			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.");
 		}

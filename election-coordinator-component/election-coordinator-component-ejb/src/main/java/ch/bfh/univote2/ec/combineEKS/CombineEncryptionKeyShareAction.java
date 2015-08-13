@@ -59,9 +59,9 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
-import ch.bfh.univote2.component.core.message.Converter;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
+import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -208,7 +208,7 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		byte[] message = result.getResult().getPost().get(0).getMessage();
 		TrusteeCertificates trusteeCertificates;
 		try {
-			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
 		} catch (Exception ex) {
 			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.", ex);
 		}
@@ -219,13 +219,13 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
 		byte[] message = result.getResult().getPost().get(0).getMessage();
-		CryptoSetting cryptoSetting = Converter.unmarshal(CryptoSetting.class, message);
+		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, message);
 		actionContext.setCryptoSetting(cryptoSetting);
 	}
 
 	protected boolean validateAndAddKeyShare(CombineEncryptionKeyShareActionContext actionContext, PostDTO post) {
 		try {
-			EncryptionKeyShare encryptionKeyShare = Converter.unmarshal(EncryptionKeyShare.class, post.getMessage());
+			EncryptionKeyShare encryptionKeyShare = JSONConverter.unmarshal(EncryptionKeyShare.class, post.getMessage());
 
 			//Validate Proof
 			//TODO retrieve modulus and generator

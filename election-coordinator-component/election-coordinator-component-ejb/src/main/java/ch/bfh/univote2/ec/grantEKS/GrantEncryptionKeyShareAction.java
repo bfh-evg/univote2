@@ -51,7 +51,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.message.Certificate;
-import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
@@ -180,7 +180,7 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 					byte[] message = post.getMessage();
 					TrusteeCertificates trusteeCertificates;
 					try {
-						trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+						trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
 					} catch (Exception ex) {
 						throw new UnivoteException("Invalid trustees certificates message. Can't be unmarshalled.", ex);
 					}
@@ -214,7 +214,7 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 		byte[] message = result.getResult().getPost().get(0).getMessage();
 		TrusteeCertificates trusteeCertificates;
 		try {
-			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, message);
+			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
 		} catch (Exception ex) {
 			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.", ex);
 		}
