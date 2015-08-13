@@ -41,6 +41,10 @@
  */
 package ch.bfh.univote2.component.core.message;
 
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * <pre>
  * {
@@ -82,6 +86,78 @@ package ch.bfh.univote2.component.core.message;
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
+@XmlType(propOrder={"id", "type", "title", "description", "optionIds", "ruleIds"})
 public class ElectionIssue {
+	private Integer id;
+	private String type;
+	private I18nText title;
+	private I18nText description;
+	private List<Integer> optionIds;
+	private List<Integer> ruleIds;
 
+	public ElectionIssue() {
+	}
+
+	public ElectionIssue(Integer id, String type, I18nText title, I18nText description, List<Integer> optionIds,
+			List<Integer> ruleIds) {
+		this.id = id;
+		this.type = type;
+		this.title = title;
+		this.description = description;
+		this.optionIds = optionIds;
+		this.ruleIds = ruleIds;
+	}
+
+	@XmlElement(required = true)
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@XmlElement(required = true)
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	@XmlElement(required = true)
+	public I18nText getTitle() {
+		return title;
+	}
+
+	public void setTitle(I18nText title) {
+		this.title = title;
+	}
+
+	public I18nText getDescription() {
+		return description;
+	}
+
+	public void setDescription(I18nText description) {
+		this.description = description;
+	}
+
+	@XmlElement(required = true)
+	public List<Integer> getOptionIds() {
+		return optionIds;
+	}
+
+	public void setOptionIds(List<Integer> optionIds) {
+		this.optionIds = optionIds;
+	}
+
+	@XmlElement(required = true)
+	public List<Integer> getRuleIds() {
+		return ruleIds;
+	}
+
+	public void setRuleIds(List<Integer> ruleIds) {
+		this.ruleIds = ruleIds;
+	}
 }

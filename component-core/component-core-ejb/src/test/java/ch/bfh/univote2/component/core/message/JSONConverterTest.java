@@ -150,6 +150,46 @@ public class JSONConverterTest {
 	}
 
 	@Test
+	public void testConvertJSONElectionIssue() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"id\": \"44\",\n"
+				+ "	\"type\": \"Election\",\n"
+				+ "	\"title\": {\n"
+				+ "		\"default\": \"Election 2015\"\n"
+				+ "	},\n"
+				+ "	\"description\": {\n"
+				+ "		\"default\": \"Some description...\"\n"
+				+ "	},\n"
+				+ "	\"optionIds\": [6, 10, 56],\n"
+				+ "	\"ruleIds\": [18, 5, 88]\n"
+				+ "}";
+
+		ElectionIssue dto
+				= JSONConverter.unmarshal(ElectionIssue.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertEquals(44, (int) dto.getId());
+		assertEquals("Election", dto.getType());
+		assertNotNull(dto.getTitle());
+		assertEquals("Election 2015", dto.getTitle().getDefault());
+		assertNotNull(dto.getDescription());
+		assertEquals("Some description...", dto.getDescription().getDefault());
+
+		assertEquals(3, dto.getOptionIds().size());
+		assertEquals(6, (int) dto.getOptionIds().get(0));
+		assertEquals(10, (int) dto.getOptionIds().get(1));
+		assertEquals(56, (int) dto.getOptionIds().get(2));
+
+		assertEquals(3, dto.getRuleIds().size());
+		assertEquals(18, (int) dto.getRuleIds().get(0));
+		assertEquals(5, (int) dto.getRuleIds().get(1));
+		assertEquals(88, (int) dto.getRuleIds().get(2));
+	}
+
+	@Test
 	public void testConvertJSONEncryptedBallot() throws Exception {
 		String jsonBallot
 				= "{\n"
@@ -700,5 +740,121 @@ public class JSONConverterTest {
 
 		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
 		assertNull(converter.getUnmarshalledMessage());
+	}
+
+	@Test
+	public void testIsOfTypeEncryptionKey() throws Exception {
+		String message
+				= "{\n"
+				+ "	\"encryptionKey\": \"1234567890\"\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertTrue(converter.isOfType(EncryptionKey.class, message.getBytes(Charset.forName("UTF-8"))));
+
+		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
+		assertNull(converter.getUnmarshalledMessage());
+}
+
+	@Test
+	public void testIsOfTypeElectionIssue1() throws Exception {
+		String message
+				= "{\n"
+				+ "	\"id\": 44,\n"
+				+ "	\"type\": \"Election\",\n"
+				+ "	\"title\": {\n"
+				+ "		\"default\": \"Election 2015\"\n"
+				+ "	},\n"
+				+ "	\"description\": {\n"
+				+ "		\"default\": \"Some description...\"\n"
+				+ "	},\n"
+				+ "	\"optionIds\": [6, 10, 56],\n"
+				+ "	\"ruleIds\": [18, 5, 88]\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertTrue(converter.isOfType(ElectionIssue.class, message.getBytes(Charset.forName("UTF-8"))));
+
+		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
+		assertNull(converter.getUnmarshalledMessage());
+	}
+
+	@Test
+	public void testIsOfTypeElectionIssue2() throws Exception {
+		String message
+				= "{\n"
+				+ "	\"id\": 44,\n"
+				+ "	\"type\": \"Election\",\n"
+				+ "	\"title\": {\n"
+				+ "		\"default\": \"Election 2015\"\n"
+				+ "	},\n"
+				+ "	\"optionIds\": [6, 10, 56],\n"
+				+ "	\"ruleIds\": [18, 5, 88]\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertTrue(converter.isOfType(ElectionIssue.class, message.getBytes(Charset.forName("UTF-8"))));
+
+		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
+		assertNull(converter.getUnmarshalledMessage());
+	}
+
+	@Test
+	public void testIsOfTypeElectionIssue3() throws Exception {
+		String message
+				= "{\n"
+				+ "	\"type\": \"Election\",\n"
+				+ "	\"title\": {\n"
+				+ "		\"default\": \"Election 2015\"\n"
+				+ "	},\n"
+				+ "	\"optionIds\": [6, 10, 56],\n"
+				+ "	\"ruleIds\": [18, 5, 88]\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertFalse(converter.isOfType(ElectionIssue.class, message.getBytes(Charset.forName("UTF-8"))));
+	}
+
+	@Test
+	public void testIsOfTypeElectoralRoll1() throws Exception {
+		String message
+				= "{\n"
+				+ "	\"voterIds\": [ \"1234\", \"5678\", \"9012\" ]\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertTrue(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
+	}
+
+	@Test
+	public void testIsOfTypeElectoralRoll2() throws Exception {
+		String message
+				= "{\n"
+				+ "	\"voterIds\": [  ]\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertTrue(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
+	}
+
+	@Test
+	public void testIsOfTypeElectoralRoll3() throws Exception {
+		String message
+				= "{\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
+	}
+
+	@Test
+	public void testIsOfTypeElectoralRoll4() throws Exception {
+		String message
+				= "{\n"
+				+ "	\"someIds\": [ \"1234\", \"5678\", \"9012\" ]\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
 	}
 }

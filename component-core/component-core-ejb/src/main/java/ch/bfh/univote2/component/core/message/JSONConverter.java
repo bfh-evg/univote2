@@ -141,7 +141,6 @@ public class JSONConverter {
 	public <T> boolean isOfType(Class<T> type, byte[] message) {
 		try {
 			domainObject = unmarshal(type, message);
-			// TODO fix me: domainObject is NOT null, but empty...
 			if (notEmptyGetters(type)) {
 				return true;
 			} else {
