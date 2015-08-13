@@ -237,9 +237,9 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		actionContext.setCryptoSetting(cryptoSetting);
 	}
 
-	protected boolean validateAndAddKeyShare(CombineEncryptionKeyShareActionContext actionContext, PostDTO post) {
-		try {
-			EncryptionKeyShare encryptionKeyShare = JSONConverter.unmarshal(EncryptionKeyShare.class, post.getMessage());
+	protected boolean validateAndAddKeyShare(CombineEncryptionKeyShareActionContext actionContext, PostDTO post)
+			throws UnivoteException {
+		EncryptionKeyShare encryptionKeyShare = JSONConverter.unmarshal(EncryptionKeyShare.class, post.getMessage());
 
 		CyclicGroup cyclicGroup
 				= CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
