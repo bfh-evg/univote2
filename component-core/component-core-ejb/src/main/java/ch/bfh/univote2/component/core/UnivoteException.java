@@ -46,6 +46,7 @@ package ch.bfh.univote2.component.core;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 public class UnivoteException extends Exception {
+	private static final long serialVersionUID = 1L;
 
 	public UnivoteException(String message) {
 		super(message);
