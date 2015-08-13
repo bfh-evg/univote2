@@ -44,8 +44,8 @@ package ch.bfh.univote2.trustee;
 import ch.bfh.unicrypt.helper.math.MathUtil;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.message.AccessRight;
-import ch.bfh.univote2.component.core.message.Converter;
 import ch.bfh.univote2.component.core.message.DL;
+import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.RSA;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import java.math.BigInteger;
@@ -62,74 +62,74 @@ import java.util.List;
  */
 public class MessageFactory {
 
-	public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Integer amount, Date startTime,
-			Date endTime) throws UnivoteException {
+    public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Integer amount, Date startTime,
+	    Date endTime) throws UnivoteException {
 
-		AccessRight accessRight = new AccessRight();
-		accessRight.setGroup(group.getValue());
-		if (amount != null) {
-			accessRight.setAmount(amount);
-		}
-		if (startTime != null) {
-			accessRight.setStartTime(startTime);
-		}
-		if (endTime != null) {
-			accessRight.setEndTime(endTime);
-		}
-		if (publicKey instanceof DSAPublicKey) {
-			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
-			DL dl = new DL();
-			dl.setP(dsaPubKey.getParams().getP().toString(10));
-			dl.setQ(dsaPubKey.getParams().getQ().toString(10));
-			dl.setG(dsaPubKey.getParams().getG().toString(10));
-			dl.setPublickey(dsaPubKey.getY().toString(10));
-			accessRight.setCrypto(dl);
-		} else if (publicKey instanceof RSAPublicKey) {
-			RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
-			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
-
-			RSA rsa = new RSA(unicertRsaPubKey.toString(10));
-			accessRight.setCrypto(rsa);
-		} else {
-			throw new UnivoteException("Unsupported public key: " + publicKey.getClass());
-		}
-		try {
-			return Converter.marshal(accessRight).getBytes(Charset.forName("UTF-8"));
-		} catch (Exception ex) {
-			return null;
-		}
+	AccessRight accessRight = new AccessRight();
+	accessRight.setGroup(group.getValue());
+	if (amount != null) {
+	    accessRight.setAmount(amount);
 	}
-
-	public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Integer amount)
-			throws UnivoteException {
-		return MessageFactory.createAccessRight(group, publicKey, amount, null, null);
+	if (startTime != null) {
+	    accessRight.setStartTime(startTime);
 	}
-
-	public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey)
-			throws UnivoteException {
-		return MessageFactory.createAccessRight(group, publicKey, null, null, null);
+	if (endTime != null) {
+	    accessRight.setEndTime(endTime);
 	}
+	if (publicKey instanceof DSAPublicKey) {
+	    DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
+	    DL dl = new DL();
+	    dl.setP(dsaPubKey.getParams().getP().toString(10));
+	    dl.setQ(dsaPubKey.getParams().getQ().toString(10));
+	    dl.setG(dsaPubKey.getParams().getG().toString(10));
+	    dl.setPublickey(dsaPubKey.getY().toString(10));
+	    accessRight.setCrypto(dl);
+	} else if (publicKey instanceof RSAPublicKey) {
+	    RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
+	    BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
 
-	public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Date startTime, Date endTime)
-			throws UnivoteException {
-		return MessageFactory.createAccessRight(group, publicKey, null, startTime, endTime);
+	    RSA rsa = new RSA(unicertRsaPubKey.toString(10));
+	    accessRight.setCrypto(rsa);
+	} else {
+	    throw new UnivoteException("Unsupported public key: " + publicKey.getClass());
 	}
-
-	public static byte[] createTrusteeCerts(List<String> mixerCerts, List<String> tallierCerts) {
-		String message = "{";
-
-		message += "\"mixerCertificates\" : [";
-		for (String mixerCert : mixerCerts) {
-			message += mixerCert + ", ";
-		}
-		message = message.substring(0, message.length() - 2);
-		message += "], ";
-		message += "\"tallierCertificates\" : [";
-		for (String tallierCert : tallierCerts) {
-			message += tallierCert + ", ";
-		}
-		message = message.substring(0, message.length() - 2);
-		message += "]}";
-		return message.getBytes(Charset.forName("UTF-8"));
+	try {
+	    return JSONConverter.marshal(accessRight).getBytes(Charset.forName("UTF-8"));
+	} catch (Exception ex) {
+	    return null;
 	}
+    }
+
+    public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Integer amount)
+	    throws UnivoteException {
+	return MessageFactory.createAccessRight(group, publicKey, amount, null, null);
+    }
+
+    public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey)
+	    throws UnivoteException {
+	return MessageFactory.createAccessRight(group, publicKey, null, null, null);
+    }
+
+    public static byte[] createAccessRight(GroupEnum group, PublicKey publicKey, Date startTime, Date endTime)
+	    throws UnivoteException {
+	return MessageFactory.createAccessRight(group, publicKey, null, startTime, endTime);
+    }
+
+    public static byte[] createTrusteeCerts(List<String> mixerCerts, List<String> tallierCerts) {
+	String message = "{";
+
+	message += "\"mixerCertificates\" : [";
+	for (String mixerCert : mixerCerts) {
+	    message += mixerCert + ", ";
+	}
+	message = message.substring(0, message.length() - 2);
+	message += "], ";
+	message += "\"tallierCertificates\" : [";
+	for (String tallierCert : tallierCerts) {
+	    message += tallierCert + ", ";
+	}
+	message = message.substring(0, message.length() - 2);
+	message += "]}";
+	return message.getBytes(Charset.forName("UTF-8"));
+    }
 }
