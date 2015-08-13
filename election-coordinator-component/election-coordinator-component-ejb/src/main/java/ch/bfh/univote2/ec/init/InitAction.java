@@ -82,9 +82,9 @@ public class InitAction extends AbstractAction implements NotifiableAction {
 		InitUserInput userInput = (InitUserInput) notification;
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
 				userInput.getSection());
-		ActionContext newContext = new InitActionContext(ack, null);
+		ActionContext newContext = new InitActionContext(ack, new ArrayList<>());
 		this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-				userInput.getSection(), "New Section created.");
+				userInput.getSection(), "New course of action defined for section: " + userInput.getSection());
 		this.actionManager.runFinished(newContext, ResultStatus.FINISHED);
 	}
 
