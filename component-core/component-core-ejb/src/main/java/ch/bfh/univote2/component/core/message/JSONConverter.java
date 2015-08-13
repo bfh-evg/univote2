@@ -53,10 +53,13 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 /**
+ * Utility class that allows to convert JSON byte[] messages to objects of domain classes
+ * as well as to convert these instances to JSON message strings.
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class Converter {
+public class JSONConverter {
 
 	/**
 	 * Initilizes the JAXB context.
@@ -76,7 +79,7 @@ public class Converter {
 	/**
 	 * Converst a JSON 'ResultDTO' byte array into the corresponding domain class.
 	 *
-	 * @param <T> the Java type of the domain class the converstion takes place
+	 * @param <T> the Java type of the domain class the conversion takes place
 	 * @param type the actual type object
 	 * @param message a JSON 'ResultDTO' byte array
 	 * @return the Java instance of the domain class
@@ -84,7 +87,7 @@ public class Converter {
 	 */
 	public static <T> T unmarshal(Class<T> type, byte[] message) throws UnivoteException {
 		try {
-			JAXBContext jaxbContext = Converter.initJAXBContext(type);
+			JAXBContext jaxbContext = JSONConverter.initJAXBContext(type);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			InputStream stream = new ByteArrayInputStream(message);
 			return unmarshaller.unmarshal(new StreamSource(stream), type).getValue();
@@ -102,7 +105,7 @@ public class Converter {
 	 */
 	public static String marshal(Object object) throws UnivoteException {
 		try {
-			JAXBContext jaxbContext = Converter.initJAXBContext(object.getClass());
+			JAXBContext jaxbContext = JSONConverter.initJAXBContext(object.getClass());
 			StringWriter writer = new StringWriter();
 			Marshaller marshaller = jaxbContext.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);

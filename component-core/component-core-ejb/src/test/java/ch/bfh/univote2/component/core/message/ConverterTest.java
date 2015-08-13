@@ -79,7 +79,7 @@ public class ConverterTest {
 				+ "	\"pem\": \"UsAMBYxFDASBWQWFgNasdVBAMMnCdfZIMB4XDTE1MDYyMjEjEAWUWQyMzU0MloXDTI1MDYyMfjEyMzUigM\"\n"
 				+ "}";
 		Certificate cert
-				= Converter.unmarshal(Certificate.class,
+				= JSONConverter.unmarshal(Certificate.class,
 						jsonCertificate.getBytes(Charset.forName("UTF-8")));
 
 		assertEquals("hans.muster@bfh.ch", cert.getCommonName());
@@ -119,7 +119,7 @@ public class ConverterTest {
 				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		ElectionDefinition ed
-				= Converter.unmarshal(ElectionDefinition.class,
+				= JSONConverter.unmarshal(ElectionDefinition.class,
 						jsonElectionDefinition.getBytes(Charset.forName("UTF-8")));
 
 		// Check the content of the ElectionDefinition object.
@@ -163,7 +163,7 @@ public class ConverterTest {
 				+ "  }\n"
 				+ "}";
 		Ballot eb
-				= Converter.unmarshal(Ballot.class,
+				= JSONConverter.unmarshal(Ballot.class,
 						jsonBallot.getBytes(Charset.forName("UTF-8")));
 
 		EncryptedVote ev = eb.getEncryptedVote();
@@ -188,7 +188,7 @@ public class ConverterTest {
 				+ "  \"hashSetting\": \"H2\"\n"
 				+ "}";
 		CryptoSetting cs
-				= Converter.unmarshal(CryptoSetting.class,
+				= JSONConverter.unmarshal(CryptoSetting.class,
 						jsonCryptoSetting.getBytes(Charset.forName("UTF-8")));
 
 		assertEquals("RC1e", cs.getEncryptionSetting());
@@ -204,7 +204,7 @@ public class ConverterTest {
 				+ "}";
 
 		SecurityLevel sl
-				= Converter.unmarshal(SecurityLevel.class,
+				= JSONConverter.unmarshal(SecurityLevel.class,
 						jsonSecurityLevel.getBytes(Charset.forName("UTF-8")));
 
 		assertEquals(Integer.valueOf("3"), sl.getSecurityLevel());
@@ -222,7 +222,7 @@ public class ConverterTest {
 				+ "  }\n"
 				+ "}";
 		EncryptionKeyShare eks
-				= Converter.unmarshal(EncryptionKeyShare.class,
+				= JSONConverter.unmarshal(EncryptionKeyShare.class,
 						jsonBallot.getBytes(Charset.forName("UTF-8")));
 
 		assertEquals("1234567890", eks.getKeyShare());
@@ -248,7 +248,7 @@ public class ConverterTest {
 				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		AccessRight ar
-				= Converter.unmarshal(AccessRight.class,
+				= JSONConverter.unmarshal(AccessRight.class,
 						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ar);
@@ -284,7 +284,7 @@ public class ConverterTest {
 				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		AccessRight ar
-				= Converter.unmarshal(AccessRight.class,
+				= JSONConverter.unmarshal(AccessRight.class,
 						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ar);
@@ -321,7 +321,7 @@ public class ConverterTest {
 				+ "	\"endTime\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		AccessRight ar
-				= Converter.unmarshal(AccessRight.class,
+				= JSONConverter.unmarshal(AccessRight.class,
 						jsonAccessRight.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ar);
@@ -349,7 +349,7 @@ public class ConverterTest {
 				+ "	\"tallierIds\": [\"tallierBaldr\", \"tallierUlla\", \"tallierFrigg\"]\n"
 				+ "}";
 		Trustees ts
-				= Converter.unmarshal(Trustees.class,
+				= JSONConverter.unmarshal(Trustees.class,
 						jsonTrustees.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ts);
@@ -430,7 +430,7 @@ public class ConverterTest {
 				+ "}";
 
 		TrusteeCertificates certs
-				= Converter.unmarshal(TrusteeCertificates.class,
+				= JSONConverter.unmarshal(TrusteeCertificates.class,
 						jsonTrusteeCertificates.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(certs);
@@ -450,7 +450,7 @@ public class ConverterTest {
 				+ "}";
 
 		EncryptionKey ek
-				= Converter.unmarshal(EncryptionKey.class,
+				= JSONConverter.unmarshal(EncryptionKey.class,
 						jsonEncryptionKey.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(ek);
@@ -493,7 +493,7 @@ public class ConverterTest {
 				+ "}";
 
 		VoterCertificates certs
-				= Converter.unmarshal(VoterCertificates.class,
+				= JSONConverter.unmarshal(VoterCertificates.class,
 						jsonVoterCertificates.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(certs);
@@ -512,7 +512,7 @@ public class ConverterTest {
 				+ "}";
 
 		KeyMixingRequest kmr
-				= Converter.unmarshal(KeyMixingRequest.class,
+				= JSONConverter.unmarshal(KeyMixingRequest.class,
 						jsonKeyMixingRequest.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(kmr);
@@ -527,7 +527,7 @@ public class ConverterTest {
 		assertEquals("1234567890", kmr.getGenerator());
 
 		String marshalledKeyMixingRequest
-				= Converter.marshal(kmr);
+				= JSONConverter.marshal(kmr);
 
 		JSONAssert.assertEquals(jsonKeyMixingRequest, marshalledKeyMixingRequest, true);
 	}
@@ -546,7 +546,7 @@ public class ConverterTest {
 				+ "}";
 
 		KeyMixingResult mkr
-				= Converter.unmarshal(KeyMixingResult.class,
+				= JSONConverter.unmarshal(KeyMixingResult.class,
 						jsonKeyMixingResult.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(mkr);
@@ -574,7 +574,7 @@ public class ConverterTest {
 				+ "}";
 
 		MixedKeys dto
-				= Converter.unmarshal(MixedKeys.class,
+				= JSONConverter.unmarshal(MixedKeys.class,
 						input.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(dto);
@@ -588,7 +588,7 @@ public class ConverterTest {
 		assertEquals("1234567890", dto.getGenerator());
 
 		String output
-				= Converter.marshal(dto);
+				= JSONConverter.marshal(dto);
 
 		JSONAssert.assertEquals(input, output, true);
 	}
@@ -614,7 +614,7 @@ public class ConverterTest {
 				+ "}";
 
 		MixedVotes dto
-				= Converter.unmarshal(MixedVotes.class,
+				= JSONConverter.unmarshal(MixedVotes.class,
 						input.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(dto);
@@ -629,7 +629,7 @@ public class ConverterTest {
 		assertEquals("2109", dto.getMixedVotes().get(2).getSecondValue());
 
 		String output
-				= Converter.marshal(dto);
+				= JSONConverter.marshal(dto);
 
 		JSONAssert.assertEquals(input, output, true);
 	}
@@ -651,7 +651,7 @@ public class ConverterTest {
 				+ "}";
 
 		PartialDecryption dto
-				= Converter.unmarshal(PartialDecryption.class,
+				= JSONConverter.unmarshal(PartialDecryption.class,
 						input.getBytes(Charset.forName("UTF-8")));
 
 		assertNotNull(dto);
@@ -668,7 +668,7 @@ public class ConverterTest {
 		assertEquals("1234567890", dto.getProof().getResponse());
 
 		String output
-				= Converter.marshal(dto);
+				= JSONConverter.marshal(dto);
 		System.out.println(output);
 
 		JSONAssert.assertEquals(input, output, true);
