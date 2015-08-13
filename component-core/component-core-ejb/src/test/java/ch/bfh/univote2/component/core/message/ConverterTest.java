@@ -48,6 +48,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  *
@@ -502,6 +503,36 @@ public class ConverterTest {
 	}
 
 	@Test
+	public void testConvertJSONKeyMixingRequest() throws Exception {
+		String jsonKeyMixingRequest
+				= "{\n"
+				+ "	\"mixerId\": \"mixer1\",\n"
+				+ "	\"keys\": [\"1234\", \"5678\", \"9012\"],\n"
+				+ "	\"generator\": \"1234567890\"\n"
+				+ "}";
+
+		KeyMixingRequest kmr
+				= Converter.unmarshal(KeyMixingRequest.class,
+						jsonKeyMixingRequest.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(kmr);
+
+		assertEquals("mixer1", kmr.getMixerId());
+
+		assertEquals(3, kmr.getKeys().size());
+		assertEquals("1234", kmr.getKeys().get(0));
+		assertEquals("5678", kmr.getKeys().get(1));
+		assertEquals("9012", kmr.getKeys().get(2));
+
+		assertEquals("1234567890", kmr.getGenerator());
+
+		String marshalledKeyMixingRequest
+				= Converter.marshal(kmr);
+
+		JSONAssert.assertEquals(jsonKeyMixingRequest, marshalledKeyMixingRequest, true);
+	}
+
+	@Test
 	public void testConvertJSONKeyMixingResult() throws Exception {
 		String jsonKeyMixingResult
 				= "{\n"
@@ -532,5 +563,114 @@ public class ConverterTest {
 		assertEquals("1234567890", mkr.getProof().getCommitment());
 		assertEquals("9876543210", mkr.getProof().getChallenge());
 		assertEquals("1234567890", mkr.getProof().getResponse());
+	}
+
+	@Test
+	public void testConvertJSONMixedKeys() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"mixedKeys\": [\"1234\", \"5678\", \"9012\"],\n"
+				+ "	\"generator\": \"1234567890\"\n"
+				+ "}";
+
+		MixedKeys dto
+				= Converter.unmarshal(MixedKeys.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertNotNull(dto.getMixedKeys());
+		assertEquals(3, dto.getMixedKeys().size());
+		assertEquals("1234", dto.getMixedKeys().get(0));
+		assertEquals("5678", dto.getMixedKeys().get(1));
+		assertEquals("9012", dto.getMixedKeys().get(2));
+
+		assertEquals("1234567890", dto.getGenerator());
+
+		String output
+				= Converter.marshal(dto);
+
+		JSONAssert.assertEquals(input, output, true);
+	}
+
+	@Test
+	public void testConvertJSONMixedVotes() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"mixedVotes\": [\n"
+				+ "		{\n"
+				+ "			\"firstValue\": \"1234\",\n"
+				+ "			\"secondValue\": \"4321\"\n"
+				+ "		},\n"
+				+ "		{\n"
+				+ "			\"firstValue\": \"5678\",\n"
+				+ "			\"secondValue\": \"8765\"\n"
+				+ "		},\n"
+				+ "		{\n"
+				+ "			\"firstValue\": \"9012\",\n"
+				+ "			\"secondValue\": \"2109\"\n"
+				+ "		}\n"
+				+ "	]\n"
+				+ "}";
+
+		MixedVotes dto
+				= Converter.unmarshal(MixedVotes.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertNotNull(dto.getMixedVotes());
+		assertEquals(3, dto.getMixedVotes().size());
+		assertEquals("1234", dto.getMixedVotes().get(0).getFirstValue());
+		assertEquals("4321", dto.getMixedVotes().get(0).getSecondValue());
+		assertEquals("5678", dto.getMixedVotes().get(1).getFirstValue());
+		assertEquals("8765", dto.getMixedVotes().get(1).getSecondValue());
+		assertEquals("9012", dto.getMixedVotes().get(2).getFirstValue());
+		assertEquals("2109", dto.getMixedVotes().get(2).getSecondValue());
+
+		String output
+				= Converter.marshal(dto);
+
+		JSONAssert.assertEquals(input, output, true);
+	}
+
+	@Test
+	public void testConvertJSONPartiallyDecryptedVotes() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"partiallyDecryptedVotes\": [\n"
+				+ "		\"1234\",\n"
+				+ "		\"5678\",\n"
+				+ "		\"9012\"\n"
+				+ "	],\n"
+				+ " \"proof\": {\n"
+				+ "    \"commitment\": \"1234567890\",\n"
+				+ "    \"challenge\": \"9876543210\",\n"
+				+ "    \"response\": \"1234567890\"\n"
+				+ " }\n"
+				+ "}";
+
+		PartialDecryption dto
+				= Converter.unmarshal(PartialDecryption.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertNotNull(dto.getPartiallyDecryptedVotes());
+		assertEquals(3, dto.getPartiallyDecryptedVotes().size());
+		assertEquals("1234", dto.getPartiallyDecryptedVotes().get(0));
+		assertEquals("5678", dto.getPartiallyDecryptedVotes().get(1));
+		assertEquals("9012", dto.getPartiallyDecryptedVotes().get(2));
+
+		assertNotNull(dto.getProof());
+		assertEquals("1234567890", dto.getProof().getCommitment());
+		assertEquals("9876543210", dto.getProof().getChallenge());
+		assertEquals("1234567890", dto.getProof().getResponse());
+
+		String output
+				= Converter.marshal(dto);
+		System.out.println(output);
+
+		JSONAssert.assertEquals(input, output, true);
 	}
 }

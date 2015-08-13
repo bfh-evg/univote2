@@ -41,66 +41,39 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import java.util.List;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * <pre>
- * {
- *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of a mixing request to mix public keys",
- *	"type": "object",
- *	"properties": {
- *		"mixerId": { "type": "string" },
- *		"keys":  {
- *			"type": "array",
- *			"items": { "type": "string"}
- *		},
- *		"generator" : { "type": "string" }
- *	},
- *	"required": ["mixerId", "keys", "generator"],
- *	"additionalProperties": false
- * }
- * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixerId", "keys", "generator"})
-public class KeyMixingRequest {
-	private String mixerId;
-	private List<String> keys;
-	private String generator;
+@XmlType(propOrder = {"firstValue", "secondValue"})
+public class Vote {
 
-	public KeyMixingRequest() {
+	private String firstValue;
+	private String secondValue;
+
+	public Vote() {
 	}
 
-	public KeyMixingRequest(String mixerId, List<String> keys, String generator) {
-		this.mixerId = mixerId;
-		this.keys = keys;
-		this.generator = generator;
+	public Vote(String firstValue, String secondValue) {
+		this.firstValue = firstValue;
+		this.secondValue = secondValue;
 	}
 
-	public String getMixerId() {
-		return mixerId;
+	public String getFirstValue() {
+		return firstValue;
 	}
 
-	public void setMixerId(String mixerId) {
-		this.mixerId = mixerId;
+	public void setFirstValue(String firstValue) {
+		this.firstValue = firstValue;
 	}
 
-	public List<String> getKeys() {
-		return keys;
+	public String getSecondValue() {
+		return secondValue;
 	}
 
-	public void setKeys(List<String> keys) {
-		this.keys = keys;
-	}
-
-	public String getGenerator() {
-		return generator;
-	}
-
-	public void setGenerator(String generator) {
-		this.generator = generator;
+	public void setSecondValue(String secondValue) {
+		this.secondValue = secondValue;
 	}
 }
