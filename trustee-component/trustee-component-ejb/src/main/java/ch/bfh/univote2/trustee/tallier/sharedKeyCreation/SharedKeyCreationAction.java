@@ -43,6 +43,8 @@ package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.uniboard.data.Transformer;
+import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
@@ -73,10 +75,10 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
-import ch.bfh.univote2.component.core.message.AccessRight;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.Proof;
+import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.SecurePersistenceService;
@@ -134,16 +136,11 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    return false;
 	}
 	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
-	if (Objects.equals(Boolean.TRUE, skcac.getIsPostConditionReached())) {
-	    return true;
-	}
-
 	try {
 	    PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 	    ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 								 QueryFactory.getQueryForEncryptionKeyShare(actionContext.getSection(), publicKey));
 	    if (!result.getResult().getPost().isEmpty()) {
-		skcac.setIsPostConditionReached(Boolean.TRUE);
 		return true;
 	    }
 	} catch (UnivoteException ex) {
@@ -163,7 +160,6 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 	    return;
 	}
-	boolean isPreconditionReached = false;
 	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 	try {
 	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
@@ -171,7 +167,6 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 		cryptoSetting = this.retrieveCryptoSetting(skcac);
 		skcac.setCryptoSetting(cryptoSetting);
 	    }
-	    isPreconditionReached = true;
 
 	} catch (UnivoteException ex) {
 	    //Add Notification
@@ -190,7 +185,6 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    this.informationService.informTenant(actionContextKey,
 						 "Error reading securitySetting.");
 	}
-
 	BoardPreconditionQuery bQuery = null;
 	try {
 	    //Check if there is an initial AccessRight for this tenant
@@ -198,19 +192,11 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    String tenant = actionContext.getTenant();
 	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
 	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.TRUSTEES), BoardsEnum.UNIVOTE.getValue());
-	    if (uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty()) {
-		actionContext.getPreconditionQueries().add(bQuery);
-		isPreconditionReached &= false;
-	    } else {
-		isPreconditionReached &= true;
-	    }
-
+	    skcac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
 	} catch (UnivoteException ex) {
-	    isPreconditionReached &= false;
 	    //Add Notification
 	    actionContext.getPreconditionQueries().add(bQuery);
 	}
-	skcac.setIsPreconditionReached(isPreconditionReached);
 
     }
 
@@ -223,25 +209,13 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	}
 	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 	//The following if is strange, as the run should not happen in this case?!
-	if (skcac.getIsPostConditionReached() == null) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    logger.log(Level.WARNING, "Run was called but postCondition is unknown in Context.");
-	    return;
-	}
-	if (Objects.equals(skcac.getIsPostConditionReached(), Boolean.TRUE)) {
-	    logger.log(Level.WARNING, "Run was called but postCondition is already reached in Context.");
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "A key share is already published. Action finished.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-	    return;
-	}
-	if (skcac.getIsPreconditionReached() == null) {
+	if (skcac.isPreconditionReached() == null) {
 	    logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 
 	    return;
 	}
-	if (Objects.equals(skcac.getIsPreconditionReached(), Boolean.FALSE)) {
+	if (Objects.equals(skcac.isPreconditionReached(), Boolean.FALSE)) {
 	    logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    return;
@@ -311,24 +285,59 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    return;
 	}
 	PostDTO post = (PostDTO) notification;
-	byte[] message = post.getMessage();
 	try {
-	    CryptoSetting cryptoSetting = ch.bfh.univote2.component.core.message.Converter.unmarshal(CryptoSetting.class, post.getMessage());
-	    skcac.setCryptoSetting(cryptoSetting);
+	    Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
+	    attr.containsKey(AlphaEnum.SECTION.GROUP.getValue());
+	    if (GroupEnum.ACCESS_RIGHT.getValue().equals(attr.getValue(AlphaEnum.SECTION.GROUP.getValue()))) {
+		skcac.setAccessRightGranted(Boolean.TRUE);
+	    } else {
+		CryptoSetting cryptoSetting = ch.bfh.univote2.component.core.message.Converter.unmarshal(CryptoSetting.class, post.getMessage());
+		skcac.setCryptoSetting(cryptoSetting);
+	    }
+	    run(actionContext);
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	} catch (Exception ex) {
 	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
+	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	}
+    }
+
+    protected void checkPreconditions(ActionContext actionContext) {
+	ActionContextKey actionContextKey = actionContext.getActionContextKey();
+	String section = actionContext.getSection();
+	if (!(actionContext instanceof SharedKeyCreationActionContext)) {
+	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
+	    return;
+	}
+	boolean isPreconditionReached = false;
+	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 	try {
-	    AccessRight accessRight = ch.bfh.univote2.component.core.message.Converter.unmarshal(AccessRight.class, post.getMessage());
-	    //Well... We do know now, that it is an accessRight... but what shall we do with it?
+	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
+	    if (cryptoSetting == null) {
+		cryptoSetting = this.retrieveCryptoSetting(skcac);
+		skcac.setCryptoSetting(cryptoSetting);
+	    }
+	    isPreconditionReached = true;
+
 	} catch (UnivoteException ex) {
-	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	    //Add Notification
+	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
+	    actionContext.getPreconditionQueries().add(bQuery);
+	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
+	    this.informationService.informTenant(actionContextKey,
+						 "Error retrieving securitySetting: " + ex.getMessage());
+	} catch (JsonException ex) {
+	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
+	    this.informationService.informTenant(actionContextKey,
+						 "Error reading securitySetting.");
 	} catch (Exception ex) {
-	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
+	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
+	    this.informationService.informTenant(actionContextKey,
+						 "Error reading securitySetting.");
 	}
     }
 

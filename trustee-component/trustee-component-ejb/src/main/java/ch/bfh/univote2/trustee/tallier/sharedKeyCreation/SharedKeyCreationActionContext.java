@@ -53,9 +53,8 @@ import java.util.List;
  */
 public class SharedKeyCreationActionContext extends ActionContext {
 
-    private Boolean isPostConditionReached;
-    private Boolean isPreconditionReached;
     private CryptoSetting cryptoSetting;
+    private Boolean accessRightGranted;
 
     public SharedKeyCreationActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
 	super(actionContextKey, preconditionQueries, true);
@@ -63,26 +62,17 @@ public class SharedKeyCreationActionContext extends ActionContext {
 
     @Override
     protected void purgeData() {
-	this.isPostConditionReached = null;
-	this.isPreconditionReached = null;
 	this.cryptoSetting = null;
+	this.accessRightGranted = null;
 
     }
 
-    public void setIsPostConditionReached(Boolean isPostConditionReached) {
-	this.isPostConditionReached = isPostConditionReached;
+    public Boolean getAccessRightGranted() {
+	return accessRightGranted;
     }
 
-    public Boolean getIsPostConditionReached() {
-	return isPostConditionReached;
-    }
-
-    public Boolean getIsPreconditionReached() {
-	return isPreconditionReached;
-    }
-
-    public void setIsPreconditionReached(Boolean isPreconditionReached) {
-	this.isPreconditionReached = isPreconditionReached;
+    public void setAccessRightGranted(Boolean accessRightGranted) {
+	this.accessRightGranted = accessRightGranted;
     }
 
     public CryptoSetting getCryptoSetting() {
@@ -91,6 +81,13 @@ public class SharedKeyCreationActionContext extends ActionContext {
 
     public void setCryptoSetting(CryptoSetting cryptoSetting) {
 	this.cryptoSetting = cryptoSetting;
+    }
+
+    public Boolean isPreconditionReached() {
+	if (cryptoSetting == null || accessRightGranted == null) {
+	    return null;
+	}
+	return accessRightGranted.booleanValue() && cryptoSetting != null;
     }
 
 }
