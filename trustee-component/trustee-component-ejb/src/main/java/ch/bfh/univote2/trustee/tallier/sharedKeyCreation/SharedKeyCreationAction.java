@@ -287,10 +287,10 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	PostDTO post = (PostDTO) notification;
 	try {
 	    Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
-	    attr.containsKey(AlphaEnum.SECTION.GROUP.getValue());
-	    if (GroupEnum.ACCESS_RIGHT.getValue().equals(attr.getValue(AlphaEnum.SECTION.GROUP.getValue()))) {
+	    attr.containsKey(AlphaEnum.GROUP.getValue());
+	    if (GroupEnum.ACCESS_RIGHT.getValue().equals(attr.getValue(AlphaEnum.GROUP.getValue()))) {
 		skcac.setAccessRightGranted(Boolean.TRUE);
-	    } else {
+	    } else if (skcac.getCryptoSetting() == null) {
 		CryptoSetting cryptoSetting = ch.bfh.univote2.component.core.message.Converter.unmarshal(CryptoSetting.class, post.getMessage());
 		skcac.setCryptoSetting(cryptoSetting);
 	    }
