@@ -69,7 +69,7 @@ $(document).ready(function () {
 	elements.sendVoteErrorMessage = document.getElementById('send-vote-error-message');
 	elements.qrcodeHolder = document.getElementById('qrcode-holder');
 
-	// Get election id and user's language/locale
+	// Get election id
 	electionId = $('#election-title').data('electionId');
 
 	// Block UI while loading election data from board
@@ -101,20 +101,18 @@ function retrieveElectionData() {
 
 	var successCB = function (resultContainer) {
 
-		// TODO @DEV
 		if (!uvConfig.MOCK) {
 			if (!uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true)) {
 				processFatalError(msg.signatureError);
 				return;
 			}
-
 			var posts = resultContainer.result.post;
 			// Expect exactly one post! ElectionId should be unique!
 			if (posts.length != 1) {
+				console.log("ERROR: Retreived more than one VotingData for election-id: " + electionId);
 				processFatalError(msg.retreiveElectionDataError);
 				return;
 			}
-
 			var message = JSON.parse(B64.decode(posts[0].message));
 		} else {
 			var message = resultContainer;
@@ -125,6 +123,7 @@ function retrieveElectionData() {
 		var ss = uvConfig.CS[message.cryptoSetting.signatureSetting];
 		var hs = uvConfig.CS[message.cryptoSetting.hashSetting];
 		if (!(es && ss && hs)) {
+			console.log("ERROR: Either encryption-, signature- or hash-setting is unknown! (" + message.cryptoSetting + ")");
 			processFatalError(msg.incompatibleDataReceived);
 			return;
 		}
@@ -139,6 +138,7 @@ function retrieveElectionData() {
 		electionDetails = new ElectionDetails(message.details);
 
 		if (!(encryptionKey && signatureGenerator && electionDetails.getIssues().length > 0)) {
+			console.log("ERROR: Either encryption key or signature generator is undefined or the number of issues is zero!");
 			processFatalError(msg.incompatibleDataReceived);
 			return;
 		}
@@ -150,6 +150,7 @@ function retrieveElectionData() {
 	};
 
 	var errorCB = function () {
+		console.log("ERROR: Unable to retreive VotingData from UniBoard ('" + uvConfig.URL_UNIBOARD_GET + "')");
 		processFatalError(msg.retreiveElectionDataError);
 	};
 
@@ -287,17 +288,12 @@ function gotoStep3() {
 function processFatalError(errorMsg) {
 	$.unblockUI();
 	// Show error message
-	$.blockUI({message: '<p>' + errorMsg + '</p>'});
-	// Redirect to home after 5s (TODO: Add a link back to home instead of auto redirect)
-	setTimeout(function () {
-		location.href = uvConfig.HOME_SITE;
-	}, 5000);
+	$.blockUI({
+		message:
+				'<p>' + errorMsg + '</p><p><a href="' + uvConfig.HOME_SITE
+				+ '" class="red icon-right-dir">' + msg.backhome + '</a></p>'
+	});
 }
-
-
-
-
-
 
 
 
@@ -451,10 +447,7 @@ function createListElectionContent(issue) {
 				electionDetails.removeAllChoices();
 				$("#choice-candidates").empty();
 			} else {
-				console.log(electionDetails.getVote());
 				electionDetails.removeChoice($("#choice-list li").data('id'));
-				console.log("Remove: " + $("#choice-list li").data('id'));
-				console.log(electionDetails.getVote());
 			}
 			$("#choice-list li").addClass("placeholder-item").data('id', '');
 			$("#choice-list li>span").html(msg.list);

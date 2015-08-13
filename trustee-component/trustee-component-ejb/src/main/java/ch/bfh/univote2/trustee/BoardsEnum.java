@@ -39,58 +39,24 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
-
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import ch.bfh.univote2.component.core.message.CryptoSetting;
-import java.util.List;
+package ch.bfh.univote2.trustee;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class SharedKeyCreationActionContext extends ActionContext {
+public enum BoardsEnum {
 
-    private Boolean isPostConditionReached;
-    private Boolean isPreconditionReached;
-    private CryptoSetting cryptoSetting;
+	UNIVOTE("univote-board"),
+	UNICERT("unicert-board");
 
-    public SharedKeyCreationActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-	super(actionContextKey, preconditionQueries, true);
-    }
+	private final String value;
 
-    @Override
-    protected void purgeData() {
-	this.isPostConditionReached = null;
-	this.isPreconditionReached = null;
-	this.cryptoSetting = null;
+	BoardsEnum(String value) {
+		this.value = value;
+	}
 
-    }
-
-    public void setIsPostConditionReached(Boolean isPostConditionReached) {
-	this.isPostConditionReached = isPostConditionReached;
-    }
-
-    public Boolean getIsPostConditionReached() {
-	return isPostConditionReached;
-    }
-
-    public Boolean getIsPreconditionReached() {
-	return isPreconditionReached;
-    }
-
-    public void setIsPreconditionReached(Boolean isPreconditionReached) {
-	this.isPreconditionReached = isPreconditionReached;
-    }
-
-    public CryptoSetting getCryptoSetting() {
-	return cryptoSetting;
-    }
-
-    public void setCryptoSetting(CryptoSetting cryptoSetting) {
-	this.cryptoSetting = cryptoSetting;
-    }
-
+	public String getValue() {
+		return value;
+	}
 }
