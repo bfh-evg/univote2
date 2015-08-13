@@ -55,6 +55,11 @@ import javax.xml.transform.stream.StreamSource;
 /**
  * Utility class that allows to convert JSON byte[] messages to objects of domain classes
  * as well as to convert these instances to JSON message strings.
+ * <p>
+ * An instance of this class supports support the type query predicate {@link #isOfType(java.lang.Class, byte[])}.
+ * If called with a type and a message, <code>true</code> is returned if the message matches the specified type,
+ * <code>false</code> otherwise. On success, the domain object for the given message is cachen and can be retrieved
+ * by calling {@link #getUnmarshalledMessage()}.
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
@@ -114,5 +119,40 @@ public class JSONConverter {
 		} catch (Exception ex) {
 			throw new UnivoteException(ex.getMessage(), ex);
 		}
+	}
+
+	/**
+	 * Used as a cache to hold last unmarshalled instance. Not thread-safe.
+	 */
+	private Object domainObject;
+
+	/**
+	 * Determines if a given JSON message is of given domain type by trying to parse it. If it succeeds then the
+	 * parsed message is stored in the local cache and true is returned. If it does not succed then the cache
+	 * is cleared and false is returned.
+	 * @param <T> the expected type
+	 * @param type the class object
+	 * @param message the message
+	 * @return true if message is of expected type, false otherwise
+	 */
+	public <T> boolean isOfType(Class<T> type, byte[] message) {
+		try {
+			domainObject = unmarshal(type, message);
+			return true;
+		} catch (UnivoteException ex) { // ex expected, not used
+			domainObject = null;
+			return false;
+		}
+	}
+
+	/**
+	 * Returns the message sucessfully given to a prior {@link #isOfType(java.lang.Class, byte[])} call, or
+	 * <code>null</code> otherwise.
+	 * @param <T> the tyoe of the returned domain object.
+	 * @return the domain object
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getUnmarshalledMessage() {
+		return (T) domainObject;
 	}
 }

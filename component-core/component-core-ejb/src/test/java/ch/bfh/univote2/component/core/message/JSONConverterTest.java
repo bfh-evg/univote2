@@ -54,7 +54,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class ConverterTest {
+public class JSONConverterTest {
 
 	@Test
 	public void testComvertJSONCertificate() throws Exception {
@@ -672,5 +672,29 @@ public class ConverterTest {
 		System.out.println(output);
 
 		JSONAssert.assertEquals(input, output, true);
+	}
+
+	@Test
+	public void testIsOfTypeElectionDefinition() throws Exception {
+		String message
+				= "{\n"
+				+ "	\"title\": {\n"
+				+ "		\"default\": \"Universität Bern: Wahlen des SUB-StudentInnenrates\",\n"
+				+ "		\"french\": \"Université de Berne: Élection du conseil des étudiant-e-s SUB\",\n"
+				+ "		\"english\": \"University of Bern: SUB Elections\"\n"
+				+ "	},\n"
+				+ "	\"administration\": {\n"
+				+ "		\"default\": \"StudentInnenschaft der Universität Bern (SUB)\",\n"
+				+ "		\"french\": \"Ensemble des étudiants de l'Université de Berne (SUB)\",\n"
+				+ "		\"english\": \"Student Body of the University of Bern (SUB)\"\n"
+				+ "	},\n"
+				+ "	\"votingPeriodBegin\": \"2015-03-08T23:00:00Z\",\n"
+				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
+				+ "}";
+
+		JSONConverter converter = new JSONConverter();
+		assertTrue(converter.isOfType(ElectionDefinition.class, message.getBytes(Charset.forName("UTF-8"))));
+		assertNotNull(converter.getUnmarshalledMessage());
+		assertTrue(converter.getUnmarshalledMessage() instanceof ElectionDefinition);
 	}
 }
