@@ -52,22 +52,18 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
+import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.SecurityLevel;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.QueryFactory;
 import ch.bfh.univote2.ec.pubTC.PublishTrusteeCertsActionContext;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.Json;
-import javax.json.JsonException;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 /**
  *
@@ -122,10 +118,6 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 			logger.log(Level.WARNING, "Could not get securityLevel.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Error retrieving securityLevel: " + ex.getMessage());
-		} catch (JsonException ex) {
-			logger.log(Level.WARNING, "Could not parse securityLevel.", ex);
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error reading securityLevel.");
 		}
 	}
 
@@ -162,13 +154,11 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
 
-				String messageString = new String(post.getMessage(), Charset.forName("UTF-8"));
-				JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-				JsonObject message = jsonReader.readObject();
 				try {
-					this.fillContext(scsac, message);
+					SecurityLevel securityLevel = Converter.unmarshal(SecurityLevel.class, post.getMessage());
+					this.fillContext(scsac, securityLevel);
 					this.runInternal(scsac);
-				} catch (UnivoteException ex) {
+				} catch (Exception ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 				}
@@ -186,26 +176,24 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 
 	}
 
-	protected JsonObject retrieveSecurityLevel(ActionContext actionContext) throws JsonException, UnivoteException {
+	protected SecurityLevel retrieveSecurityLevel(ActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForSecurityLevel(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Security level not published yet.");
 		}
-		//Prepare JsonObject
-		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-				Charset.forName("UTF-8"));
-		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-		return jsonReader.readObject();
+		SecurityLevel securityLevel;
+		try {
+			securityLevel = Converter.unmarshal(SecurityLevel.class, result.getResult().getPost().get(0).getMessage());
+		} catch (Exception ex) {
+			throw new UnivoteException("Could not unmarshal securityLevel", ex);
+		}
+		return securityLevel;
 
 	}
 
-	protected void fillContext(SetCryptoSettingActionContext scsac, JsonObject message) throws UnivoteException {
-		Integer securityLevel = message.getInt("securityLevel");
-		if (securityLevel == null) {
-			throw new UnivoteException("Invalid securityLevel message.");
-		}
-		scsac.setSecurityLevel(securityLevel);
+	protected void fillContext(SetCryptoSettingActionContext scsac, SecurityLevel secLevel) throws UnivoteException {
+		scsac.setSecurityLevel(secLevel.getSecurityLevel());
 	}
 
 	private void runInternal(SetCryptoSettingActionContext actionContext) {

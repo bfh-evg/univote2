@@ -21,7 +21,7 @@
 		 */
 		this.URL_UNICERT_CERTIFICATE_AUTHORITY = '/unicert-authentication/certificate-request/';
 		//this.URL_UNICERT_CERTIFICATE_AUTHORITY = 'http://uni.vote/certificate-request.php';
-		this.URL_PARAMETERS = 'voting-client2/parameters/';
+		this.URL_PARAMETERS = '/voting-client2/parameters/';
 		//this.URL_PARAMETERS = 'http://localhost:9080/voting-client2/parameters/';
 
 		/**

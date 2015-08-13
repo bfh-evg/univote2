@@ -58,8 +58,14 @@ import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.QueryFactory;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -154,6 +160,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			throw new UnivoteException("Electoral roll not published yet.");
 		}
 		//Prepare JsonObject
+		//TODO Replace
 		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
 				Charset.forName("UTF-8"));
 		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
@@ -180,14 +187,21 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			throw new UnivoteException("Invalid trustees certificates message. mixerCertificates is missing.");
 		}
 		for (Certificate c : trusteeCertificates.getMixerCertificates()) {
-
+			try {
+				CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+				InputStream in = new ByteArrayInputStream(c.getPem().getBytes());
+				X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
+				PublicKey pk = cert.getPublicKey();
+				actionContext.getMixerKeys().put(c.getCommonName(), pk);
+			} catch (CertificateException ex) {
+				throw new UnivoteException("Invalid trustees certificates message. Could not load pem.", ex);
+			}
 		}
-
-		//TODO
 	}
 
 	protected void createMixingRequest(KeyMixingActionContext actionContext, String mixer) {
 		//TODO
+
 	}
 
 	protected void validteMixingResult(KeyMixingActionContext actionContext, Object mixingResult, String mixer) throws
