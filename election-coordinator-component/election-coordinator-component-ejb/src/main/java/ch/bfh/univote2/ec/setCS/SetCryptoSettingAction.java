@@ -184,7 +184,8 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 		}
 		SecurityLevel securityLevel;
 		try {
-			securityLevel = JSONConverter.unmarshal(SecurityLevel.class, result.getResult().getPost().get(0).getMessage());
+			securityLevel
+					= JSONConverter.unmarshal(SecurityLevel.class, result.getResult().getPost().get(0).getMessage());
 		} catch (Exception ex) {
 			throw new UnivoteException("Could not unmarshal securityLevel", ex);
 		}

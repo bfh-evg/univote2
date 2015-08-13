@@ -46,6 +46,7 @@ import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.message.AccessRight;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.DL;
+import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.RSA;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import java.math.BigInteger;

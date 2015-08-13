@@ -4015,198 +4015,203 @@ ul, li {
 }
 
 /* line 129, ../WEB-INF/scss/app.scss */
+.blockUI.blockMsg {
+  padding-top: 20px !important;
+  overflow: auto;
+}
+/* line 130, ../WEB-INF/scss/app.scss */
 .blockUI #blockui-processing {
   text-align: left;
 }
-/* line 134, ../WEB-INF/scss/app.scss */
+/* line 135, ../WEB-INF/scss/app.scss */
 .blockUI #brief-instruction li {
   margin-bottom: 0.625rem;
 }
-/* line 138, ../WEB-INF/scss/app.scss */
+/* line 139, ../WEB-INF/scss/app.scss */
 .blockUI #help-box p {
   text-align: left;
 }
-/* line 140, ../WEB-INF/scss/app.scss */
+/* line 141, ../WEB-INF/scss/app.scss */
 .blockUI #help-box form div {
   text-align: center;
   max-width: 600px;
   margin: auto;
   padding-bottom: 20px;
 }
-/* line 141, ../WEB-INF/scss/app.scss */
+/* line 142, ../WEB-INF/scss/app.scss */
 .blockUI #help-box form span, .blockUI #help-box form input, .blockUI #help-box form textarea {
   display: block;
   text-align: left;
 }
-/* line 142, ../WEB-INF/scss/app.scss */
+/* line 143, ../WEB-INF/scss/app.scss */
 .blockUI #help-box form span {
   padding-top: 10px;
   padding-bottom: 2px;
 }
-/* line 143, ../WEB-INF/scss/app.scss */
+/* line 144, ../WEB-INF/scss/app.scss */
 .blockUI #help-box form span.tiny {
   padding-top: 0px;
   color: #aaa;
   font-size: 90%;
   line-height: 1.2;
 }
-/* line 144, ../WEB-INF/scss/app.scss */
+/* line 145, ../WEB-INF/scss/app.scss */
 .blockUI #help-box form input {
   max-width: 250px;
 }
-/* line 145, ../WEB-INF/scss/app.scss */
+/* line 146, ../WEB-INF/scss/app.scss */
 .blockUI #help-box form textarea {
   height: 100px;
   margin-bottom: 2px;
 }
-/* line 146, ../WEB-INF/scss/app.scss */
+/* line 147, ../WEB-INF/scss/app.scss */
 .blockUI #help-box form button {
   min-width: 150px;
   margin: 25px 5px 10px 5px;
 }
-/* line 150, ../WEB-INF/scss/app.scss */
+/* line 151, ../WEB-INF/scss/app.scss */
 .blockUI #certificate-viewer {
   overflow: auto;
   padding: 10px;
 }
-/* line 152, ../WEB-INF/scss/app.scss */
+/* line 153, ../WEB-INF/scss/app.scss */
 .blockUI #certificate-viewer table {
   text-align: left;
   margin: 10px auto;
   border-collapse: collapse;
 }
-/* line 154, ../WEB-INF/scss/app.scss */
+/* line 155, ../WEB-INF/scss/app.scss */
 .blockUI #certificate-viewer table th {
   font-weight: bold;
 }
-/* line 155, ../WEB-INF/scss/app.scss */
+/* line 156, ../WEB-INF/scss/app.scss */
 .blockUI #certificate-viewer table td {
   padding-left: 10px;
   width: 350px;
 }
-/* line 156, ../WEB-INF/scss/app.scss */
+/* line 157, ../WEB-INF/scss/app.scss */
 .blockUI #certificate-viewer table tr {
   border-bottom: 1px solid #ccc;
 }
-/* line 158, ../WEB-INF/scss/app.scss */
+/* line 159, ../WEB-INF/scss/app.scss */
 .blockUI #certificate-viewer table tr:last-child {
   border-bottom: none;
 }
-/* line 161, ../WEB-INF/scss/app.scss */
+/* line 163, ../WEB-INF/scss/app.scss */
 .blockUI #certificate-viewer button {
   min-width: 150px;
   margin: 25px 5px 10px 5px;
 }
 
-/* line 167, ../WEB-INF/scss/app.scss */
+/* line 169, ../WEB-INF/scss/app.scss */
 .hyphenate {
   -webkit-hyphens: auto;
   hyphens: auto;
 }
 
-/* line 174, ../WEB-INF/scss/app.scss */
+/* line 176, ../WEB-INF/scss/app.scss */
 dl {
   margin-bottom: 3rem;
 }
-/* line 175, ../WEB-INF/scss/app.scss */
+/* line 177, ../WEB-INF/scss/app.scss */
 dl dd {
   margin: 0;
   padding-top: 0.125rem;
   padding-left: 0.3125rem;
   border-bottom: solid 1px #CCCCCC;
 }
-/* line 180, ../WEB-INF/scss/app.scss */
+/* line 182, ../WEB-INF/scss/app.scss */
 dl dd i {
   color: #E4032B;
   margin-left: -0.625rem;
 }
-/* line 181, ../WEB-INF/scss/app.scss */
+/* line 183, ../WEB-INF/scss/app.scss */
 dl dd a {
   color: #000000;
 }
 
-/* line 188, ../WEB-INF/scss/app.scss */
+/* line 190, ../WEB-INF/scss/app.scss */
 .step {
   color: #000000;
 }
 
-/* line 192, ../WEB-INF/scss/app.scss */
+/* line 194, ../WEB-INF/scss/app.scss */
 .substep {
   margin-top: 2.5rem;
   color: #000000;
   opacity: 0.2;
   transition: opacity 0.8s;
 }
-/* line 194, ../WEB-INF/scss/app.scss */
+/* line 196, ../WEB-INF/scss/app.scss */
 .substep.done {
   opacity: 1;
 }
-/* line 195, ../WEB-INF/scss/app.scss */
+/* line 197, ../WEB-INF/scss/app.scss */
 .substep.active {
   opacity: 1;
 }
-/* line 197, ../WEB-INF/scss/app.scss */
+/* line 199, ../WEB-INF/scss/app.scss */
 .substep.active h1 {
   color: #E4032B;
 }
 
-/* line 203, ../WEB-INF/scss/app.scss */
+/* line 205, ../WEB-INF/scss/app.scss */
 .chooser h1 {
   margin: 0;
   line-height: 100%;
   color: rgba(0, 0, 0, 0.5);
 }
-/* line 204, ../WEB-INF/scss/app.scss */
+/* line 206, ../WEB-INF/scss/app.scss */
 .chooser p {
   font-family: MuseoSlab-700;
 }
-/* line 205, ../WEB-INF/scss/app.scss */
+/* line 207, ../WEB-INF/scss/app.scss */
 .chooser p a {
   color: rgba(0, 0, 0, 0.5);
 }
-/* line 206, ../WEB-INF/scss/app.scss */
+/* line 208, ../WEB-INF/scss/app.scss */
 .chooser p a.active, .chooser p a:hover {
   color: #000000;
 }
 
-/* line 210, ../WEB-INF/scss/app.scss */
+/* line 212, ../WEB-INF/scss/app.scss */
 .chooser_content {
   padding-top: 0;
   /*background-color: $silver;*/
 }
-/* line 212, ../WEB-INF/scss/app.scss */
+/* line 214, ../WEB-INF/scss/app.scss */
 .chooser_content p {
   margin-bottom: 0.3125rem;
 }
-/* line 213, ../WEB-INF/scss/app.scss */
+/* line 215, ../WEB-INF/scss/app.scss */
 .chooser_content textarea {
   width: 100%;
   height: 8.75rem;
 }
-/* line 214, ../WEB-INF/scss/app.scss */
+/* line 216, ../WEB-INF/scss/app.scss */
 .chooser_content input[type=password] {
   width: 50%;
   display: inline;
   margin-right: 1.25rem;
 }
-/* line 215, ../WEB-INF/scss/app.scss */
+/* line 217, ../WEB-INF/scss/app.scss */
 .chooser_content #password-check-icon {
   width: 1.875rem;
   padding-left: 0;
   opacity: 0.1;
   filter: alpha(opacity=10);
 }
-/* line 216, ../WEB-INF/scss/app.scss */
+/* line 218, ../WEB-INF/scss/app.scss */
 .chooser_content #password-check-icon.ok {
   opacity: 1;
   filter: alpha(opacity=100);
 }
-/* line 219, ../WEB-INF/scss/app.scss */
+/* line 221, ../WEB-INF/scss/app.scss */
 .chooser_content #pwderror {
   color: #c00;
 }
 
-/* line 224, ../WEB-INF/scss/app.scss */
+/* line 226, ../WEB-INF/scss/app.scss */
 a.button, .arrow_box {
   font-family: MuseoSlab-700;
   text-align: left;
@@ -4217,12 +4222,12 @@ a.button, .arrow_box {
   padding-top: 0.625rem;
 }
 
-/* line 233, ../WEB-INF/scss/app.scss */
+/* line 235, ../WEB-INF/scss/app.scss */
 .arrow_box {
   padding-left: 0.625rem;
 }
 
-/* line 235, ../WEB-INF/scss/app.scss */
+/* line 237, ../WEB-INF/scss/app.scss */
 button.gradient {
   padding-top: 0.625rem;
   padding-left: 0;
@@ -4231,7 +4236,7 @@ button.gradient {
   font-family: MuseoSlab-700;
 }
 
-/* line 236, ../WEB-INF/scss/app.scss */
+/* line 238, ../WEB-INF/scss/app.scss */
 a.gradient, a.button.active, button.gradient, button.active, div.gradient {
   background-color: #E4032B;
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuMCIgeTE9IjAuNSIgeDI9IjEuMCIgeTI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U0MDMyYiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzg5MjQzNiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
@@ -4242,12 +4247,12 @@ a.gradient, a.button.active, button.gradient, button.active, div.gradient {
   background-image: linear-gradient(to right, #e4032b 0%, #892436 100%);
 }
 
-/* line 237, ../WEB-INF/scss/app.scss */
+/* line 239, ../WEB-INF/scss/app.scss */
 .arrow_box:hover {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-/* line 238, ../WEB-INF/scss/app.scss */
+/* line 240, ../WEB-INF/scss/app.scss */
 button.gradient:hover, a.button:hover {
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuMCIgeTE9IjAuNSIgeDI9IjEuMCIgeTI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzg5MjQzNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
   background-size: 100%;
@@ -4257,14 +4262,14 @@ button.gradient:hover, a.button:hover {
   background-image: linear-gradient(to right, #892436 0%, #000000 100%);
 }
 
-/* line 239, ../WEB-INF/scss/app.scss */
+/* line 241, ../WEB-INF/scss/app.scss */
 a.button.disabled, button[disabled] {
   color: #EFEFEF !important;
   background-color: #CCCCCC !important;
   background-image: none !important;
 }
 
-/* line 241, ../WEB-INF/scss/app.scss */
+/* line 243, ../WEB-INF/scss/app.scss */
 .arrow_box {
   -moz-border-radius-topleft: 3px;
   -webkit-border-top-left-radius: 3px;
@@ -4276,7 +4281,7 @@ a.button.disabled, button[disabled] {
   cursor: default;
 }
 
-/* line 248, ../WEB-INF/scss/app.scss */
+/* line 250, ../WEB-INF/scss/app.scss */
 .arrow_box:after {
   left: 100%;
   top: 50%;
@@ -4291,23 +4296,23 @@ a.button.disabled, button[disabled] {
   margin-top: -20px;
 }
 
-/* line 261, ../WEB-INF/scss/app.scss */
+/* line 263, ../WEB-INF/scss/app.scss */
 .arrow_box.active:after {
   border-left-color: #892436;
 }
 
-/* line 267, ../WEB-INF/scss/app.scss */
+/* line 269, ../WEB-INF/scss/app.scss */
 form button.gradient, form button.grey {
   width: 100%;
   padding-bottom: 0.625rem;
 }
-/* line 268, ../WEB-INF/scss/app.scss */
+/* line 270, ../WEB-INF/scss/app.scss */
 form button.grey {
   padding-top: 0.625rem;
   padding-left: 0;
   text-align: left;
 }
-/* line 269, ../WEB-INF/scss/app.scss */
+/* line 271, ../WEB-INF/scss/app.scss */
 form button:disabled {
   width: 100%;
   padding-top: 0.625rem;
@@ -4317,18 +4322,18 @@ form button:disabled {
   background-color: #CCCCCC !important;
   font-family: MuseoSlab-700;
 }
-/* line 270, ../WEB-INF/scss/app.scss */
+/* line 272, ../WEB-INF/scss/app.scss */
 form select {
   font-size: 100%;
   /*color: $red;*/
 }
-/* line 271, ../WEB-INF/scss/app.scss */
+/* line 273, ../WEB-INF/scss/app.scss */
 form .required {
   border-color: #E4032B !important;
   border-width: 2px;
 }
 
-/* line 274, ../WEB-INF/scss/app.scss */
+/* line 276, ../WEB-INF/scss/app.scss */
 xinput, xselect, xtextarea {
   border: solid 1px #E4032B;
   outline: 0;
@@ -4341,16 +4346,16 @@ xinput, xselect, xtextarea {
   -webkit-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
 }
 
-/* line 289, ../WEB-INF/scss/app.scss */
+/* line 291, ../WEB-INF/scss/app.scss */
 footer .arrow {
   text-align: center;
   margin-bottom: 1.5em;
 }
-/* line 291, ../WEB-INF/scss/app.scss */
+/* line 293, ../WEB-INF/scss/app.scss */
 footer .arrow img {
   margin-top: -12px;
 }
-/* line 294, ../WEB-INF/scss/app.scss */
+/* line 296, ../WEB-INF/scss/app.scss */
 footer .copyright {
   color: #FFFFFF;
   text-align: center;
@@ -4358,7 +4363,7 @@ footer .copyright {
 }
 
 @media only screen and (max-width: 40em) {
-  /* line 300, ../WEB-INF/scss/app.scss */
+  /* line 302, ../WEB-INF/scss/app.scss */
   .arrow_box {
     -moz-border-radius-topright: 3px;
     -webkit-border-top-right-radius: 3px;
@@ -4367,19 +4372,19 @@ footer .copyright {
     -webkit-border-bottom-right-radius: 3px;
     border-bottom-right-radius: 3px;
   }
-  /* line 303, ../WEB-INF/scss/app.scss */
+  /* line 305, ../WEB-INF/scss/app.scss */
   .arrow_box:after {
      left: 0;
     top: 0;
     border-width: 0;
   }
 }
-/* line 309, ../WEB-INF/scss/app.scss */
+/* line 311, ../WEB-INF/scss/app.scss */
 #currentElections h3, #pastElections h3 {
   padding-top: 1rem;
 }
 
-/* line 315, ../WEB-INF/scss/app.scss */
+/* line 317, ../WEB-INF/scss/app.scss */
 #upload_key_error {
   opacity: 0;
   padding-top: 10px;
@@ -4388,7 +4393,7 @@ footer .copyright {
   font-weight: bold;
 }
 
-/* line 316, ../WEB-INF/scss/app.scss */
+/* line 318, ../WEB-INF/scss/app.scss */
 .button-like {
   cursor: move;
   border-radius: 3px;
@@ -4399,16 +4404,16 @@ footer .copyright {
   width: 100% !important;
   position: relative;
 }
-/* line 317, ../WEB-INF/scss/app.scss */
+/* line 319, ../WEB-INF/scss/app.scss */
 .button-like > span {
   display: inline-block;
   padding-top: 0.5rem;
 }
-/* line 318, ../WEB-INF/scss/app.scss */
+/* line 320, ../WEB-INF/scss/app.scss */
 .button-like > span i {
   font-size: 0.6875rem;
 }
-/* line 320, ../WEB-INF/scss/app.scss */
+/* line 322, ../WEB-INF/scss/app.scss */
 .button-like.active {
   background-color: #E4032B;
   background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuMCIgeTE9IjAuNSIgeDI9IjEuMCIgeTI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U0MDMyYiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzg5MjQzNiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
@@ -4419,14 +4424,14 @@ footer .copyright {
   background-image: linear-gradient(to right, #e4032b 0%, #892436 100%);
 }
 
-/* line 322, ../WEB-INF/scss/app.scss */
+/* line 324, ../WEB-INF/scss/app.scss */
 .prim-border {
   border-radius: 3px;
   border: 2px rgba(0, 0, 0, 0.5) solid;
   padding: 0.3125rem;
 }
 
-/* line 324, ../WEB-INF/scss/app.scss */
+/* line 326, ../WEB-INF/scss/app.scss */
 .tools {
   font-size: 2.1875rem;
   line-height: 1;
@@ -4434,13 +4439,13 @@ footer .copyright {
   top: 0.3125rem;
   right: 0.3125rem;
 }
-/* line 325, ../WEB-INF/scss/app.scss */
+/* line 327, ../WEB-INF/scss/app.scss */
 .tools span:before {
   font-size: 100%;
   margin: 0;
   cursor: pointer;
 }
-/* line 326, ../WEB-INF/scss/app.scss */
+/* line 328, ../WEB-INF/scss/app.scss */
 .tools .icon-radio {
   background-color: #FFFFFF;
   display: inline-block;
@@ -4449,112 +4454,112 @@ footer .copyright {
   border-radius: 2.1875rem;
 }
 
-/* line 329, ../WEB-INF/scss/app.scss */
+/* line 331, ../WEB-INF/scss/app.scss */
 #candidates, #choice-holder {
   margin-bottom: 1.25rem;
   position: relative;
 }
 
-/* line 330, ../WEB-INF/scss/app.scss */
+/* line 332, ../WEB-INF/scss/app.scss */
 #list_labels {
   float: left;
 }
-/* line 332, ../WEB-INF/scss/app.scss */
+/* line 334, ../WEB-INF/scss/app.scss */
 #list_labels li {
   margin-bottom: 0.3125rem;
   width: 7.1875rem !important;
 }
-/* line 333, ../WEB-INF/scss/app.scss */
+/* line 335, ../WEB-INF/scss/app.scss */
 #list_labels li.button-like {
   padding-top: 0.625rem;
 }
-/* line 334, ../WEB-INF/scss/app.scss */
+/* line 336, ../WEB-INF/scss/app.scss */
 #list_labels li.button-like a {
   font-family: MuseoSlab-700;
   color: #FFFFFF;
   font-size: 1.125rem;
 }
 
-/* line 339, ../WEB-INF/scss/app.scss */
+/* line 341, ../WEB-INF/scss/app.scss */
 .list, #choice {
   overflow-y: auto;
   height: 25rem;
 }
 
-/* line 340, ../WEB-INF/scss/app.scss */
+/* line 342, ../WEB-INF/scss/app.scss */
 .list {
   margin-left: 7.5rem;
 }
-/* line 340, ../WEB-INF/scss/app.scss */
+/* line 342, ../WEB-INF/scss/app.scss */
 .list ul {
   margin-bottom: 1.5625rem;
 }
 
-/* line 342, ../WEB-INF/scss/app.scss */
+/* line 344, ../WEB-INF/scss/app.scss */
 .list h5, #choice h5, #dialog-list-ballot h5 {
   line-height: 1.8;
 }
-/* line 343, ../WEB-INF/scss/app.scss */
+/* line 345, ../WEB-INF/scss/app.scss */
 .list li, #choice li, #dialog-list-ballot li {
   margin-bottom: 0.3125rem;
   position: relative;
 }
-/* line 344, ../WEB-INF/scss/app.scss */
+/* line 346, ../WEB-INF/scss/app.scss */
 .list li.button-like, #choice li.button-like, #dialog-list-ballot li.button-like {
   background-color: #000000;
   line-height: 1.1;
 }
-/* line 345, ../WEB-INF/scss/app.scss */
+/* line 347, ../WEB-INF/scss/app.scss */
 .list li.button-like.previous > span, #choice li.button-like.previous > span, #dialog-list-ballot li.button-like.previous > span {
   padding-top: 0;
 }
 
-/* line 351, ../WEB-INF/scss/app.scss */
+/* line 353, ../WEB-INF/scss/app.scss */
 #choice #choice-list {
   width: 8.125rem;
   border: 2px #FFFFFF solid;
   border-radius: 5px;
 }
-/* line 352, ../WEB-INF/scss/app.scss */
+/* line 354, ../WEB-INF/scss/app.scss */
 #choice #choice-list li {
   margin-bottom: 0;
 }
-/* line 353, ../WEB-INF/scss/app.scss */
+/* line 355, ../WEB-INF/scss/app.scss */
 #choice #choice-list li > span {
   font-family: MuseoSlab-700;
   color: #FFFFFF;
   font-size: 1.125rem;
 }
-/* line 354, ../WEB-INF/scss/app.scss */
+/* line 356, ../WEB-INF/scss/app.scss */
 #choice #choice-list li.placeholder-item .tools {
   display: none;
 }
-/* line 357, ../WEB-INF/scss/app.scss */
+/* line 359, ../WEB-INF/scss/app.scss */
 #choice #choice-candidates {
   min-height: 15.625rem;
   margin-bottom: 1.5625rem;
 }
-/* line 359, ../WEB-INF/scss/app.scss */
+/* line 361, ../WEB-INF/scss/app.scss */
 #choice.drop-active {
   border: 2px #E4032B solid;
 }
-/* line 360, ../WEB-INF/scss/app.scss */
+/* line 362, ../WEB-INF/scss/app.scss */
 #choice.drop-active #choice-list {
   border: 2px #E4032B solid;
 }
-/* line 362, ../WEB-INF/scss/app.scss */
+/* line 364, ../WEB-INF/scss/app.scss */
 #choice .button-like.placeholder-item {
   cursor: default;
   background-color: rgba(0, 0, 0, 0.5);
 }
-/* line 363, ../WEB-INF/scss/app.scss */
+/* line 365, ../WEB-INF/scss/app.scss */
 #choice .placeholder {
   height: 2.8125rem;
   border: 2px #E4032B solid;
   border-radius: 3px;
 }
 
-/* line 366, ../WEB-INF/scss/app.scss */
+/* line 368, ../WEB-INF/scss/app.scss */
 .list-footer {
   position: absolute;
   bottom: 1.5px;
@@ -4564,39 +4569,39 @@ footer .copyright {
   background-image: url("../img/lists-footer2.png");
 }
 
-/* line 367, ../WEB-INF/scss/app.scss */
+/* line 369, ../WEB-INF/scss/app.scss */
 #candidates .list-footer {
   left: 7.625rem;
 }
 
-/* line 370, ../WEB-INF/scss/app.scss */
+/* line 372, ../WEB-INF/scss/app.scss */
 .candidateBeingDragged {
   width: 96% !important;
 }
-/* line 371, ../WEB-INF/scss/app.scss */
+/* line 373, ../WEB-INF/scss/app.scss */
 .candidateBeingDragged .tools {
   display: none;
 }
 
-/* line 373, ../WEB-INF/scss/app.scss */
+/* line 375, ../WEB-INF/scss/app.scss */
 .partyBeingDragged {
   margin-bottom: 0.3125rem;
   width: 6.5625rem !important;
   position: relative;
   padding-top: 0.625rem;
 }
-/* line 374, ../WEB-INF/scss/app.scss */
+/* line 376, ../WEB-INF/scss/app.scss */
 .partyBeingDragged a {
   font-family: MuseoSlab-700;
   color: #FFFFFF;
   font-size: 1.125rem;
 }
-/* line 375, ../WEB-INF/scss/app.scss */
+/* line 377, ../WEB-INF/scss/app.scss */
 .partyBeingDragged .tools {
   display: none;
 }
 
-/* line 380, ../WEB-INF/scss/app.scss */
+/* line 382, ../WEB-INF/scss/app.scss */
 #dialog-list-ballot div.button-like {
   width: 7.5rem !important;
   font-family: MuseoSlab-700;
@@ -4605,74 +4610,74 @@ footer .copyright {
   font-size: 1.125rem;
   padding-top: 0.625rem;
 }
-/* line 382, ../WEB-INF/scss/app.scss */
+/* line 384, ../WEB-INF/scss/app.scss */
 #dialog-list-ballot .button-like {
   cursor: default;
 }
 
-/* line 385, ../WEB-INF/scss/app.scss */
+/* line 387, ../WEB-INF/scss/app.scss */
 #vote_issues {
   padding-bottom: 1.25rem;
 }
 
-/* line 387, ../WEB-INF/scss/app.scss */
+/* line 389, ../WEB-INF/scss/app.scss */
 .issue {
   margin-top: 1.25rem;
 }
-/* line 389, ../WEB-INF/scss/app.scss */
+/* line 391, ../WEB-INF/scss/app.scss */
 .issue .button-like {
   margin-bottom: 1.25rem;
   cursor: pointer;
   /*&:hover { background-color: $black; }*/
 }
-/* line 390, ../WEB-INF/scss/app.scss */
+/* line 392, ../WEB-INF/scss/app.scss */
 .issue .button-like .icon-radio img {
   display: none;
 }
-/* line 392, ../WEB-INF/scss/app.scss */
+/* line 394, ../WEB-INF/scss/app.scss */
 .issue .button-like.selected {
   background-color: #000000;
   /*@include gradient;*/
 }
-/* line 393, ../WEB-INF/scss/app.scss */
+/* line 395, ../WEB-INF/scss/app.scss */
 .issue .button-like.selected .icon-radio img {
   display: block;
 }
 
-/* line 399, ../WEB-INF/scss/app.scss */
+/* line 401, ../WEB-INF/scss/app.scss */
 #dialog-vote-ballot h4 {
   padding-top: 1.5625rem;
 }
-/* line 400, ../WEB-INF/scss/app.scss */
+/* line 402, ../WEB-INF/scss/app.scss */
 #dialog-vote-ballot p {
   margin-bottom: 0;
 }
-/* line 401, ../WEB-INF/scss/app.scss */
+/* line 403, ../WEB-INF/scss/app.scss */
 #dialog-vote-ballot .button-like {
   cursor: default;
   background-color: #000000;
 }
 
-/* line 406, ../WEB-INF/scss/app.scss */
+/* line 408, ../WEB-INF/scss/app.scss */
 .send-vote-icon,
 .register-success-icon {
   text-align: center;
   padding: 1.25rem 0;
 }
-/* line 408, ../WEB-INF/scss/app.scss */
+/* line 410, ../WEB-INF/scss/app.scss */
 .send-vote-icon img,
 .register-success-icon img {
   width: 5rem;
 }
 
 /* jQuery UI overrides */
-/* line 413, ../WEB-INF/scss/app.scss */
+/* line 415, ../WEB-INF/scss/app.scss */
 body .ui-widget {
   font-family: MuseoSlab-300;
   font-size: 1em;
 }
 
-/* line 414, ../WEB-INF/scss/app.scss */
+/* line 416, ../WEB-INF/scss/app.scss */
 body .ui-widget button {
   font-family: MuseoSlab-300;
 }

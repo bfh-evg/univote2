@@ -739,21 +739,24 @@ function inspectCert() {
 	var html = '<div id="certificate-viewer"><h2>' + msg.yourCertificate + '</h2><table>';
 	html += '<tr><th>' + msg.certCanonicalName + '</th><td>' + cert.commonName + '</td></tr>';
 	html += '<tr><th>' + msg.certOrganization + '</th><td>' + cert.organisation + '</td></tr>';
-	html += '<tr><th>' + msg.certOrganizationUnit + '</th><td>' + cert.organisationUnit + '</td></tr>';
+	//html += '<tr><th>' + msg.certOrganizationUnit + '</th><td>' + cert.organisationUnit + '</td></tr>';
 	html += '<tr><th>' + msg.certIssuer + '</th><td>' + cert.issuer + '</td></tr>';
 	html += '<tr><th>' + msg.certSerialNumber + '</th><td>' + cert.serialNumber + '</td></tr>';
 	html += '<tr><th>' + msg.certValidFrom + '</th><td>' + cert.validFrom + '</td></tr>';
 	html += '<tr><th>' + msg.certValidUntil + '</th><td>' + cert.validUntil + '</td></tr>';
 	//html += '<tr><th>'+msg.certFpSha1+'</th><td>'+cert.fpSha1+'</td></tr>';
-	html += '<tr><th>' + msg.certPem + '</th><td>' + cert.pem + '</td></tr>';
+	html += '<tr><th>' + msg.certPem + '</th><td><div id="certificate">' + cert.pem + '</div></td></tr>';
 	html += '</table>';
 	html += '<p><button class="button radius" onclick="$.unblockUI()">' + msg.close + '</button> &nbsp; ';
 	html += '<button class="button radius" onclick="downloadCertificate()">' + msg.certDownload + '</button></p></div>';
 
 	$.blockUI({
 		message: html,
-		css: {width: '60%', left: '20%', top: '50px'}
+		css: {width: '60%', left: '20%', top: '50px', 'max-height': '80%', overflow: 'auto'}
 	});
+	//setTimeout(function () {
+//		$('.blockMsg').scrollTop(0)
+//	}, 50);
 }
 
 /**

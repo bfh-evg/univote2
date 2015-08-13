@@ -134,13 +134,15 @@
 				padding: 0,
 				margin: 0,
 				width: '30%',
-				top: '40%',
+				top: '30%',
 				left: '35%',
 				textAlign: 'center',
 				color: '#000',
 				border: '3px solid #aaa',
 				backgroundColor: '#fff',
-				cursor: 'default'
+				cursor: 'default',
+				'max-height': '40%',
+				overflow: 'auto'
 			},
 			// minimal style set used when themes are used
 			themedCSS: {
@@ -202,7 +204,7 @@
 			showOverlay: true,
 			// if true, focus will be placed in the first available input field when
 			// page blocking
-			focusInput: true,
+			focusInput: false,
 			// elements that can receive focus
 			focusableElements: ':input:enabled:visible',
 			// suppresses the use of overlay styles on FF/Linux (due to performance issues with opacity)
@@ -218,7 +220,10 @@
 			onUnblock: null,
 			// callback method invoked when the overlay area is clicked.
 			// setting this will turn the cursor to a pointer, otherwise cursor defined in overlayCss will be used.
-			onOverlayClick: null,
+			//onOverlayClick: null,
+			onOverlayClick: function () {
+				$.unblockUI();
+			},
 			// don't ask; if you really must know: http://groups.google.com/group/jquery-en/browse_thread/thread/36640a8730503595/2f6a79a77a78e493#2f6a79a77a78e493
 			quirksmodeOffsetHack: 4,
 			// class name of the message block

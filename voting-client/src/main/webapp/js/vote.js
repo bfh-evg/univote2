@@ -834,9 +834,9 @@ function finalizeVote() {
 	var step5 = function (ballot) {
 		//6 - Sign post
 		console.log("6. Sign Post");
-		console.log("message: " + JSON.stringify(ballot, null, 4));
+		var messageB64 = B64.encode(JSON.stringify(ballot));
 		var post = {
-			message: B64.encode(JSON.stringify(ballot)),
+			message: messageB64,
 			alpha: {
 				attribute: [
 					{key: "section", value: {type: "stringValue", value: electionId}},
@@ -845,6 +845,7 @@ function finalizeVote() {
 		};
 
 		ballotData.signature = uvCrypto.signPost(post, signatureGenerator, secretKey);
+		ballotData.hashedMessage = uvCrypto.hashPostMessage(messageB64);
 
 		updateProcessing();
 		setTimeout(function () {
@@ -860,6 +861,7 @@ function finalizeVote() {
 		console.log("7. Cast Ballot");
 		var update = setInterval(updateProcessing, 1000);
 		var successCB = function (beta) {
+			// TODO: Parse beta to a 'nice' Object!
 			clearInterval(update);
 			var msg = beta.attribute[0].key;
 			if (msg == "rejected" || msg == "error") {
@@ -868,7 +870,7 @@ function finalizeVote() {
 			}
 			// TODO: Verify signature!
 			// TODO: Order of post is currently ignored!
-			castVoteSuccessCallback(ballotData, {signature: {timestamp: beta.attribute[0].value.value, value: beta.attribute[2].value.value}});
+			castVoteSuccessCallback(ballotData, {timestamp: beta.attribute[0].value.value, rank: beta.attribute[1].value.value, signature: beta.attribute[2].value.value});
 		};
 		var errorCB = function () {
 			clearInterval(update);
@@ -941,7 +943,7 @@ function castVoteErrorCallback(message) {
  * @param ballotData
  * @param response - The response
  */
-function castVoteSuccessCallback(ballotData, response) {
+function castVoteSuccessCallback(ballotData, beta) {
 
 	var blindedRandomness = uvCrypto.blindRandomization(ballotData.encryptedVote.r, secretKey);
 
@@ -949,26 +951,35 @@ function castVoteSuccessCallback(ballotData, response) {
 	// encoded holding the different values of ballot and signature.
 	// => Do it manually, so we know exactly what's going on!
 	try {
-		var base = 64;
 		var qrContent = [];
 		qrContent.push('{');
-		qrContent.push('"eID":', '"' + ballotData.electionId + '"');
-		qrContent.push(',"eVa":', '"' + leemon.bigInt2str(ballotData.encryptedVote.a, base) + '"');		// 1024 bits
-		qrContent.push(',"eVb":', '"' + leemon.bigInt2str(ballotData.encryptedVote.b, base) + '"');		// 1024 bits
-		qrContent.push(',"rB":', '"' + leemon.bigInt2str(blindedRandomness, base) + '"');			// 1024 bits
-		qrContent.push(',"vk":', '"' + leemon.bigInt2str(ballotData.verifKey.vk, base) + '"');		// 1024 bits
-		qrContent.push(',"pC":', '"' + leemon.bigInt2str(leemon.str2bigInt(ballotData.proof.commitment, 10), base) + '"');	// 1024 bits
-		qrContent.push(',"pR":', '"' + leemon.bigInt2str(leemon.str2bigInt(ballotData.proof.response, 10), base) + '"');	// 1024 bits
-		qrContent.push(',"vS":', '"' + leemon.bigInt2str(ballotData.signature.sig, base) + '"');			//  512 bits (2x 256)
-		qrContent.push(',"sT":', '"' + response.signature.timestamp + '"');
-		qrContent.push(',"sV":', '"' + leemon.bigInt2str(leemon.str2bigInt(response.signature.value, 10, 1), base) + '"'); //512 bits
+		qrContent.push('"electionId":', '"' + ballotData.electionId + '"');
+		qrContent.push(',"timestamp":', '"' + beta.timestamp + '"');
+		qrContent.push(',"rank":', beta.rank);
+		qrContent.push(',"signatureBB":', '"' + beta.signature + '"');
+		qrContent.push(',"hashedBallot":', '"' + ballotData.hashedMessage + '"');
+		qrContent.push(',"blindedR":', '"' + leemon.bigInt2str(blindedRandomness, uvConfig.BASE) + '"');
 		qrContent.push('}');
 
 		// Create qr-code and add data
 		//To determine the size see http://blog.qr4.nl/page/QR-Code-Data-Capacity.aspx
 		//If size is to small, qr code is not generated
-		var qr = qrcode(26, 'L');
-		qr.addData(qrContent.join(''));
+		var sizes = [586, 644, 718, 792, 858, 929, 1003, 1091, 1171, 1273, 1367, 1465, 1528, 1628, 1732, 1840, 1952, 2068, 2188];
+		qrContent = qrContent.join('');
+		var contentLength = qrContent.split(/./).length - 1;
+		var version = -1;
+		for (var i = 0; i < sizes.length; i++) {
+			if (contentLength + 20 < sizes[i]) { // 20 more, to be on the safe side!
+				version = i + 16;
+				break;
+			}
+		}
+		if (version == -1) {
+			throw "Too many data to put into QR-Code! " + contentLength + " > 2188";
+		}
+		console.log("Version of QR-Code: " + version);
+		var qr = qrcode(version, 'L');
+		qr.addData(qrContent);
 		qr.make();
 
 		// Create img tag representing the qr-code
@@ -979,6 +990,7 @@ function castVoteSuccessCallback(ballotData, response) {
 		// Append qr-code
 
 		$(elements.qrcodeHolder).append($qrcode);
+
 		// Go to step 3
 		gotoStep3();
 		$.unblockUI();
