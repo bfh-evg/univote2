@@ -418,7 +418,6 @@ function createListElectionContent(issue) {
 				}
 			}
 			electionDetails.addChoice(id);
-			console.log("Vote: " + electionDetails.getVote());
 			$("#choice-list li").removeClass("placeholder-item").data('id', id);
 			$("#choice-list li>span").html(msg.list + ' ' + list.getNumber());
 			$('#choice h5').html(list.getName());
@@ -902,6 +901,7 @@ function processExceptionInFinalizeVote(msgToDisplay) {
  *  @param message - error message
  */
 function castVoteErrorCallback(message) {
+	console.log("ERROR: Message from BB: " + message);
 	message = message || "";
 	var errorCode = message.substring(0, 7);
 	var errorMsg = "";
@@ -962,8 +962,8 @@ function castVoteSuccessCallback(ballotData, beta) {
 		qrContent.push('}');
 
 		// Create qr-code and add data
-		//To determine the size see http://blog.qr4.nl/page/QR-Code-Data-Capacity.aspx
-		//If size is to small, qr code is not generated
+		// To determine the size see http://blog.qr4.nl/page/QR-Code-Data-Capacity.aspx
+		// Sizes of the different Versions, starting from version 16
 		var sizes = [586, 644, 718, 792, 858, 929, 1003, 1091, 1171, 1273, 1367, 1465, 1528, 1628, 1732, 1840, 1952, 2068, 2188];
 		qrContent = qrContent.join('');
 		var contentLength = qrContent.split(/./).length - 1;
@@ -975,7 +975,7 @@ function castVoteSuccessCallback(ballotData, beta) {
 			}
 		}
 		if (version == -1) {
-			throw "Too many data to put into QR-Code! " + contentLength + " > 2188";
+			throw "Too much data to put into QR-Code! " + contentLength + " > 2188";
 		}
 		console.log("Version of QR-Code: " + version);
 		var qr = qrcode(version, 'L');
