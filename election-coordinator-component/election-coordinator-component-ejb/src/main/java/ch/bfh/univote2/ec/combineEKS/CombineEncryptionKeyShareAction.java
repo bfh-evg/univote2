@@ -60,6 +60,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.services.InformationService;
@@ -212,6 +213,14 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.", ex);
 		}
 		actionContext.setAmount(trusteeCertificates.getTallierCertificates().size());
+	}
+
+	protected void retrieveCryptoSetting(CombineEncryptionKeyShareActionContext actionContext) throws Exception {
+		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
+		byte[] message = result.getResult().getPost().get(0).getMessage();
+		CryptoSetting cryptoSetting = Converter.unmarshal(CryptoSetting.class, message);
+		actionContext.setCryptoSetting(cryptoSetting);
 	}
 
 	protected boolean validateAndAddKeyShare(CombineEncryptionKeyShareActionContext actionContext, PostDTO post) {
