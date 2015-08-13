@@ -60,22 +60,15 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.QueryFactory;
-import java.io.StringReader;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.Json;
-import javax.json.JsonException;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.json.JsonValue;
 
 /**
  *
@@ -131,7 +124,7 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 				try {
 					//Retrieve talliers
 					this.retrieveAmountOfTalliers(ceksac);
-				} catch (UnivoteException | JsonException ex) {
+				} catch (UnivoteException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(),
 							ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -177,7 +170,7 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 						try {
 							//Retrieve talliers
 							this.retrieveAmountOfTalliers(ceksac);
-						} catch (UnivoteException | JsonException ex) {
+						} catch (UnivoteException ex) {
 							this.informationService.informTenant(actionContext.getActionContextKey(),
 									ex.getMessage());
 							this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -223,33 +216,7 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 
 	protected boolean validateAndAddKeyShare(CombineEncryptionKeyShareActionContext actionContext, PostDTO post) {
 		try {
-			String messageString = new String(post.getMessage(), Charset.forName("UTF-8"));
-			JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-			JsonObject message = jsonReader.readObject();
-			JsonValue keyShareTmp = message.get("keyShare");
-			if (keyShareTmp == null || !keyShareTmp.getValueType().equals(JsonValue.ValueType.STRING)) {
-				throw new UnivoteException(
-						"keyShare is missing or no string.");
-			}
-			JsonString keyShare = (JsonString) keyShareTmp;
-			JsonValue proofTmp = message.get("keyShare");
-			if (proofTmp == null || !proofTmp.getValueType().equals(JsonValue.ValueType.OBJECT)) {
-				throw new UnivoteException(
-						"proof is missing or no string.");
-			}
-			JsonObject proof = (JsonObject) proofTmp;
-			JsonValue commitmentTmp = proof.get("commitment");
-			if (commitmentTmp == null || !commitmentTmp.getValueType().equals(JsonValue.ValueType.STRING)) {
-				throw new UnivoteException(
-						"proof is missing or no string.");
-			}
-			JsonString commitment = (JsonString) commitmentTmp;
-			JsonValue responseTmp = proof.get("response");
-			if (responseTmp == null || !responseTmp.getValueType().equals(JsonValue.ValueType.STRING)) {
-				throw new UnivoteException(
-						"proof is missing or no string.");
-			}
-			JsonString response = (JsonString) responseTmp;
+			EncryptionKeyShare encryptionKeyShare = Converter.unmarshal(EncryptionKeyShare.class, post.getMessage());
 
 			//Validate Proof
 			//TODO retrieve modulus and generator
@@ -259,14 +226,14 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 			Element generatorElement = cyclicGroup.getElementFrom(generator);
 			ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(generatorElement);
 			KeyPairGenerator keyPairGen = elGamal.getKeyPairGenerator();
-			Element publicKey = keyPairGen.getPublicKeySpace().getElementFrom(keyShare.getString());
+			Element publicKey = keyPairGen.getPublicKeySpace().getElementFrom(encryptionKeyShare.getKeyShare());
 			Function proofFunction = keyPairGen.getPublicKeyGenerationFunction();
 			PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(proofFunction);
 			//TODO Fill triple
 			Triple proofTriple = null;
 			pg.verify(proofTriple, publicKey);
 
-		} catch (JsonException | UnivoteException ex) {
+		} catch (Exception ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					ex.getMessage());
 		}

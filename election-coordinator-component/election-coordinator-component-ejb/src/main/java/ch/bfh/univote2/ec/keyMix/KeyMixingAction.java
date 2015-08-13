@@ -53,6 +53,7 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.message.Certificate;
 import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.ElectoralRoll;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -60,8 +61,6 @@ import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.ec.QueryFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -70,10 +69,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.Json;
-import javax.json.JsonException;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 /**
  *
@@ -153,18 +148,20 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 	}
 
-	protected JsonObject retrieveElectoralRoll(ActionContext actionContext) throws JsonException, UnivoteException {
+	protected ElectoralRoll retrieveElectoralRoll(ActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForElectoralRoll(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Electoral roll not published yet.");
 		}
-		//Prepare JsonObject
-		//TODO Replace
-		String messageString = new String(result.getResult().getPost().get(0).getMessage(),
-				Charset.forName("UTF-8"));
-		JsonReader jsonReader = Json.createReader(new StringReader(messageString));
-		return jsonReader.readObject();
+		byte[] message = result.getResult().getPost().get(0).getMessage();
+		ElectoralRoll electoralRoll;
+		try {
+			electoralRoll = Converter.unmarshal(ElectoralRoll.class, message);
+		} catch (Exception ex) {
+			throw new UnivoteException("Invalid electoral roll message. Can not be unmarshalled.");
+		}
+		return electoralRoll;
 
 	}
 
