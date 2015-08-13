@@ -72,7 +72,8 @@ public class UniboardServiceMock implements UniboardService {
 	}
 
 	@Override
-	public AttributesDTO post(String board, String section, String group, byte[] message, String tennant) throws UnivoteException {
+	public AttributesDTO post(String board, String section, String group, byte[] message, String tennant)
+			throws UnivoteException {
 		AttributesDTO alpha = new AttributesDTO();
 		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("board", new StringValueDTO(board)));
 		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("section", new StringValueDTO(section)));

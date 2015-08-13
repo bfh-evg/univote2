@@ -51,9 +51,6 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
-import ch.bfh.univote2.component.core.manager.ConfigurationManager;
-import ch.bfh.univote2.component.core.message.Converter;
-import ch.bfh.univote2.component.core.message.SecurityLevel;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
@@ -76,13 +73,14 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 	private static final Logger logger = Logger.getLogger(SetCryptoSettingAction.class.getName());
 
 	@EJB
-	ActionManager actionManager;
+	private ActionManager actionManager;
 	@EJB
-	InformationService informationService;
+	private InformationService informationService;
 	@EJB
-	UniboardService uniboardService;
-	@EJB
-	ConfigurationManager configurationManager;
+	private UniboardService uniboardService;
+	// TODO Add field or remove next two comment lines
+	//@EJB
+	//private ConfigurationManager configurationManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {

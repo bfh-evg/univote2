@@ -76,13 +76,13 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	private static final Logger logger = Logger.getLogger(DefineEAAction.class.getName());
 
 	@EJB
-	ActionManager actionManager;
+	private ActionManager actionManager;
 	@EJB
-	InformationService informationService;
+	private InformationService informationService;
 	@EJB
-	UniboardService uniboardService;
+	private UniboardService uniboardService;
 	@EJB
-	ConfigurationManager configurationManager;
+	private ConfigurationManager configurationManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {

@@ -2,8 +2,8 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title": "UniVote2: Schema of an election option",
 	"oneOf": [
-		{ "$ref": "candidateOptionSchema.json" },
-		{ "$ref": "listOptionSchema.json" },
-		{ "$ref": "votingOptionSchema.json" }
+		{ "$ref": "candidateOption.jsd" },
+		{ "$ref": "listOption.jsd" },
+		{ "$ref": "votingOption.jsd" }
 	]
 }

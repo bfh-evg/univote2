@@ -68,7 +68,6 @@ import ch.bfh.univote2.ec.QueryFactory;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.json.Json;
@@ -86,14 +85,13 @@ import javax.json.JsonValue;
 public class CombineEncryptionKeyShareAction extends AbstractAction implements NotifiableAction {
 
 	private static final String ACTION_NAME = CombineEncryptionKeyShareAction.class.getSimpleName();
-	private static final Logger logger = Logger.getLogger(CombineEncryptionKeyShareAction.class.getName());
 
 	@EJB
-	ActionManager actionManager;
+	private ActionManager actionManager;
 	@EJB
-	InformationService informationService;
+	private InformationService informationService;
 	@EJB
-	UniboardService uniboardService;
+	private UniboardService uniboardService;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {

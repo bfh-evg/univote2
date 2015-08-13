@@ -126,6 +126,7 @@ ul, li { list-style: none; margin:0; padding: 0; }
 
 .blockUI {
 
+	&.blockMsg { padding-top: 20px !important; }
 	#blockui-processing {
 		text-align: left;
 	}

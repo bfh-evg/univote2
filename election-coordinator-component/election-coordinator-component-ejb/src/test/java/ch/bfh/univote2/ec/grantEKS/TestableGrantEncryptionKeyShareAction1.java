@@ -72,7 +72,8 @@ public class TestableGrantEncryptionKeyShareAction1 extends GrantEncryptionKeySh
 	}
 
 	@Override
-	public void parseTrusteeCerts(TrusteeCertificates trusteeCertificates, GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
+	public void parseTrusteeCerts(TrusteeCertificates trusteeCertificates,
+			GrantEncryptionKeyShareActionContext actionContext) throws UnivoteException {
 		super.parseTrusteeCerts(trusteeCertificates, actionContext);
 	}
 

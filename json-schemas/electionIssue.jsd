@@ -13,11 +13,11 @@
 		},
 		"title": {
 			"description": "Issue title",
-			"$ref": "i18nTextSchema.json"
+			"$ref": "i18nText.jsd"
 		},
 		"description": {
 			"description": "Description of the issue",
-			"$ref": "i18nTextSchema.json"
+			"$ref": "i18nText.jsd"
 		},
 		"optionIds": {
 			"description": "Identifiers of issue options",

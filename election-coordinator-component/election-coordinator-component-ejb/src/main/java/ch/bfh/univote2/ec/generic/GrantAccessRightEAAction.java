@@ -76,11 +76,11 @@ import javax.ejb.EJB;
 public abstract class GrantAccessRightEAAction implements NotifiableAction {
 
 	@EJB
-	ActionManager actionManager;
+	private ActionManager actionManager;
 	@EJB
-	InformationService informationService;
+	private InformationService informationService;
 	@EJB
-	UniboardService uniboardService;
+	private UniboardService uniboardService;
 
 	protected abstract String getActionName();
 
