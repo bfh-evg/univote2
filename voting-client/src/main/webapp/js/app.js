@@ -16,7 +16,7 @@ function showBriefInstruction() {
 				'<h2>' + msg.instructionTitle + '</h2>' +
 				msg.instructionText + '</div>' +
 				'<p><button class="button radius" onclick="$.unblockUI();">' + msg.close + '</button></p>',
-		css: {top: '20%', left: '20%', width: '60%'}
+		css: {top: '10%', left: '20%', width: '60%', 'max-height': '80%'}
 
 	});
 	return false;
@@ -37,7 +37,7 @@ function showHelp() {
 				'<button class="button radius" onclick="$.unblockUI(); return false;">' + msg.cancel + '</button>' +
 				'<button class="button radius" onclick="return submitHelpForm();">' + msg.helpBoxSubmit + '</button>' + '</div></form>' +
 				'</div>',
-		css: {top: '20%', left: '20%', width: '60%'}
+		css: {top: '10%', left: '20%', width: '60%', 'max-height': '80%'}
 	});
 
 	return false;

@@ -736,8 +736,8 @@
 			//Get message and alpha attributes
 			var message = post.message;
 			var alpha = post.alpha.attribute;
-			var messageHash = Hash.doString(B64.decode(message));
-			var concatenatedAlphaHashes = ""
+			var messageHash = this.hashPostMessage(message);
+			var concatenatedAlphaHashes = "";
 
 			var hashAttribute = function (attribute) {
 				var aHash = '';
@@ -787,8 +787,20 @@
 				betaHash = Hash.doHexStr(concatenatedBetaHashes);
 			}
 			return Hash.doHexStr(messageHash + alphaHash + betaHash);
-		}
+		};
+
+		/**
+		 * Helper method computing the hash value of the post message
+		 *
+		 * @param message - The Base64 encoded message of the post
+		 * @return The hash value of the message.
+		 */
+		this.hashPostMessage = function (message) {
+			return Hash.doString(B64.decode(message));
+		};
 	}
+
+
 
 	window.uvCrypto = new Crypto();
 
