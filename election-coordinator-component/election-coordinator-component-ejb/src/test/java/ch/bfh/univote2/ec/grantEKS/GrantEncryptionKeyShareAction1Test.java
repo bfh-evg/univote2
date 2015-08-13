@@ -46,7 +46,7 @@ import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.Converter;
+import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.ec.ActionManagerMock;
 import ch.bfh.univote2.ec.InformationServiceMock;
@@ -196,7 +196,7 @@ public class GrantEncryptionKeyShareAction1Test {
 					+ "qZ1aWTxkEL2KHkryh0py3Rs1/4jLAFPHT5TwDRrsbmUoVLGMLLn+XWDFAKZv"
 					+ "-----END CERTIFICATE-----\"}]}";
 			TrusteeCertificates trusteeCertificates;
-			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
+			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
 
 			this.grantEKSAction.parseTrusteeCerts(trusteeCertificates, actionContext);
 			assertEquals(1, actionContext.getTalliers().size());
@@ -219,7 +219,7 @@ public class GrantEncryptionKeyShareAction1Test {
 		try {
 			String messageString = "{\"tallierCertificates\": [1,2,3]}";
 			TrusteeCertificates trusteeCertificates;
-			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
+			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
 
 			this.grantEKSAction.parseTrusteeCerts(trusteeCertificates, actionContext);
 			fail();
@@ -241,7 +241,7 @@ public class GrantEncryptionKeyShareAction1Test {
 		try {
 			String messageString = "{\"tallierCertificates\": [{\"pem\": \"asasdfalsfalsdf\"}]}";
 			TrusteeCertificates trusteeCertificates;
-			trusteeCertificates = Converter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
+			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, messageString.getBytes());
 
 			this.grantEKSAction.parseTrusteeCerts(trusteeCertificates, actionContext);
 			fail();

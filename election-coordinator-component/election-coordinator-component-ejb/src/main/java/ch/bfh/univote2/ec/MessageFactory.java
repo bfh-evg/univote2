@@ -44,8 +44,8 @@ package ch.bfh.univote2.ec;
 import ch.bfh.unicrypt.helper.math.MathUtil;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.message.AccessRight;
-import ch.bfh.univote2.component.core.message.Converter;
 import ch.bfh.univote2.component.core.message.DL;
+import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.RSA;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import java.math.BigInteger;
@@ -94,7 +94,7 @@ public class MessageFactory {
 			throw new UnivoteException("Unsupported public key: " + publicKey.getClass());
 		}
 		try {
-			return Converter.marshal(accessRight).getBytes(Charset.forName("UTF-8"));
+			return JSONConverter.marshal(accessRight).getBytes(Charset.forName("UTF-8"));
 		} catch (Exception ex) {
 			return null;
 		}
