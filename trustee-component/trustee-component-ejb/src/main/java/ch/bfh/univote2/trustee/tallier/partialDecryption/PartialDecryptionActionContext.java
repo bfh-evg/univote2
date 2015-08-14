@@ -41,12 +41,10 @@
  */
 package ch.bfh.univote2.trustee.tallier.partialDecryption;
 
-import ch.bfh.univote2.trustee.parallel.*;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.Date;
-import java.util.List;
+import ch.bfh.univote2.component.core.message.CryptoSetting;
+import java.util.ArrayList;
 
 /**
  *
@@ -54,20 +52,41 @@ import java.util.List;
  */
 public class PartialDecryptionActionContext extends ActionContext {
 
-	private Date timeOut;
+    private CryptoSetting cryptoSetting;
+    private Boolean accessRightGranted;
 
-	public PartialDecryptionActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, true);
-		this.timeOut = new Date();
-	}
+    public PartialDecryptionActionContext(ActionContextKey actionContextKey) {
+	super(actionContextKey, new ArrayList<>(), false);
+    }
 
-	@Override
-	protected void purgeData() {
-		this.timeOut = null;
-	}
+    @Override
+    protected void purgeData() {
+	this.cryptoSetting = null;
+	this.accessRightGranted = null;
 
-	public Date getTimeOut() {
-		return timeOut;
+    }
+
+    public Boolean getAccessRightGranted() {
+	return accessRightGranted;
+    }
+
+    public void setAccessRightGranted(Boolean accessRightGranted) {
+	this.accessRightGranted = accessRightGranted;
+    }
+
+    public CryptoSetting getCryptoSetting() {
+	return cryptoSetting;
+    }
+
+    public void setCryptoSetting(CryptoSetting cryptoSetting) {
+	this.cryptoSetting = cryptoSetting;
+    }
+
+    public Boolean isPreconditionReached() {
+	if (cryptoSetting == null || accessRightGranted == null) {
+	    return null;
 	}
+	return accessRightGranted.booleanValue() && cryptoSetting != null;
+    }
 
 }
