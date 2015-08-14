@@ -1386,7 +1386,7 @@ Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 			\EC & $\mathsf{votingData}$ & 1 & $\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues,\encode,$ & \Voter{i} \\
 			& & & $\mathit{encryptSetting},\mathit{signSetting},$ \\
 			& & & $\mathit{hashSetting},y, \hat{g}$ \\
-			\Voter{i} & $\mathsf{ballot}$ & 1 & $E_i,\pi_{i}$ & \EC \\
+			\Voter{i} & $\mathsf{ballot}$ & $\leq n$ & $E_i,\pi_{i}$ & \EC \\
 			\EC & $\mathsf{voteMixingRequest}$ & $m$ & $\Mixer{k},\mathcal{E}_k$ & \Mixer{k}\\
 			\Mixer{k} & $\mathsf{voteMixingResult}$ & $m$ & $\mathcal{E}_k,\pi'_{k}$ & \EC \\
 			\EC & $\mathsf{mixedVotes}$ & 1 & $\hat{\mathcal{E}}$ & \Tallier{j} \\
@@ -1804,7 +1804,7 @@ The following parameters are assumed to be known in advance and not to change ov
 
 \fbox{
 \begin{tabularx}{\textwidth}{rX}
-	Name & \textsf{H3} \\
+	Name & \textsf{H2} \\
 	Level & 2 \\
 	Strength & 112 \\
 	Bit Length & 224 \\
