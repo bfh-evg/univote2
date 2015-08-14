@@ -62,9 +62,9 @@ public enum GroupEnum {
 	KEY_MIXING_RESULT("keyMixingResult"),
 	MIXED_KEYS("mixedKeys"),
 	PARTIAL_DECRYPTION_REQUEST("partialDecryptionRequest"),
-	PARTIAL_DECRYPTION_RESPONSE("partialDecryptionResponse"),
+	PARTIAL_DECRYPTION_RESULT("partialDecryptionResult"),
 	VOTE_MIXING_REQUEST("voteMixingRequest"),
-	VOTE_MIXING_RESPONSE("voteMixingResponse");
+	VOTE_MIXING_RESULT("voteMixingResult");
 
 	private final String value;
 
