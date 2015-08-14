@@ -58,9 +58,13 @@ public enum GroupEnum {
 	CRYPTO_SETTING("cryptoSetting"),
 	ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
 	ENCRYPTION_KEY("encryptionKey"),
-	MIXING_REQUEST("mixingReques"),
-	MIXING_RESULT("mixingResult"),
-	MIXED_KEYS("mixedKeys");
+	KEY_MIXING_REQUEST("keyMixingRequest"),
+	KEY_MIXING_RESULT("keyMixingResult"),
+	MIXED_KEYS("mixedKeys"),
+	PARTIAL_DECRYPTION_REQUEST("partialDecryptionRequest"),
+	PARTIAL_DECRYPTION_RESPONSE("partialDecryptionResponse"),
+	VOTE_MIXING_REQUEST("voteMixingRequest"),
+	VOTE_MIXING_RESPONSE("voteMixingResponse");
 
 	private final String value;
 
