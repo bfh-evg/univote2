@@ -43,6 +43,7 @@ package ch.bfh.univote2.trustee.tallier.partialDecryption;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.StringValue;
@@ -137,7 +138,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	try {
 	    PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 	    ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-								 QueryFactory.getQueryForPartialDecryptions(actionContext.getSection(), publicKey));
+								 QueryFactory.getQueryForPartialDecryption(actionContext.getSection(), publicKey));
 	    if (!result.getResult().getPost().isEmpty()) {
 		return true;
 	    }
@@ -167,10 +168,6 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    }
 
 	} catch (UnivoteException ex) {
-	    //Add Notification
-	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
-	    actionContext.getPreconditionQueries().add(bQuery);
 	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
 	    this.informationService.informTenant(actionContextKey,
 						 "Error retrieving securitySetting: " + ex.getMessage());
@@ -183,16 +180,27 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    this.informationService.informTenant(actionContextKey,
 						 "Error reading securitySetting.");
 	}
+	//Add Notification
+	if (skcac.getCryptoSetting() == null) {//Add Notification
+	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
+	    actionContext.getPreconditionQueries().add(bQuery);
+	}
 	BoardPreconditionQuery bQuery = null;
 	try {
 	    //Check if there is an initial AccessRight for this tenant
 	    //TODO: Check if there is an actual valid access right... Right now it is only checking if there is any access right.
 	    String tenant = actionContext.getTenant();
 	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
-	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.TRUSTEES), BoardsEnum.UNIVOTE.getValue());
+	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.PARTIAL_DECRYPTION), BoardsEnum.UNIVOTE.getValue());
 	    skcac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
 	} catch (UnivoteException ex) {
-	    //Add Notification
+	    logger.log(Level.WARNING, "Could not get access right.", ex);
+	    this.informationService.informTenant(actionContextKey,
+						 "Error retrieving access rights: " + ex.getMessage());
+	}
+	//Add Notification
+	if (!Objects.equals(skcac.getAccessRightGranted(), Boolean.TRUE)) {
 	    actionContext.getPreconditionQueries().add(bQuery);
 	}
 
@@ -355,13 +363,13 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
     }
 
     protected CryptoSetting retrieveCryptoSetting(ActionContext actionContext) throws UnivoteException, Exception {
-	ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-							     QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-	if (result.getResult().getPost().isEmpty()) {
+	ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+						    QueryFactory.getQueryForCryptoSetting(actionContext.getSection())).getResult();
+	if (result.getPost().isEmpty()) {
 	    throw new UnivoteException("Cryptosetting not published yet.");
 
 	}
-	CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
+	CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
 	return cryptoSetting;
 
     }

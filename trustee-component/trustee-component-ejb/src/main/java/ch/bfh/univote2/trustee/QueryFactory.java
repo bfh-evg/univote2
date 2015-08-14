@@ -138,7 +138,7 @@ public class QueryFactory {
 	return query;
     }
 
-    public static QueryDTO getQueryForPartialDecryptions(String section, PublicKey publicKey) throws UnivoteException {
+    public static QueryDTO getQueryForPartialDecryptions(String section) {
 	QueryDTO query = new QueryDTO();
 	IdentifierDTO identifier = new AlphaIdentifierDTO();
 	identifier.getPart().add(AlphaEnum.SECTION.getValue());
@@ -147,13 +147,44 @@ public class QueryFactory {
 
 	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
 	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier, new StringValueDTO(GroupEnum.PARTIAL_DECRYPTION_RESULT.getValue()));
+	ConstraintDTO constraint2 = new EqualDTO(identifier, new StringValueDTO(GroupEnum.PARTIAL_DECRYPTION.getValue()));
 	query.getConstraint().add(constraint2);
-	addConstraint(query, publicKey);
 	//Order by timestamp desc
 	IdentifierDTO identifier3 = new BetaIdentifierDTO();
 	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
 	query.getOrder().add(new OrderDTO(identifier3, false));
+	return query;
+    }
+
+    public static QueryDTO getQueryForPartialDecryption(String section, PublicKey publicKey) throws UnivoteException {
+	QueryDTO query = getQueryForPartialDecryptions(section);
+	addConstraint(query, publicKey);
+	//Return only first post
+	query.setLimit(1);
+	return query;
+    }
+
+    public static QueryDTO getQueryForVoteMixingResults(String section) {
+	QueryDTO query = new QueryDTO();
+	IdentifierDTO identifier = new AlphaIdentifierDTO();
+	identifier.getPart().add(AlphaEnum.SECTION.getValue());
+	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+	query.getConstraint().add(constraint);
+
+	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+	ConstraintDTO constraint2 = new EqualDTO(identifier, new StringValueDTO(GroupEnum.VOTE_MIXING_RESULT.getValue()));
+	query.getConstraint().add(constraint2);
+	//Order by timestamp desc
+	IdentifierDTO identifier3 = new BetaIdentifierDTO();
+	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+	query.getOrder().add(new OrderDTO(identifier3, false));
+	return query;
+    }
+
+    public static QueryDTO getQueryForVoteMixingResult(String section, PublicKey publicKey) throws UnivoteException {
+	QueryDTO query = getQueryForVoteMixingResults(section);
+	addConstraint(query, publicKey);
 	//Return only first post
 	query.setLimit(1);
 	return query;
@@ -221,6 +252,8 @@ public class QueryFactory {
     public static QueryDTO getQueryForEncryptionKeyShare(String section, PublicKey publicKey) throws UnivoteException {
 	QueryDTO query = getQueryForEncryptionKeyShares(section);
 	addConstraint(query, publicKey);
+	//Return only first post
+	query.setLimit(1);
 	return query;
     }
 
@@ -259,6 +292,12 @@ public class QueryFactory {
 	IdentifierDTO identifier3 = new BetaIdentifierDTO();
 	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
 	query.getOrder().add(new OrderDTO(identifier3, false));
+	return query;
+    }
+
+    public static QueryDTO getQueryForKeyMixingResult(String section, PublicKey publicKey) throws UnivoteException {
+	QueryDTO query = getQueryForKeyMixingResults(section);
+	addConstraint(query, publicKey);
 	return query;
     }
 

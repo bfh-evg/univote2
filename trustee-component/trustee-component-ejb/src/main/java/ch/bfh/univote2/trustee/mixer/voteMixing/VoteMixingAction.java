@@ -137,12 +137,12 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	try {
 	    PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 	    ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-								 QueryFactory.getQueryForEncryptionKeyShare(actionContext.getSection(), publicKey));
+								 QueryFactory.getQueryForVoteMixingResult(actionContext.getSection(), publicKey));
 	    if (!result.getResult().getPost().isEmpty()) {
 		return true;
 	    }
 	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not request encryption key share.", ex);
+	    logger.log(Level.WARNING, "Could not request vote mixing result.", ex);
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
 						 "Could not check post condition.");
 	    return false;
@@ -152,23 +152,25 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 
     @Override
     protected void definePreconditions(ActionContext actionContext) {
+	BoardPreconditionQuery bQuery = null;
 	ActionContextKey actionContextKey = actionContext.getActionContextKey();
 	String section = actionContext.getSection();
+	String tenant = actionContext.getTenant();
 	if (!(actionContext instanceof VoteMixingActionContext)) {
 	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 	    return;
 	}
-	VoteMixingActionContext skcac = (VoteMixingActionContext) actionContext;
+	VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
 	try {
-	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
+	    CryptoSetting cryptoSetting = vmac.getCryptoSetting();
 	    if (cryptoSetting == null) {
-		cryptoSetting = this.retrieveCryptoSetting(skcac);
-		skcac.setCryptoSetting(cryptoSetting);
+		cryptoSetting = this.retrieveCryptoSetting(vmac);
+		vmac.setCryptoSetting(cryptoSetting);
 	    }
 
 	} catch (UnivoteException ex) {
 	    //Add Notification
-	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+	    bQuery = new BoardPreconditionQuery(
 		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
 	    actionContext.getPreconditionQueries().add(bQuery);
 	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
@@ -183,14 +185,12 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	    this.informationService.informTenant(actionContextKey,
 						 "Error reading securitySetting.");
 	}
-	BoardPreconditionQuery bQuery = null;
 	try {
 	    //Check if there is an initial AccessRight for this tenant
 	    //TODO: Check if there is an actual valid access right... Right now it is only checking if there is any access right.
-	    String tenant = actionContext.getTenant();
 	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
 	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.TRUSTEES), BoardsEnum.UNIVOTE.getValue());
-	    skcac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
+	    vmac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
 	} catch (UnivoteException ex) {
 	    //Add Notification
 	    actionContext.getPreconditionQueries().add(bQuery);

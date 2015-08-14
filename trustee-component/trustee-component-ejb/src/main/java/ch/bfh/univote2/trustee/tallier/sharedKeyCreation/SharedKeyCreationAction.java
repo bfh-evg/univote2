@@ -161,16 +161,14 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 	try {
 	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
+
+	    //Add Notification
 	    if (cryptoSetting == null) {
 		cryptoSetting = this.retrieveCryptoSetting(skcac);
 		skcac.setCryptoSetting(cryptoSetting);
 	    }
 
 	} catch (UnivoteException ex) {
-	    //Add Notification
-	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
-	    actionContext.getPreconditionQueries().add(bQuery);
 	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
 	    this.informationService.informTenant(actionContextKey,
 						 "Error retrieving securitySetting: " + ex.getMessage());
@@ -183,16 +181,27 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    this.informationService.informTenant(actionContextKey,
 						 "Error reading securitySetting.");
 	}
+	if (skcac.getCryptoSetting() == null) {
+	    //Add Notification
+	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
+	    actionContext.getPreconditionQueries().add(bQuery);
+	}
 	BoardPreconditionQuery bQuery = null;
 	try {
 	    //Check if there is an initial AccessRight for this tenant
 	    //TODO: Check if there is an actual valid access right... Right now it is only checking if there is any access right.
 	    String tenant = actionContext.getTenant();
 	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
-	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.TRUSTEES), BoardsEnum.UNIVOTE.getValue());
+	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.ENCRYPTION_KEY_SHARE), BoardsEnum.UNIVOTE.getValue());
 	    skcac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
 	} catch (UnivoteException ex) {
-	    //Add Notification
+	    logger.log(Level.WARNING, "Could not get access right.", ex);
+	    this.informationService.informTenant(actionContextKey,
+						 "Error retrieving access rights: " + ex.getMessage());
+	}
+	//Add Notification
+	if (!Objects.equals(skcac.getAccessRightGranted(), Boolean.TRUE)) {
 	    actionContext.getPreconditionQueries().add(bQuery);
 	}
 

@@ -39,29 +39,59 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.trustee.mixer.voteMixing;
+package ch.bfh.univote2.trustee;
 
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.trustee.ATrusteeActionContext;
+import ch.bfh.univote2.component.core.message.CryptoSetting;
+import java.util.ArrayList;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class VoteMixingActionContext extends ATrusteeActionContext {
+public abstract class ATrusteeActionContext extends ActionContext {
 
-    public VoteMixingActionContext(ActionContextKey actionContextKey) {
-	super(actionContextKey);
+    private CryptoSetting cryptoSetting;
+    private Boolean accessRightGranted;
+
+    public ATrusteeActionContext(ActionContextKey actionContextKey) {
+	super(actionContextKey, new ArrayList<>(), false);
     }
 
     @Override
-    public Boolean isSpecializedPreconditionReached() {
-	return true;
+    protected void purgeData() {
+	this.cryptoSetting = null;
+	this.accessRightGranted = null;
+	purgeSpecializedData();
+
     }
 
-    @Override
-    protected void purgeSpecializedData() {
-	//nothing to do.
+    public Boolean getAccessRightGranted() {
+	return accessRightGranted;
     }
+
+    public void setAccessRightGranted(Boolean accessRightGranted) {
+	this.accessRightGranted = accessRightGranted;
+    }
+
+    public CryptoSetting getCryptoSetting() {
+	return cryptoSetting;
+    }
+
+    public void setCryptoSetting(CryptoSetting cryptoSetting) {
+	this.cryptoSetting = cryptoSetting;
+    }
+
+    public Boolean isPreconditionReached() {
+	if (cryptoSetting == null || accessRightGranted == null || isSpecializedPreconditionReached() == null) {
+	    return null;
+	}
+	return accessRightGranted.booleanValue() && isSpecializedPreconditionReached();
+    }
+
+    protected abstract Boolean isSpecializedPreconditionReached();
+
+    protected abstract void purgeSpecializedData();
 
 }

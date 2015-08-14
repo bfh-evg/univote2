@@ -41,52 +41,27 @@
  */
 package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
 
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.CryptoSetting;
-import java.util.ArrayList;
+import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class SharedKeyCreationActionContext extends ActionContext {
-
-    private CryptoSetting cryptoSetting;
-    private Boolean accessRightGranted;
+public class SharedKeyCreationActionContext extends ATrusteeActionContext {
 
     public SharedKeyCreationActionContext(ActionContextKey actionContextKey) {
-	super(actionContextKey, new ArrayList<>(), false);
+	super(actionContextKey);
     }
 
     @Override
-    protected void purgeData() {
-	this.cryptoSetting = null;
-	this.accessRightGranted = null;
-
+    protected Boolean isSpecializedPreconditionReached() {
+	return true;
     }
 
-    public Boolean getAccessRightGranted() {
-	return accessRightGranted;
-    }
-
-    public void setAccessRightGranted(Boolean accessRightGranted) {
-	this.accessRightGranted = accessRightGranted;
-    }
-
-    public CryptoSetting getCryptoSetting() {
-	return cryptoSetting;
-    }
-
-    public void setCryptoSetting(CryptoSetting cryptoSetting) {
-	this.cryptoSetting = cryptoSetting;
-    }
-
-    public Boolean isPreconditionReached() {
-	if (cryptoSetting == null || accessRightGranted == null) {
-	    return null;
-	}
-	return accessRightGranted.booleanValue() && cryptoSetting != null;
+    @Override
+    protected void purgeSpecializedData() {
+	//nothing to do
     }
 
 }
