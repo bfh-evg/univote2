@@ -111,7 +111,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
 		//TODO
-		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForMixingResults(
+		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForKeyMixingResults(
 				actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 		actionContext.getPreconditionQueries().add(bQuery);
 	}

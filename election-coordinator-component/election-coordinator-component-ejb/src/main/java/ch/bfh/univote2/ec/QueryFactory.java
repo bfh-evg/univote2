@@ -381,7 +381,7 @@ public class QueryFactory {
 		return query;
 	}
 
-	public static QueryDTO getQueryForMixingResults(String section) {
+	public static QueryDTO getQueryForKeyMixingResults(String section) {
 		QueryDTO query = new QueryDTO();
 		IdentifierDTO identifier = new AlphaIdentifierDTO();
 		identifier.getPart().add(AlphaEnum.SECTION.getValue());
@@ -390,7 +390,7 @@ public class QueryFactory {
 
 		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
 		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-		ConstraintDTO constraint2 = new EqualDTO(identifier, new StringValueDTO(GroupEnum.MIXING_RESULT.getValue()));
+		ConstraintDTO constraint2 = new EqualDTO(identifier, new StringValueDTO(GroupEnum.KEY_MIXING_RESULT.getValue()));
 		query.getConstraint().add(constraint2);
 		//Order by timestamp desc
 		IdentifierDTO identifier3 = new BetaIdentifierDTO();
