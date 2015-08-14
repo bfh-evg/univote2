@@ -61,10 +61,10 @@ public enum GroupEnum {
 	KEY_MIXING_REQUEST("keyMixingRequest"),
 	KEY_MIXING_RESULT("keyMixingResult"),
 	MIXED_KEYS("mixedKeys"),
-	PARTIAL_DECRYPTION_REQUEST("partialDecryptionRequest"),
-	PARTIAL_DECRYPTION_RESULT("partialDecryptionResult"),
+	PARTIAL_DECRYPTION("partialDecryption"),
 	VOTE_MIXING_REQUEST("voteMixingRequest"),
-	VOTE_MIXING_RESULT("voteMixingResult");
+	VOTE_MIXING_RESULT("voteMixingResult"),
+	MIXED_VOTES("mixedVotes");
 
 	private final String value;
 
