@@ -1,31 +1,34 @@
 package ch.bfh.univote.admin.data;
 
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(propOrder = {"id", "answer"})
 public class VotingOption extends ElectionOption {
 
-    private Integer id;
-    private I18nText answer;
+	private Integer id;
+	private I18nText answer;
 
-    public VotingOption() {
-    }
+	public VotingOption() {
+	}
 
-    public VotingOption(Integer id, I18nText answer) {
-	this.id = id;
-	this.answer = answer;
-    }
+	public VotingOption(Integer id, I18nText answer) {
+		this.id = id;
+		this.answer = answer;
+	}
 
-    public Integer getId() {
-	return id;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public void setId(Integer id) {
-	this.id = id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public I18nText getAnswer() {
-	return answer;
-    }
+	public I18nText getAnswer() {
+		return answer;
+	}
 
-    public void setAnswer(I18nText answer) {
-	this.answer = answer;
-    }
+	public void setAnswer(I18nText answer) {
+		this.answer = answer;
+	}
 }

@@ -1,6 +1,7 @@
 package ch.bfh.univote.admin;
 
 import ch.bfh.univote.admin.data.ElectionDetails;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -10,12 +11,13 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
-public class Main {
+public class JAXBMarshalingTest {
+
+	private static final String DOCUMENT_PATH = "json-examples/sub-2015/electionDetails.json";
 
 	public static void main(String[] args) throws Exception {
 		JAXBContext jaxbContext = initJAXBContext(ElectionDetails.class);
-		ElectionDetails electionDetails = unmarshal(jaxbContext,
-				ElectionDetails.class, "/json-examples/sub-2015/electionDetails.json");
+		ElectionDetails electionDetails = unmarshal(jaxbContext, ElectionDetails.class, DOCUMENT_PATH);
 		String jsonString = marshal(jaxbContext, electionDetails);
 		System.out.println(jsonString);
 	}
@@ -29,7 +31,7 @@ public class Main {
 
 	private static <T> T unmarshal(JAXBContext jaxbContext, Class<T> type, String path) throws Exception {
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-		InputStream stream = type.getResourceAsStream(path);
+		InputStream stream = new FileInputStream(path);
 		return unmarshaller.unmarshal(new StreamSource(stream), type).getValue();
 	}
 
