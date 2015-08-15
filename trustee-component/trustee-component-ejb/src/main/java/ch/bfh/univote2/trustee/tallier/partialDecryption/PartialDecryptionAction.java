@@ -295,7 +295,6 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 		Triple proof = proofSystem.generate(privateInput, publicInput);
 		boolean result = proofSystem.verify(proof, publicInput);
 
-		//TODO: Post
 		Proof proofDTO = new Proof(proofSystem.getCommitment(proof).convertToString(), proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
 		PartialDecryption partialDecryptionDTO = new PartialDecryption(partialDecryptionsAsStrings, proofDTO);
 
