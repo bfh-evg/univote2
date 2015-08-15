@@ -47,9 +47,30 @@ import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
+import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
+import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
+import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
+import ch.bfh.unicrypt.helper.hash.HashMethod;
+import ch.bfh.unicrypt.helper.math.Alphabet;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
+import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
+import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
 import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
+import ch.bfh.unicrypt.math.function.classes.CompositeFunction;
+import ch.bfh.unicrypt.math.function.classes.GeneratorFunction;
+import ch.bfh.unicrypt.math.function.classes.InvertFunction;
+import ch.bfh.unicrypt.math.function.classes.MultiIdentityFunction;
+import ch.bfh.unicrypt.math.function.classes.ProductFunction;
+import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -62,6 +83,8 @@ import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.MixedVotes;
+import ch.bfh.univote2.component.core.message.PartialDecryption;
+import ch.bfh.univote2.component.core.message.Proof;
 import ch.bfh.univote2.component.core.message.Vote;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
@@ -74,7 +97,11 @@ import ch.bfh.univote2.trustee.TrusteeActionHelper;
 import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import ch.bfh.univote2.trustee.tallier.sharedKeyCreation.SharedKeyCreationAction;
 import java.math.BigInteger;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -218,32 +245,84 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    try {
 		BigInteger privateKey = securePersistenceService.retrieve(tenant, section, SharedKeyCreationAction.PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE);
 		CyclicGroup cyclicGroup = uniCryptCryptoSetting.encryptionGroup;
-		Element secretKey = cyclicGroup.getElementFrom(privateKey);
+		Element encryptionGenerator = uniCryptCryptoSetting.encryptionGenerator;
 
-		Tuple alphas = Tuple.getInstance();
+		Element secretKey = cyclicGroup.getElementFrom(privateKey);
+		Element decryptionKey = secretKey.invert();
+		Element publicKey = encryptionGenerator.selfApply(secretKey);
+
+		HashAlgorithm hashAlgorithm = uniCryptCryptoSetting.hashAlgorithm;
+
+		List<Element> ciphertexts = new ArrayList<>();
+		List<Element> partialDecryptions = new ArrayList<>();
+		List<String> partialDecryptionsAsStrings = new ArrayList<>();
+		List<Function> generatorFunctions = new ArrayList<>();
 		for (Vote v : pdac.getMixedVotes().getMixedVotes()) {
-		    alphas.add(cyclicGroup.getElementFrom(v.getFirstValue()));
+		    Element element = cyclicGroup.getElementFrom(v.getFirstValue());
+		    ciphertexts.add(element);
+		    GeneratorFunction function = GeneratorFunction.getInstance(element);
+		    generatorFunctions.add(function);
+		    Element partialDecryption = function.apply(decryptionKey);
+		    partialDecryptions.add(partialDecryption);
+		    partialDecryptionsAsStrings.add(partialDecryption.convertToString());
 		}
-		//TODO: GeneratorFunction MultiApply
-		//TODO: NIZKP,  private key known AND each entry treated with private Key^-1.
-		//TODO: Post Partial-Decryption
+		// Create proof function
+		Function f = CompositeFunction.getInstance(
+			MultiIdentityFunction.getInstance(cyclicGroup.getZModOrder(), 2),
+			ProductFunction.getInstance(
+				GeneratorFunction.getInstance(encryptionGenerator),
+				CompositeFunction.getInstance(
+					InvertFunction.getInstance(cyclicGroup.getZModOrder()),
+					MultiIdentityFunction.getInstance(cyclicGroup.getZModOrder(), generatorFunctions.size()),
+					ProductFunction.getInstance(generatorFunctions.toArray(new GeneratorFunction[0])))));
+
+		// Private and public input and prover id
+		Element privateInput = secretKey;
+		Pair publicInput = Pair.getInstance(publicKey, Tuple.getInstance(partialDecryptions.toArray(new Element[0])));
+		StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
+		HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
+		ConvertMethod convertMethod = ConvertMethod.getInstance(
+			BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+			StringToByteArray.getInstance(Charset.forName("UTF-8")));
+
+		Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
+
+		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+			cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
+		PlainPreimageProofSystem proofSystem = PlainPreimageProofSystem.getInstance(challengeGenerator, f);
+
+		// Generate and verify proof
+		Triple proof = proofSystem.generate(privateInput, publicInput);
+		boolean result = proofSystem.verify(proof, publicInput);
+
+		//TODO: Post
+		Proof proofDTO = new Proof(proofSystem.getCommitment(proof).convertToString(), proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
+		PartialDecryption partialDecryptionDTO = new PartialDecryption(partialDecryptionsAsStrings, proofDTO);
+
+		String partialDecryptionsString = JSONConverter.marshal(partialDecryptionDTO);
+		byte[] partialDecryptionsByteArray = partialDecryptionsString.getBytes(Charset.forName("UTF-8"));
+
+		this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.PARTIAL_DECRYPTION.getValue(), partialDecryptionsByteArray, tenant);
+		this.informationService.informTenant(actionContext.getActionContextKey(),
+						     "Posted key share for encrcyption. Action finished.");
+		this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
 
 	    } catch (UnivoteException ex) {
 		//No key available. Unsolvable problem encountered.
 		this.informationService.informTenant(actionContext.getActionContextKey(),
-						     "Could access private key for decryption. Action failed.");
+						     "Could not access private key for decryption. Action failed.");
 		Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
 		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    }
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Could not post key share for encrcyption. Action failed.");
+						 "Could not post partial decryptions. Action failed.");
 	    Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	} catch (Exception ex) {
 	    Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Could not marshal key share for encrcyption. Action failed.");
+						 "Could not marshal partial decryption. Action failed.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	}
     }

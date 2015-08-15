@@ -209,7 +209,7 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 
 	    securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE, privateKey);
 
-	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.TRUSTEES.getValue(), encryptionKeyShareByteArray, tenant);
+	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.ENCRYPTION_KEY_SHARE.getValue(), encryptionKeyShareByteArray, tenant);
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
 						 "Posted key share for encrcyption. Action finished.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
@@ -306,7 +306,7 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	if (!success) {
 	    throw new UnivoteException("Math for proof system broken.");
 	}
-	Proof proofDTO = new Proof(pg.getCommitment(proof).getValue().toString(), pg.getChallenge(proof).getValue().toString(), pg.getResponse(proof).getValue().toString());
+	Proof proofDTO = new Proof(pg.getCommitment(proof).convertToString(), pg.getChallenge(proof).convertToString(), pg.getResponse(proof).convertToString());
 
 	EnhancedEncryptionKeyShare enhancedEncryptionKeyShare = new EnhancedEncryptionKeyShare();
 	enhancedEncryptionKeyShare.privateKey = (BigInteger) privateKey.convertToBigInteger();
