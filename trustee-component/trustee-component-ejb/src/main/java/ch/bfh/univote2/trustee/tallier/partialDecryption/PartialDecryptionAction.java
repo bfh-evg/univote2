@@ -47,26 +47,9 @@ import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.StringValue;
-import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
-import ch.bfh.unicrypt.crypto.schemes.encryption.classes.ElGamalEncryptionScheme;
-import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
-import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
-import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
-import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
-import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
-import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
-import ch.bfh.unicrypt.helper.hash.HashMethod;
-import ch.bfh.unicrypt.helper.math.Alphabet;
-import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
-import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
-import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
+import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
-import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
-import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -77,9 +60,9 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
-import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.JSONConverter;
-import ch.bfh.univote2.component.core.message.Proof;
+import ch.bfh.univote2.component.core.message.MixedVotes;
+import ch.bfh.univote2.component.core.message.Vote;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
@@ -87,9 +70,10 @@ import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.QueryFactory;
+import ch.bfh.univote2.trustee.TrusteeActionHelper;
+import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
+import ch.bfh.univote2.trustee.tallier.sharedKeyCreation.SharedKeyCreationAction;
 import java.math.BigInteger;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -107,7 +91,6 @@ import javax.json.JsonException;
 public class PartialDecryptionAction extends AbstractAction implements NotifiableAction {
 
     private static final String ACTION_NAME = PartialDecryptionAction.class.getSimpleName();
-    private static final String PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE = "SECRET_KEY_FOR_KEY_SHARE";
 
     private static final Logger logger = Logger.getLogger(PartialDecryptionAction.class.getName());
 
@@ -159,48 +142,40 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 	    return;
 	}
-	PartialDecryptionActionContext skcac = (PartialDecryptionActionContext) actionContext;
+	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
+	TrusteeActionHelper.checkAndSetCryptoSetting(pdac, uniboardService, tenantManager, informationService, logger);
+	TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.PARTIAL_DECRYPTION, uniboardService, tenantManager, informationService, logger);
+    }
+
+    protected void checkAndSetMixedVotes(PartialDecryptionActionContext actionContext) {
+	ActionContextKey actionContextKey = actionContext.getActionContextKey();
+	String section = actionContext.getSection();
 	try {
-	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
-	    if (cryptoSetting == null) {
-		cryptoSetting = this.retrieveCryptoSetting(skcac);
-		skcac.setCryptoSetting(cryptoSetting);
+	    MixedVotes mixedVotes = actionContext.getMixedVotes();
+
+	    //Add Notification
+	    if (mixedVotes == null) {
+		mixedVotes = retrieveMixedVotes(actionContext);
+		actionContext.setMixedVotes(mixedVotes);
 	    }
 
 	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error retrieving securitySetting: " + ex.getMessage());
+	    logger.log(Level.WARNING, "Could not get mixedVotes.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error retrieving mixed votes: " + ex.getMessage());
 	} catch (JsonException ex) {
-	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error reading securitySetting.");
+	    logger.log(Level.WARNING, "Could not parse mixed votes.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error reading mixed votes.");
 	} catch (Exception ex) {
-	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error reading securitySetting.");
+	    logger.log(Level.WARNING, "Could not parse mixed votes.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error reading mixed votes.");
 	}
-	//Add Notification
-	if (skcac.getCryptoSetting() == null) {//Add Notification
+	if (actionContext.getMixedVotes() == null) {
+	    //Add Notification
 	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
-	    actionContext.getPreconditionQueries().add(bQuery);
-	}
-	BoardPreconditionQuery bQuery = null;
-	try {
-	    //Check if there is an initial AccessRight for this tenant
-	    //TODO: Check if there is an actual valid access right... Right now it is only checking if there is any access right.
-	    String tenant = actionContext.getTenant();
-	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
-	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.PARTIAL_DECRYPTION), BoardsEnum.UNIVOTE.getValue());
-	    skcac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
-	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not get access right.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error retrieving access rights: " + ex.getMessage());
-	}
-	//Add Notification
-	if (!Objects.equals(skcac.getAccessRightGranted(), Boolean.TRUE)) {
+		    QueryFactory.getQueryForMixedVotes(section), BoardsEnum.UNIVOTE.getValue());
 	    actionContext.getPreconditionQueries().add(bQuery);
 	}
 
@@ -213,15 +188,14 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    return;
 	}
-	PartialDecryptionActionContext skcac = (PartialDecryptionActionContext) actionContext;
+	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
 	//The following if is strange, as the run should not happen in this case?!
-	if (skcac.isPreconditionReached() == null) {
+	if (pdac.isPreconditionReached() == null) {
 	    logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-
 	    return;
 	}
-	if (Objects.equals(skcac.isPreconditionReached(), Boolean.FALSE)) {
+	if (Objects.equals(pdac.isPreconditionReached(), Boolean.FALSE)) {
 	    logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    return;
@@ -229,7 +203,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	String tenant = actionContext.getTenant();
 	String section = actionContext.getSection();
 
-	CryptoSetting cryptoSetting = skcac.getCryptoSetting();
+	CryptoSetting cryptoSetting = pdac.getCryptoSetting();
 	if (cryptoSetting == null) {
 	    logger.log(Level.SEVERE, "Precondition is reached but crypto setting is empty in Context. That is bad.");
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -238,30 +212,29 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    return;
 	}
 	try {
-	    UniCryptCryptoSetting uniCryptCryptoSetting = getUnicryptCryptoSetting(cryptoSetting);
-	    BigInteger privateKey;
-	    EnhancedEncryptionKeyShare enhancedEncryptionKeyShare;
+	    UniCryptCryptoSetting uniCryptCryptoSetting
+		    = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
+
 	    try {
-		privateKey = securePersistenceService.retrieve(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE);
-		enhancedEncryptionKeyShare = createEncryptionKeyShare(tenant, uniCryptCryptoSetting, privateKey);
+		BigInteger privateKey = securePersistenceService.retrieve(tenant, section, SharedKeyCreationAction.PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE);
+		CyclicGroup cyclicGroup = uniCryptCryptoSetting.encryptionGroup;
+		Element secretKey = cyclicGroup.getElementFrom(privateKey);
+
+		Tuple alphas = Tuple.getInstance();
+		for (Vote v : pdac.getMixedVotes().getMixedVotes()) {
+		    alphas.add(cyclicGroup.getElementFrom(v.getFirstValue()));
+		}
+		//TODO: GeneratorFunction MultiApply
+		//TODO: NIZKP,  private key known AND each entry treated with private Key^-1.
+		//TODO: Post Partial-Decryption
 
 	    } catch (UnivoteException ex) {
-		//No key available so a new one will be built
-		enhancedEncryptionKeyShare = createEncryptionKeyShare(tenant, uniCryptCryptoSetting);
-		privateKey = enhancedEncryptionKeyShare.privateKey;
+		//No key available. Unsolvable problem encountered.
+		this.informationService.informTenant(actionContext.getActionContextKey(),
+						     "Could access private key for decryption. Action failed.");
+		Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
+		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    }
-
-	    EncryptionKeyShare encryptionKeyShare = enhancedEncryptionKeyShare.encryptionKeyShare;
-	    String encryptionKeyShareString = JSONConverter.marshal(encryptionKeyShare);
-	    byte[] encryptionKeyShareByteArray = encryptionKeyShareString.getBytes(Charset.forName("UTF-8"));
-
-	    securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE, privateKey);
-
-	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.TRUSTEES.getValue(), encryptionKeyShareByteArray, tenant);
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Posted key share for encrcyption. Action finished.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
 						 "Could not post key share for encrcyption. Action failed.");
@@ -282,7 +255,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    return;
 	}
-	PartialDecryptionActionContext skcac = (PartialDecryptionActionContext) actionContext;
+	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
 
 	this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
 
@@ -299,10 +272,10 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
 		    && GroupEnum.ACCESS_RIGHT.getValue()
 		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
-		skcac.setAccessRightGranted(Boolean.TRUE);
-	    } else if (skcac.getCryptoSetting() == null) {
-		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
-		skcac.setCryptoSetting(cryptoSetting);
+		pdac.setAccessRightGranted(Boolean.TRUE);
+	    } else if (pdac.getMixedVotes() == null) {
+		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, post.getMessage());
+		pdac.setMixedVotes(mixedVotes);
 	    }
 	    run(actionContext);
 	} catch (UnivoteException ex) {
@@ -315,128 +288,15 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	}
     }
 
-    protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting) throws UnivoteException {
-	return this.createEncryptionKeyShare(tenant, setting, null);
-    }
-
-    protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting, BigInteger privateKeyAsBigInt) throws UnivoteException {
-	CyclicGroup cyclicGroup = setting.encryptionGroup;
-	Element encryptionGenerator = setting.encryptionGenerator;
-	HashAlgorithm hashAlgorithm = setting.hashAlgorithm;
-
-	// Create ElGamal encryption scheme
-	ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(encryptionGenerator);
-
-	// Generate keys
-	KeyPairGenerator kpg = elGamal.getKeyPairGenerator();
-	Element privateKey = cyclicGroup.getElementFrom(privateKeyAsBigInt);
-	if (privateKey == null) {
-	    privateKey = kpg.generatePrivateKey();
-	}
-	Element publicKey = kpg.generatePublicKey(privateKey);
-
-	// Generate proof generator
-	Function function = kpg.getPublicKeyGenerationFunction();
-	StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
-	HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
-	ConvertMethod convertMethod = ConvertMethod.getInstance(
-		BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-		StringToByteArray.getInstance(Charset.forName("UTF-8")));
-
-	Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
-
-	SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
-		cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
-
-	PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(challengeGenerator, function);
-	Triple proof = pg.generate(privateKey, publicKey);
-	boolean success = pg.verify(proof, publicKey);
-	if (!success) {
-	    throw new UnivoteException("Math for proof system broken.");
-	}
-	Proof proofDTO = new Proof(pg.getCommitment(proof).getValue().toString(), pg.getChallenge(proof).getValue().toString(), pg.getResponse(proof).getValue().toString());
-
-	EnhancedEncryptionKeyShare enhancedEncryptionKeyShare = new EnhancedEncryptionKeyShare();
-	enhancedEncryptionKeyShare.privateKey = (BigInteger) privateKey.convertToBigInteger();
-	EncryptionKeyShare encryptionKeyShare = new EncryptionKeyShare(publicKey.getHashValue().toString(), proofDTO);
-	return enhancedEncryptionKeyShare;
-    }
-
-    protected CryptoSetting retrieveCryptoSetting(ActionContext actionContext) throws UnivoteException, Exception {
+    protected MixedVotes retrieveMixedVotes(ActionContext actionContext) throws UnivoteException, Exception {
 	ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-						    QueryFactory.getQueryForCryptoSetting(actionContext.getSection())).getResult();
+						    QueryFactory.getQueryForMixedVotes(actionContext.getSection())).getResult();
 	if (result.getPost().isEmpty()) {
-	    throw new UnivoteException("Cryptosetting not published yet.");
+	    throw new UnivoteException("mixed votes not published yet.");
 
 	}
-	CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
+	MixedVotes cryptoSetting = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
 	return cryptoSetting;
-
-    }
-
-    protected UniCryptCryptoSetting getUnicryptCryptoSetting(CryptoSetting setting) throws UnivoteException {
-	CyclicGroup cyclicGroup = null;
-	Element generator = null;
-	HashAlgorithm hashAlgorithm = null;
-	switch (setting.getEncryptionSetting()) {
-	    case "RC0e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC1e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC2e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(1024);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC3e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(2048);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    default:
-		throw new UnivoteException("Unknown RC_e level");
-	}
-	switch (setting.getHashSetting()) {
-	    case "H1":
-		hashAlgorithm = HashAlgorithm.SHA1;
-		break;
-	    case "H2":
-		hashAlgorithm = HashAlgorithm.SHA224;
-		break;
-	    case "H3":
-		hashAlgorithm = HashAlgorithm.SHA256;
-		break;
-	    case "H4":
-		hashAlgorithm = HashAlgorithm.SHA384;
-		break;
-	    case "H5":
-		hashAlgorithm = HashAlgorithm.SHA512;
-	    default:
-		throw new UnivoteException("Unknown H_ level");
-	}
-	return new UniCryptCryptoSetting(cyclicGroup, generator, hashAlgorithm);
-
-    }
-
-    protected class EnhancedEncryptionKeyShare {
-
-	protected EncryptionKeyShare encryptionKeyShare;
-	protected BigInteger privateKey;
-    }
-
-    protected class UniCryptCryptoSetting {
-
-	protected final CyclicGroup encryptionGroup;
-	protected final Element encryptionGenerator;
-	protected final HashAlgorithm hashAlgorithm;
-
-	public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, HashAlgorithm hashAlgorithm) {
-	    this.encryptionGroup = encryptionGroup;
-	    this.encryptionGenerator = encryptionGenerator;
-	    this.hashAlgorithm = hashAlgorithm;
-	}
 
     }
 

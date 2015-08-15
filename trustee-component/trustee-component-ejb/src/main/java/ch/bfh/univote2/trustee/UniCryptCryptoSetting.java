@@ -39,40 +39,26 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.trustee.tallier.partialDecryption;
+package ch.bfh.univote2.trustee;
 
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.MixedVotes;
-import ch.bfh.univote2.trustee.ATrusteeActionContext;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 
 /**
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
-public class PartialDecryptionActionContext extends ATrusteeActionContext {
+public class UniCryptCryptoSetting {
 
-    private MixedVotes mixedVotes;
+    public final CyclicGroup encryptionGroup;
+    public final Element encryptionGenerator;
+    public final HashAlgorithm hashAlgorithm;
 
-    public PartialDecryptionActionContext(ActionContextKey actionContextKey) {
-	super(actionContextKey);
-    }
-
-    public MixedVotes getMixedVotes() {
-	return mixedVotes;
-    }
-
-    public void setMixedVotes(MixedVotes mixedVotes) {
-	this.mixedVotes = mixedVotes;
-    }
-
-    @Override
-    public Boolean isSpecializedPreconditionReached() {
-	return mixedVotes != null;
-    }
-
-    @Override
-    protected void purgeSpecializedData() {
-	mixedVotes = null;
+    public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, HashAlgorithm hashAlgorithm) {
+	this.encryptionGroup = encryptionGroup;
+	this.encryptionGenerator = encryptionGenerator;
+	this.hashAlgorithm = hashAlgorithm;
     }
 
 }

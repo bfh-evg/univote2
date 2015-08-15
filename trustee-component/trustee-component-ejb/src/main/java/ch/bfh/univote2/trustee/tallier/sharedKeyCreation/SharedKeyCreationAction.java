@@ -64,7 +64,6 @@ import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
 import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
-import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
 import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
@@ -72,7 +71,6 @@ import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
-import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
@@ -86,6 +84,8 @@ import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.QueryFactory;
+import ch.bfh.univote2.trustee.TrusteeActionHelper;
+import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -96,17 +96,12 @@ import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.JsonException;
 
-/**
- *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
- */
 @Stateless
 public class SharedKeyCreationAction extends AbstractAction implements NotifiableAction {
 
     private static final String ACTION_NAME = SharedKeyCreationAction.class.getSimpleName();
-    private static final String PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE = "SECRET_KEY_FOR_KEY_SHARE";
+    public static final String PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE = "SECRET_KEY_FOR_KEY_SHARE";
 
     private static final Logger logger = Logger.getLogger(SharedKeyCreationAction.class.getName());
 
@@ -159,52 +154,8 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    return;
 	}
 	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
-	try {
-	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
-
-	    //Add Notification
-	    if (cryptoSetting == null) {
-		cryptoSetting = this.retrieveCryptoSetting(skcac);
-		skcac.setCryptoSetting(cryptoSetting);
-	    }
-
-	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error retrieving securitySetting: " + ex.getMessage());
-	} catch (JsonException ex) {
-	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error reading securitySetting.");
-	} catch (Exception ex) {
-	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error reading securitySetting.");
-	}
-	if (skcac.getCryptoSetting() == null) {
-	    //Add Notification
-	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
-	    actionContext.getPreconditionQueries().add(bQuery);
-	}
-	BoardPreconditionQuery bQuery = null;
-	try {
-	    //Check if there is an initial AccessRight for this tenant
-	    //TODO: Check if there is an actual valid access right... Right now it is only checking if there is any access right.
-	    String tenant = actionContext.getTenant();
-	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
-	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.ENCRYPTION_KEY_SHARE), BoardsEnum.UNIVOTE.getValue());
-	    skcac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
-	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not get access right.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error retrieving access rights: " + ex.getMessage());
-	}
-	//Add Notification
-	if (!Objects.equals(skcac.getAccessRightGranted(), Boolean.TRUE)) {
-	    actionContext.getPreconditionQueries().add(bQuery);
-	}
-
+	TrusteeActionHelper.checkAndSetCryptoSetting(skcac, uniboardService, tenantManager, informationService, logger);
+	TrusteeActionHelper.checkAndSetAccsessRight(skcac, GroupEnum.ENCRYPTION_KEY_SHARE, uniboardService, tenantManager, informationService, logger);
     }
 
     @Override
@@ -239,7 +190,7 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	    return;
 	}
 	try {
-	    UniCryptCryptoSetting uniCryptCryptoSetting = getUnicryptCryptoSetting(cryptoSetting);
+	    UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
 	    BigInteger privateKey;
 	    EnhancedEncryptionKeyShare enhancedEncryptionKeyShare;
 	    try {
@@ -363,82 +314,10 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	return enhancedEncryptionKeyShare;
     }
 
-    protected CryptoSetting retrieveCryptoSetting(ActionContext actionContext) throws UnivoteException, Exception {
-	ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-							     QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-	if (result.getResult().getPost().isEmpty()) {
-	    throw new UnivoteException("Cryptosetting not published yet.");
-
-	}
-	CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
-	return cryptoSetting;
-
-    }
-
-    protected UniCryptCryptoSetting getUnicryptCryptoSetting(CryptoSetting setting) throws UnivoteException {
-	CyclicGroup cyclicGroup = null;
-	Element generator = null;
-	HashAlgorithm hashAlgorithm = null;
-	switch (setting.getEncryptionSetting()) {
-	    case "RC0e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC1e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC2e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(1024);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC3e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(2048);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    default:
-		throw new UnivoteException("Unknown RC_e level");
-	}
-	switch (setting.getHashSetting()) {
-	    case "H1":
-		hashAlgorithm = HashAlgorithm.SHA1;
-		break;
-	    case "H2":
-		hashAlgorithm = HashAlgorithm.SHA224;
-		break;
-	    case "H3":
-		hashAlgorithm = HashAlgorithm.SHA256;
-		break;
-	    case "H4":
-		hashAlgorithm = HashAlgorithm.SHA384;
-		break;
-	    case "H5":
-		hashAlgorithm = HashAlgorithm.SHA512;
-	    default:
-		throw new UnivoteException("Unknown H_ level");
-	}
-	return new UniCryptCryptoSetting(cyclicGroup, generator, hashAlgorithm);
-
-    }
-
     protected class EnhancedEncryptionKeyShare {
 
 	protected EncryptionKeyShare encryptionKeyShare;
 	protected BigInteger privateKey;
-    }
-
-    protected class UniCryptCryptoSetting {
-
-	protected final CyclicGroup encryptionGroup;
-	protected final Element encryptionGenerator;
-	protected final HashAlgorithm hashAlgorithm;
-
-	public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, HashAlgorithm hashAlgorithm) {
-	    this.encryptionGroup = encryptionGroup;
-	    this.encryptionGenerator = encryptionGenerator;
-	    this.hashAlgorithm = hashAlgorithm;
-	}
-
     }
 
 }

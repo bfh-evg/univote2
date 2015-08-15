@@ -56,7 +56,6 @@ import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
-import ch.bfh.univote2.trustee.tallier.sharedKeyCreation.SharedKeyCreationActionContext;
 import java.security.PublicKey;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -69,21 +68,16 @@ import javax.json.JsonException;
  */
 public class TrusteeActionHelper {
 
-    public static void definePreconditions(ATrusteeActionContext actionContext, GroupEnum groupEnum, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
+    public static void checkAndSetCryptoSetting(ATrusteeActionContext actionContext, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
 	ActionContextKey actionContextKey = actionContext.getActionContextKey();
 	String section = actionContext.getSection();
-	if (!(actionContext instanceof SharedKeyCreationActionContext)) {
-	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
-	    return;
-	}
-	SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 	try {
-	    CryptoSetting cryptoSetting = skcac.getCryptoSetting();
+	    CryptoSetting cryptoSetting = actionContext.getCryptoSetting();
 
 	    //Add Notification
 	    if (cryptoSetting == null) {
-		cryptoSetting = retrieveCryptoSetting(skcac, uniboardService);
-		skcac.setCryptoSetting(cryptoSetting);
+		cryptoSetting = retrieveCryptoSetting(actionContext, uniboardService);
+		actionContext.setCryptoSetting(cryptoSetting);
 	    }
 
 	} catch (UnivoteException ex) {
@@ -99,12 +93,18 @@ public class TrusteeActionHelper {
 	    informationService.informTenant(actionContextKey,
 					    "Error reading securitySetting.");
 	}
-	if (skcac.getCryptoSetting() == null) {
+	if (actionContext.getCryptoSetting() == null) {
 	    //Add Notification
 	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
 	    actionContext.getPreconditionQueries().add(bQuery);
 	}
+
+    }
+
+    public static void checkAndSetAccsessRight(ATrusteeActionContext actionContext, GroupEnum groupEnum, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
+	ActionContextKey actionContextKey = actionContext.getActionContextKey();
+	String section = actionContext.getSection();
 	BoardPreconditionQuery bQuery = null;
 	try {
 	    //Check if there is an initial AccessRight for this tenant
@@ -112,14 +112,14 @@ public class TrusteeActionHelper {
 	    String tenant = actionContext.getTenant();
 	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
 	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, groupEnum), BoardsEnum.UNIVOTE.getValue());
-	    skcac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
+	    actionContext.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
 	} catch (UnivoteException ex) {
 	    logger.log(Level.WARNING, "Could not get access right.", ex);
 	    informationService.informTenant(actionContextKey,
 					    "Error retrieving access rights: " + ex.getMessage());
 	}
 	//Add Notification
-	if (!Objects.equals(skcac.getAccessRightGranted(), Boolean.TRUE)) {
+	if (!Objects.equals(actionContext.getAccessRightGranted(), Boolean.TRUE)) {
 	    actionContext.getPreconditionQueries().add(bQuery);
 	}
 
@@ -180,20 +180,6 @@ public class TrusteeActionHelper {
 		throw new UnivoteException("Unknown H_ level");
 	}
 	return new UniCryptCryptoSetting(cyclicGroup, generator, hashAlgorithm);
-
-    }
-
-    public static class UniCryptCryptoSetting {
-
-	protected final CyclicGroup encryptionGroup;
-	protected final Element encryptionGenerator;
-	protected final HashAlgorithm hashAlgorithm;
-
-	public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, HashAlgorithm hashAlgorithm) {
-	    this.encryptionGroup = encryptionGroup;
-	    this.encryptionGenerator = encryptionGenerator;
-	    this.hashAlgorithm = hashAlgorithm;
-	}
 
     }
 

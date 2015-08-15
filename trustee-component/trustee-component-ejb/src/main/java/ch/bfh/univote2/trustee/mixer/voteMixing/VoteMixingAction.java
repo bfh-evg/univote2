@@ -86,6 +86,7 @@ import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.QueryFactory;
+import ch.bfh.univote2.trustee.TrusteeActionHelper;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -96,7 +97,6 @@ import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.JsonException;
 
 /**
  *
@@ -161,40 +161,8 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	    return;
 	}
 	VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
-	try {
-	    CryptoSetting cryptoSetting = vmac.getCryptoSetting();
-	    if (cryptoSetting == null) {
-		cryptoSetting = this.retrieveCryptoSetting(vmac);
-		vmac.setCryptoSetting(cryptoSetting);
-	    }
-
-	} catch (UnivoteException ex) {
-	    //Add Notification
-	    bQuery = new BoardPreconditionQuery(
-		    QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
-	    actionContext.getPreconditionQueries().add(bQuery);
-	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error retrieving securitySetting: " + ex.getMessage());
-	} catch (JsonException ex) {
-	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error reading securitySetting.");
-	} catch (Exception ex) {
-	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-	    this.informationService.informTenant(actionContextKey,
-						 "Error reading securitySetting.");
-	}
-	try {
-	    //Check if there is an initial AccessRight for this tenant
-	    //TODO: Check if there is an actual valid access right... Right now it is only checking if there is any access right.
-	    PublicKey publicKey = tenantManager.getPublicKey(tenant);
-	    bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, GroupEnum.TRUSTEES), BoardsEnum.UNIVOTE.getValue());
-	    vmac.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
-	} catch (UnivoteException ex) {
-	    //Add Notification
-	    actionContext.getPreconditionQueries().add(bQuery);
-	}
+	TrusteeActionHelper.checkAndSetCryptoSetting(vmac, uniboardService, tenantManager, informationService, logger);
+	TrusteeActionHelper.checkAndSetAccsessRight(vmac, GroupEnum.VOTE_MIXING_RESULT, uniboardService, tenantManager, informationService, logger);
 
     }
 
