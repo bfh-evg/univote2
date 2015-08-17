@@ -71,6 +71,22 @@ public class CreateVotingDataActionContext extends ActionContext {
 		this.electoralRoll = null;
 	}
 
+	ElectionDefinition getElectionDefinition() {
+		return electionDefinition;
+	}
+
+	EncryptionKey getEncryptionKey() {
+		return encryptionKey;
+	}
+
+	ElectionIssue getElectionIssue() {
+		return electionIssue;
+	}
+
+	ElectoralRoll getElectoralRoll() {
+		return electoralRoll;
+	}
+
 	void setElectionDefinition(ElectionDefinition electionDefinition) {
 		this.electionDefinition = electionDefinition;
 	}
