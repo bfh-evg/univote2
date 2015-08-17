@@ -64,7 +64,8 @@ public enum GroupEnum {
 	PARTIAL_DECRYPTION("partialDecryption"),
 	VOTE_MIXING_REQUEST("voteMixingRequest"),
 	VOTE_MIXING_RESULT("voteMixingResult"),
-	MIXED_VOTES("mixedVotes");
+	MIXED_VOTES("mixedVotes"),
+	VOTING_DATA("votingData");
 
 	private final String value;
 
