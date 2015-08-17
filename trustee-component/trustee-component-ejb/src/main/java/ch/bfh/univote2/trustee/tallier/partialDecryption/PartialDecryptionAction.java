@@ -49,7 +49,7 @@ import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.StringValue;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.EqualityPreimageProofSystem;
 import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
 import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
@@ -253,49 +253,18 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 
 		HashAlgorithm hashAlgorithm = uniCryptCryptoSetting.hashAlgorithm;
 
-		List<Element> ciphertexts = new ArrayList<>();
 		List<Element> partialDecryptions = new ArrayList<>();
 		List<String> partialDecryptionsAsStrings = new ArrayList<>();
 		List<Function> generatorFunctions = new ArrayList<>();
 		for (Vote v : pdac.getMixedVotes().getMixedVotes()) {
 		    Element element = cyclicGroup.getElementFrom(v.getFirstValue());
-		    ciphertexts.add(element);
 		    GeneratorFunction function = GeneratorFunction.getInstance(element);
 		    generatorFunctions.add(function);
 		    Element partialDecryption = function.apply(decryptionKey);
 		    partialDecryptions.add(partialDecryption);
 		    partialDecryptionsAsStrings.add(partialDecryption.convertToString());
 		}
-		// Create proof function
-		Function f = CompositeFunction.getInstance(
-			MultiIdentityFunction.getInstance(cyclicGroup.getZModOrder(), 2),
-			ProductFunction.getInstance(
-				GeneratorFunction.getInstance(encryptionGenerator),
-				CompositeFunction.getInstance(
-					InvertFunction.getInstance(cyclicGroup.getZModOrder()),
-					MultiIdentityFunction.getInstance(cyclicGroup.getZModOrder(), generatorFunctions.size()),
-					ProductFunction.getInstance(generatorFunctions.toArray(new GeneratorFunction[0])))));
-
-		// Private and public input and prover id
-		Element privateInput = secretKey;
-		Pair publicInput = Pair.getInstance(publicKey, Tuple.getInstance(partialDecryptions.toArray(new Element[0])));
-		StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
-		HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
-		ConvertMethod convertMethod = ConvertMethod.getInstance(
-			BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-			StringToByteArray.getInstance(Charset.forName("UTF-8")));
-
-		Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
-
-		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
-			cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
-		PlainPreimageProofSystem proofSystem = PlainPreimageProofSystem.getInstance(challengeGenerator, f);
-
-		// Generate and verify proof
-		Triple proof = proofSystem.generate(privateInput, publicInput);
-		boolean result = proofSystem.verify(proof, publicInput);
-
-		Proof proofDTO = new Proof(proofSystem.getCommitment(proof).convertToString(), proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
+		Proof proofDTO = createProof(tenant, uniCryptCryptoSetting, secretKey, publicKey, partialDecryptions.toArray(new Element[0]), generatorFunctions.toArray(new Function[0]));
 		PartialDecryption partialDecryptionDTO = new PartialDecryption(partialDecryptionsAsStrings, proofDTO);
 
 		String partialDecryptionsString = JSONConverter.marshal(partialDecryptionDTO);
@@ -376,6 +345,42 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	MixedVotes cryptoSetting = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
 	return cryptoSetting;
 
+    }
+
+    /**
+     * pi = NIZKP{(x) : y = g^x ∧ (∧_i b_i = a_i^{−x} )}.
+     */
+    public Proof createProof(String tenant, UniCryptCryptoSetting cryptoSetting, Element secretKey, Element publicKey, Element[] partialDecryptions, Function[] generatorFunctions) {
+	CyclicGroup cyclicGroup = cryptoSetting.encryptionGroup;
+	Element encryptionGenerator = cryptoSetting.encryptionGenerator;
+	HashAlgorithm hashAlgorithm = cryptoSetting.hashAlgorithm;
+
+	// Create proof functions
+	Function f1 = GeneratorFunction.getInstance(encryptionGenerator);
+	Function f2 = CompositeFunction.getInstance(
+		InvertFunction.getInstance(cyclicGroup.getZModOrder()),
+		MultiIdentityFunction.getInstance(cyclicGroup.getZModOrder(), generatorFunctions.length),
+		ProductFunction.getInstance(generatorFunctions));
+	// Private and public input and prover id
+	Element privateInput = secretKey;
+	Pair publicInput = Pair.getInstance(publicKey, Tuple.getInstance(partialDecryptions));
+	StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
+	HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
+	ConvertMethod convertMethod = ConvertMethod.getInstance(
+		BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+		StringToByteArray.getInstance(Charset.forName("UTF-8")));
+
+	Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
+
+	SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+		cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
+	EqualityPreimageProofSystem proofSystem = EqualityPreimageProofSystem.getInstance(challengeGenerator, f1, f2);
+	// Generate and verify proof
+	Triple proof = proofSystem.generate(privateInput, publicInput);
+	boolean result = proofSystem.verify(proof, publicInput);
+
+	Proof proofDTO = new Proof(proofSystem.getCommitment(proof).convertToString(), proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
+	return proofDTO;
     }
 
 }
