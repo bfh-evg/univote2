@@ -16,7 +16,7 @@
 
 	function Config() {
 
-		this.MOCK = true;
+		this.MOCK = false;
 
 		/**
 		 * The urls of the certificate authority.
