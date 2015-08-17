@@ -95,7 +95,7 @@ function retrieveElectionData() {
 			}, {
 				type: "equal",
 				identifier: {type: "alphaIdentifier", part: ["group"]},
-				value: {type: "stringValue", value: "electionData"}
+				value: {type: "stringValue", value: "votingData"}
 			}]
 	};
 
