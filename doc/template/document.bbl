@@ -7,4 +7,18 @@ R.~Haenni and O.~Spycher.
 \newblock In {\em {EVT/WOTE'11}, Electronic Voting Technology Workshop/Workshop
   on Trustworthy Elections}, San Francisco, USA, 2011.
 
+\bibitem{JCJ05}
+A.~Juels, D.~Catalano, and M.~Jakobsson.
+\newblock Coercion-resistant electronic elections.
+\newblock In V.~Atluri, S.~{De Capitani di Vimercati}, and R.~Dingledine,
+  editors, {\em {WPES'05}, 4th ACM Workshop on Privacy in the Electronic
+  Society}, pages 61--70, Alexandria, USA, 2005.
+
+\bibitem{SH10}
+O.~Spycher and R.~Haenni.
+\newblock A novel protocol to allow revocation of votes in a hybrid voting
+  system.
+\newblock In {\em {ISSA'10}, 9th Annual Conference on Information Security --
+  South Africa}, Sandton, South Africa, 2010.
+
 \end{thebibliography}

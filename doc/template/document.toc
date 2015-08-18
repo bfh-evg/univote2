@@ -1,7 +1,7 @@
-\select@language {english}
+\select@language {ngerman}
 \contentsline {chapter}{\numberline {1}Kapitel}{5}{chapter.1}
 \contentsline {section}{\numberline {1.1}Java Sourcecode}{5}{section.1.1}
-\contentsline {section}{\numberline {1.2}Bilder}{6}{section.1.2}
+\contentsline {section}{\numberline {1.2}Bilder}{7}{section.1.2}
 \contentsline {section}{\numberline {1.3}Aufz\IeC {\"a}hlungen}{7}{section.1.3}
 \contentsline {subsection}{\numberline {1.3.1}Ohne Labels}{7}{subsection.1.3.1}
 \contentsline {subsection}{\numberline {1.3.2}Mit Labels}{9}{subsection.1.3.2}
@@ -10,4 +10,4 @@
 \contentsline {section}{\numberline {2.1}Abschnitt}{13}{section.2.1}
 \contentsline {section}{\numberline {2.2}Abschnitt}{14}{section.2.2}
 \contentsline {chapter}{\numberline {A}Ein Anhang}{15}{appendix.A}
-\contentsline {chapter}{Bibliography}{17}{appendix*.4}
+\contentsline {chapter}{\nonumberline Literaturverzeichnis}{17}{appendix*.4}

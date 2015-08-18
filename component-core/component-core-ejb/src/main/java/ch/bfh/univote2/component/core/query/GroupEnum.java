@@ -50,6 +50,7 @@ public enum GroupEnum {
 	ADMIN_CERT("administrationCertificate"),
 	ACCESS_RIGHT("accessRight"),
 	ELECTION_DEFINITION("electionDefinition"),
+	ELECTION_DETAILS("electionDetails"),
 	TRUSTEES("trustees"),
 	TRUSTEE_CERTIFICATES("trusteeCertificates"),
 	ELECTORAL_ROLL("electoralRoll"),
@@ -62,9 +63,11 @@ public enum GroupEnum {
 	KEY_MIXING_RESULT("keyMixingResult"),
 	MIXED_KEYS("mixedKeys"),
 	PARTIAL_DECRYPTION("partialDecryption"),
+	SIGNATURE_GENERATOR("signatureGenerator"),
 	VOTE_MIXING_REQUEST("voteMixingRequest"),
 	VOTE_MIXING_RESULT("voteMixingResult"),
-	MIXED_VOTES("mixedVotes");
+	MIXED_VOTES("mixedVotes"),
+	VOTING_DATA("votingData");
 
 	private final String value;
 
