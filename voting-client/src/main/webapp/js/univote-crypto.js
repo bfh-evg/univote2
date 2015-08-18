@@ -667,7 +667,7 @@
 
 			//Hash post
 			var postHash = this.hashPost(post, false, false);
-			var paired = this.createSchnorrSignature(postHash, sk, this.signatureSetting.p, this.signatureSetting.q, generator)
+			var paired = this.createSchnorrSignature(postHash, sk, this.signatureSetting.p, this.signatureSetting.q, generator);
 
 			return {sig: paired, sigString: leemon.bigInt2str(paired, uvConfig.BASE)};
 		};
@@ -696,9 +696,8 @@
 			for (var i = 0; i < posts.length; i++) {
 				resultHash += this.hashPost(posts[i], true, true);
 			}
-			resultHash = Hash.doHexStr(resultHash);
-			var gamma = Hash.doHexStr(Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value)))
-			var resultContainerHash = Hash.doHexStr(resultHash + gamma);
+			var gamma = Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value));
+			var resultContainerHash = Hash.doHexStr(Hash.doHexStr(resultHash) + Hash.doHexStr(gamma));
 			var hash = Hash.doHexStr(queryHash + resultContainerHash);
 			if (!this.verifySchnorrSignature(
 					leemon.str2bigInt(resultContainer.gamma.attribute[1].value.value, uvConfig.BASE),
@@ -761,7 +760,7 @@
 			} else if (type === "dateValue") {
 				aHash = Hash.doDate(new Date(value));
 			} else {
-				throw "Error: unknown type of attribute ('" + type + "').";
+				throw "Error: unknown type of typed value! ('" + type + "').";
 			}
 			return aHash;
 		};
@@ -790,7 +789,7 @@
 				hashConstraint += hashTypedValue(constraint.value);
 				hashConstraints += Hash.doHexStr(hashConstraint);
 			}
-			// @TODO hash order and limit!
+			// @TODO hash order and limit properly!
 			var hashOrder = Hash.doString("");
 			var hashLimit = Hash.doInt(0);
 			return Hash.doHexStr(Hash.doHexStr(hashConstraints) + hashOrder + hashLimit);
