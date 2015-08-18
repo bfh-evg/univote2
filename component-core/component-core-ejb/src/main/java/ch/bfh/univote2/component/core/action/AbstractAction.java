@@ -47,7 +47,7 @@ public abstract class AbstractAction implements Action {
 
 	@Override
 	public ActionContext prepareContext(String tenant, String section) {
-		ActionContext actionContext = this.createContext(tenant, section);
+		ActionContext actionContext = createContext(tenant, section);
 		if (checkPostCondition(actionContext)) {
 			actionContext.setPostCondition(true);
 			return actionContext;
