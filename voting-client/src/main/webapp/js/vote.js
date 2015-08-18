@@ -102,14 +102,17 @@ function retrieveElectionData() {
 	var successCB = function (resultContainer) {
 
 		if (!uvConfig.MOCK) {
-			if (!uvCrypto.verifyResultSignature(resultContainer, uvConfig.EC_SETTING, true)) {
+			resultContainer.result.post = resultContainer.result.post || [];
+			var sigSuccess = uvCrypto.verifyResultSignature(query, resultContainer, uvConfig.EC_SETTING, true);
+			if (sigSuccess !== true) {
+				console.log("ERROR: " + sigSuccess);
 				processFatalError(msg.signatureError);
 				return;
 			}
 			var posts = resultContainer.result.post;
 			// Expect exactly one post! ElectionId should be unique!
 			if (posts.length != 1) {
-				console.log("ERROR: Retreived more than one VotingData for election-id: " + electionId);
+				console.log("ERROR: Retreived " + (posts.length == 0 ? "no" : "more than one") + " VotingData for election-id: " + electionId);
 				processFatalError(msg.retreiveElectionDataError);
 				return;
 			}

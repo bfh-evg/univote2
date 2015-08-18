@@ -6,8 +6,7 @@
 
 \usepackage{import}
 \import{../latex/}{english.tex} 
-% you must set the path according to the current document folder
-% use "german.tex" for documents in german and "english.tex" for documents in english
+
 \inputpath{{listings/}{figures/}}
 
 \usepackage{enumitem}
@@ -17,6 +16,8 @@
 \usepackage{multirow}
 \usepackage{seqsplit}
 \usepackage{multicol}
+
+\lstset{literate={à}{{\`a}}1}
 
 \setcounter{secnumdepth}{4}
 \renewcommand{\thesubsubsection}{\alph{subsubsection}}
@@ -146,6 +147,7 @@
 		\vhEntry{0.6.5}{20.07.2015}{Rolf Haenni}{Updated tables in Section 7; Updated late registration procedure.}
 		\vhEntry{0.6.6}{22.07.2015}{Rolf Haenni}{Final minor protocol adjustments.}
 		\vhEntry{0.6.7}{04.08.2015}{Rolf Haenni}{Cleanup in encoding and hashing.}	
+		\vhEntry{0.6.8}{18.08.2015}{Rolf Haenni}{Encoding section updated.}	
 	\end{versionhistory}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -175,7 +177,7 @@
 
 As a general rule, we use upper-case latin or greek letters for sets, tuples, and sequences of atomic elements, and lower-case latin or greek letters for their elements. For example $X=\{x_1,\ldots,x_n\}$ for a set, $Y=(x_1,\ldots,x_n)\in X_1\times\cdots\times X_n$ for a tuple, or $Z=\langle x_1,\ldots,x_n\rangle \in X^*$ for a finite sequence. $|X|$ denotes the cardinality of $X$. For families of subsets, sets of tuples, or sets of sequences, we usually use calligraphic upper-case latin letters, for example $\mathcal{X}\subseteq X_1\times\cdots\times X_n$ for a set of tuples.
 
-The set of integers is denoted by $\mathbb{Z}=\{\ldots,-2,-1,0,1,2,\ldots\}$ and the set of natural numbers by $\mathbb{N}=\{0,1,2,\ldots\}$. For $n\geq 1$, we write $\mathbb{Z}_n=\{0,\ldots,n-1\}$ for the set of natural numbers and $\mathbb{P}_n=\{x\in\mathbb{Z}_n:\mathit{prime}(x)=\mathit{true}\}$ for the set of prime numbers smaller then $n$. For an integer $x\in\mathbb{Z}$, we write $\mathrm{abs}(x)$ for the absolute value of $x$ and $|x|=\lfloor\log_2(\mathrm{abs}(x))\rfloor$ for the \emph{bit length} of $x$ (excluding a sign bit). The set of all natural numbers with a given bit length $l\geq 0$ is denoted by $\mathbb{Z}_{|x|=l}=\{x\in\mathbb{N}:|x|=l\}=\mathbb{Z}_{2^l}\setminus\mathbb{Z}_{2^{l-1}}$ and the corresponding set of prime numbers by $\mathbb{P}_{|x|=l}$.
+The set of integers is denoted by $\mathbb{Z}=\{\ldots,-2,-1,0,1,2,\ldots\}$ and the set of natural numbers by $\mathbb{N}=\{0,1,2,\ldots\}$. For $n\geq 1$, we write $\mathbb{Z}_n=\{0,\ldots,n-1\}$ for the set of natural numbers and $\mathbb{P}_n=\{x\in\mathbb{Z}_n:\mathit{prime}(x)=\mathit{true}\}$ for the set of prime numbers smaller then $n$. For an integer $x\in\mathbb{Z}$, we write $\mathrm{abs}(x)$ for the absolute value of $x$ and $|x|=\lfloor\log_2(\mathrm{abs}(x))\rfloor+1$ for the \emph{bit length} of $x$ (excluding a sign bit). The set of all natural numbers with a given bit length $l\geq 0$ is denoted by $\mathbb{Z}_{|x|=l}=\{x\in\mathbb{N}:|x|=l\}=\mathbb{Z}_{2^l}\setminus\mathbb{Z}_{2^{l-1}}$ and the corresponding set of prime numbers by $\mathbb{P}_{|x|=l}$.
 
 To denote mathematical functions, we generally use one or multiple lower-case latin letters, single upper-case latin letters for word boundaries, and multiple upper-case latin letters for abbreviations, for example $f(x)$, $\mathit{function}(x)$, $\mathit{myFunction}(x)$, or $\mathit{GCD}(x)$.
 
@@ -190,42 +192,72 @@ Let $B=\langle b_0,\ldots,b_{n-1}\rangle$ denote an array of bytes $b_i\in\mathc
 If $B'$ is a second byte array of length $n'=|B'|$, then $B\conc B'$ denotes the concatenated byte array of length $n+n'$ with the bytes of $B$ placed before the bytes of $B'$. Furthermore, we write $B\wedge B'$, $B\vee B'$, and $B \oplus B'$ for the byte array of length $\min(n,n')$ obtained from applying bit-wise the logical AND, OR, and XOR operators, respectively (the additional bytes of the longer byte array are discarded). Similarly, $\neg B$ denotes the result of applying bit-wise the NOT operator. Finally, if $x\in\mathbb{N}$ is a natural number with bit length $|x|\leq 8{\cdot}|B|$, we write $B+x$ for result of adding $x$ to $B$ in base two (the overflow bit is discarded).
 
 \subsection{Representing Integers}
-Let $x\in \mathbb{Z}$ be an integer. We use $\mathit{bytes}_k(x)\in\mathcal{B}^k$ to denote the byte array obtained from truncating the $k$ least significant bytes from the (infinitely long) two's complement representation of $x$ in big-endian order, where $k\geq \lceil(|x|+1)/8\rceil\geq 1$. We use $\mathit{bytes}(x)$ as a short-cut notation for the shortest possible such byte array representation of length $k=\lceil(|x|+1)/8\rceil$. Note that the most significant bit of $\mathit{bytes}(x)[0]$ always represents the sign of $x$, also for 
+Let $x\in \mathbb{Z}$ be an integer. We use $\mathit{bytes}_k(x)\in\mathcal{B}^k$ to denote the byte array obtained from truncating the $k$ least significant bytes from the (infinitely long) two's complement representation of $x$ in big-endian order, where $k\geq \lceil(|x|+1)/8\rceil\geq 1$. We use $\mathit{bytes}(x)=\mathit{bytes}_{k_{min}}(x)$ as a short-cut notation for the shortest possible such byte array representation of length $k_{min}=\lceil(|x|+1)/8\rceil$. Note that the most significant bit of $\mathit{bytes}(x)[0]$ always represents the sign of $x$, also for 
 $\mathit{bytes}(0)=\langle\hex{00}\rangle$, which contains a single zero byte. The empty byte array is not a valid integer representation.
 
 The following table shows the byte array representations for different integers $x$ and $k\leq 4$:
 
 \begin{center}
-	\begin{tabular}{c|ccccc}
-		\multicolumn{1}{c}{}& \multicolumn{4}{c}{$k$} \\
-		$x$  & 1 & 2 & 3  & 4 & $\cdots$ \\\cline{1-6}
-		0     & $\langle \hex{00}\rangle$ & $\langle\hex{00},\hex{00}\rangle$ & $\langle\hex{00},\hex{00},\hex{00}\rangle$& $\langle\hex{00},\hex{00},\hex{00},\hex{00}\rangle$ \\
-		1     & $\langle\hex{01}\rangle$ & $\langle\hex{00},\hex{01}\rangle$ & $\langle\hex{00},\hex{00},\hex{01}\rangle$& $\langle\hex{00},\hex{00},\hex{00},\hex{01}\rangle$\\
-		127   & $\langle\hex{7F}\rangle$ & $\langle\hex{00},\hex{7F}\rangle$ & $\langle\hex{00},\hex{00},\hex{7F}\rangle$ & $\langle\hex{00},\hex{00},\hex{00},\hex{7F}\rangle$\\
-		128   & -- & $\langle\hex{00},\hex{80}\rangle$ & $\langle\hex{00},\hex{00},\hex{80}\rangle$ & $\langle\hex{00},\hex{00},\hex{00},\hex{80}\rangle$\\
-		255   & -- & $\langle\hex{00},\hex{FF}\rangle$ & $\langle\hex{00},\hex{00},\hex{FF}\rangle$ & $\langle\hex{00},\hex{00},\hex{00},\hex{FF}\rangle$\\
-		256   & -- & $\langle\hex{01},\hex{00}\rangle$ & $\langle\hex{00},\hex{01},\hex{00}\rangle$ & $\langle\hex{00},\hex{00},\hex{01},\hex{00}\rangle$\\
-		32767 & -- & $\langle\hex{7F},\hex{FF}\rangle$ & $\langle\hex{00},\hex{7F},\hex{FF}\rangle$ & $\langle\hex{00},\hex{00},\hex{7F},\hex{FF}\rangle$\\
-		32768 & -- & -- & $\langle\hex{00},\hex{80},\hex{00}\rangle$ & $\langle\hex{00},\hex{00},\hex{80},\hex{00}\rangle$\\
-		65535 & -- & -- & $\langle\hex{00},\hex{FF},\hex{FF}\rangle$ & $\langle\hex{00},\hex{00},\hex{FF},\hex{FF}\rangle$\\
-		-1    & $\langle\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FF}\rangle$& $\langle\hex{FF},\hex{FF},\hex{FF},\hex{FF}\rangle$\\
-		-2    & $\langle\hex{FE}\rangle$ & $\langle\hex{FF},\hex{FE}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FE}\rangle$& $\langle\hex{FF},\hex{FF},\hex{FF},\hex{FE}\rangle$\\
-		-128   & $\langle\hex{80}\rangle$ & $\langle\hex{FF},\hex{80}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{80}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FF},\hex{80}\rangle$\\
-		-129   & -- & $\langle\hex{FF},\hex{7F}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{7F}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FF},\hex{7F}\rangle$\\
-		-256   & -- & $\langle\hex{FF},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FF},\hex{00}\rangle$\\
-		-257   & -- & $\langle\hex{FE},\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FE},\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FE},\hex{FF}\rangle$\\
-		-32768 & -- & $\langle\hex{80},\hex{00}\rangle$ & $\langle\hex{FF},\hex{80},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{80},\hex{00}\rangle$\\
-		-32769 & -- & -- & $\langle\hex{FF},\hex{7F},\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{7F},\hex{FF}\rangle$\\
-		-65536 & -- & -- & $\langle\hex{FF},\hex{00},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{00},\hex{00}\rangle$\\
+	\begin{tabular}{c|ccccc|cl}
+		\multicolumn{1}{c}{}& \multicolumn{4}{c}{$\mathit{bytes}_k(x)$} \\
+		$x$  & $k=1$ & $k=2$ & $k=3$  & $k=4$ & $\cdots$ & $k_{min}$ & $\mathit{bytes}(x)$\\\hline
+		0     & $\langle \hex{00}\rangle$ & $\langle\hex{00},\hex{00}\rangle$ & $\langle\hex{00},\hex{00},\hex{00}\rangle$& $\langle\hex{00},\hex{00},\hex{00},\hex{00}\rangle$ && $1$ & $\langle \hex{00}\rangle$\\
+		1     & $\langle\hex{01}\rangle$ & $\langle\hex{00},\hex{01}\rangle$ & $\langle\hex{00},\hex{00},\hex{01}\rangle$& $\langle\hex{00},\hex{00},\hex{00},\hex{01}\rangle$ && $1$ & $\langle\hex{01}\rangle$\\
+		127   & $\langle\hex{7F}\rangle$ & $\langle\hex{00},\hex{7F}\rangle$ & $\langle\hex{00},\hex{00},\hex{7F}\rangle$ & $\langle\hex{00},\hex{00},\hex{00},\hex{7F}\rangle$ && $1$ & $\langle\hex{7F}\rangle$\\
+		-128   & $\langle\hex{80}\rangle$ & $\langle\hex{FF},\hex{80}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{80}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FF},\hex{80}\rangle$ && $1$ & $\langle\hex{80}\rangle$\\
+		-2    & $\langle\hex{FE}\rangle$ & $\langle\hex{FF},\hex{FE}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FE}\rangle$& $\langle\hex{FF},\hex{FF},\hex{FF},\hex{FE}\rangle$ && $1$ & $\langle\hex{FE}\rangle$ \\
+		-1    & $\langle\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FF}\rangle$& $\langle\hex{FF},\hex{FF},\hex{FF},\hex{FF}\rangle$ && $1$ & $\langle\hex{FF}\rangle$\\
+		128   & -- & $\langle\hex{00},\hex{80}\rangle$ & $\langle\hex{00},\hex{00},\hex{80}\rangle$ & $\langle\hex{00},\hex{00},\hex{00},\hex{80}\rangle$ && $2$ & $\langle\hex{00},\hex{80}\rangle$ \\
+		255   & -- & $\langle\hex{00},\hex{FF}\rangle$ & $\langle\hex{00},\hex{00},\hex{FF}\rangle$ & $\langle\hex{00},\hex{00},\hex{00},\hex{FF}\rangle$ && $2$ & $\langle\hex{00},\hex{FF}\rangle$ \\
+		-256   & -- & $\langle\hex{FF},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FF},\hex{00}\rangle$ && $2$ & $\langle\hex{FF},\hex{00}\rangle$\\
+		-129   & -- & $\langle\hex{FF},\hex{7F}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{7F}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FF},\hex{7F}\rangle$ && $2$ & $\langle\hex{FF},\hex{7F}\rangle$\\
+		256   & -- & $\langle\hex{01},\hex{00}\rangle$ & $\langle\hex{00},\hex{01},\hex{00}\rangle$ & $\langle\hex{00},\hex{00},\hex{01},\hex{00}\rangle$ && $2$ & $\langle\hex{01},\hex{00}\rangle$\\
+		32767 & -- & $\langle\hex{7F},\hex{FF}\rangle$ & $\langle\hex{00},\hex{7F},\hex{FF}\rangle$ & $\langle\hex{00},\hex{00},\hex{7F},\hex{FF}\rangle$ && $2$ & $\langle\hex{7F},\hex{FF}\rangle$ \\
+		-32768 & -- & $\langle\hex{80},\hex{00}\rangle$ & $\langle\hex{FF},\hex{80},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{80},\hex{00}\rangle$ && $2$ & $\langle\hex{80},\hex{00}\rangle$\\
+		-257   & -- & $\langle\hex{FE},\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FE},\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{FE},\hex{FF}\rangle$ && $2$ & $\langle\hex{FE},\hex{FF}\rangle$\\
+		32768 & -- & -- & $\langle\hex{00},\hex{80},\hex{00}\rangle$ & $\langle\hex{00},\hex{00},\hex{80},\hex{00}\rangle$ && $3$ & $\langle\hex{00},\hex{80},\hex{00}\rangle$\\
+		65535 & -- & -- & $\langle\hex{00},\hex{FF},\hex{FF}\rangle$ & $\langle\hex{00},\hex{00},\hex{FF},\hex{FF}\rangle$ && $3$ & $\langle\hex{00},\hex{FF},\hex{FF}\rangle$\\
+		-65536 & -- & -- & $\langle\hex{FF},\hex{00},\hex{00}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{00},\hex{00}\rangle$ && $3$ & $\langle\hex{FF},\hex{00},\hex{00}\rangle$\\
+		-32769 & -- & -- & $\langle\hex{FF},\hex{7F},\hex{FF}\rangle$ & $\langle\hex{FF},\hex{FF},\hex{7F},\hex{FF}\rangle$ && $3$ & $\langle\hex{FF},\hex{7F},\hex{FF}\rangle$
 	\end{tabular} 
 \end{center}
-The two's complement representation in big-endian byte order is the default integer representation considered in this document. It is also used to reconstruct a non-negative integer $x=\mathit{bytes}_k^{-1}(B)$ from an arbitrary byte array $B\in\mathcal{B}^k$ of length $k\geq 1$.
+The two's complement representation in big-endian byte order is the default integer representation considered in this document. It is also used to reconstruct an integer $x=\mathit{integer}(B)=\mathit{bytes}_k^{-1}(B)\in\mathbb{Z}$ from an arbitrary byte array $B\in\mathcal{B}^k$ of length $k\geq 1$, or a non-negative integer $x=\mathit{integer}^+(B)=\mathit{bytes}_{k+1}^{-1}(\hex{00}\conc B)\in\mathbb{N}$ from a byte array of length $k\geq 0$.
+
+\begin{lstlisting}[style=javastyle,caption={Coding example using UniCrypt.}]
+// Create the default big-endian converter
+BigIntegerToByteArray converter = BigIntegerToByteArray.getInstance();
+
+// Convert various integers
+ByteArray b1 = converter.convert(1);    // returns "01"
+ByteArray b2 = converter.convert(127);  // returns "7F"
+ByteArray b3 = converter.convert(-257); // returns "FE|FF"
+
+// Reconvert the byte arrays
+BigInteger i1 = converter.reconvert(b1); // returns 1
+BigInteger i2 = converter.reconvert(b2); // returns 127
+BigInteger i3 = converter.reconvert(b3); // returns -257
+\end{lstlisting}
 
 \subsection{Representing Strings}
 
 Let $U$ be the \emph{Universal Character Set} (UCS) as defined by ISO/IEC 10646. A string of length $n$ is a sequence $S=\langle c_1\cdots c_{n}\rangle\in U^*$ of characters $c_i\in U$. $U^*$ denotes the set of all UCS strings, including the empty string. Selecting the $i$-th character from $S$ is written as $S[i]=c_i$ for $i\in\{1,\ldots,n\}$. Concrete string instances are written in the usual string notation, for example $\str{}$ (empty string), $\str{x}$ (string consisting of a single character $\chr{x}$), or $\str{Hello}$.
 
 To encode a string $S\in U^*$ as byte array, we use the UTF-8 character encoding as defined in ISO/IEC 10646 (Annex D). Let $\mathit{bytes}(S)$ denote the corresponding byte array, in which characters use 1, 2, 3, or 4 bytes of space depending on the type of character. For example, $\mathit{bytes}(\str{Hello})=\langle\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F}\rangle$ is a byte array of length $5$, because it only consists of Basic Latin characters, whereas $\mathit{bytes}(\str{Voilà})=\langle\hex{56},\hex{6F},\hex{69},\hex{6C},\hex{C3},\hex{A0}\rangle$ contains $6$ bytes due to the Latin-1 Supplement character $\chr{à}$ translating into two bytes. UTF-8 is the only character encoding used in this document.
+
+\begin{lstlisting}[style=javastyle,caption={Coding example using UniCrypt.}]
+// Create the default UTF-8 converter
+StringToByteArray converter = StringToByteArray.getInstance();
+
+// Convert various strings
+ByteArray s1 = converter.convert("");      // returns ""
+ByteArray s2 = converter.convert("Hello"); // returns "48|65|6C|6C|6F"
+ByteArray s3 = converter.convert("Voilà"); // returns "56|6F|69|6C|C3|A0"
+
+// Reconvert the byte arrays
+String i1 = converter.reconvert(s1); // returns ""
+String i2 = converter.reconvert(s2); // returns "Hello"
+String i3 = converter.reconvert(s3); // returns "Voilà"
+\end{lstlisting}
 
 %%-----------------------------------------------------------------------------------------------
 %\section{Byte Trees}
@@ -262,7 +294,7 @@ Let $x,y\in \mathbb{N}$ be two non-negative integers. A \emph{pairing function} 
 
 One of the simplest pairing function, called \emph{elegant pairing} \cite{szudzik06}, is defined as 
 \begin{align}
-	\mathit{pair}(x,y) = \begin{cases}x^2+x +y,~\text{if}~x\geq y, \\ x+y^2,~\text{otherwise}. \end{cases}
+	\mathit{pair}(x,y) = \begin{cases}x^2+x +y,&\text{if}~x\geq y, \\ x+y^2,&\text{otherwise}. \end{cases}
 \end{align}
 The following table lists the paired values for all $x,y\leq 5$.
 \begin{center}
@@ -282,49 +314,81 @@ Note that the bit length of a paired value $z=\mathit{pair}(x,y)$ is either $|z|
 
 In case of elegant pairing, the corresponding unpairing function is defined by
 \begin{align*}
-	\mathit{unpair}(z)=\begin{cases}(t,s),~\text{if}~t<s,\\(s,t-s),~\text{otherwise},\end{cases}
+	\mathit{unpair}(z)=\begin{cases}(t,s),&\text{if}~t<s,\\(s,t-s),&\text{otherwise},\end{cases}
 \end{align*}
 where $s=\lfloor\sqrt{z}\rfloor$ and $t=z-s^2$.
 
-There are three important generalizations of a pairing functions, which can be added individually or jointly. The first one extends the domain from $\mathbb{N}\times\mathbb{N}$ to $\mathbb{Z}\times\mathbb{Z}$ by first mapping each input $x\in\mathbb{Z}$ into a non-negative integer $\mathit{fold}(x)\in\mathbb{N}$, where
+\begin{lstlisting}[style=javastyle,caption={Coding example using UniCrypt.}]
+// Perform pairing and unpairing
+BigInteger p = MathUtil.pair(4, 5);  // returns 29
+BigInteger[] u = MathUtil.unpair(p); // returns [4,5]
+\end{lstlisting}
+
+There are three important generalizations of a pairing functions, which can be added individually or jointly. The first one extends the domain of the pairing function from $\mathbb{N}\times\mathbb{N}$ to $\mathbb{N}^k$ for $k\geq 0$. There are multiple ways of defining such a $k$-ary pairing function $\mathit{pair}_k:\mathbb{N}^k\rightarrow \mathbb{N}$ recursively. If we assume that all input values are equally long, then a length-optimal recursive definition is as follows:
 \begin{align*}
-	\mathit{fold}(x)=\begin{cases}2x,~\text{if}~x\geq 0,\\2|x|-1,~\text{otherwise},\end{cases}
+	\mathit{pair}_k(x_1,\ldots,x_k) = \begin{cases}
+		\mathit{pair}_{\frac{k}{2}}(\mathit{pair}(x_1,x_2),\ldots,\mathit{pair}(x_{k-1},x_k)),&\text{if $k>2$ is even},\\
+		\mathit{pair}_{\frac{k+1}{2}}(\mathit{pair}(x_1,x_2),\ldots,\mathit{pair}(x_{k-2},x_{k-1}),x_k),&\text{if $k>2$ is odd},\\
+		\mathit{pair}(x_1,x_2),&\text{if $k=2$},\\	
+		x_1,&\text{if $k=1$},\\	
+		0,&\text{if $k=0$}.	
+	\end{cases}
+\end{align*}
+The corresponding function $\mathit{unpair}_k:\mathbb{N}\rightarrow \mathbb{N}^k$ inverts the above recursion:
+\begin{align*}
+	\mathit{unpair}_k(z) = \begin{cases}
+		(\mathit{unpair}(z_1),\ldots,\mathit{unpair}(z_{\frac{k}{2}})),~\text{for}~z_i\in\mathit{unpair}_{\frac{k}{2}}(z),&\text{if $k>2$ is even},\\
+		(\mathit{unpair}(z_1),\ldots,\mathit{unpair}(z_{\frac{k-1}{2}}),z_{\frac{k+1}{2}}),~\text{for}~z_i\in\mathit{unpair}_{\frac{k+1}{2}}(z),&\text{if $k>2$ is odd},\\
+		\mathit{unpair}(z),&\text{if $k=2$},\\	
+		(z),&\text{if $k=1$},\\	
+		(),&\text{if $k=0$}.	
+	\end{cases}
+\end{align*}
+To compute this function, the number $k$ of output values must be known. This problem can be solved by an additional pairing with the length $k$ of the input list, or in an optimized version by pairing it with $k-1$ and by treating the special case $k=0$ is separately:
+\begin{align*}
+	\mathit{pair}'(x_1,\ldots,x_k) &= \begin{cases}	
+		 \mathit{pair}(\mathit{pair}_k(x_1,\ldots,x_k),k-1)+1,&\text{if}~k>0,\\
+		 0,&\text{if}~k=0,
+	 \end{cases}\\[3mm]
+	\mathit{unpair}'(z) &=  \begin{cases}
+		\mathit{unpair}_{k'+1}(z'),~\text{for}~(z',k') = \mathit{unpair}(z-1),&\text{if}~z>0,\\
+		(),&\text{if}~z=0.
+	\end{cases}
+\end{align*}
+
+\begin{lstlisting}[style=javastyle,caption={Coding example using UniCrypt.}]
+// Perform pairing and unpairing of multiple values
+BigInteger p = MathUtil.pairWithSize(12, 29, 8); // returns 530669269373
+BigInteger[] u = MathUtil.unpairWithSize(p);     // returns [12,29,8]
+\end{lstlisting}
+
+The second generalization allows the pairing of even more complex structures containing non-negative integers, for example $X=(12,(4,5),8)$. Let $\mathcal{X}$ denote the set of all such composed structures. Then we obtain a function $\mathit{Pair}:\mathcal{X}\rightarrow\mathbb{N}$ by applying the above generalized pairing function recursively. To be able to distinguish the general and the base case of the recursion in $\mathit{Unpair}:\mathbb{N}\rightarrow\mathcal{X}$, we add an additional bit $b=1$ (general case) and $b=0$ (base case) to the respective results:
+\begin{align*}
+	\mathit{Pair}(X) &= \begin{cases}
+		2\cdot\mathit{pair}'(\mathit{Pair}(X_1),\ldots,\mathit{Pair}(X_k))+1,&\text{if}~X=(X_1,\ldots,X_k),\\
+		2X,&\text{if $X$ is an integer}.
+	\end{cases}\\[3mm]
+	\mathit{Unpair}(z) &= \begin{cases}
+		(\mathit{Unpair}(z_1),\ldots,\mathit{Unpair}(z_k)),~\text{for}~z_i\in\mathit{unpair}'(\frac{z-1}{2}),&\text{if $z$ is odd},\\
+		\frac{z}{2},&\text{if $z$ is even}.
+	\end{cases}
+\end{align*}
+
+The third generalization extends the domain from $\mathbb{N}\times\mathbb{N}$ to $\mathbb{Z}\times\mathbb{Z}$ by first mapping each input $x\in\mathbb{Z}$ into a non-negative integer $\mathit{fold}(x)\in\mathbb{N}$, where
+\begin{align*}
+	\mathit{fold}(x)=\begin{cases}2x,&\text{if}~x\geq 0,\\2|x|-1,&\text{otherwise},\end{cases}
 \end{align*}
 denotes the \emph{folding function}. The corresponding \emph{unfolding function} is defined by
 \begin{align*}
-	\mathit{unfold}(x)=\begin{cases}\frac{1}{2}x,~\text{if $x$ is even},\\
-		-\frac{1}{2}(x+1),~\text{otherwise}.\end{cases}
+	\mathit{unfold}(x)=\begin{cases}\frac{1}{2}x,&\text{if $x$ is even},\\
+		-\frac{1}{2}(x+1),&\text{otherwise}.\end{cases}
 \end{align*}
 
-The second generalization extends the domain of the pairing function from $\mathbb{N}\times\mathbb{N}$ to $\mathbb{N}^k$ for $k\geq 0$. There are multiple ways of defining such a $k$-ary pairing function $\mathit{pair}_k:\mathbb{N}^k\rightarrow \mathbb{N}$ recursively. If we assume that all input values are equally long, then a length-optimal recursive definition is as follows:
-\begin{align}
-	\mathit{pair}_k(x_1,\ldots,x_k) = \begin{cases}
-		\mathit{pair}_{\frac{k}{2}}(\mathit{pair}(x_1,x_2),\ldots,\mathit{pair}(x_{k-1},x_k)),~\text{if $k>2$ is even},\\
-		\mathit{pair}_{\frac{k+1}{2}}(\mathit{pair}(x_1,x_2),\ldots,\mathit{pair}(x_{k-2},x_{k-1}),x_k),~\text{if $k>2$ is odd},\\
-		\mathit{pair}(x_1,x_2),~\text{if $k=2$},\\	
-		x_1,~\text{if $k=1$},\\	
-		0,~\text{if $k=0$}.	
-	\end{cases}
-\end{align}
-To define a corresponding function $\mathit{unpair}_k:\mathbb{N}\rightarrow \mathbb{N}^k$, the number $k$ of output values must be known. This problem can be solved by an additional pairing with $k$:
-\begin{align*}
-	\mathit{pair}'(x_1,\ldots,x_k) &= \mathit{pair}(\mathit{pair}_k(x_1,\ldots,x_k),k),\\
-	\mathit{unpair}'(z) &= \mathit{unpair}_k(z'),~\text{for}~(z',k) = \mathit{unpair}(z).
-\end{align*}
-The third generalization allows the pairing of even more complex structures containing non-negative integers, for example $X=(127,(1,15),0)$. Let $\mathcal{X}$ denote the set of all such composed structures. Then we obtain a function $\mathit{pair}:\mathcal{X}\rightarrow\mathbb{N}$ by applying the above generalized pairing function recursively:
-\begin{align*}
-	\mathit{pair}(X) = \begin{cases}
-		\mathit{pair}'(\mathit{pair}(X_1),\ldots,\mathit{pair}(X_k)),~\text{if $X=(X_1,\ldots,X_k)$},\\
-		X,~\text{if $X$ is an integer}.
-	\end{cases}
-\end{align*}
-To define a corresponding function $\mathit{unpair}:\mathbb{N}\rightarrow\mathcal{X}$, the two cases of the recursion must be distinguishable. This problem can be solved by returning a negative integer  $X'=-X-1$ instead of $X$ in the base case of the recursion and by applying $\mathit{fold}$ on top of it:
-\begin{align*}
-	\mathit{pair}'(X)&=\mathit{fold}(\mathit{pair}(X)),\\
-	\mathit{unpair}'(z) &= \mathit{unpair}(\mathit{unfold(z)}).
-\end{align*}
-In this way, if $\mathit{unfold(z)}$ yields a negative integer $X'$, then $X=-X'-1$ is returned. Otherwise, the structure is re-constructed recursively.
-
+\begin{lstlisting}[style=javastyle,caption={Coding example using UniCrypt.}]
+// Perform folding and unfolding
+BigInteger f = MathUtil.fold(27);  // returns 57
+BigInteger u = MathUtil.unfold(f); // return 27
+\end{lstlisting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Cryptographic Primitives}
@@ -333,14 +397,14 @@ In this way, if $\mathit{unfold(z)}$ yields a negative integer $X'$, then $X=-X'
 The UniVote system is based on several cryptographic building blocks. Apart from standard ElGamal encryption and decryption, we also need hash functions, random oracles, Schnorr signatures, threshold decryptions, non-interactive zero-knowledge proofs of knowledge, verifiable exponentiation and re-encryption mix-nets, an anonymous channel, and an append-only public bulletin board. These building blocks will be described below.
 
 %-----------------------------------------------------------------------------------------------
-\section{Hash Functions} 
+\section{Hash Functions and Keyed Hash Functions} 
 %-----------------------------------------------------------------------------------------------
 
 A \emph{hash function} defines a mapping $\mathit{hash}_n:\{0,1\}^*\rightarrow\{0,1\}^n$ from an arbitrarily long input bit sequences to a fixed-length output bit sequence of length $n$. For a given input bit string $B\in\{0,1\}^*$, we call $\mathit{hash}_n(B)\in\{0,1\}^n$ the \emph{hash value} of $B$. Whenever the output length $n$ is clear from the context, we allow $\mathit{hash}(B)$ as a shortcut notation.
 
 All hash functions relevant for practical applications restrict the length of the input and output bit sequence to a multiple of $8$. In other words, practical hash functions deal with bytes rather than bits. Therefore, if $\mathcal{B}=\{\bin{0},\bin{1}\}^8$ denotes the set of all possible bytes, then a practical hash function is a mapping $\mathit{hash}_n:\mathcal{B}^*\rightarrow\mathcal{B}^{\frac{n}{8}}$ from arbitrarily long byte arrays to fixed-length byte arrays. The only hash functions we consider in this document are the NIST standards SHA-1, SHA-224, SHA-256, SHA-384, and SHA-512, which output byte arrays of length 20 (160 bits), 28 (224 bits), 32 (256 bits), 48 (384 bits), and 64 (512 bits), respectively (see \Cref{settings}).
 
-To apply such a hash function to a simple mathematical object such as an integer or string $X$, we first convert $X$ into a byte array $B=\mathit{bytes}(X)$ and then apply the hash function to $B$. This allows us to write $\mathit{hash}(X)=\mathit{hash}(\mathit{bytes}(X))$ for more general inputs. In case of composed mathematical objects, for example $X=(127,(\texttt{"Hello"},1),-2)$, we apply the hash function recursively:
+To apply such a hash function to a simple mathematical object such as an integer or string $X$, we first convert $X$ into a byte array $B=\mathit{bytes}(X)$ and then apply the hash function to $B$. This allows us to write $\mathit{hash}(X)=\mathit{hash}(\mathit{bytes}(X))$ for more general inputs. In case of composed mathematical objects, for example $X=(127,(\texttt{"Hello"},1),-257)$, we apply the hash function recursively:
 \begin{align*}
 		\mathit{hash}(X)=
 		\begin{cases}
@@ -348,7 +412,23 @@ To apply such a hash function to a simple mathematical object such as an integer
 			\mathit{hash}(\mathit{hash}(X_1)\conc\cdots\conc\mathit{hash}(X_k)), & \text{if $X=(X_1,\ldots,X_k)$}.
 		\end{cases}
 \end{align*}
-Sometimes, if $X=(X_1,\ldots,X_k)$ is a composed object, we write $\mathit{hash}(X)$ as the application $\mathit{hash}(X_1,\ldots,X_k)$ of a $k$-ary hash function to multiple arguments.
+Sometimes, if $X=(X_1,\ldots,X_k)$ is a composed object, we write $\mathit{hash}(X)$ as the application of a $k$-ary hash function $\mathit{hash}(X_1,\ldots,X_k)$ to multiple arguments.
+
+The following example hash values have been computed with SHA-1:
+\begin{align*}
+&\mathit{hash}(127)=\mathit{hash}(\langle\hex{7F}\rangle)\\
+	&~~~=\langle\hex{23,83,34,62,F5,55,15,A9,00,E0,16,DB,2E,B9,43,FB,47,4C,19,F6}\rangle\\
+&\mathit{hash}(\texttt{"Hello"})=\mathit{hash}(\langle\hex{48},\hex{65},\hex{6C},\hex{6C},\hex{6F}\rangle)\\
+	&~~~=\langle\hex{F7,FF,9E,8B,7B,B2,E0,9B,70,93,5A,5D,78,5E,0C,C5,D9,D0,AB,F0}\rangle\\
+&\mathit{hash}(1)=\mathit{hash}(\langle\hex{01}\rangle)\\
+	&~~~=\langle\hex{BF,8B,45,30,D8,D2,46,DD,74,AC,53,A1,34,71,BB,A1,79,41,DF,F7}\rangle\\
+&\mathit{hash}(-257)=\mathit{hash}(\langle\hex{FE},\hex{FF}\rangle)\\
+	&~~~=\langle\hex{26,23,78,00,2C,95,AE,7E,29,53,5C,B9,F4,38,DB,21,9A,DF,98,F5}\rangle\\
+&\mathit{hash}(\texttt{"Hello"},1)=\mathit{hash}(\mathit{hash}(\texttt{"Hello"})\conc \mathit{hash}(1))\\
+	&~~~=\langle\hex{49,2F,6E,17,0A,CF,F2,0A,E8,F2,0D,09,A6,11,66,D3,B1,41,99,DB}\rangle\\
+&\mathit{hash}(127,(\texttt{"Hello"},1),-257)=\mathit{hash}(\mathit{hash}(127)\conc\mathit{hash}(\texttt{"Hello"},1) \conc \mathit{hash}(-127))\\
+	&~~~=\langle\hex{F4,65,C7,A9,9E,1A,DB,28,6C,23,29,6B,36,C8,C1,A0,83,03,AF,78}\rangle\\
+\end{align*}
 	
 %\begin{itemize}
 %	\item \emph{Byte Tree Hashing}: The input object $\phi$ is first encoded as a byte tree, which is then transformed into an input byte array for the hash function:
@@ -364,40 +444,46 @@ Sometimes, if $X=(X_1,\ldots,X_k)$ is a composed object, we write $\mathit{hash}
 %		\end{cases}
 %	\end{align}
 %\end{itemize} 
+A \emph{keyed hash function} defines a mapping $\mathit{hash}_{k,n}:\{0,1\}^*\times\{0,1\}^k\rightarrow\{0,1\}^n$ from  an arbitrarily long input bit sequence and a fixed-length key of length $k$ to a fixed-length output bit sequence of length $n$. For a given input bit string $B\in\{0,1\}^*$ and a key $K\in\{0,1\}^k$, we call $\mathit{hash}_{k,n}(B,K)\in\{0,1\}^n$ the \emph{keyed hash value} of $B$. Whenever the key length $k$ and the output length $n$ are clear from the context, we allow $\mathit{hash}(B,K)$ as a shortcut notation. 
+
+The most widely construction of a keyed hash function from a regular hash function is called HMAC \cite{KBC97,dang08}. It is fully compatible with the SHA hash function family. Corresponding instantiations are called HMAC-SHA1, HMAC-SHA256, etc. We use them as a building block for generating random byte sequences (see \Cref{rbgf}), common reference strings (see \Cref{refstrings}), and for password-based key derivation (see \Cref{pbkd}).
 
 %-----------------------------------------------------------------------------------------------
-\section{Generating Random Bits and Random Numbers} 
+\section{Generating Random Bits, Random Numbers, and Password-Based Keys}
 %-----------------------------------------------------------------------------------------------
 
-In this section, we give an overview of how random bits and random numbers are generated in UniVote. There are two fundamentally different situations for generating random data, one in which a third party needs to be convinced about how the randomness has been generated, and one in which the random data needs to be kept secret. Both goals are achieved using the same cryptographic tools.
+In this section, we give an overview of how random bits, random numbers, and bassword-based keys are generated in UniVote. There are two fundamentally different situations for generating random data, one in which a third party needs to be convinced about how the randomness has been generated, and one in which the random data needs to be kept secret. Both goals are achieved using the same cryptographic tools.
 
-\subsection{Random Oracles}
+%\subsection{Random Oracles}
+%
+%In cryptography, a \emph{random oracle} is mapping $\mathit{randomOracle}:\{0,1\}^*\rightarrow \{0,1\}^\infty$, which responds to each input bit sequence $Q\in \{0,1\}^*$ with an infinitely long  output bit sequence $\mathit{randomOracle}(Q)\in\{0,1\}^{\infty}$, in which every bit is chosen uniformly and independently. Note that if such a \emph{query} $Q$ is repeated, the random oracle responds the same way every time. Since no function computable by a finite algorithm can implement a true random oracle, they exist only as a theoretical model. As such, they are an important mathematical abstraction used in numerous cryptographic proofs, often as a replacement for hash functions. The corresponding security model is called \emph{random oracle model}.
+%
+%In practice, random oracles can at most be approximated, for example by hash functions, pseudo-random bit generators, or sponge functions. In this document, we use pseudo-random bit generators in combination with hash functions to approximate random oracles. The following table gives an overview of the fundamental differences between random oracles and the cryptographic primitives used to approximate them. 
+%
+%\begin{center}
+%	\begin{tabular}{l|c|c|c|c}
+%		& Domain & Co-domain & State width & Max.\ period \\\hline
+%		Hash function & $\{0,1\}^*$ & $\{0,1\}^n$ & -- & -- \\
+%		Pseudo-random bit generator & $\{0,1\}^n$ & $\{0,1\}^\infty$ & $n$ &$2^n$ \\
+%		Sponge function & $\{0,1\}^*$ & $\{0,1\}^\infty$ & $b$ & $2^b$\\\hline
+%		Random oracle & $\{0,1\}^*$ & $\{0,1\}^\infty$ & $\infty$ & $\infty$ \\
+%	\end{tabular}
+%\end{center}
+%
+%To make random oracles more flexible with respect to the type of query they accept, we allow writing $\mathit{randomOracle}(\phi)$ for feeding the oracle with the bits contained  in  $\mathit{bytes}(\mathit{byteTree}(\phi))$, where $\phi$ is an arbitrary mathematical object.
+%
+%To use a PRBG as an approximation of a random oracle, it's input space must be extended from $\{0,1\}^n$ to $\{0,1\}^*$. The simplest solution is to use a hash function for computing  $S=\mathit{hash}_n(Q)$ from then random oracle's query $Q\in\{0,1\}^*$, and to use $S$ as seed for the PRBG. In this document, we use SHA-256 for this purpose.
 
-In cryptography, a \emph{random oracle} is mapping $\mathit{randomOracle}:\{0,1\}^*\rightarrow \{0,1\}^\infty$, which responds to each input bit sequence $Q\in \{0,1\}^*$ with an infinitely long  output bit sequence $\mathit{randomOracle}(Q)\in\{0,1\}^{\infty}$, in which every bit is chosen uniformly and independently. Note that if such a \emph{query} $Q$ is repeated, the random oracle responds the same way every time. Since no function computable by a finite algorithm can implement a true random oracle, they exist only as a theoretical model. As such, they are an important mathematical abstraction used in numerous cryptographic proofs, often as a replacement for hash functions. The corresponding security model is called \emph{random oracle model}.
 
-In practice, random oracles can at most be approximated, for example by hash functions, pseudo-random bit generators, or sponge functions. In this document, we use pseudo-random bit generators in combination with hash functions to approximate random oracles. The following table gives an overview of the fundamental differences between random oracles and the cryptographic primitives used to approximate them. 
+\subsection{Deterministic Random Bit Generators}\label{rbgf}
 
-\begin{center}
-	\begin{tabular}{l|c|c|c|c}
-		& Domain & Co-domain & State width & Max.\ period \\\hline
-		Hash function & $\{0,1\}^*$ & $\{0,1\}^n$ & -- & -- \\
-		Pseudo-random bit generator & $\{0,1\}^n$ & $\{0,1\}^\infty$ & $n$ &$2^n$ \\
-		Sponge function & $\{0,1\}^*$ & $\{0,1\}^\infty$ & $b$ & $2^b$\\\hline
-		Random oracle & $\{0,1\}^*$ & $\{0,1\}^\infty$ & $\infty$ & $\infty$ \\
-	\end{tabular}
-\end{center}
+A \emph{deterministic random bit generator} (DRBG) is a function $\mathit{DRBG}:\{0,1\}^n\rightarrow\{0,1\}^\infty$ for generating infinitely long bit sequences whose properties approximate the properties of true random bit sequences, except for the fact they are periodic. The $n$ input bits $S\in \{0,1\}^n$ of a PRBG are called \emph{seed}, and the output bits $\mathit{DRBG}(S)\in\{0,1\}^\infty$ are called \emph{random bit sequence}. The seed determines the initial internal state of the PRNG, and the bit length of the internal state determines the maximal period of the resulting random bit sequence. 
 
-To make random oracles more flexible with respect to the type of query they accept, we allow writing $\mathit{randomOracle}(\phi)$ for feeding the oracle with the bits contained  in  $\mathit{bytes}(\mathit{byteTree}(\phi))$, where $\phi$ is an arbitrary mathematical object.
+A simple way of constructing a DRBG is by applying a one-way function $f:\{0,1\}^n\rightarrow\{0,1\}^m$ or $f:\{0,1\}^*\rightarrow\{0,1\}^m$ repeatedly to $S+i$ for $i=0,1,2\ldots$, which outputs the random bit sequence 
+$$\mathit{DRBG}(S)=f(S)\conc f(S+1)\conc f(S+2)\conc \cdots$$
+in chunks of $m$ bits \cite{MOV96}. This general construction is typically instantiated with either a hash function, keyed hash function, or a block cipher.
 
-\subsection{Pseudo-Random Bit Generators}
-
-A \emph{pseudo-random bit generator} (PRBG) is a deterministic function $\mathit{PRBG}:\{0,1\}^n\rightarrow\{0,1\}^\infty$ for generating infinitely long bit sequences whose properties approximate the properties of true random bit sequences, except for the fact they are periodic. The $n$ input bits $S\in \{0,1\}^n$ of a PRBG are called \emph{seed}, and the output bits $\mathit{PRBG}(S)\in\{0,1\}^\infty$ are called \emph{pseudo-random bit sequence}. The seed determines the initial internal state of the PRNG. Usually, the bit length of the internal state---called \emph{state width}---is equivalent to $n$, the bit length of the seed. This implies that the period of the resulting pseudo-random bit sequence can be no longer than $2^n$. 
-
-A simple way of constructing a PRNG is by applying a one-way function $f:\{0,1\}^n\rightarrow\{0,1\}^m$ or $f:\{0,1\}^*\rightarrow\{0,1\}^m$ repeatedly to $S+i$ for $i=0,1,2\ldots$, which outputs the pseudo-random bit sequence 
-$$\mathit{PRBG}(S)=f(S)\conc f(S+1)\conc f(S+2)\conc \cdots$$
-in chunks of $m$ bits \cite{MOV96}. This general construction is typically instantiated with either a hash function, a block cipher, or a MAC. In this document, this is the only PRNG construction we consider, and we instantiate it with SHA-256 and hence with $n=m=256$. 
-
-To use a PRBG as an approximation of a random oracle, it's input space must be extended from $\{0,1\}^n$ to $\{0,1\}^*$. The simplest solution is to use a hash function for computing  $S=\mathit{hash}_n(Q)$ from then random oracle's query $Q\in\{0,1\}^*$, and to use $S$ as seed for the PRBG. In this document, we use SHA-256 for this purpose.
+\subsection{Common Reference Strings}\label{refstrings}
 
 \subsection{Reseedable Pseudo-Random Bit Generators}
 
@@ -427,6 +513,9 @@ For an interval $[a,b]\subseteq \mathbb{N}$, we write $x\in_R[a,b]$ for the proc
 The process for choosing random prime numbers $p\in_R\mathbb{P}_{|x|=l}$ of a given bit length $l$ is similar. It consists of selecting $p\in_R\mathbb{Z}_{|x|=l}$, running a (probabilistic) primality test $\mathit{prime}(p)$ to check whether $p$ is prime, and repeating this procedure until $\mathit{prime}(p)=\mathit{true}$. Generating safe primes is similar but requires an additional primality test for $q=(p-1)/2$ in each iterative step.
 
 Finally, we consider the problem of choosing a random permutation $\pi:\mathbb{Z}_n\rightarrow\mathbb{Z}_n$ uniformly from the set $\Pi_n$ of all such permutations. For this, we select a random rank $x\in \mathbb{Z}_{n!}$ and input it to Myrvold's and Wendy's linear-time unranking algorithm $\mathit{unrank}:\mathbb{Z}_{n!}\rightarrow\Pi_n$ \cite{MR01}. We denote the whole process by $\pi\in_R\Pi_n$.
+
+\subsection{Password-Based Key Derivation}\label{pbkd}
+
 
 %-----------------------------------------------------------------------------------------------
 \section{ElGamal Cryptosystem} 
@@ -518,7 +607,7 @@ One of the most fundamental zero-knowledge proofs of knowledge is the \emph{prei
 \begin{enumerate}
 	\item Choose $\omega\in_R X$ uniformly at random.
 	\item Compute $t=\phi(\omega)$.
-	\item Compute $c = \mathit{hash}((b,t),\Prover) \bmod{q}$, for $q=|\mathit{image}(\phi)|$.\footnote{Making the challenge $c$ dependent on the prover's identity \Prover prevents attacks based on copying proofs from another prover. We do not specify the exact format of the identifier. When generating the challenge for $b$, $t$, and $\Prover$, we apply $\mathit{hash}$ recursively, first on $b$ and $t$, and then on $\Prover$, i.e.,  $\mathit{hash}((b,t),\Prover)=\mathit{hash}(\mathit{hash}(\mathit{hash}(b)||\mathit{hash}(t))||\mathit{hash}(\Prover))$.}
+	\item Compute $c = \mathit{hash}((b,t),\Prover) \bmod{q}$, for $q=|\mathit{image}(\phi)|$.\footnote{Making the challenge $c$ dependent on the prover's identity \Prover prevents attacks based on copying proofs from another prover. We do not specify the exact format of the identifier. When generating the challenge for $b$, $t$, and $\Prover$, we apply $\mathit{hash}$ recursively, first on $b$ and $t$, and then on $\Prover$, i.e.,  $\mathit{hash}((b,t),\Prover)=\mathit{hash}(\mathit{hash}(\mathit{hash}(b)\conc \mathit{hash}(t))\conc \mathit{hash}(\Prover))$.}
 	\item Compute $s = \omega + c\cdot a$.
 \end{enumerate}
 The triple $(t,c,s)=\mathit{NIZKP}\{(a):b=\phi(a)\}$ is the resulting non-interactive preimage proof, which can be published without revealing any information about $a$. Note that $\mathit{image}(\phi)=Y$ holds in many concrete instantiations of the  preimage proof, which implies $q=|Y|$. To verify a given proof $\pi=(t,c,s)$, $\Verifier$ performs the following check:
@@ -1381,21 +1470,37 @@ Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 			\EA	& $\mathsf{electoralRoll}$ & 1 & $V$ & \EC \\
 			\EC & $\mathsf{voterCertificates}$ & 1 & $\mathcal{Z}_V$ & -- \\
 			\EC & $\mathsf{keyMixingRequest}$ & $m$ & $\Mixer{k},\mathit{VK}_{k-1},g_{k-1}$ & \Mixer{k} \\
-			\Mixer{k} & $\mathsf{keyMixingResult}$ & 1 & $\mathit{VK}_k,g_k,\pi_{k}$ & \EC \\
+			\Mixer{k} & $\mathsf{keyMixingResult}$ & $m$ & $\mathit{VK}_k,g_k,\pi_{k}$ & \EC \\
 			\EC & $\mathsf{mixedKeys}$ & $1$ & $ \hat{\mathit{VK}}, \hat{g}$ & --\\
+<<<<<<< HEAD
+			\EC & $\mathsf{votingData}$ & 1 & $\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues,$ & \Voter{i} \\
+			& & & $\encode,\mathit{encryptSetting},$ \\
+			& & & $\mathit{signSetting},\mathit{hashSetting},$\\
+			& & & $y,\hat{g}$ \\
+			\Voter{i} & $\mathsf{ballot}$ & $N\leq n$ & $E_i,\pi_{i}$ & \EC \\
+=======
 			\EC & $\mathsf{votingData}$ & 1 & $\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues,\encode,$ & \Voter{i} \\
 			& & & $\mathit{encryptSetting},\mathit{signSetting},$ \\
 			& & & $\mathit{hashSetting},y, \hat{g}$ \\
 			\Voter{i} & $\mathsf{ballot}$ & $\leq n$ & $E_i,\pi_{i}$ & \EC \\
+<<<<<<< Updated upstream
+=======
+>>>>>>> origin/development
+>>>>>>> Stashed changes
 			\EC & $\mathsf{voteMixingRequest}$ & $m$ & $\Mixer{k},\mathcal{E}_k$ & \Mixer{k}\\
 			\Mixer{k} & $\mathsf{voteMixingResult}$ & $m$ & $\mathcal{E}_k,\pi'_{k}$ & \EC \\
 			\EC & $\mathsf{mixedVotes}$ & 1 & $\hat{\mathcal{E}}$ & \Tallier{j} \\
 			\Tallier{j} & $\mathsf{partialDecryption}$ & $r$ & $A_j,\pi_{j}'$ & \EC \\
 			\EC & $\mathsf{decryptedVotes}$ & 1 & $\mathcal{W}$ & \EA \\
 			\EA & $\mathsf{decodedVotes}$ & 1 & $\mathcal{V}$ & -- \\
-			\EA & $\mathsf{electionResult}$ & 1 & $\mathit{result}$ & --
+			\EA & $\mathsf{electionResult}$ & 1 & $\mathit{result}$ & -- \\ \hline
+			\EC & $\mathsf{newVoterCertificate}$ & $z_n$ & $Z'_i$ & -- \\
+			\EC & $\mathsf{addedVoterCertificate}$ & $z_a$ & $Z'_i$ & -- \\
+			\EC & $\mathsf{cancelledVoterCertificate}$ & $z_c$ & $Z_i$ & -- \\
+			\EC & $\mathsf{singleKeyMixingRequest}$ & $m(z_a+z_c)$ & $\Mixer{k},\mathit{vk}_{i},\mathit{vk}_{i,k-1}$ & \Mixer{k} \\
+			\Mixer{k} & $\mathsf{singleKeyMixingResult}$ & $m(z_a+z_c)$ & $\mathit{vk}_{i},\mathit{vk}_{i,k-1},\mathit{vk}_{i,k},\pi_{i,k}$ & \EC \\
 		\end{tabular}
-		\caption{Summary of election data published on \UBV. Corresponding access rights are attributed by \EC.}
+		\caption{Summary of election data published on \UBV. Corresponding access rights are attributed by \EC. The lower part of the table is the data needed to handle late voter certificates.}
 	\end{table}
 \end{center}
 
@@ -1438,9 +1543,12 @@ Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 			$\pi_{j}'$ & zero-knowledge proof & & --\\ 
 			$\mathcal{W}$ & list of decrypted votes & $\mathbb{Z}_Q$ & $N$ \\
 			$\mathcal{V}$ & list of decoded votes & $\mathbb{N}^s$ & $N'$\\
-			$\mathit{result}$ & election result & $\mathbb{N}^s$ & --\\
+			$\mathit{result}$ & election result & $\mathbb{N}^s$ & --\\\hline
+			$Z_i,Z'_i$ & voter certificate & & -- \\
+			$\vk{i},\vk{i,k}$ & public key & $G_q$ & --\\
+			$\pi_{i,k}$ & zero-knowledge proof & & --
 		\end{tabular}
-		\caption{Summary of election data published on \UBV.}
+		\caption{Summary of election data published on \UBV (in order of appearance).}
 	\end{center}
 \end{table}
 
@@ -1842,16 +1950,56 @@ The following parameters are assumed to be known in advance and not to change ov
 \chapter{Encoding Votes}\label{votes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For a given set of election options $\mathcal{Q}$ and corresponding election rules $\mathcal{R}$, let $\rho_j$ denote the maximum number of votes that the election rules allow for $Q_j\in \mathcal{Q}$. To encode $v_i=(v_{i,1},\ldots,v_{s,1})\in \validVotes(\mathcal{Q},\mathcal{R})$ as an integer, consider a bit string of length $B=\sum_{j=1}^s b_j$, where $b_j=\lfloor\log_2\rho_j\rfloor+1$ denotes the number of bits reserved for each value $v_{i,j}$. Furthermore, let $B_j=\sum_{k=1}^{j-1}b_k$ be the number of bits in the bit string \emph{prior} to $v_{i,j}$, i.e., $B_1=0$, $B_2=b_1$, $B_3=b_1+b_2$, \ldots, $B_{s+1}=B$. The encoding function $\mathit{encode}_{\mathcal{Q},\mathcal{R}}:\validVotes(\mathcal{Q},\mathcal{R})\rightarrow \{0,\ldots,2^B{-}1\}$ can then be defined as follows:
-\begin{align*}
-	\mathit{encode}_{\mathcal{Q},\mathcal{R}}(v_i) = \sum_{j=1}^n v_{i,j}\cdot 2^{B_j}.
-\end{align*}
-Since some integers in $\{0,\ldots,2^B{-}1\}$ do not represent valid votes according to the election rules $R$, this encoding is not optimal in terms of memory space consumption. In the vast majority of practical cases, however, we believe that the size of the message space $G_Q$ of the ElGamal cryptosystem is large enough to support this encoding.
+For a given set of election options $\mathcal{Q}$ and corresponding election rules $\mathcal{R}$, let $\rho_j$ denote the maximum number of votes that the election rules allow for each option $Q_j\in \mathcal{Q}$ and $\rho$ the maximum total number of votes for all options. For $v_i=(v_{i,1},\ldots,v_{i,s})\in \validVotes(\mathcal{Q},\mathcal{R})$, this implies $0\leq v_{i,j}\leq \rho_j$ and $\sum_j v_{i,j}\leq \rho$. To encode $v_i$ as an integer, we need an invertible encoding function $\mathit{encode}_{\mathcal{Q},\mathcal{R}}:\validVotes(\mathcal{Q},\mathcal{R})\rightarrow \mathbb{Z}_q$ for some $q\geq |\validVotes(\mathcal{Q},\mathcal{R})|$. We consider two encodings, one based on the election options and one based on the maximum number of votes. We denote them by $\mathsf{E1}$ and $\mathsf{E2}$, respectively, and $$\Sigma_\mathsf{ENCODE} = \{\mathsf{E1}, \mathsf{E2}\}$$ is the set of available encodings. Each of them defines a total bit length $B$, which implies $q\leq 2^B$. Usually, the encoding with the smaller upper bound for $q$ is the preferred one.
 
-To decode an integer representation $w_i=\mathit{encode}_{\mathcal{Q},\mathcal{R}}(v_i)$ back to $v=(v_{i,1},\ldots,v_{i,s})$, we must decompose the bit string into its components. Mathematically, this decomposition can be written as follows:
+\subsubsection{Option-Based Encoding}
+Consider a bit string of length $B=\sum_{j=1}^s b_j$, where $b_j=|\rho_j|$ denotes the number of bits reserved for each value $v_{i,j}$. Furthermore, let $B_j=\sum_{k=1}^{j-1}b_k$ be the number of bits in the bit string \emph{prior} to $v_{i,j}$, i.e., $B_1=0$, $B_2=b_1$, $B_3=b_1+b_2$, \ldots, $B_{s+1}=B$. The encoding function $\mathit{encode}_{\mathcal{Q},\mathcal{R}}:\validVotes(\mathcal{Q},\mathcal{R})\rightarrow \mathbb{Z}_{2^B}$ can then be defined as follows:
+\begin{align*}
+	\mathit{encode}_{\mathcal{Q},\mathcal{R}}(v_i) = \sum_{j=1}^s v_{i,j}\cdot 2^{B_j}.
+\end{align*}
+Note that some integers in $\mathbb{Z}_{2^B}$ do not represent valid votes according to the election rules $R$. To decode an integer representation $w_i=\mathit{encode}_{\mathcal{Q},\mathcal{R}}(v_i)$ back to $v=(v_{i,1},\ldots,v_{i,s})$, we must decompose the bit string into its components. Mathematically, this decomposition can be written as follows:
 \begin{align*}
 	\mathit{encode}^{-1}_{\mathcal{Q},\mathcal{R}}(w_i) = (v_{i,1},\ldots,v_{i,s}),~\text{where}~v_{i,j}=\lfloor w_i/2^{B_j} \rfloor \bmod{2^{b_j}}.
 \end{align*}
+As an example, let there be $s=5$ elections options, each of which receiving up to $\rho_j=2$ votes with a maximum of $\rho=4$ votes. This implies $b_j=2$ bits for each election option and therefore $B_1=0$, $B_2=2$, $B_3=4$, $B_4=6$, $B_5=8$, and $B=10$. The following table shows some votes and their option-based encodings. The highest possible encoding is $\mathit{encode}_{\mathcal{Q},\mathcal{R}}(0,0,0,2,2)=640$, which implies $q=641$.
+
+\begin{center}\begin{tabular}{cccc}
+$v_i$ && $\sum_{j=1}^5 v_{i,j}\cdot 2^{B_j}$ & $\mathit{encode}_{\mathcal{Q},\mathcal{R}}(v_i)$ \\ \hline
+$(0,0,0,0,0)$ && $0{\cdot}2^0+0{\cdot}2^2+0{\cdot}2^4+0{\cdot}2^6+0{\cdot}2^8$ &$0$ \\
+$(1,0,0,0,0)$ && $1{\cdot}2^0+0{\cdot}2^2+0{\cdot}2^4+0{\cdot}2^6+0{\cdot}2^8$ &$1$ \\
+$(2,0,0,0,0)$ && $2{\cdot}2^0+0{\cdot}2^2+0{\cdot}2^4+0{\cdot}2^6+0{\cdot}2^8$ &$2$ \\
+$(0,0,0,0,1)$ && $0{\cdot}2^0+0{\cdot}2^2+0{\cdot}2^4+0{\cdot}2^6+1{\cdot}2^8$ &$256$ \\
+$(0,0,0,0,2)$ && $0{\cdot}2^0+0{\cdot}2^2+0{\cdot}2^4+0{\cdot}2^6+2{\cdot}2^8$ &$512$ \\
+$(1,1,0,1,1)$ && $1{\cdot}2^0+1{\cdot}2^2+0{\cdot}2^4+1{\cdot}2^6+1{\cdot}2^8$ &$325$ \\
+$(0,1,2,1,0)$ && $0{\cdot}2^0+1{\cdot}2^2+2{\cdot}2^4+1{\cdot}2^6+0{\cdot}2^8$ &$100$ \\	
+$(2,2,0,0,0)$ && $2{\cdot}2^0+2{\cdot}2^2+0{\cdot}2^4+0{\cdot}2^6+0{\cdot}2^8$ &$10$ \\
+$(0,0,0,2,2)$ && $0{\cdot}2^0+0{\cdot}2^2+0{\cdot}2^4+2{\cdot}2^6+2{\cdot}2^8$ &$640$
+\end{tabular}\end{center}
+
+
+\subsubsection{Vote-Based Encoding}
+Consider a bit string of length $B=\rho\cdot |s|$. The idea here is to reserve $|s|$ bits for each of the maximal $\rho$ votes and to use the index $j$ to encode a vote for option $Q_{j}$. For $v_i=(v_{i,1},\ldots,v_{i,s})$ and $0\leq j_1\leq \cdots \leq j_{\rho}\leq s$, let $q_i=(Q_{j_1},\ldots,Q_{j_{\rho}})$ be the sorted list (in ascending index order) of the $\rho$ election options $Q_{j_k}\in\mathcal{Q}\cup\{Q_0\}$ selected in $v_i$, where $Q_0$ denotes an empty vote in cases in which not all $\rho$ votes are attributed to options. If we use $v_i$ and $q_i$ as equivalent vote representations, then the encoding function $\mathit{encode}_{\mathcal{Q},\mathcal{R}}:\validVotes(\mathcal{Q},\mathcal{R})\rightarrow \mathbb{Z}_{2^B}$ can be defined as follows:
+\begin{align*}
+	\mathit{encode}_{\mathcal{Q},\mathcal{R}}(q_i) = \sum_{k=1}^{\rho} j_k\cdot 2^{(k-1)|s|}.
+\end{align*}
+Again, some integers in $\mathbb{Z}_{2^B}$ do not represent valid votes according to the election rules $R$. To decode an integer representation $w_i=\mathit{encode}_{\mathcal{Q},\mathcal{R}}(q_i)$ back to $q_i=(Q_{j_1},\ldots,Q_{j_{\rho}})$ and then to $v_i=(v_{i,1},\ldots,v_{i,s})$, we must first decompose the bit string into its components. Mathematically, this decomposition can be written as follows:
+\begin{align*}
+	\mathit{encode}^{-1}_{\mathcal{Q},\mathcal{R}}(w_i) = (Q_{j_1},\ldots,Q_{j_{\rho}}),~\text{where}~Q_{j_k}=\lfloor w_i/2^{(k-1)|s|} \rfloor \bmod{2^{|s|}}.
+\end{align*}
+As an example, consider the same setting as above, which implies $|s|=3$ and $B=12$. The following table shows the same votes and their vote-based encodings. The highest possible encoding is $\mathit{encode}_{\mathcal{Q},\mathcal{R}}(4,4,5,5)=2916$, which implies $q=2917$. For the given setting, this encoding is therefore less efficient than the one above.
+
+\begin{center}\begin{tabular}{cccc}
+$v_i$ & $q_i$ & $\sum_{k=1}^{4} j_k\cdot 2^{(k-1)|s|}$ & $\mathit{encode}_{\mathcal{Q},\mathcal{R}}(q_i)$ \\ \hline
+$(0,0,0,0,0)$ & $(0,0,0,0)$ & $0{\cdot}2^0+0{\cdot}2^3+0{\cdot}2^6+0{\cdot}2^9$ &$0$ \\
+$(1,0,0,0,0)$ & $(0,0,0,1)$ & $0{\cdot}2^0+0{\cdot}2^3+0{\cdot}2^6+1{\cdot}2^9$ &$512$ \\
+$(2,0,0,0,0)$ & $(0,0,1,1)$ & $0{\cdot}2^0+0{\cdot}2^3+1{\cdot}2^6+1{\cdot}2^9$ &$576$ \\
+$(0,0,0,0,1)$ & $(0,0,0,5)$ & $0{\cdot}2^0+0{\cdot}2^3+0{\cdot}2^6+5{\cdot}2^9$ &$2560$ \\
+$(0,0,0,0,2)$ & $(0,0,5,5)$ & $0{\cdot}2^0+0{\cdot}2^3+5{\cdot}2^6+5{\cdot}2^9$ &$2880$ \\
+$(1,1,0,1,1)$ & $(1,2,4,5)$ & $1{\cdot}2^0+2{\cdot}2^3+4{\cdot}2^6+5{\cdot}2^9$ &$2833$ \\
+$(0,1,2,1,0)$ & $(2,3,3,4)$ & $2{\cdot}2^0+3{\cdot}2^3+3{\cdot}2^6+4{\cdot}2^9$ &$2266$ \\	
+$(2,2,0,0,0)$ & $(1,1,2,2)$ & $1{\cdot}2^0+1{\cdot}2^3+2{\cdot}2^6+2{\cdot}2^9$ &$1161$ \\
+$(0,0,0,2,2)$ & $(4,4,5,5)$ & $4{\cdot}2^0+4{\cdot}2^3+5{\cdot}2^6+5{\cdot}2^9$ &$2916$
+\end{tabular}\end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{UniBoard}

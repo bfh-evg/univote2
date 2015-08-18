@@ -674,17 +674,41 @@
 
 		/**
 		 * Verify the (Schnorr) signature of a result received from the board
+		 * @param query The query sent to the board
 		 * @param resultContainer The result received from the board
 		 * @param posterSetting Crypto setting of the poster
 		 * @param verifyPosterSignature True if signature of poster of the posts contained in the result, fals if not
-		 * @returns True if signature is correct, exception otherwise
+		 * @returns True if signature is correct, error message otherwise
 		 */
-		this.verifyResultSignature = function (resultContainer, posterSetting, verifyPosterSignature) {
-			//1. Verify ResultContainer signature
-			//Currently this signature is not checked since most of the time, the result container contains only
-			//one post, so checking the post signature is sufficient
+		this.verifyResultSignature = function (query, resultContainer, posterSetting, verifyPosterSignature) {
+			var posts = resultContainer.result.post;
 
-			//2. Verify board signature of each Post
+			// 1. Verify ResultContainer signature
+			// Hash: [query,resultcontainer]
+			//          query=...
+			//          resultcontainer=[result,gamma]
+			//                     result [p1,p2,...]
+			//                              post=...
+			//                     gamma=[timestamp]
+
+			var queryHash = this.hashQuery(query);
+			var resultHash = '';
+			for (var i = 0; i < posts.length; i++) {
+				resultHash += this.hashPost(posts[i], true, true);
+			}
+			var resultContainerHash = Hash.doHexStr(resultHash, Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value)));
+			var hash = Hash.doHexStr(queryHash + resultContainerHash);
+			if (!this.verifySchnorrSignature(
+					leemon.str2bigInt(resultContainer.gamma.attribute[1].value.value, uvConfig.BASE),
+					hash,
+					leemon.str2bigInt(uvConfig.BOARD_SETTING.PK, uvConfig.BASE),
+					leemon.str2bigInt(uvConfig.BOARD_SETTING.P, uvConfig.BASE),
+					leemon.str2bigInt(uvConfig.BOARD_SETTING.Q, uvConfig.BASE),
+					leemon.str2bigInt(uvConfig.BOARD_SETTING.G, uvConfig.BASE))) {
+				return "Wrong board signature for GET";
+			}
+
+			// 2. Verify board signature of each Post
 			var posts = resultContainer.result.post;
 			for (var i = 0; i < posts.length; i++) {
 				var post = posts[i];
@@ -696,12 +720,11 @@
 						leemon.str2bigInt(uvConfig.BOARD_SETTING.P, uvConfig.BASE),
 						leemon.str2bigInt(uvConfig.BOARD_SETTING.Q, uvConfig.BASE),
 						leemon.str2bigInt(uvConfig.BOARD_SETTING.G, uvConfig.BASE))) {
-					throw "Wrong board signature in post " + i;
+					return "Wrong board signature in post " + i;
 				}
-
 			}
 
-			//3. Verify poster signature of each Post contained in the result
+			// 3. Verify poster signature of each Post contained in the result
 			if (verifyPosterSignature == true) {
 				for (var i = 0; i < posts.length; i++) {
 					var post = posts[i];
@@ -713,14 +736,61 @@
 							leemon.str2bigInt(posterSetting.P, uvConfig.BASE),
 							leemon.str2bigInt(posterSetting.Q, uvConfig.BASE),
 							leemon.str2bigInt(posterSetting.G, uvConfig.BASE))) {
-						throw "Wrong poster signature in post " + i;
+						return "Wrong poster signature in post " + i;
 					}
 				}
 			}
 			return true;
-		}
+		};
 
+		/**
+		 * Hashes a typed value.
+		 * @param {type} Typed value
+		 * @returns Hash of the typed value
+		 */
+		var hashTypedValue = function (typed) {
+			var aHash = '';
+			var type = typed.type;
+			var value = typed.value;
+			if (type === "stringValue") {
+				aHash = Hash.doString(value);
+			} else if (type === "integerValue") {
+				aHash = Hash.doInt(value);
+			} else if (type === "dateValue") {
+				aHash = Hash.doDate(new Date(value));
+			} else {
+				throw "Error: unknown type of attribute ('" + type + "').";
+			}
+			return aHash;
+		};
 
+		/**
+		 * Helper to comupte the hash of a query.
+		 *
+		 * @param {type} query
+		 * @returns The hash of the query
+		 */
+		this.hashQuery = function (query) {
+			// query=[contraints,order,limit]
+			//          constraint=[type,identifier,value.value]
+			//              identifier=[type,s1,s2,s3,...]
+			//          order=[identifier,ascDesc]
+
+			var hashConstraints = '';
+			for (var i = 0; i < query.constraint.length; i++) {
+				var constraint = query.constraint[i];
+				var hashConstraint = Hash.doString(constraint.type);
+				var hashIdentifier = Hash.doString(constraint.identifier.type);
+				for (var j = 0; j < constraint.identifier.part.length; j++) {
+					hashIdentifier += Hash.doString(constraint.identifier.part[j]);
+				}
+				hashConstraint += Hash.doHexStr(hashIdentifier);
+				hashConstraint += hashTypedValue(constraint.value);
+				hashConstraints += Hash.doHexStr(hashConstraint);
+			}
+			// @TODO hash order and limit!
+			return Hash.doHexStr(hashConstraints /* + hashOrder + hashLimit */);
+		};
 
 		/**
 		 * Helper method computing the hash value of a post
@@ -739,24 +809,6 @@
 			var messageHash = this.hashPostMessage(message);
 			var concatenatedAlphaHashes = "";
 
-			var hashAttribute = function (attribute) {
-				var aHash = '';
-				var type = attribute.value.type;
-				var value = attribute.value.value;
-				if (type === "stringValue") {
-					aHash = Hash.doString(value);
-				} else if (type === "integerValue") {
-					aHash = Hash.doInt(value);
-				} else if (type === "dateValue") {
-					aHash = Hash.doDate(new Date(value));
-				} else if (type === "integerValue") {
-					aHash = Hash.doByteArray(value);
-				} else {
-					throw "Error: unknown type of attribute ('" + type + "').";
-				}
-				return aHash;
-			};
-
 			for (var i = 0; i < alpha.length; i++) {
 				var attribute = alpha[i];
 				if ((attribute.key === "signature" || attribute.key === "publickey") && includeBeta == false) {
@@ -766,7 +818,7 @@
 					//thus signature and key must be included
 					continue;
 				}
-				concatenatedAlphaHashes += hashAttribute(attribute);
+				concatenatedAlphaHashes += hashTypedValue(attribute.value);
 			}
 			var alphaHash = Hash.doHexStr(concatenatedAlphaHashes);
 			var betaHash = '';
@@ -782,7 +834,7 @@
 						//thus signature must be included
 						continue;
 					}
-					concatenatedBetaHashes += hashAttribute(attribute);
+					concatenatedBetaHashes += hashTypedValue(attribute.value);
 				}
 				betaHash = Hash.doHexStr(concatenatedBetaHashes);
 			}
