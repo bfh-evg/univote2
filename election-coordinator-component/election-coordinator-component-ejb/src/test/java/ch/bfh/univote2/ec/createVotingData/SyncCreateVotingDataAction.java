@@ -39,29 +39,26 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.action;
+package ch.bfh.univote2.ec.createVotingData;
 
+import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import javax.ejb.Stateless;
 
-public abstract class AbstractAction implements Action {
+/**
+ *
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
+ */
+@Stateless
+public class SyncCreateVotingDataAction extends CreateVotingDataAction implements NotifiableAction {
 
 	@Override
-	public ActionContext prepareContext(String tenant, String section) {
-		ActionContext actionContext = createContext(tenant, section);
-		if (checkPostCondition(actionContext)) {
-			actionContext.setPostCondition(true);
-			return actionContext;
-		}
-
-		actionContext.setPostCondition(false);
-		definePreconditions(actionContext);
-
-		return actionContext;
+	public void notifyAction(ActionContext actionContext, Object notification) {
+		super.notifyAction(actionContext, notification);
 	}
 
-	protected abstract ActionContext createContext(String tenant, String section);
-
-	protected abstract boolean checkPostCondition(ActionContext actionContext);
-
-	protected abstract void definePreconditions(ActionContext actionContext);
+	@Override
+	public void run(ActionContext actionContext) {
+		super.run(actionContext);
+	}
 }

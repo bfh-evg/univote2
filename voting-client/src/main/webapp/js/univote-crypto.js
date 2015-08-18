@@ -691,25 +691,23 @@
 			//                              post=...
 			//                     gamma=[timestamp]
 
-			var doVerifyQuerySig = true;
-
-			if (doVerifyQuerySig) {
-				var queryHash = this.hashQuery(query);
-				var resultHash = '';
-				for (var i = 0; i < posts.length; i++) {
-					resultHash += this.hashPost(posts[i], true, true);
-				}
-				var resultContainerHash = Hash.doHexStr(resultHash, Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value)));
-				var hash = Hash.doHexStr(queryHash + resultContainerHash);
-				if (!this.verifySchnorrSignature(
-						leemon.str2bigInt(resultContainer.gamma.attribute[1].value.value, uvConfig.BASE),
-						hash,
-						leemon.str2bigInt(uvConfig.BOARD_SETTING.PK, uvConfig.BASE),
-						leemon.str2bigInt(uvConfig.BOARD_SETTING.P, uvConfig.BASE),
-						leemon.str2bigInt(uvConfig.BOARD_SETTING.Q, uvConfig.BASE),
-						leemon.str2bigInt(uvConfig.BOARD_SETTING.G, uvConfig.BASE))) {
-					return "Wrong board signature for GET";
-				}
+			var queryHash = this.hashQuery(query);
+			var resultHash = '';
+			for (var i = 0; i < posts.length; i++) {
+				resultHash += this.hashPost(posts[i], true, true);
+			}
+			resultHash = Hash.doHexStr(resultHash);
+			var gamma = Hash.doHexStr(Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value)))
+			var resultContainerHash = Hash.doHexStr(resultHash + gamma);
+			var hash = Hash.doHexStr(queryHash + resultContainerHash);
+			if (!this.verifySchnorrSignature(
+					leemon.str2bigInt(resultContainer.gamma.attribute[1].value.value, uvConfig.BASE),
+					hash,
+					leemon.str2bigInt(uvConfig.BOARD_SETTING.PK, uvConfig.BASE),
+					leemon.str2bigInt(uvConfig.BOARD_SETTING.P, uvConfig.BASE),
+					leemon.str2bigInt(uvConfig.BOARD_SETTING.Q, uvConfig.BASE),
+					leemon.str2bigInt(uvConfig.BOARD_SETTING.G, uvConfig.BASE))) {
+				return "Wrong board signature for GET";
 			}
 
 			// 2. Verify board signature of each Post
@@ -794,7 +792,7 @@
 			}
 			// @TODO hash order and limit!
 			var hashOrder = Hash.doString("");
-			var hashLimit = Hash.doString(0);
+			var hashLimit = Hash.doInt(0);
 			return Hash.doHexStr(Hash.doHexStr(hashConstraints) + hashOrder + hashLimit);
 		};
 
