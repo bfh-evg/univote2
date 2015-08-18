@@ -710,7 +710,6 @@ public class JSONConverterTest {
 
 		String output
 				= JSONConverter.marshal(dto);
-		System.out.println(output);
 
 		JSONAssert.assertEquals(input, output, true);
 	}
@@ -856,5 +855,80 @@ public class JSONConverterTest {
 
 		JSONConverter converter = new JSONConverter();
 		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
+	}
+
+	@Test
+	public void testConvertJSONVoteMixingRequest() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"mixerId\": \"mixer1\",\n"
+				+ "	\"votesToMix\": [\n"
+				+ "    { \"firstValue\": \"1234\", \"secondValue\": \"5678\" },\n"
+				+ "    { \"firstValue\": \"3456\", \"secondValue\": \"7890\" },\n"
+				+ "    { \"firstValue\": \"5678\", \"secondValue\": \"9012\" }\n"
+				+ "]\n"
+				+ "}";
+
+		VoteMixingRequest dto
+				= JSONConverter.unmarshal(VoteMixingRequest.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertEquals("mixer1", dto.getMixerId());
+
+		assertEquals(3, dto.getVotesToMix().size());
+		assertEquals("1234", dto.getVotesToMix().get(0).getFirstValue());
+		assertEquals("5678", dto.getVotesToMix().get(0).getSecondValue());
+		assertEquals("3456", dto.getVotesToMix().get(1).getFirstValue());
+		assertEquals("7890", dto.getVotesToMix().get(1).getSecondValue());
+		assertEquals("5678", dto.getVotesToMix().get(2).getFirstValue());
+		assertEquals("9012", dto.getVotesToMix().get(2).getSecondValue());
+
+		String output
+				= JSONConverter.marshal(dto);
+
+		JSONAssert.assertEquals(input, output, true);
+	}
+
+	@Test
+	public void testConvertJSONVoteMixingResult() throws Exception {
+		String input
+				= "{\n"
+				+ "	\"mixedVotes\": [\n"
+				+ "    { \"firstValue\": \"1234\", \"secondValue\": \"5678\" },\n"
+				+ "    { \"firstValue\": \"3456\", \"secondValue\": \"7890\" },\n"
+				+ "    { \"firstValue\": \"5678\", \"secondValue\": \"9012\" }\n"
+				+ "  ],\n"
+				+ " \"proof\": {\n"
+				+ "    \"commitment\": \"1234567890\",\n"
+				+ "    \"challenge\": \"9876543210\",\n"
+				+ "    \"response\": \"1234567890\"\n"
+				+ " }\n"
+				+ "}";
+
+		VoteMixingResult dto
+				= JSONConverter.unmarshal(VoteMixingResult.class,
+						input.getBytes(Charset.forName("UTF-8")));
+
+		assertNotNull(dto);
+
+		assertEquals(3, dto.getMixedVotes().size());
+		assertEquals("1234", dto.getMixedVotes().get(0).getFirstValue());
+		assertEquals("5678", dto.getMixedVotes().get(0).getSecondValue());
+		assertEquals("3456", dto.getMixedVotes().get(1).getFirstValue());
+		assertEquals("7890", dto.getMixedVotes().get(1).getSecondValue());
+		assertEquals("5678", dto.getMixedVotes().get(2).getFirstValue());
+		assertEquals("9012", dto.getMixedVotes().get(2).getSecondValue());
+
+		assertNotNull(dto.getProof());
+		assertEquals("1234567890", dto.getProof().getCommitment());
+		assertEquals("9876543210", dto.getProof().getChallenge());
+		assertEquals("1234567890", dto.getProof().getResponse());
+
+		String output
+				= JSONConverter.marshal(dto);
+
+		JSONAssert.assertEquals(input, output, true);
 	}
 }

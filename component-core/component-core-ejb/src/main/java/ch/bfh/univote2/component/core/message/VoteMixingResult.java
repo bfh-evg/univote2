@@ -39,44 +39,68 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.component.core.query;
+package ch.bfh.univote2.component.core.message;
+
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
+ * <pre>
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a mixing result of mixed encrypted votes",
+ *	"type": "object",
+ *	"properties": {
+ *		"mixedVotes": {
+ *			"type": "array",
+ *			"items": {
+ *				"type": "object",
+ *				"properties": {
+ *					"firstValue":  { "type": "string" },
+ *					"secondValue": { "type": "string" }
+ *				},
+ *				"required": ["firstValue", "secondValue"],
+ *				"additionalProperties": false
+ *			}
+ *		},
+ *		"proof" : { "$ref": "proof.jsd" }
+ *	},
+ *	"required": ["mixedVotes", "proof"],
+ *	"additionalProperties": false
+ * }
+ * </pre>
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public enum GroupEnum {
+@XmlType(propOrder={"mixedVotes", "proof"})
+public class VoteMixingResult {
+	private List<EncryptedVote> mixedVotes;
+	private Proof proof;
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	ELECTION_DEFINITION("electionDefinition"),
-	ELECTION_DETAILS("electionDetails"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
-	ENCRYPTION_KEY("encryptionKey"),
-	KEY_MIXING_REQUEST("keyMixingRequest"),
-	KEY_MIXING_RESULT("keyMixingResult"),
-	MIXED_KEYS("mixedKeys"),
-	PARTIAL_DECRYPTION("partialDecryption"),
-	SIGNATURE_GENERATOR("signatureGenerator"),
-	VOTE_MIXING_REQUEST("voteMixingRequest"),
-	VOTE_MIXING_RESULT("voteMixingResult"),
-	MIXED_VOTES("mixedVotes"),
-	VOTING_DATA("votingData");
-
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	public VoteMixingResult() {
 	}
 
-	public String getValue() {
-		return value;
+	public VoteMixingResult(List<EncryptedVote> mixedVotes, Proof proof) {
+		this.mixedVotes = mixedVotes;
+		this.proof = proof;
 	}
 
+	@XmlElement(required=true)
+	public List<EncryptedVote> getMixedVotes() {
+		return mixedVotes;
+	}
+
+	public void setMixedVotes(List<EncryptedVote> mixedVotes) {
+		this.mixedVotes = mixedVotes;
+	}
+
+	@XmlElement(required=true)
+	public Proof getProof() {
+		return proof;
+	}
+
+	public void setProof(Proof proof) {
+		this.proof = proof;
+	}
 }
