@@ -54,8 +54,10 @@ import ch.bfh.univote2.component.core.message.ElectionIssue;
 import ch.bfh.univote2.component.core.message.ElectoralRoll;
 import ch.bfh.univote2.component.core.message.EncryptionKey;
 import ch.bfh.univote2.component.core.message.JSONConverter;
+import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
+import ch.bfh.univote2.ec.BoardsEnum;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -115,15 +117,16 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 			CreateVotingDataActionContext context = (CreateVotingDataActionContext) actionContext;
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
+				//AttributeDTO group = AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
+				//if(((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.ELECTION_DEFINITION));
 				try {
 					parsePostDTO(post.getMessage(), context);
 					// Let's see iff we got all messages
 					if (context.gotAllNotifications()) {
-						runInternal(context);
+						runInternal(context); // handles failures, too...
 					} else {
 						// Wait for another notification
-						// TODO Check with Sevi ResultStatus.FINISHED !!
-						this.actionManager.runFinished(context, ResultStatus.FINISHED);
+						this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
 					}
 				} catch (UnivoteException ex) {
 					logger.log(Level.WARNING, "Do not understand message.", ex);
@@ -181,6 +184,24 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	}
 
 	private void runInternal(CreateVotingDataActionContext context) {
-		throw new UnsupportedOperationException("Not supported yet.");
+		// TODO: Adjust table in subsectino 11.2.5
+		ElectionDefinition ed = context.getElectionDefinition();
+		// ...?
+		//VotingData vd = ...;
+		try {
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.VOTING_DATA.getValue(), JSONConverter.marshal(new byte[1]).getBytes(),
+					context.getTenant());
+			// TOTO: Check with Sevi whether some log message should be sent to the logger and information service...
+			//logger. ...
+			//this.informationService. ...
+			// TODO: Check with Sevi whether the action manager needs to be notified here...
+			this.actionManager.runFinished(context, ResultStatus.FINISHED);
+		} catch (UnivoteException ex) {
+			logger.log(Level.WARNING, "Could not post VOTING_DATA message.", ex);
+			this.informationService.informTenant(context.getActionContextKey(),
+					"Could not post VOTING_DATA message.");
+			this.actionManager.runFinished(context, ResultStatus.FAILURE);
+		}
 	}
 }

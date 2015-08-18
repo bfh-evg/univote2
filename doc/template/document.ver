@@ -1,10 +1,14 @@
-\begin {longtable}{@{}ll>{\hsize =.5\hsize }X>{\hsize =1.5\hsize }X@{}}
+\begin {longtable}{@{}ll>{\hsize =\vhAuthorColWidth }X>{\hsize =\vhChangeColWidth }X@{}}
 \textbf {\vhversionname }
  & \textbf {\vhdatename }
  & \textbf {\vhauthorname }
  & \textbf {\vhchangename }\\[1ex]
-1.0
- & 28.06.2013
+0.1
+ & 10.05.2012
  & \listset {Rolf Haenni}
- & Initial document.\\
+ & Initiales Dokument, welches als Template für andere Dokumente dienen soll.\\
+0.2
+ & 12.05.2012
+ & \listset {Stephan Fischli|Eric Dubuis}
+ & Kleine Änderungen.\\
 \end {longtable}

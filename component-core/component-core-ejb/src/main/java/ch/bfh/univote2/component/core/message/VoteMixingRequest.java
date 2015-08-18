@@ -39,74 +39,68 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec.createVotingData;
+package ch.bfh.univote2.component.core.message;
 
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.ElectionDefinition;
-import ch.bfh.univote2.component.core.message.ElectionIssue;
-import ch.bfh.univote2.component.core.message.ElectoralRoll;
-import ch.bfh.univote2.component.core.message.EncryptionKey;
-import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
+ * <pre>
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a mixing request to mix encrypted votes",
+ *	"type": "object",
+ *	"properties": {
+ *		"mixerId": { "type": "string" },
+ *		"votesToMix": {
+ *			"type": "array",
+ *			"items": {
+ *				"type": "object",
+ *				"properties": {
+ *					"firstValue":  { "type": "string" },
+ *					"secondValue": { "type": "string" }
+ *				},
+ *				"required": ["firstValue", "secondValue"],
+ *				"additionalProperties": false
+ *			}
+ *		}
+ *	},
+ *	"required": ["mixerId", "votesToMix"],
+ *	"additionalProperties": false
+ * }
+ * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class CreateVotingDataActionContext extends ActionContext {
-	private ElectionDefinition electionDefinition;
-	private EncryptionKey encryptionKey;
-	private ElectionIssue electionIssue;
-	private ElectoralRoll electoralRoll;
+@XmlType(propOrder={"mixerId", "votesToMix"})
+public class VoteMixingRequest {
+	private String mixerId;
+	private List<EncryptedVote> votesToMix;
 
-	public CreateVotingDataActionContext(ActionContextKey actionContextKey) {
-		super(actionContextKey, new ArrayList<>(), false);
+	public VoteMixingRequest() {
 	}
 
-	@Override
-	protected void purgeData() {
-		this.electionDefinition = null;
-		this.encryptionKey = null;
-		this.electionIssue = null;
-		this.electoralRoll = null;
+	public VoteMixingRequest(String mixerId, List<EncryptedVote> votesToMix) {
+		this.mixerId = mixerId;
+		this.votesToMix = votesToMix;
 	}
 
-	ElectionDefinition getElectionDefinition() {
-		return electionDefinition;
+	@XmlElement(required=true)
+	public String getMixerId() {
+		return mixerId;
 	}
 
-	EncryptionKey getEncryptionKey() {
-		return encryptionKey;
+	public void setMixerId(String mixerId) {
+		this.mixerId = mixerId;
 	}
 
-	ElectionIssue getElectionIssue() {
-		return electionIssue;
+	@XmlElement(required=true)
+	public List<EncryptedVote> getVotesToMix() {
+		return votesToMix;
 	}
 
-	ElectoralRoll getElectoralRoll() {
-		return electoralRoll;
-	}
-
-	void setElectionDefinition(ElectionDefinition electionDefinition) {
-		this.electionDefinition = electionDefinition;
-	}
-
-	void setEncryptionKey(EncryptionKey encryptionKey) {
-		this.encryptionKey = encryptionKey;
-	}
-
-	void setElectionIssue(ElectionIssue electionIssue) {
-		this.electionIssue = electionIssue;
-	}
-
-	void setElectoralRoll(ElectoralRoll electoralRoll) {
-		this.electoralRoll = electoralRoll;
-	}
-
-	boolean gotAllNotifications() {
-		return	this.electionDefinition != null &&
-				this.encryptionKey != null &&
-				this.electionIssue != null &&
-				this.electoralRoll != null;
+	public void setVotesToMix(List<EncryptedVote> votesToMix) {
+		this.votesToMix = votesToMix;
 	}
 }
