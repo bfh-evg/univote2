@@ -43,21 +43,21 @@ package ch.bfh.univote2.ec.createVotingData;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.ElectionDefinition;
-import ch.bfh.univote2.component.core.message.ElectionIssue;
-import ch.bfh.univote2.component.core.message.ElectoralRoll;
-import ch.bfh.univote2.component.core.message.EncryptionKey;
 import java.util.ArrayList;
+import javax.json.JsonObject;
 
 /**
+ * Context for the create voting data action. Stores the messages of the relevant messages
+ * until the related action can fully be processed.
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
 public class CreateVotingDataActionContext extends ActionContext {
-	private ElectionDefinition electionDefinition;
-	private EncryptionKey encryptionKey;
-	private ElectionIssue electionIssue;
-	private ElectoralRoll electoralRoll;
+	private JsonObject electionDefinition;
+	private JsonObject electionDetails;
+	private JsonObject cryptoSetting;
+	private JsonObject encryptionKey;
+	private JsonObject signatureGenerator;
 
 	public CreateVotingDataActionContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), false);
@@ -66,47 +66,61 @@ public class CreateVotingDataActionContext extends ActionContext {
 	@Override
 	protected void purgeData() {
 		this.electionDefinition = null;
+		this.electionDetails = null;
+		this.cryptoSetting = null;
 		this.encryptionKey = null;
-		this.electionIssue = null;
-		this.electoralRoll = null;
+		this.signatureGenerator = null;
 	}
 
-	ElectionDefinition getElectionDefinition() {
+	public JsonObject getElectionDefinition() {
 		return electionDefinition;
 	}
 
-	EncryptionKey getEncryptionKey() {
-		return encryptionKey;
-	}
-
-	ElectionIssue getElectionIssue() {
-		return electionIssue;
-	}
-
-	ElectoralRoll getElectoralRoll() {
-		return electoralRoll;
-	}
-
-	void setElectionDefinition(ElectionDefinition electionDefinition) {
+	public void setElectionDefinition(JsonObject electionDefinition) {
 		this.electionDefinition = electionDefinition;
 	}
 
-	void setEncryptionKey(EncryptionKey encryptionKey) {
+	public JsonObject getElectionDetails() {
+		return electionDetails;
+	}
+
+	public void setElectionDetails(JsonObject electionDetails) {
+		this.electionDetails = electionDetails;
+	}
+
+	public JsonObject getCryptoSetting() {
+		return cryptoSetting;
+	}
+
+	public void setCryptoSetting(JsonObject cryptoSetting) {
+		this.cryptoSetting = cryptoSetting;
+	}
+
+	public JsonObject getEncryptionKey() {
+		return encryptionKey;
+	}
+
+	public void setEncryptionKey(JsonObject encryptionKey) {
 		this.encryptionKey = encryptionKey;
 	}
 
-	void setElectionIssue(ElectionIssue electionIssue) {
-		this.electionIssue = electionIssue;
+	public JsonObject getSignatureGenerator() {
+		return signatureGenerator;
 	}
 
-	void setElectoralRoll(ElectoralRoll electoralRoll) {
-		this.electoralRoll = electoralRoll;
+	public void setSignatureGenerator(JsonObject signatureGenerator) {
+		this.signatureGenerator = signatureGenerator;
 	}
 
-	boolean gotAllNotifications() {
-		return	this.electionDefinition != null &&
-				this.encryptionKey != null &&
-				this.electionIssue != null &&
-				this.electoralRoll != null;
+	/**
+	 * A boolean predicate returning true iff all notification messages habe been given to this context.
+	 * @return true iff all notification messages have been set
+	 */
+	public boolean gotAllNotifications() {
+		return electionDefinition != null &&
+				electionDetails != null &&
+				cryptoSetting != null &&
+				encryptionKey != null &&
+				signatureGenerator != null;
 	}
 }
