@@ -696,7 +696,9 @@
 			for (var i = 0; i < posts.length; i++) {
 				resultHash += this.hashPost(posts[i], true, true);
 			}
-			var resultContainerHash = Hash.doHexStr(resultHash, Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value)));
+			resultHash = Hash.doHexStr(resultHash);
+			var gamma = Hash.doHexStr(Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value)))
+			var resultContainerHash = Hash.doHexStr(resultHash + gamma);
 			var hash = Hash.doHexStr(queryHash + resultContainerHash);
 			if (!this.verifySchnorrSignature(
 					leemon.str2bigInt(resultContainer.gamma.attribute[1].value.value, uvConfig.BASE),
@@ -789,7 +791,9 @@
 				hashConstraints += Hash.doHexStr(hashConstraint);
 			}
 			// @TODO hash order and limit!
-			return Hash.doHexStr(hashConstraints /* + hashOrder + hashLimit */);
+			var hashOrder = Hash.doString("");
+			var hashLimit = Hash.doInt(0);
+			return Hash.doHexStr(Hash.doHexStr(hashConstraints) + hashOrder + hashLimit);
 		};
 
 		/**
