@@ -1,0 +1,596 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2015.1.15)  6 AUG 2015 17:02
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**settings.tex
+(./settings.tex
+LaTeX2e <2014/05/01>
+Babel <3.9k> and hyphenation patterns for 78 languages loaded.
+
+! LaTeX Error: \labelinglabel undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.3 \renewcommand*{\labelinglabel}
+                                  {\usekomafont{descriptionlabel}\LabelingLa...
+
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Undefined control sequence.
+l.5 \setkomafont
+                {subject}{\usekomafont{disposition}\Large\itshape}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.5 \setkomafont{s
+                  ubject}{\usekomafont{disposition}\Large\itshape}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no s in font nullfont!
+Missing character: There is no u in font nullfont!
+Missing character: There is no b in font nullfont!
+Missing character: There is no j in font nullfont!
+Missing character: There is no e in font nullfont!
+Missing character: There is no c in font nullfont!
+Missing character: There is no t in font nullfont!
+! Undefined control sequence.
+l.5 \setkomafont{subject}{\usekomafont
+                                      {disposition}\Large\itshape}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Missing character: There is no d in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no p in font nullfont!
+Missing character: There is no o in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no o in font nullfont!
+Missing character: There is no n in font nullfont!
+! Undefined control sequence.
+l.5 ...nt{subject}{\usekomafont{disposition}\Large
+                                                  \itshape}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 5--6
+[] 
+ []
+
+! Undefined control sequence.
+l.7 \lstdefinestyle
+                   {javastyle}{
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.7 \lstdefinestyle{j
+                     avastyle}{
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no j in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no v in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no y in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no e in font nullfont!
+Missing character: There is no b in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no c in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no y in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no e in font nullfont!
+Missing character: There is no = in font nullfont!
+! Undefined control sequence.
+l.8 basicstyle=\small
+                     \ttfamily\footnotesize,
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.8 basicstyle=\small\ttfamily\footnotesize
+                                           ,
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.9 keywordstyle=\color
+                       {red},
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.10 stringstyle=\color
+                       {brown!100},
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.11 commentstyle=\color
+                        {black!70}\sffamily\itshape,
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <10> not available
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 11.
+
+! Undefined control sequence.
+l.14 backgroundcolor=\color
+                           {black!8},
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.16 numberstyle=\tiny
+                      ,
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 7--33
+[]
+ []
+
+
+Overfull \hbox (5.24995pt too wide) in paragraph at lines 7--33
+\OT1/cmtt/m/n/10 ,
+ []
+
+
+Overfull \hbox (89.24922pt too wide) in paragraph at lines 7--33
+\OT1/cmtt/m/n/10 keywordstyle=red,
+ []
+
+
+Overfull \hbox (115.499pt too wide) in paragraph at lines 7--33
+\OT1/cmtt/m/n/10 stringstyle=brown!100,
+ []
+
+
+Overfull \hbox (113.02682pt too wide) in paragraph at lines 7--33
+\OT1/cmtt/m/n/10 commentstyle=black!70\OT1/cmss/m/sl/10 ,
+ []
+
+
+Overfull \hbox (16.91669pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 tab-
+ []
+
+
+Overfull \hbox (30.56949pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 size=3,
+ []
+
+
+Overfull \hbox (15.69446pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 lan-
+ []
+
+
+Overfull \hbox (53.91681pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 guage=Java,
+ []
+
+
+Overfull \hbox (22.63893pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 back-
+ []
+
+
+Overfull \hbox (32.25006pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 ground-
+ []
+
+
+Overfull \hbox (60.4168pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 color=black!8,
+ []
+
+
+Overfull \hbox (21.61113pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 num-
+ []
+
+
+Overfull \hbox (41.19452pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 bers=left,
+ []
+
+
+Overfull \hbox (21.61113pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 num-
+ []
+
+
+Overfull \hbox (16.63892pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 ber-
+ []
+
+
+Overfull \hbox (29.1667pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 style=,
+ []
+
+
+Overfull \hbox (57.44455pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 frame=single,
+ []
+
+
+Overfull \hbox (24.86115pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 math-
+ []
+
+
+Overfull \hbox (54.61119pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 escape=true,
+ []
+
+
+Overfull \hbox (72.02794pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 aboveskip=5mm,
+ []
+
+
+Overfull \hbox (13.22223pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 be-
+ []
+
+
+Overfull \hbox (61.6668pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 lowskip=2mm,
+ []
+
+
+Overfull \hbox (27.00006pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 frame-
+ []
+
+
+Overfull \hbox (44.88896pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 sep=0mm,
+ []
+
+
+Overfull \hbox (21.44447pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 xleft-
+ []
+
+
+Overfull \hbox (19.22226pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 mar-
+ []
+
+
+Overfull \hbox (44.00009pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 gin=2mm,
+ []
+
+
+Overfull \hbox (27.52783pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 xright-
+ []
+
+
+Overfull \hbox (19.22226pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 mar-
+ []
+
+
+Overfull \hbox (44.00009pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 gin=2mm,
+ []
+
+
+Overfull \hbox (45.1112pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 framexleft-
+ []
+
+
+Overfull \hbox (19.22226pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 mar-
+ []
+
+
+Overfull \hbox (44.00009pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 gin=2mm,
+ []
+
+
+Overfull \hbox (51.19456pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 framexright-
+ []
+
+
+Overfull \hbox (19.22226pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 mar-
+ []
+
+
+Overfull \hbox (44.00009pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 gin=2mm,
+ []
+
+
+Overfull \hbox (31.61119pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 framex-
+ []
+
+
+Overfull \hbox (17.11113pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 top-
+ []
+
+
+Overfull \hbox (19.22226pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 mar-
+ []
+
+
+Overfull \hbox (44.00009pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 gin=2mm,
+ []
+
+
+Overfull \hbox (45.66678pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 framexbot-
+ []
+
+
+Overfull \hbox (19.88892pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 tom-
+ []
+
+
+Overfull \hbox (19.22226pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 mar-
+ []
+
+
+Overfull \hbox (44.00009pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 gin=2mm,
+ []
+
+
+Overfull \hbox (12.3889pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 ex-
+ []
+
+
+Overfull \hbox (21.72223pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 tend-
+ []
+
+
+Overfull \hbox (12.94444pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 ed-
+ []
+
+
+Overfull \hbox (48.58342pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 chars=true,
+ []
+
+
+Overfull \hbox (25.77783pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 break-
+ []
+
+
+Overfull \hbox (45.41672pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 lines=true,
+ []
+
+
+Overfull \hbox (17.75002pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 cap-
+ []
+
+
+Overfull \hbox (19.50002pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 tion-
+ []
+
+
+Overfull \hbox (30.00006pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 pos=b,
+ []
+
+
+Overfull \hbox (37.52785pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 morekey-
+ []
+
+
+Overfull \hbox (31.47229pt too wide) in paragraph at lines 7--33
+\OT1/cmss/m/sl/10 words=
+ []
+
+! Undefined control sequence.
+l.34 \lstdefinestyle
+                    {bashstyle}{
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.34 \lstdefinestyle{b
+                      ashstyle}{
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Missing character: There is no b in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no h in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no y in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no e in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no n in font nullfont!
+Missing character: There is no g in font nullfont!
+Missing character: There is no u in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no g in font nullfont!
+Missing character: There is no e in font nullfont!
+Missing character: There is no = in font nullfont!
+Missing character: There is no b in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no h in font nullfont!
+Missing character: There is no , in font nullfont!
+Missing character: There is no b in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no c in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no y in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no e in font nullfont!
+Missing character: There is no = in font nullfont!
+! Undefined control sequence.
+l.36 basicstyle=\small
+                      \ttfamily,
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.37 keywordstyle=\color
+                        {blue},
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.38 commentstyle=\color
+                        {green},
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.39 stringstyle=\color
+                       {red},
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.46 backgroundcolor=\color
+                           {black!5},
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.48 numberstyle=\tiny
+                      ,
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+)
+! Emergency stop.
+<*> settings.tex
+                
+*** (job aborted, no legal \end found)
+
+ 
+Here is how much of TeX's memory you used:
+ 18 strings out of 493117
+ 274 string characters out of 6135433
+ 53909 words of memory out of 5000000
+ 3577 multiletter control sequences out of 15000+600000
+ 4815 words of font info for 18 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 16i,1n,11p,105b,92s stack positions out of 5000i,500n,10000p,200000b,80000s
+!  ==> Fatal error occurred, no output PDF file produced!

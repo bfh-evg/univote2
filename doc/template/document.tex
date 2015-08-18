@@ -5,66 +5,157 @@
 \documentclass[bibtotoc,halfparskip,oneside]{scrreprt}
 
 \usepackage{import}
-\import{../latex/}{english} 
+\import{../latex/}{german.tex} 
 % you must set the path according to the current document folder
 % use "german.tex" for documents in german and "english.tex" for documents in english
 \inputpath{{listings/}{figures/}}
 
 \begin{document}
 
-\title{Verifiable Student Board Elections with UniVote}
-\subtitle{Executive Summary}
+\title{Dokument-Template}
+\maketitle
 
-%\maketitle
-%
-%\begin{versionhistory}
-%	\vhEntry{1.0}{28.06.2013}{Rolf Haenni}{Initial document.}
-%\end{versionhistory}
+\begin{versionhistory}
+	\vhEntry{0.1}{10.05.2012}{Rolf Haenni}{Initiales Dokument, welches als Template für andere Dokumente dienen soll.}
+	\vhEntry{0.2}{12.05.2012}{Stephan Fischli|Eric Dubuis}{Kleine Änderungen.}
+\end{versionhistory}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter*{Verifiable Student Board Elections with UniVote}
+\chapter*{Zusammenfassung}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\emph{Eric Dubuis and Rolf Haenni\\Research Institute for Security in the Information Society\\Bern University of Applied Sciences\\CH-2501-Biel, Switzerland}\\
+\lipsum[1-3]
 
-UniVote is a verifiable Internet voting system for student board elections at Swiss universities. It supports complex elections with open party-lists and cumulation of candidates. From the voter's perspective, it is a web application that runs in the web browser. The user interface has been designed for making the vote casting process as simple as possible even for the most complex elections, but the needs of voters with disabilities has not yet been addressed properly. To participate at UniVote elections, voters are required to go through a one-time registration process, in which the standard university login process is used for authentication. Currently, an affiliation to a Swiss university is therefore a prerequisite for using UniVote.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-To provide verifiability, UniVote publishes all the election data on a public bulletin board. Upon registration, voters create an private Schnorr signature key, which they use for signing the encrypted votes. Prior the an election, the corresponding public keys are mixed in a mix network to allow anonymous vote casting. The encryption key is shared among multiple parties to protect the secrecy of the vote at all times. At the end of the voting period, the votes a mixed in another mix network and jointly decrypted by the parties holding the shares of the decryption key. All computational steps are accompanied with corresponding non-interactive zero-knowledge proofs to demonstrate adherence to the protocol. Voters receive a signed receipt of their vote cast, which they can use for individual verification and in case of a complaint.
+\tableofcontents
 
-A verification software called \emph{VoteVerifier} has been developed independently by two students. The software retrieves all the election data from the public bulletin board and performs a total number of 60 different cryptographic checks. These checks are derived from the system specification and implemented accordingly. At the moment, some of the checks fail due to some deviations of the current UniVote implementation from the specification. The code base of VoteVerifier is completely disjoint from UniVote.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Kapitel}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The current version of UniVote is implemented using technologies such as Java EE (EJB, JPA, JAXB) and web services (SOAP). On the client side, UniVote comes as a singe-page web application (HTML, CSS, JavaScript, JQuery), which uses AJAX technology for communicating to the servers. For the cryptographic computations, a Java library called \emph{UniCrypt} has been developed as an independent sub-project. The source code of the whole project is publicly available.
+\lipsum[1] See \cite{HS11,JCJ05,SH10} for more information.
 
-In spring 2013, student board elections have been conducted at the University of Bern, the Bern University of applied sciences, and the University of Zürich. The accumulated size of the electorate is approximately 43'000. There was average turnout of roughly 10\%. Most voters provided a positive feedback regarding the usability and the perceived security. Further elections are planned at the universities of Lucerne and Basel in the second half of 2013. The student association of the University of Zürich is furthermore planning to use UniVote for the signature collecting process of  student initiatives and to run corresponding referendums.
+%===============================================================================================
+\section{Java Sourcecode}
+%===============================================================================================
 
-\subsubsection{Links}
+\lipsum[1-3]
+
+\begin{lstlisting}[style=javastyle,caption={Beispiel von Java Sourcecode}]
+import java.util.Scanner;
+ 
+public class EarthquakeTester
+{  
+	public static void main(String[] args)
+	{  
+		Scanner in = new Scanner(System.in);
+		System.out.print("Enter a magnitude on the Richter scale: "); 
+		double magnitude = in.nextDouble();
+		Earthquake quake = new Earthquake(magnitude);
+		System.out.println(quake.getDescription());
+	}
+}
+\end{lstlisting}
+
+Hier ist ein Beispiel, das zeigt, wie Java-Code in Text eingebunden wird, also zum Beispiel so: \lstinline[style=javastyle]$class EarthquakeTester$.
+
+\lstinputlisting[style=javastyle,firstline=3,lastline=10,caption={Beispiel von Java Sourcecode aus einer externen Datei}]{EarthquakeTester.java}
+
+\lipsum[1]
+
+
+%===============================================================================================
+\section{Bilder}
+%===============================================================================================
+
+\lipsum[1-3]
+
+\includefigure{diagram}{scale=1}{label-fig1}{Beispiel eines Sequenz-Diagrams (.pdf, .png, oder .jpg).}
+% Arguments: filename, options, label, caption
+
+%===============================================================================================
+\section{Aufzählungen}
+%===============================================================================================
+
+\lipsum[1]
+
+%-----------------------------------------------------------------------------------------------
+\subsection{Ohne Labels}
+%-----------------------------------------------------------------------------------------------
+
+\lipsum[1]
+
 \begin{itemize}
-	\item Official UniVote web page: \href{https://www.univote.ch}{https://www.univote.ch} 
-	\item Project web page: \href{http://e-voting.bfh.ch/projects/univote/}{http://e-voting.bfh.ch/projects/univote/}
-	\item System specification: \href{http://e-voting.bfh.ch/app/download/5874743461/specification.pdf}{http://e-voting.bfh.ch/app/download/5874743461/specification.pdf}
-	\item Source code: \href{https://wali.bfh.ch}{https://wali.bfh.ch}
-	\item VoteVerfier: \href{https://github.com/EVGStudents/VoteVerifier}{https://github.com/EVGStudents/VoteVerifier}
-
+	\item \lipsum[3]
+	\item \lipsum[3]
 \end{itemize}
 
-\subsubsection{References}
-\begin{itemize}
-\item R.~Haenni and O.~Spycher.
-\newblock Secure internet voting on limited devices with anonymized {DSA}
-  public keys.
-\newblock In {\em {EVT/WOTE'11}, Electronic Voting Technology Workshop/Workshop
-  on Trustworthy Elections}, San Francisco, USA, 2011.
-\item E.~Dubuis, S.~Fischli, R.~Haenni, S.~Hauser, R.~E. Koenig, P.~Locher,
-  J.~Ritter, and P.~{von Bergen}.
-\newblock {Verifizierbare Internet-Wahlen an Schweizer Hochschulen mit
-  UniVote}.
-\newblock In {\em {INFORMATIK'13}, 43.\ Jahrestagung der Gesellschaft f{\"u}r
-  Informatik}, Koblenz, Germany, 2013.
-\end{itemize}
+\lipsum[1]
+
+\begin{enumerate}
+	\item \lipsum[3]
+	\item \lipsum[3]
+\end{enumerate}
+
+%-----------------------------------------------------------------------------------------------
+\subsection{Mit Labels}
+%-----------------------------------------------------------------------------------------------
+
+\lipsum[1]
+
+\begin{description}
+	\item[Variante 1.] \lipsum[3]
+	\item[Variante 2.] \lipsum[3]
+\end{description}
+
+\lipsum[1]
+
+\begin{labeling}{Variante Lang:}
+	\item[Variante 1:] \lipsum[3]
+	\item[Variante 2:] \lipsum[3]
+	\item[Variante Lang:] \lipsum[3]
+\end{labeling}
+
+%-----------------------------------------------------------------------------------------------
+\subsection{Mini-Sections}
+%-----------------------------------------------------------------------------------------------
+
+\lipsum[1]
+
+\minisec{Variante 1}
+\lipsum[1]
+
+\minisec{Variante 2}
+\lipsum[1]
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\bibliographystyle{plain} \bibliography{bibtex/library}
+\chapter{Kapitel}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lipsum[1]
+
+%===============================================================================================
+\section{Abschnitt}
+%===============================================================================================
+
+\lipsum[1-3]
+
+%===============================================================================================
+\section{Abschnitt}
+%===============================================================================================
+
+\lipsum[1-3]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix\chapter{Ein Anhang}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lipsum
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{plain} \bibliography{bibtex/library}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}
