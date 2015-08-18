@@ -179,16 +179,16 @@
 
 			var signatureValues = this.unpair(signature);
 
-			var a = signatureValues[1];
-			var b = signatureValues[0];
+			var a = signatureValues[0];
+			var b = signatureValues[1];
 
-			var c = leemon.powMod(g, a, p);
-			var d = leemon.powMod(publicKey, b, p);
+			var c = leemon.powMod(g, b, p);
+			var d = leemon.powMod(publicKey, a, p);
 
 			var a2Verif = leemon.multMod(c, leemon.inverseMod(d, p), p);
 			var bVerif = Hash.doHexStr(messageHash + Hash.doBigInt(a2Verif));
 
-			return leemon.equals(b, leemon.mod(leemon.str2bigInt(bVerif, 16), q));
+			return leemon.equals(a, leemon.mod(leemon.str2bigInt(bVerif, 16), q));
 		};
 
 		/**
@@ -691,21 +691,25 @@
 			//                              post=...
 			//                     gamma=[timestamp]
 
-			var queryHash = this.hashQuery(query);
-			var resultHash = '';
-			for (var i = 0; i < posts.length; i++) {
-				resultHash += this.hashPost(posts[i], true, true);
-			}
-			var resultContainerHash = Hash.doHexStr(resultHash, Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value)));
-			var hash = Hash.doHexStr(queryHash + resultContainerHash);
-			if (!this.verifySchnorrSignature(
-					leemon.str2bigInt(resultContainer.gamma.attribute[1].value.value, uvConfig.BASE),
-					hash,
-					leemon.str2bigInt(uvConfig.BOARD_SETTING.PK, uvConfig.BASE),
-					leemon.str2bigInt(uvConfig.BOARD_SETTING.P, uvConfig.BASE),
-					leemon.str2bigInt(uvConfig.BOARD_SETTING.Q, uvConfig.BASE),
-					leemon.str2bigInt(uvConfig.BOARD_SETTING.G, uvConfig.BASE))) {
-				return "Wrong board signature for GET";
+			var doVerifyQuerySig = true;
+
+			if (doVerifyQuerySig) {
+				var queryHash = this.hashQuery(query);
+				var resultHash = '';
+				for (var i = 0; i < posts.length; i++) {
+					resultHash += this.hashPost(posts[i], true, true);
+				}
+				var resultContainerHash = Hash.doHexStr(resultHash, Hash.doDate(new Date(resultContainer.gamma.attribute[0].value.value)));
+				var hash = Hash.doHexStr(queryHash + resultContainerHash);
+				if (!this.verifySchnorrSignature(
+						leemon.str2bigInt(resultContainer.gamma.attribute[1].value.value, uvConfig.BASE),
+						hash,
+						leemon.str2bigInt(uvConfig.BOARD_SETTING.PK, uvConfig.BASE),
+						leemon.str2bigInt(uvConfig.BOARD_SETTING.P, uvConfig.BASE),
+						leemon.str2bigInt(uvConfig.BOARD_SETTING.Q, uvConfig.BASE),
+						leemon.str2bigInt(uvConfig.BOARD_SETTING.G, uvConfig.BASE))) {
+					return "Wrong board signature for GET";
+				}
 			}
 
 			// 2. Verify board signature of each Post
@@ -789,7 +793,9 @@
 				hashConstraints += Hash.doHexStr(hashConstraint);
 			}
 			// @TODO hash order and limit!
-			return Hash.doHexStr(hashConstraints /* + hashOrder + hashLimit */);
+			var hashOrder = Hash.doString("");
+			var hashLimit = Hash.doString(0);
+			return Hash.doHexStr(Hash.doHexStr(hashConstraints) + hashOrder + hashLimit);
 		};
 
 		/**

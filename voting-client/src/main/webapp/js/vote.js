@@ -126,7 +126,7 @@ function retrieveElectionData() {
 		var ss = uvConfig.CS[message.cryptoSetting.signatureSetting];
 		var hs = uvConfig.CS[message.cryptoSetting.hashSetting];
 		if (!(es && ss && hs)) {
-			console.log("ERROR: Either encryption-, signature- or hash-setting is unknown! (" + message.cryptoSetting + ")");
+			console.log("ERROR: Either encryption-, signature- or hash-setting is unknown! (" + JSON.stringify(message.cryptoSetting) + ")");
 			processFatalError(msg.incompatibleDataReceived);
 			return;
 		}
@@ -536,9 +536,7 @@ function createListElectionContent(issue) {
 			$lists.block({message: '', fadeIn: 200, overlayCSS: {opacity: '0.4'}});
 		},
 		beforeStop: function (e, ui) {
-			console.log("isOut: " + ui.item.data('isOut'));
 			if (ui.item.data('isOut')) {
-				console.log("REMOVE ITEM: " + ui.item.data('id'));
 				ui.item.remove();
 				removeCandidate(ui.item.data('id'));
 			}
