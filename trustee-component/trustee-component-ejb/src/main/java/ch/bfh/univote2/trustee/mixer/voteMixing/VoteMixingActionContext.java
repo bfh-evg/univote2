@@ -48,20 +48,30 @@ import ch.bfh.univote2.trustee.ATrusteeActionContext;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class VoteMixingActionContext extends ATrusteeActionContext {
+public class KeyMixingActionContext extends ATrusteeActionContext {
 
-    public VoteMixingActionContext(ActionContextKey actionContextKey) {
+    private VoteMixingRequest voteMixingRequest;
+
+    public KeyMixingActionContext(ActionContextKey actionContextKey) {
 	super(actionContextKey);
     }
 
     @Override
     public Boolean isSpecializedPreconditionReached() {
-	return true;
+	return this.voteMixingRequest != null;
     }
 
     @Override
     protected void purgeSpecializedData() {
-	//nothing to do.
+	this.voteMixingRequest = null;
+    }
+
+    public VoteMixingRequest getVoteMixingRequest() {
+	return voteMixingRequest;
+    }
+
+    public void setVoteMixingRequest(VoteMixingRequest voteMixingRequest) {
+	this.voteMixingRequest = voteMixingRequest;
     }
 
 }

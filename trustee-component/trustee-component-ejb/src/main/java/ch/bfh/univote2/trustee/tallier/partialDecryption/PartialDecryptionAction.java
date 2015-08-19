@@ -112,7 +112,7 @@ import javax.json.JsonException;
 
 /**
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
 @Stateless
 public class PartialDecryptionAction extends AbstractAction implements NotifiableAction {
@@ -172,6 +172,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
 	TrusteeActionHelper.checkAndSetCryptoSetting(pdac, uniboardService, tenantManager, informationService, logger);
 	TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.PARTIAL_DECRYPTION, uniboardService, tenantManager, informationService, logger);
+	this.checkAndSetMixedVotes(pdac);
     }
 
     protected void checkAndSetMixedVotes(PartialDecryptionActionContext actionContext) {
@@ -342,8 +343,8 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    throw new UnivoteException("mixed votes not published yet.");
 
 	}
-	MixedVotes cryptoSetting = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
-	return cryptoSetting;
+	MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
+	return mixedVotes;
 
     }
 

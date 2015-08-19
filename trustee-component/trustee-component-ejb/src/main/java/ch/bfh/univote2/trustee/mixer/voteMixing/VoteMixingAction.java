@@ -46,26 +46,23 @@ import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.StringValue;
-import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.ChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
-import ch.bfh.unicrypt.crypto.schemes.encryption.classes.ElGamalEncryptionScheme;
-import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
-import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
-import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
-import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
-import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
-import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
-import ch.bfh.unicrypt.helper.hash.HashMethod;
-import ch.bfh.unicrypt.helper.math.Alphabet;
-import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
-import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.PermutationCommitmentProofSystem;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.ReEncryptionShuffleProofSystem;
+import ch.bfh.unicrypt.crypto.schemes.commitment.classes.PermutationCommitmentScheme;
+import ch.bfh.unicrypt.crypto.schemes.encryption.interfaces.ReEncryptionScheme;
+import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
+import ch.bfh.unicrypt.math.algebra.general.classes.PermutationElement;
+import ch.bfh.unicrypt.math.algebra.general.classes.ProductGroup;
 import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
+import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
-import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
-import ch.bfh.unicrypt.math.function.interfaces.Function;
+import ch.bfh.unicrypt.math.function.classes.PermutationFunction;
+import ch.bfh.unicrypt.random.classes.PseudoRandomOracle;
+import ch.bfh.unicrypt.random.classes.ReferenceRandomByteSequence;
+import ch.bfh.unicrypt.random.interfaces.RandomOracle;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -76,9 +73,8 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
-import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.JSONConverter;
-import ch.bfh.univote2.component.core.message.Proof;
+import ch.bfh.univote2.component.core.message.MixedVotes;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
@@ -87,9 +83,7 @@ import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.QueryFactory;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
-import java.math.BigInteger;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
+import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import java.security.PublicKey;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -97,6 +91,7 @@ import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.json.JsonException;
 
 /**
  *
@@ -106,7 +101,6 @@ import javax.ejb.Stateless;
 public class VoteMixingAction extends AbstractAction implements NotifiableAction {
 
     private static final String ACTION_NAME = VoteMixingAction.class.getSimpleName();
-    private static final String PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE = "SECRET_KEY_FOR_KEY_SHARE";
 
     private static final Logger logger = Logger.getLogger(VoteMixingAction.class.getName());
 
@@ -164,6 +158,41 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	TrusteeActionHelper.checkAndSetCryptoSetting(vmac, uniboardService, tenantManager, informationService, logger);
 	TrusteeActionHelper.checkAndSetAccsessRight(vmac, GroupEnum.VOTE_MIXING_RESULT, uniboardService, tenantManager, informationService, logger);
 
+	this.checkAndSetVoteMixingRequest(vmac);
+    }
+
+    protected void checkAndSetVoteMixingRequest(VoteMixingActionContext actionContext) {
+	ActionContextKey actionContextKey = actionContext.getActionContextKey();
+	String section = actionContext.getSection();
+	try {
+	    MixedVotes voteMixingRequest = actionContext.getVoteMixingRequest();
+
+	    //Add Notification
+	    if (voteMixingRequest == null) {
+		voteMixingRequest = retrieveVoteMixingRequest(actionContext);
+		actionContext.setVoteMixingRequest(voteMixingRequest);
+	    }
+
+	} catch (UnivoteException ex) {
+	    logger.log(Level.WARNING, "Could not get mixedVotes.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error retrieving mixed votes: " + ex.getMessage());
+	} catch (JsonException ex) {
+	    logger.log(Level.WARNING, "Could not parse mixed votes.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error reading mixed votes.");
+	} catch (Exception ex) {
+	    logger.log(Level.WARNING, "Could not parse mixed votes.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error reading mixed votes.");
+	}
+	if (actionContext.getVoteMixingRequest() == null) {
+	    //Add Notification
+	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+		    QueryFactory.getQueryForVoteMixingRequest(section, tenantManager.getPublicKey(tenant)), BoardsEnum.UNIVOTE.getValue());
+	    actionContext.getPreconditionQueries().add(bQuery);
+	}
+
     }
 
     @Override
@@ -188,7 +217,6 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	}
 	String tenant = actionContext.getTenant();
 	String section = actionContext.getSection();
-
 	CryptoSetting cryptoSetting = skcac.getCryptoSetting();
 	if (cryptoSetting == null) {
 	    logger.log(Level.SEVERE, "Precondition is reached but crypto setting is empty in Context. That is bad.");
@@ -197,30 +225,20 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    return;
 	}
+	skcac.get
 	try {
-	    UniCryptCryptoSetting uniCryptCryptoSetting = getUnicryptCryptoSetting(cryptoSetting);
-	    BigInteger privateKey;
-	    EnhancedEncryptionKeyShare enhancedEncryptionKeyShare;
-	    try {
-		privateKey = securePersistenceService.retrieve(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE);
-		enhancedEncryptionKeyShare = createEncryptionKeyShare(tenant, uniCryptCryptoSetting, privateKey);
-
-	    } catch (UnivoteException ex) {
-		//No key available so a new one will be built
-		enhancedEncryptionKeyShare = createEncryptionKeyShare(tenant, uniCryptCryptoSetting);
-		privateKey = enhancedEncryptionKeyShare.privateKey;
+	    UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
+	    // Ciphertexts
+	    Tuple rV = ProductGroup.getInstance(Z_q, size).getRandomElement();
+	    ProductGroup uVSpace = ProductGroup.getInstance(ProductGroup.getInstance(G_q, 2), size);
+	    Tuple uV = uVSpace.getRandomElement();
+	    Element[] uPrimes = new Element[size];
+	    for (int i = 0; i < size; i++) {
+		uPrimes[i] = encryptionScheme.reEncrypt(encryptionPK, uV.getAt(i), rV.getAt(i));
 	    }
+	    Tuple uPrimeV = PermutationFunction.getInstance(ProductGroup.getInstance(G_q, 2), size).apply(Tuple.getInstance(uPrimes), pi);
 
-	    EncryptionKeyShare encryptionKeyShare = enhancedEncryptionKeyShare.encryptionKeyShare;
-	    String encryptionKeyShareString = JSONConverter.marshal(encryptionKeyShare);
-	    byte[] encryptionKeyShareByteArray = encryptionKeyShareString.getBytes(Charset.forName("UTF-8"));
-
-	    securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE, privateKey);
-
-	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.TRUSTEES.getValue(), encryptionKeyShareByteArray, tenant);
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Posted key share for encrcyption. Action finished.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+	    return Triple.getInstance(uV, uPrimeV, rV);
 
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -275,129 +293,33 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	}
     }
 
-    protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting) throws UnivoteException {
-	return this.createEncryptionKeyShare(tenant, setting, null);
-    }
+    public void proofOfShuffle(int size, CyclicGroup G_q, ReEncryptionScheme encryptionScheme, Element encryptionPK, PermutationElement pi, Tuple uV, Tuple uPrimeV, Tuple rV) {
 
-    protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting, BigInteger privateKeyAsBigInt) throws UnivoteException {
-	CyclicGroup cyclicGroup = setting.encryptionGroup;
-	Element encryptionGenerator = setting.encryptionGenerator;
-	HashAlgorithm hashAlgorithm = setting.hashAlgorithm;
+	final RandomOracle ro = PseudoRandomOracle.getInstance();
+	final ReferenceRandomByteSequence rrs = ReferenceRandomByteSequence.getInstance();
 
-	// Create ElGamal encryption scheme
-	ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(encryptionGenerator);
+	// Permutation commitment
+	PermutationCommitmentScheme pcs = PermutationCommitmentScheme.getInstance(G_q, size, rrs);
+	Tuple sV = pcs.getRandomizationSpace().getRandomElement();
+	Tuple cPiV = pcs.commit(pi, sV);
+	System.out.println("Permutation Commitment");
 
-	// Generate keys
-	KeyPairGenerator kpg = elGamal.getKeyPairGenerator();
-	Element privateKey = cyclicGroup.getElementFrom(privateKeyAsBigInt);
-	if (privateKey == null) {
-	    privateKey = kpg.generatePrivateKey();
-	}
-	Element publicKey = kpg.generatePublicKey(privateKey);
+	// Permutation commitment proof generator
+	SigmaChallengeGenerator scg = PermutationCommitmentProofSystem.createNonInteractiveSigmaChallengeGenerator(G_q, size, kc, proverId, ro);
+	ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(G_q, size, ke, ro);
+	PermutationCommitmentProofSystem pcps = PermutationCommitmentProofSystem.getInstance(scg, ecg, G_q, size, kr, rrs);
 
-	// Generate proof generator
-	Function function = kpg.getPublicKeyGenerationFunction();
-	StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
-	HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
-	ConvertMethod convertMethod = ConvertMethod.getInstance(
-		BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-		StringToByteArray.getInstance(Charset.forName("UTF-8")));
+	// Shuffle Proof Generator
+	SigmaChallengeGenerator scgS = ReEncryptionShuffleProofSystem.createNonInteractiveSigmaChallengeGenerator(G_q, encryptionScheme, size, kc, proverId, ro);
+	ChallengeGenerator ecgS = ReEncryptionShuffleProofSystem.createNonInteractiveEValuesGenerator(G_q, encryptionScheme, size, ke, ro);
+	ReEncryptionShuffleProofSystem sps = ReEncryptionShuffleProofSystem.getInstance(scgS, ecgS, G_q, size, encryptionScheme, encryptionPK, kr, rrs);
 
-	Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
-
-	SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
-		cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
-
-	PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(challengeGenerator, function);
-	Triple proof = pg.generate(privateKey, publicKey);
-	boolean success = pg.verify(proof, publicKey);
-	if (!success) {
-	    throw new UnivoteException("Math for proof system broken.");
-	}
-	Proof proofDTO = new Proof(pg.getCommitment(proof).getValue().toString(), pg.getChallenge(proof).getValue().toString(), pg.getResponse(proof).getValue().toString());
-
-	EnhancedEncryptionKeyShare enhancedEncryptionKeyShare = new EnhancedEncryptionKeyShare();
-	enhancedEncryptionKeyShare.privateKey = (BigInteger) privateKey.convertToBigInteger();
-	EncryptionKeyShare encryptionKeyShare = new EncryptionKeyShare(publicKey.getHashValue().toString(), proofDTO);
-	return enhancedEncryptionKeyShare;
-    }
-
-    protected CryptoSetting retrieveCryptoSetting(ActionContext actionContext) throws UnivoteException, Exception {
-	ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-							     QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-	if (result.getResult().getPost().isEmpty()) {
-	    throw new UnivoteException("Cryptosetting not published yet.");
-
-	}
-	CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
-	return cryptoSetting;
-
-    }
-
-    protected UniCryptCryptoSetting getUnicryptCryptoSetting(CryptoSetting setting) throws UnivoteException {
-	CyclicGroup cyclicGroup = null;
-	Element generator = null;
-	HashAlgorithm hashAlgorithm = null;
-	switch (setting.getEncryptionSetting()) {
-	    case "RC0e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC1e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC2e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(1024);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    case "RC3e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(2048);
-		generator = cyclicGroup.getDefaultGenerator();
-		break;
-	    default:
-		throw new UnivoteException("Unknown RC_e level");
-	}
-	switch (setting.getHashSetting()) {
-	    case "H1":
-		hashAlgorithm = HashAlgorithm.SHA1;
-		break;
-	    case "H2":
-		hashAlgorithm = HashAlgorithm.SHA224;
-		break;
-	    case "H3":
-		hashAlgorithm = HashAlgorithm.SHA256;
-		break;
-	    case "H4":
-		hashAlgorithm = HashAlgorithm.SHA384;
-		break;
-	    case "H5":
-		hashAlgorithm = HashAlgorithm.SHA512;
-	    default:
-		throw new UnivoteException("Unknown H_ level");
-	}
-	return new UniCryptCryptoSetting(cyclicGroup, generator, hashAlgorithm);
-
-    }
-
-    protected class EnhancedEncryptionKeyShare {
-
-	protected EncryptionKeyShare encryptionKeyShare;
-	protected BigInteger privateKey;
-    }
-
-    protected class UniCryptCryptoSetting {
-
-	protected final CyclicGroup encryptionGroup;
-	protected final Element encryptionGenerator;
-	protected final HashAlgorithm hashAlgorithm;
-
-	public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, HashAlgorithm hashAlgorithm) {
-	    this.encryptionGroup = encryptionGroup;
-	    this.encryptionGenerator = encryptionGenerator;
-	    this.hashAlgorithm = hashAlgorithm;
-	}
-
+	// Proof
+	Pair proofPermutation = pcps.generate(Pair.getInstance(pi, sV), cPiV);
+	Tuple privateInput = Tuple.getInstance(pi, sV, rV);
+	Tuple publicInput = Tuple.getInstance(cPiV, uV, uPrimeV);
+	Triple proofShuffle = sps.generate(privateInput, publicInput);
+	System.out.println("Shuffle-Proof");
     }
 
 }

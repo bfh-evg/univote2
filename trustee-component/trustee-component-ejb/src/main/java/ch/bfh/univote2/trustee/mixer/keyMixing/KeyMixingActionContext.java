@@ -41,33 +41,38 @@
  */
 package ch.bfh.univote2.trustee.mixer.keyMixing;
 
-import ch.bfh.univote2.trustee.parallel.*;
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.Date;
-import java.util.List;
+import ch.bfh.univote2.component.core.message.KeyMixingRequest;
+import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class KeyMixingActionContext extends ActionContext {
+public class KeyMixingActionContext extends ATrusteeActionContext {
 
-	private Date timeOut;
+    private KeyMixingRequest keyMixingRequest;
 
-	public KeyMixingActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, true);
-		this.timeOut = new Date();
-	}
+    public KeyMixingActionContext(ActionContextKey actionContextKey) {
+	super(actionContextKey);
+    }
 
-	@Override
-	protected void purgeData() {
-		this.timeOut = null;
-	}
+    @Override
+    public Boolean isSpecializedPreconditionReached() {
+	return this.keyMixingRequest != null;
+    }
 
-	public Date getTimeOut() {
-		return timeOut;
-	}
+    @Override
+    protected void purgeSpecializedData() {
+	this.keyMixingRequest = null;
+    }
+
+    public KeyMixingRequest getKeyMixingRequest() {
+	return keyMixingRequest;
+    }
+
+    public void setKeyMixingRequest(KeyMixingRequest keyMixingRequest) {
+	this.keyMixingRequest = keyMixingRequest;
+    }
 
 }

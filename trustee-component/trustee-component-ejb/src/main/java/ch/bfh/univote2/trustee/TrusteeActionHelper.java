@@ -45,6 +45,7 @@ import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
+import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModPrime;
 import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -138,25 +139,27 @@ public class TrusteeActionHelper {
     }
 
     public static UniCryptCryptoSetting getUnicryptCryptoSetting(CryptoSetting setting) throws UnivoteException {
-	CyclicGroup cyclicGroup = null;
-	Element generator = null;
+	CyclicGroup cyclicEncryptionGroup = null;
+	Element encryptionGenerator = null;
+	CyclicGroup cyclicSignatureGroup = null;
+	Element signatureGenerator = null;
 	HashAlgorithm hashAlgorithm = null;
 	switch (setting.getEncryptionSetting()) {
 	    case "RC0e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
+		cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(8);
+		encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
 		break;
 	    case "RC1e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
+		cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(8);
+		encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
 		break;
 	    case "RC2e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(1024);
-		generator = cyclicGroup.getDefaultGenerator();
+		cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(1024);
+		encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
 		break;
 	    case "RC3e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(2048);
-		generator = cyclicGroup.getDefaultGenerator();
+		cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(2048);
+		encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
 		break;
 	    default:
 		throw new UnivoteException("Unknown RC_e level");
@@ -179,7 +182,27 @@ public class TrusteeActionHelper {
 	    default:
 		throw new UnivoteException("Unknown H_ level");
 	}
-	return new UniCryptCryptoSetting(cyclicGroup, generator, hashAlgorithm);
+	switch (setting.getSignatureSetting()) {
+	    case "RC0s":
+		cyclicSignatureGroup = GStarModPrime.getFirstInstance(8, 6);
+		signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
+		break;
+	    case "RC1s":
+		cyclicSignatureGroup = GStarModPrime.getFirstInstance(1024, 160);
+		signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
+		break;
+	    case "RC2s":
+		cyclicSignatureGroup = GStarModPrime.getFirstInstance(2048, 224);
+		signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
+		break;
+	    case "RC3s":
+		cyclicSignatureGroup = GStarModPrime.getFirstInstance(3072, 256);
+		signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
+		break;
+	    default:
+		throw new UnivoteException("Unknown H_ level");
+	}
+	return new UniCryptCryptoSetting(cyclicEncryptionGroup, encryptionGenerator, cyclicSignatureGroup, signatureGenerator, hashAlgorithm);
 
     }
 
