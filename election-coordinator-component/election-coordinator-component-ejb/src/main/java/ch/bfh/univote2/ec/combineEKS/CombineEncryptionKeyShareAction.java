@@ -41,12 +41,11 @@
  */
 package ch.bfh.univote2.ec.combineEKS;
 
+import ch.bfh.uniboard.clientlib.AttributeHelper;
+import ch.bfh.uniboard.data.AttributesDTO.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.TransformException;
-import ch.bfh.uniboard.data.Transformer;
-import ch.bfh.uniboard.service.Attributes;
-import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
 import ch.bfh.unicrypt.crypto.schemes.encryption.classes.ElGamalEncryptionScheme;
@@ -63,16 +62,23 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.crypto.CryptoProvider;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.component.core.message.EncryptionKey;
 import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
+import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
+import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.PublicKey;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -91,6 +97,8 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 	private InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
+	@EJB
+	private TenantManager tenantManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -121,6 +129,7 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 	}
 
 	@Override
+	@Asynchronous
 	public void run(ActionContext actionContext) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
 		if (actionContext instanceof CombineEncryptionKeyShareActionContext) {
@@ -173,6 +182,7 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 	}
 
 	@Override
+	@Asynchronous
 	public void notifyAction(ActionContext actionContext, Object notification) {
 		if (actionContext instanceof CombineEncryptionKeyShareActionContext) {
 			CombineEncryptionKeyShareActionContext ceksac = (CombineEncryptionKeyShareActionContext) actionContext;
@@ -249,28 +259,62 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		Element publicKey = keyPairGen.getPublicKeySpace().getElementFrom(encryptionKeyShare.getKeyShare());
 		Function proofFunction = keyPairGen.getPublicKeyGenerationFunction();
 		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(proofFunction);
-		//TODO Fill triple
+		//Fill triple
 		Element commitment = cyclicGroup.getElementFrom(new BigInteger(encryptionKeyShare.getProof().getCommitment()));
 		Element challenge = cyclicGroup.getElementFrom(new BigInteger(encryptionKeyShare.getProof().getChallenge()));
 		Element response = cyclicGroup.getElementFrom(new BigInteger(encryptionKeyShare.getProof().getResponse()));
 
 		Triple proofTriple = Triple.getInstance(commitment, challenge, response);
 
+		AttributeDTO tallier = AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.PUBLICKEY.getValue());
+		if (tallier == null) {
+			throw new UnivoteException("Publickey is missing in alpha.");
+		}
+		String strTallier = ((StringValueDTO) tallier.getValue()).getValue();
+
 		if (pg.verify(proofTriple, publicKey)) {
-			try {
-				Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
-				String tallier = ((StringValue) attr.getValue(AlphaEnum.PUBLICKEY.getValue())).getValue();
-				BigInteger value = publicKey.convertToBigInteger();
-				actionContext.getKeyShares().put(tallier, value);
-			} catch (TransformException ex) {
-				throw new UnivoteException("Could not transform attributes.", ex);
-			}
+
+			BigInteger value = publicKey.convertToBigInteger();
+			actionContext.getKeyShares().put(strTallier, value);
+
 			return true;
 		}
+		//Remove tallier
+		actionContext.getKeyShares().put(strTallier, cyclicGroup.getIdentityElement().convertToBigInteger());
 		return false;
 	}
 
 	protected void computeAndPostKey(CombineEncryptionKeyShareActionContext actionContext) {
+		CyclicGroup cyclicGroup
+				= CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
+
+		Element encKey = cyclicGroup.getIdentityElement();
+
+		for (BigInteger bi : actionContext.getKeyShares().values()) {
+			Element keyShare = cyclicGroup.getElementFrom(bi);
+			encKey.apply(keyShare);
+		}
+
+		EncryptionKey message = new EncryptionKey();
+		message.setEncryptionKey(encKey.convertToString());
+
+		try {
+			//post ac
+			PublicKey pk = this.tenantManager.getPublicKey(actionContext.getTenant());
+			byte[] arMessage = MessageFactory.createAccessRight(GroupEnum.ENCRYPTION_KEY, pk, 1);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.ACCESS_RIGHT.getValue(), arMessage, actionContext.getTenant());
+			//post encKey
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.ENCRYPTION_KEY.getValue(),
+					JSONConverter.marshal(message).getBytes(Charset.forName("UTF-8")), actionContext.getTenant());
+			//inform am
+			this.informationService.informTenant(actionContext.getActionContextKey(), "Posted encryption key.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
 	}
 
 }

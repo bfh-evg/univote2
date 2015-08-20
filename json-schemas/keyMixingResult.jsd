@@ -1,0 +1,16 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a mixing result of mixed public keys",
+	"type": "object",
+	"properties": {
+		"mixedKeys":  {
+			"type": "array",
+			"items": { "type": "string"}
+		},
+		"generator" : { "type": "string" },
+		"proofPermutation" : { "$ref": "proof.jsd" },
+		"proofShuffle" : { "$ref": "proof.jsd" }
+	},
+	"required": ["mixedKeys", "generator", "proofPermutation","proofShuffle"],
+	"additionalProperties": false
+}

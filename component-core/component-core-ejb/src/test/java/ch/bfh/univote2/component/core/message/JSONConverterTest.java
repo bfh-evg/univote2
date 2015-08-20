@@ -498,7 +498,6 @@ public class JSONConverterTest {
 		assertEquals("1234567890", ek.getEncryptionKey());
 	}
 
-
 	@Test
 	public void testConvertJSONVoterCertificates() throws Exception {
 		String jsonVoterCertificates
@@ -579,10 +578,15 @@ public class JSONConverterTest {
 				= "{\n"
 				+ "	\"mixedKeys\": [\"1234\", \"5678\", \"9012\"],\n"
 				+ "	\"generator\": \"1234567890\",\n"
-				+ "	\"proof\": {\n"
+				+ "	\"proofPermutation\": {\n"
 				+ "		\"commitment\": \"1234567890\",\n"
 				+ "		\"challenge\": \"9876543210\",\n"
 				+ "		\"response\": \"1234567890\"\n"
+				+ "	},\n"
+				+ "	\"proofShuffle\": {\n"
+				+ "		\"commitment\": \"9876543210\",\n"
+				+ "		\"challenge\": \"1234567890\",\n"
+				+ "		\"response\": \"9876543210\"\n"
 				+ "	}\n"
 				+ "}";
 
@@ -600,10 +604,15 @@ public class JSONConverterTest {
 
 		assertEquals("1234567890", mkr.getGenerator());
 
-		assertNotNull(mkr.getProof());
-		assertEquals("1234567890", mkr.getProof().getCommitment());
-		assertEquals("9876543210", mkr.getProof().getChallenge());
-		assertEquals("1234567890", mkr.getProof().getResponse());
+		assertNotNull(mkr.getProofPermutation());
+		assertEquals("1234567890", mkr.getProofPermutation().getCommitment());
+		assertEquals("9876543210", mkr.getProofPermutation().getChallenge());
+		assertEquals("1234567890", mkr.getProofPermutation().getResponse());
+
+		assertNotNull(mkr.getProofShuffle());
+		assertEquals("9876543210", mkr.getProofShuffle().getCommitment());
+		assertEquals("1234567890", mkr.getProofShuffle().getChallenge());
+		assertEquals("9876543210", mkr.getProofShuffle().getResponse());
 	}
 
 	@Test
@@ -753,7 +762,7 @@ public class JSONConverterTest {
 
 		assertFalse(converter.isOfType(ElectoralRoll.class, message.getBytes(Charset.forName("UTF-8"))));
 		assertNull(converter.getUnmarshalledMessage());
-}
+	}
 
 	@Test
 	public void testIsOfTypeElectionIssue1() throws Exception {
@@ -900,10 +909,15 @@ public class JSONConverterTest {
 				+ "    { \"firstValue\": \"3456\", \"secondValue\": \"7890\" },\n"
 				+ "    { \"firstValue\": \"5678\", \"secondValue\": \"9012\" }\n"
 				+ "  ],\n"
-				+ " \"proof\": {\n"
+				+ " \"proofPermutation\": {\n"
 				+ "    \"commitment\": \"1234567890\",\n"
 				+ "    \"challenge\": \"9876543210\",\n"
 				+ "    \"response\": \"1234567890\"\n"
+				+ " },\n"
+				+ " \"proofShuffle\": {\n"
+				+ "    \"commitment\": \"9876543210\",\n"
+				+ "    \"challenge\": \"1234567890\",\n"
+				+ "    \"response\": \"9876543210\"\n"
 				+ " }\n"
 				+ "}";
 
@@ -921,10 +935,15 @@ public class JSONConverterTest {
 		assertEquals("5678", dto.getMixedVotes().get(2).getFirstValue());
 		assertEquals("9012", dto.getMixedVotes().get(2).getSecondValue());
 
-		assertNotNull(dto.getProof());
-		assertEquals("1234567890", dto.getProof().getCommitment());
-		assertEquals("9876543210", dto.getProof().getChallenge());
-		assertEquals("1234567890", dto.getProof().getResponse());
+		assertNotNull(dto.getProofPermutation());
+		assertEquals("1234567890", dto.getProofPermutation().getCommitment());
+		assertEquals("9876543210", dto.getProofPermutation().getChallenge());
+		assertEquals("1234567890", dto.getProofPermutation().getResponse());
+
+		assertNotNull(dto.getProofShuffle());
+		assertEquals("9876543210", dto.getProofShuffle().getCommitment());
+		assertEquals("1234567890", dto.getProofShuffle().getChallenge());
+		assertEquals("9876543210", dto.getProofShuffle().getResponse());
 
 		String output
 				= JSONConverter.marshal(dto);

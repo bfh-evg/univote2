@@ -39,17 +39,10 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec;
+package ch.bfh.univote2.ec.combineEKS;
 
-import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.uniboard.data.QueryDTO;
-import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.services.UniboardService;
-import java.util.concurrent.ArrayBlockingQueue;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 
@@ -59,36 +52,27 @@ import javax.ejb.Singleton;
  */
 @Singleton
 @LocalBean
-public class UniboardServiceMock implements UniboardService {
-
-	private final ArrayBlockingQueue<ResultDTO> response = new ArrayBlockingQueue<>(10);
-	private final ArrayBlockingQueue<PostDTO> post = new ArrayBlockingQueue<>(10);
+public class TestableCombineEncryptionKeyShareAction1 extends CombineEncryptionKeyShareAction {
 
 	@Override
-	public ResultContainerDTO get(String board, QueryDTO query) throws UnivoteException {
-		ResultContainerDTO result = new ResultContainerDTO();
-		result.setResult(this.response.poll());
-		return result;
+	public void computeAndPostKey(CombineEncryptionKeyShareActionContext actionContext) {
+		super.computeAndPostKey(actionContext);
 	}
 
 	@Override
-	public AttributesDTO post(String board, String section, String group, byte[] message, String tennant)
+	public boolean validateAndAddKeyShare(CombineEncryptionKeyShareActionContext actionContext, PostDTO post)
 			throws UnivoteException {
-		AttributesDTO alpha = new AttributesDTO();
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("board", new StringValueDTO(board)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("section", new StringValueDTO(section)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("group", new StringValueDTO(group)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("tenant", new StringValueDTO(tennant)));
-		this.post.offer(new PostDTO(message, alpha, alpha));
-		return alpha;
+		return super.validateAndAddKeyShare(actionContext, post);
 	}
 
-	public void addResponse(ResultDTO response) throws InterruptedException {
-		this.response.put(response);
+	@Override
+	public void retrieveCryptoSetting(CombineEncryptionKeyShareActionContext actionContext) throws UnivoteException {
+		super.retrieveCryptoSetting(actionContext);
 	}
 
-	public PostDTO getPost() {
-		return this.post.poll();
+	@Override
+	public void retrieveAmountOfTalliers(CombineEncryptionKeyShareActionContext actionContext) throws UnivoteException {
+		super.retrieveAmountOfTalliers(actionContext);
 	}
 
 }

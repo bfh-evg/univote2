@@ -41,15 +41,12 @@
  */
 package ch.bfh.univote2.ec;
 
-import ch.bfh.uniboard.data.AttributesDTO;
-import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.uniboard.data.QueryDTO;
-import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
+import ch.bfh.unicrypt.helper.array.classes.ByteArray;
 import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.services.UniboardService;
-import java.util.concurrent.ArrayBlockingQueue;
+import ch.bfh.univote2.component.core.manager.TenantManager;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Set;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 
@@ -59,36 +56,57 @@ import javax.ejb.Singleton;
  */
 @Singleton
 @LocalBean
-public class UniboardServiceMock implements UniboardService {
+public class TenantManagerMock implements TenantManager {
 
-	private final ArrayBlockingQueue<ResultDTO> response = new ArrayBlockingQueue<>(10);
-	private final ArrayBlockingQueue<PostDTO> post = new ArrayBlockingQueue<>(10);
+	private PublicKey publicKey;
 
 	@Override
-	public ResultContainerDTO get(String board, QueryDTO query) throws UnivoteException {
-		ResultContainerDTO result = new ResultContainerDTO();
-		result.setResult(this.response.poll());
-		return result;
+	public boolean checkLogin(String tenant, String password) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public AttributesDTO post(String board, String section, String group, byte[] message, String tennant)
-			throws UnivoteException {
-		AttributesDTO alpha = new AttributesDTO();
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("board", new StringValueDTO(board)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("section", new StringValueDTO(section)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("group", new StringValueDTO(group)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("tenant", new StringValueDTO(tennant)));
-		this.post.offer(new PostDTO(message, alpha, alpha));
-		return alpha;
+	public boolean unlock(String tenant, String password) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	public void addResponse(ResultDTO response) throws InterruptedException {
-		this.response.put(response);
+	@Override
+	public boolean lock(String tenant, String password) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	public PostDTO getPost() {
-		return this.post.poll();
+	@Override
+	public boolean isLocked(String tenant) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public PublicKey getPublicKey(String tenant) throws UnivoteException {
+		return publicKey;
+	}
+
+	public void setPublicKey(PublicKey publicKey) {
+		this.publicKey = publicKey;
+	}
+
+	@Override
+	public PrivateKey getPrivateKey(String tenant) throws UnivoteException {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public ByteArray getAESKey(String tenant) throws UnivoteException {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public Set<String> getUnlockedTenants() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public Set<String> getAllTentants() {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 }
