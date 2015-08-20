@@ -64,29 +64,33 @@ import javax.xml.bind.annotation.XmlType;
  *				"additionalProperties": false
  *			}
  *		},
- *		"proof" : { "$ref": "proof.jsd" }
+ *		"proofPermutation" : { "$ref": "proof.jsd" },
+ *		"proofShuffle" : { "$ref": "proof.jsd" }
  *	},
- *	"required": ["mixedVotes", "proof"],
+ *	"required": ["mixedVotes", "proofPermutation", "proofShuffle"],
  *	"additionalProperties": false
  * }
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixedVotes", "proof"})
+@XmlType(propOrder = {"mixedVotes", "proofPermutation", "proofShuffle"})
 public class VoteMixingResult {
+
 	private List<EncryptedVote> mixedVotes;
-	private Proof proof;
+	private Proof proofPermutation;
+	private Proof proofShuffle;
 
 	public VoteMixingResult() {
 	}
 
-	public VoteMixingResult(List<EncryptedVote> mixedVotes, Proof proof) {
+	public VoteMixingResult(List<EncryptedVote> mixedVotes, Proof proofPermutation, Proof proofShuffle) {
 		this.mixedVotes = mixedVotes;
-		this.proof = proof;
+		this.proofPermutation = proofPermutation;
+		this.proofShuffle = proofShuffle;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public List<EncryptedVote> getMixedVotes() {
 		return mixedVotes;
 	}
@@ -95,12 +99,22 @@ public class VoteMixingResult {
 		this.mixedVotes = mixedVotes;
 	}
 
-	@XmlElement(required=true)
-	public Proof getProof() {
-		return proof;
+	@XmlElement(required = true)
+	public Proof getProofPermutation() {
+		return proofPermutation;
 	}
 
-	public void setProof(Proof proof) {
-		this.proof = proof;
+	public void setProofPermutation(Proof proofPermutation) {
+		this.proofPermutation = proofPermutation;
 	}
+
+	@XmlElement(required = true)
+	public Proof getProofShuffle() {
+		return proofShuffle;
+	}
+
+	public void setProofShuffle(Proof proofShuffle) {
+		this.proofShuffle = proofShuffle;
+	}
+
 }

@@ -47,7 +47,7 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
- * {
+ *{
  *	"$schema": "http://json-schema.org/draft-04/schema",
  *	"title": "UniVote2: Schema of a mixing result of mixed public keys",
  *	"type": "object",
@@ -57,31 +57,35 @@ import javax.xml.bind.annotation.XmlType;
  *			"items": { "type": "string"}
  *		},
  *		"generator" : { "type": "string" },
- *		"proof" : { "$ref": "proofSchema.json" }
+ *		"proofPermutation" : { "$ref": "proof.jsd" },
+ *		"proofShuffle" : { "$ref": "proof.jsd" }
  *	},
- *	"required": ["mixedKeys", "generator", "proof"],
+ *	"required": ["mixedKeys", "generator", "proofPermutation","proofShuffle"],
  *	"additionalProperties": false
- * }
+ *}
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixedKeys", "generator", "proof"})
+@XmlType(propOrder = {"mixedKeys", "generator", "proofPermutation", "proofShuffle"})
 public class KeyMixingResult {
+
 	private List<String> mixedKeys;
 	private String generator;
-	private Proof proof;
+	private Proof proofPermutation;
+	private Proof proofShuffle;
 
 	public KeyMixingResult() {
 	}
 
-	public KeyMixingResult(List<String> mixedKeys, String generator, Proof proof) {
+	public KeyMixingResult(List<String> mixedKeys, String generator, Proof proofPermutation, Proof proofShuffle) {
 		this.mixedKeys = mixedKeys;
 		this.generator = generator;
-		this.proof = proof;
+		this.proofPermutation = proofPermutation;
+		this.proofShuffle = proofShuffle;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public List<String> getMixedKeys() {
 		return mixedKeys;
 	}
@@ -90,7 +94,7 @@ public class KeyMixingResult {
 		this.mixedKeys = mixedKeys;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public String getGenerator() {
 		return generator;
 	}
@@ -99,12 +103,22 @@ public class KeyMixingResult {
 		this.generator = generator;
 	}
 
-	@XmlElement(required=true)
-	public Proof getProof() {
-		return proof;
+	@XmlElement(required = true)
+	public Proof getProofPermutation() {
+		return proofPermutation;
 	}
 
-	public void setProof(Proof proof) {
-		this.proof = proof;
+	public void setProofPermutation(Proof proofPermutation) {
+		this.proofPermutation = proofPermutation;
 	}
+
+	@XmlElement(required = true)
+	public Proof getProofShuffle() {
+		return proofShuffle;
+	}
+
+	public void setProofShuffle(Proof proofShuffle) {
+		this.proofShuffle = proofShuffle;
+	}
+
 }
