@@ -446,13 +446,13 @@ The following example hash values have been computed with SHA-1:
 %\end{itemize} 
 A \emph{keyed hash function} defines a mapping $\mathit{hash}_{k,n}:\{0,1\}^*\times\{0,1\}^k\rightarrow\{0,1\}^n$ from  an arbitrarily long input bit sequence and a fixed-length key of length $k$ to a fixed-length output bit sequence of length $n$. For a given input bit string $B\in\{0,1\}^*$ and a key $K\in\{0,1\}^k$, we call $\mathit{hash}_{k,n}(B,K)\in\{0,1\}^n$ the \emph{keyed hash value} of $B$. Whenever the key length $k$ and the output length $n$ are clear from the context, we allow $\mathit{hash}(B,K)$ as a shortcut notation. 
 
-The most widely construction of a keyed hash function from a regular hash function is called HMAC \cite{KBC97,dang08}. It is fully compatible with the SHA hash function family. Corresponding instantiations are called HMAC-SHA1, HMAC-SHA256, etc. We use them as a building block for generating random byte sequences (see \Cref{rbgf}), common reference strings (see \Cref{refstrings}), and for password-based key derivation (see \Cref{pbkd}).
+The most widely used construction of a keyed hash function from a regular hash function is called HMAC \cite{KBC97,dang08}. It is fully compatible with the SHA hash function family. Corresponding instantiations are called HMAC-SHA1, HMAC-SHA256, etc. We use them as a building block for generating random byte sequences (see \Cref{rbgf}), common reference strings (see \Cref{refstrings}), and for password-based key derivation (see \Cref{pbkd}).
 
 %-----------------------------------------------------------------------------------------------
 \section{Generating Random Bits, Random Numbers, and Password-Based Keys}
 %-----------------------------------------------------------------------------------------------
 
-In this section, we give an overview of how random bits, random numbers, and bassword-based keys are generated in UniVote. There are two fundamentally different situations for generating random data, one in which a third party needs to be convinced about how the randomness has been generated, and one in which the random data needs to be kept secret. Both goals are achieved using the same cryptographic tools.
+In this section, we give an overview of how random byte, random numbers, common reference strings, and password-based keys are generated in UniVote. There are two fundamentally different situations for generating random data, one in which a third party needs to be convinced about how the randomness has been generated, and one in which the random data needs to be kept secret. Both goals are achieved using the same cryptographic tools.
 
 %\subsection{Random Oracles}
 %
@@ -477,11 +477,19 @@ In this section, we give an overview of how random bits, random numbers, and bas
 
 \subsection{Deterministic Random Bit Generators}\label{rbgf}
 
-A \emph{deterministic random bit generator} (DRBG) is a function $\mathit{DRBG}:\{0,1\}^n\rightarrow\{0,1\}^\infty$ for generating infinitely long bit sequences whose properties approximate the properties of true random bit sequences, except for the fact they are periodic. The $n$ input bits $S\in \{0,1\}^n$ of a PRBG are called \emph{seed}, and the output bits $\mathit{DRBG}(S)\in\{0,1\}^\infty$ are called \emph{random bit sequence}. The seed determines the initial internal state of the PRNG, and the bit length of the internal state determines the maximal period of the resulting random bit sequence. 
+A \emph{deterministic random bit generator} (DRBG) is a function $\mathit{DRBG}:\{0,1\}^n\rightarrow\{0,1\}^\infty$ for generating infinitely long bit sequences whose properties approximate the properties of true random bit sequences, except for the fact they are periodic. The $n$ input bits $S\in \{0,1\}^n$ of a PRBG are called \emph{seed}, and the output bits $\mathit{DRBG}(S)\in\{0,1\}^\infty$ are called \emph{random bit sequence}. The seed determines the initial internal state of the DRBG, and the bit length of the internal state determines the maximal period of the resulting random bit sequence. 
 
-A simple way of constructing a DRBG is by applying a one-way function $f:\{0,1\}^n\rightarrow\{0,1\}^m$ or $f:\{0,1\}^*\rightarrow\{0,1\}^m$ repeatedly to $S+i$ for $i=0,1,2\ldots$, which outputs the random bit sequence 
-$$\mathit{DRBG}(S)=f(S)\conc f(S+1)\conc f(S+2)\conc \cdots$$
-in chunks of $m$ bits \cite{MOV96}. This general construction is typically instantiated with either a hash function, keyed hash function, or a block cipher.
+There are two basic DRBG constructions. The first one applies a one-way function $f:\{0,1\}^n\rightarrow\{0,1\}^m$ or $f:\{0,1\}^*\rightarrow\{0,1\}^m$ repeatedly to $S+i$ for a counter $i=0,1,2\ldots$, which outputs the random bit sequence 
+$$\mathit{DRBG}_{\mathsf{CTR}}(S)=f(S)\conc f(S+1)\conc f(S+2)\conc \cdots$$
+in chunks of $m$ bits \cite{MOV96}. The internal state of the generator is the value $S+i$.
+
+The second basic DRBG construction applies a one-way function $f:\{0,1\}^n\rightarrow\{0,1\}^m$ or $f:\{0,1\}^*\rightarrow\{0,1\}^m$ repeatedly to the previous output, starting with $f(S)$. This generates a random bit sequence
+$$\mathit{DRBG}_{\mathsf{OFB}}(S)=f(S)\conc f(f(S))\conc f(f(f(S)))\conc \cdots$$
+in chunks of $m$ bits. Both basic construction are typically instantiated with either a hash function, a keyed hash function, or a block cipher. 
+
+\paragraph*{Hash-DRBG}
+
+\paragraph*{HMAC-DRBG}
 
 \subsection{Common Reference Strings}\label{refstrings}
 
