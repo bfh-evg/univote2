@@ -1488,21 +1488,11 @@ Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 			\EC & $\mathsf{keyMixingRequest}$ & $m$ & $\Mixer{k},\mathit{VK}_{k-1},g_{k-1}$ & \Mixer{k} \\
 			\Mixer{k} & $\mathsf{keyMixingResult}$ & $m$ & $\mathit{VK}_k,g_k,\pi_{k}$ & \EC \\
 			\EC & $\mathsf{mixedKeys}$ & $1$ & $ \hat{\mathit{VK}}, \hat{g}$ & --\\
-<<<<<<< HEAD
 			\EC & $\mathsf{votingData}$ & 1 & $\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues,$ & \Voter{i} \\
 			& & & $\encode,\mathit{encryptSetting},$ \\
 			& & & $\mathit{signSetting},\mathit{hashSetting},$\\
 			& & & $y,\hat{g}$ \\
 			\Voter{i} & $\mathsf{ballot}$ & $N\leq n$ & $E_i,\pi_{i}$ & \EC \\
-=======
-			\EC & $\mathsf{votingData}$ & 1 & $\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues,\encode,$ & \Voter{i} \\
-			& & & $\mathit{encryptSetting},\mathit{signSetting},$ \\
-			& & & $\mathit{hashSetting},y, \hat{g}$ \\
-			\Voter{i} & $\mathsf{ballot}$ & $\leq n$ & $E_i,\pi_{i}$ & \EC \\
-<<<<<<< Updated upstream
-=======
->>>>>>> origin/development
->>>>>>> Stashed changes
 			\EC & $\mathsf{voteMixingRequest}$ & $m$ & $\Mixer{k},\mathcal{E}_k$ & \Mixer{k}\\
 			\Mixer{k} & $\mathsf{voteMixingResult}$ & $m$ & $\mathcal{E}_k,\pi'_{k}$ & \EC \\
 			\EC & $\mathsf{mixedVotes}$ & 1 & $\hat{\mathcal{E}}$ & \Tallier{j} \\
