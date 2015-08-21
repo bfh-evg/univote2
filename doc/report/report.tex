@@ -397,7 +397,7 @@ BigInteger u = MathUtil.unfold(f); // return 27
 The UniVote system is based on several cryptographic building blocks. Apart from standard ElGamal encryption and decryption, we also need hash functions, random oracles, Schnorr signatures, threshold decryptions, non-interactive zero-knowledge proofs of knowledge, verifiable exponentiation and re-encryption mix-nets, an anonymous channel, and an append-only public bulletin board. These building blocks will be described below.
 
 %-----------------------------------------------------------------------------------------------
-\section{Hash Functions and Keyed Hash Functions} 
+\section{Hash Functions and Keyed Hash Functions} \label{hash}
 %-----------------------------------------------------------------------------------------------
 
 A \emph{hash function} defines a mapping $\mathit{hash}_n:\{0,1\}^*\rightarrow\{0,1\}^n$ from an arbitrarily long input bit sequences to a fixed-length output bit sequence of length $n$. For a given input bit string $B\in\{0,1\}^*$, we call $\mathit{hash}_n(B)\in\{0,1\}^n$ the \emph{hash value} of $B$. Whenever the output length $n$ is clear from the context, we allow $\mathit{hash}(B)$ as a shortcut notation.
@@ -446,15 +446,13 @@ The following example hash values have been computed with SHA-1:
 %\end{itemize} 
 A \emph{keyed hash function} defines a mapping $\mathit{hash}_{k,n}:\{0,1\}^*\times\{0,1\}^k\rightarrow\{0,1\}^n$ from  an arbitrarily long input bit sequence and a fixed-length key of length $k$ to a fixed-length output bit sequence of length $n$. For a given input bit string $B\in\{0,1\}^*$ and a key $K\in\{0,1\}^k$, we call $\mathit{hash}_{k,n}(B,K)\in\{0,1\}^n$ the \emph{keyed hash value} of $B$. Whenever the key length $k$ and the output length $n$ are clear from the context, we allow $\mathit{hash}(B,K)$ as a shortcut notation. 
 
-The most widely used construction of a keyed hash function from a regular hash function is called HMAC \cite{KBC97,dang08}. It is fully compatible with the SHA hash function family. Corresponding instantiations are called HMAC-SHA1, HMAC-SHA256, etc. We use them as a building block for generating random byte sequences (see \Cref{rbgf}), common reference strings (see \Cref{refstrings}), and for password-based key derivation (see \Cref{pbkd}).
+The most widely used construction of a keyed hash function from a regular hash function is called HMAC \cite{KBC97,dang08}. It is fully compatible with the SHA hash function family. Corresponding instantiations are called HMAC-SHA1, HMAC-SHA256, etc. We use them as a building block for generating random bit sequences (see \Cref{rbgf}) and for password-based key derivation (see \Cref{pbkd}).
 
 %-----------------------------------------------------------------------------------------------
 \section{Generating Random Bits, Random Numbers, and Password-Based Keys}
 %-----------------------------------------------------------------------------------------------
 
-In this section, we give an overview of how random bits, random numbers, common reference strings, and password-based keys are generated in UniVote. There are two fundamentally different situations for generating random data, one in which a third party needs to be convinced about how the randomness has been generated or even be able to reproduce it, and one in which the random data needs to be kept secret. Both goals are achieved using the same cryptographic tools.
-
-
+In this section, we give an overview of how random bits, random numbers, and password-based keys are generated in UniVote. There are two fundamentally different situations for generating randomness, one in which a third party needs to be convinced about how the randomness has been generated and one in which the randomness needs to be kept secret. Both goals are achieved using the similar cryptographic tools.
 
 \subsection{Deterministic Random Bit Generators}\label{rbgf}
 
@@ -462,41 +460,40 @@ A \emph{deterministic random bit generator} (DRBG) is a function $\mathit{DRBG}:
 
 Consider the following basic DRBG construction, in which a one-way function $f:\{0,1\}^m\rightarrow\{0,1\}^n$ is applied repeatedly to $S+i$ for a counter $i\in\{0,1,2,\ldots\}$. The output is the random bit sequence 
 $$\mathit{DRBG}_{\mathsf{CTR}}(S)=f(S)\conc f(S+1)\conc f(S+2)\conc \cdots,$$ 
-which comes in chunks of $n$ bits \cite{MOV96}. The internal state of the generator is the value $S+i$. We call it a \emph{counter mode} (CTR) construction. It is typically instantiated with either a hash function, a keyed hash function, or a block cipher. In this document, we only consider instantiations with of hash functions,
-$$\mathit{DRBG}_{\mathsf{CTR}}(S)=\mathit{hash}_n(S)\conc \mathit{hash}_n(S+1)\conc \mathit{hash}_n(S+2)\conc \cdots,$$
-and we use SHA-256 as default. Accordingly, the default seed length is $m=n=256$.
+which comes in chunks of $n$ bits \cite{MOV96}. The internal state of the generator is the value $S+i$. We call it a \emph{counter mode} (CTR) construction. It is typically instantiated with either a hash function, a keyed hash function, or a block cipher. In this document, we only consider instantiations with hash functions,
+$$\mathit{DRBG}^n_{\mathsf{CTR}}(S)=\mathit{hash}_n(S)\conc \mathit{hash}_n(S+1)\conc \mathit{hash}_n(S+2)\conc \cdots,$$
+with a default seed length $m$.
 
 %Consider the following two basic DRBG constructions. The first one applies a one-way function $f:\{0,1\}^n\rightarrow\{0,1\}^m$ repeatedly to $S+i$ for a counter $i=0,1,2\ldots$, which outputs the random bit sequence $$\mathit{DRBG}_{\mathsf{CTR}}(S)=f(S)\conc f(S+1)\conc f(S+2)\conc \cdots$$ in chunks of $m$ bits \cite{MOV96}. The internal state of the generator is the value $S+i$. We call it a \emph{counter mode} (CTR) construction.
 
 %The second basic DRBG construction applies the one-way function $f:\{0,1\}^n\rightarrow\{0,1\}^m$ repeatedly to the internal state $S_i$, i.e., $S_{i+1}=f(S_i)$ for $i>0$ and $S_0=f(S)$. This generates a random bit sequence $$\mathit{DRBG}_{\mathsf{OFB}}(S)=S_0\conc S_1\conc S_2 \conc \cdots=f(S)\conc f(f(S))\conc f(f(f(S)))\conc \cdots$$ in chunks of $m$ bits. We call it an \emph{output feedback mode} (OFB) construction. Both basic constructions are typically instantiated with either a hash function, a keyed hash function, or a block cipher. 
 
-\subsection{Random Oracles and Common Reference Strings}\label{oracle}
+\subsection{Random Oracles and Common Reference String}\label{oracle}
 
-In cryptography, a \emph{random oracle} is a mapping $\mathit{randomOracle}:\{0,1\}^*\rightarrow \{0,1\}^\infty$, which responds to each input bit sequence $Q\in \{0,1\}^*$ (the \emph{query})with an infinitely long output bit sequence $\mathit{randomOracle}(Q)\in\{0,1\}^{\infty}$, in which every bit is chosen uniformly and independently. If the same query $Q$ is repeated, the random oracle responds the same way every time. Since no function computable by a finite algorithm can implement a true random oracle, they exist only as a theoretical model. As such, they are an important mathematical abstraction used in numerous cryptographic proofs, often as a replacement for hash functions. The corresponding security model is called \emph{random oracle model}.
+In cryptography, a \emph{random oracle} is a mapping $\mathit{randomOracle}:\{0,1\}^*\rightarrow \{0,1\}^\infty$, which responds to each input bit sequence $Q\in \{0,1\}^*$ (the \emph{query}) with an infinitely long output bit sequence $\mathit{randomOracle}(Q)\in\{0,1\}^{\infty}$, in which every bit is chosen uniformly and independently. If the same query $Q$ is repeated, the random oracle responds the same way every time. Since no function computable by a finite algorithm can implement a true random oracle, they exist only as a theoretical model. As such, they are an important mathematical abstraction used in numerous cryptographic proofs, often as a replacement for hash functions. The corresponding security model is called \emph{random oracle model}.
 
-In practice, random oracles can at most be approximated, for example using the function $\mathit{DRBG}_{\mathsf{CTR}}$ as defined above. In an inital step, the arbitrarily long query $Q$ must be mapped into a seed $S$ of length $m$. In an instantiation with a hash function $\mathit{hash}_n$ and a default seed length $m=n$, we can use the same hash function for this purpose: 
-$$\mathit{randomOracle}(Q)=\mathit{DRBG}_{\mathsf{CTR}}(\mathit{hash}_n(Q)).$$
-In UniVote, we need random oracles to generate a sequence of random challenges in some zero-knowledge proofs. 
-
-
-%by hash functions, pseudo-random bit generators, or sponge functions. In this document, we use pseudo-random bit generators in combination with hash functions to approximate random oracles. The following table gives an overview of the fundamental differences between random oracles and the cryptographic primitives used to approximate them. 
-%
-%\begin{center}
-%	\begin{tabular}{l|c|c|c|c}
-%		& Domain & Co-domain & State width & Max.\ period \\\hline
-%		Hash function & $\{0,1\}^*$ & $\{0,1\}^n$ & -- & -- \\
-%		Pseudo-random bit generator & $\{0,1\}^n$ & $\{0,1\}^\infty$ & $n$ &$2^n$ \\
+The following table gives an overview of the fundamental differences between hash functions, deterministic random bit sequences, and random oracles.
+\begin{center}
+	\begin{tabular}{l|c|c|c|c}
+		& domain & co-domain & state width & max.\ period \\\hline
+		Hash function & $\{0,1\}^*$ & $\{0,1\}^n$ & -- & -- \\
+		Deterministic random bit sequence & $\{0,1\}^m$ & $\{0,1\}^\infty$ & $m$ &$2^m$ \\
 %		Sponge function & $\{0,1\}^*$ & $\{0,1\}^\infty$ & $b$ & $2^b$\\\hline
-%		Random oracle & $\{0,1\}^*$ & $\{0,1\}^\infty$ & $\infty$ & $\infty$ \\
-%	\end{tabular}
-%\end{center}
-%
-%To make random oracles more flexible with respect to the type of query they accept, we allow writing $\mathit{randomOracle}(\phi)$ for feeding the oracle with the bits contained  in  $\mathit{bytes}(\mathit{byteTree}(\phi))$, where $\phi$ is an arbitrary mathematical object.
-%
-%To use a PRBG as an approximation of a random oracle, it's input space must be extended from $\{0,1\}^n$ to $\{0,1\}^*$. The simplest solution is to use a hash function for computing  $S=\mathit{hash}_n(Q)$ from then random oracle's query $Q\in\{0,1\}^*$, and to use $S$ as seed for the PRBG. In this document, we use SHA-256 for this purpose.
+		Random oracle & $\{0,1\}^*$ & $\{0,1\}^\infty$ & $\infty$ & $\infty$ \\
+	\end{tabular}
+\end{center}
 
-\subsection{Common Reference Strings}\label{refstrings}
+In practice, random oracles can at most be approximated, for example using the function $\mathit{DRBG}_{\mathsf{CTR}}$ defined above. For this, the arbitrarily long query $Q$ must be mapped into a seed $S$ of length $m$. In an instantiation with a hash function $\mathit{hash}_n$ and a default seed length $m=n$, we can use the same hash function for this purpose: 
+$$\mathit{randomOracle}(Q)=\mathit{DRBG}^n_{\mathsf{CTR}}(\mathit{hash}_n(Q)).$$
+To make random oracles more flexible with respect to the type of query they accept, we allow writing $\mathit{randomOracle}(X)$ for an arbitrary mathematical object $X$. In such a case, the initial hash value $\mathit{hash}_n(X)$ is computed recursively from the byte representations of its components (see \Cref{hash}).
 
+In UniVote, we need random oracles to generate sequences of random challenges in some zero-knowledge proofs. In other situations, we only need a single deterministic sequence of randomly looking bits, independently of any query. We can easily define such a \emph{common reference string} by querying the random oracle with a default query, for example with the empty bit string $Q=\langle \rangle$. In UniVote, we use
+$$\mathit{referenceString}=\mathit{randomOracle}(\langle\rangle)$$
+to generate independent generators of cyclic groups, which are important building blocks for Pedersen commitments and shuffle proofs. 
+
+\subsection{True Random Bit Sequences}\label{truerandom}
+
+\subsection{Cryptographically Secure Random Bit Sequences}\label{csrbs}
 
 
 \paragraph*{Hash-DRBG}
@@ -504,23 +501,23 @@ In UniVote, we need random oracles to generate a sequence of random challenges i
 \paragraph*{HMAC-DRBG}
 
 
-\subsection{Reseedable Pseudo-Random Bit Generators}
-
-The problem with a singly-seeded PRBG is that an adversary who learns the internal state of the PRBG can predict the remaining pseudo-random bit sequence. This problem can be circumvented, if a (possibly compromised) PRGB allows to reseed (update) the internal state with a fresh random string $(\{0,1\}^n)$ where $n\geq$ security parameter. 
-
-
-\subsection{Sponge Functions}
-
-\emph{Sponge functions} generalize both hash functions and pseudo-random bit generators (and many other cryptographic primitives). They are also designed to better approximate random oracles. At the moment, sponge functions are not used in UniVote, but we mention them here, because they are likely to replace the current pseudo-random bit generators in future releases. Note that the forthcoming new hash function standard SHA3 is also based on a sponge function.
-
-In its normal mode of operation, a sponge function $\mathit{sponge}:\{0,1\}^*\rightarrow\{0,1\}^\infty$ defines a mapping between a finite input and an infinite output bit sequence, similar to a random oracle. The difference to a random oracle is the limitation of the state width to $b$ bits. However, since $b$ can be chosen freely, sponge functions are quite flexible in approximating random oracles as precisely as needed. Nevertheless, the output bit sequence remains periodic with an upper bound of $2^b$ bits.
-
-
-
-\subsection{Creating Randomness by the use of Entropy-Provider}
-In order to work with randomized cryptographic protocols, random data is required which is entropic for the adversary, whereas entropic data in this context is derived from the definition of Shannon entropy~\cite{shannon48}. The immanent problem when dealing with the desire to gain random data from a source, is the lack of knowledge whether the source really provides (enough) data of the desired entropy (denoted as question mark $?$). $(\{?\}^?,t) \rightarrow \{0,1\}^*$, where $t$ is the time needed in order to gain the desired amount of entropic randomness.
-
-If the adversary can pretend to be a source for data with entropy, i.e. provides data which only 'looks' entropic to everyone but the adversary, all randomized cryptographic constructs building upon random data will fail their duty. Hence, in order to establish a cryptographic secret, the establisher is urged to gain random data from a source providing data of entropy for everyone else. Using a combination of a reseedable PRBG which is (re-)seeded by one or multiple entropy-provider, the resulting data is entropic even if the entropy-provider fails to deliver the requested amount or a constant stream of entropic data $(\{?\}^?\rightarrow\{0,1\}^\infty)$.
+%\subsection{Reseedable Pseudo-Random Bit Generators}
+%
+%The problem with a singly-seeded PRBG is that an adversary who learns the internal state of the PRBG can predict the remaining pseudo-random bit sequence. This problem can be circumvented, if a (possibly compromised) PRGB allows to reseed (update) the internal state with a fresh random string $(\{0,1\}^n)$ where $n\geq$ security parameter. 
+%
+%
+%\subsection{Sponge Functions}
+%
+%\emph{Sponge functions} generalize both hash functions and pseudo-random bit generators (and many other cryptographic primitives). They are also designed to better approximate random oracles. At the moment, sponge functions are not used in UniVote, but we mention them here, because they are likely to replace the current pseudo-random bit generators in future releases. Note that the forthcoming new hash function standard SHA3 is also based on a sponge function.
+%
+%In its normal mode of operation, a sponge function $\mathit{sponge}:\{0,1\}^*\rightarrow\{0,1\}^\infty$ defines a mapping between a finite input and an infinite output bit sequence, similar to a random oracle. The difference to a random oracle is the limitation of the state width to $b$ bits. However, since $b$ can be chosen freely, sponge functions are quite flexible in approximating random oracles as precisely as needed. Nevertheless, the output bit sequence remains periodic with an upper bound of $2^b$ bits.
+%
+%
+%
+%\subsection{Creating Randomness by the use of Entropy-Provider}
+%In order to work with randomized cryptographic protocols, random data is required which is entropic for the adversary, whereas entropic data in this context is derived from the definition of Shannon entropy~\cite{shannon48}. The immanent problem when dealing with the desire to gain random data from a source, is the lack of knowledge whether the source really provides (enough) data of the desired entropy (denoted as question mark $?$). $(\{?\}^?,t) \rightarrow \{0,1\}^*$, where $t$ is the time needed in order to gain the desired amount of entropic randomness.
+%
+%If the adversary can pretend to be a source for data with entropy, i.e. provides data which only 'looks' entropic to everyone but the adversary, all randomized cryptographic constructs building upon random data will fail their duty. Hence, in order to establish a cryptographic secret, the establisher is urged to gain random data from a source providing data of entropy for everyone else. Using a combination of a reseedable PRBG which is (re-)seeded by one or multiple entropy-provider, the resulting data is entropic even if the entropy-provider fails to deliver the requested amount or a constant stream of entropic data $(\{?\}^?\rightarrow\{0,1\}^\infty)$.
 
 
 
@@ -531,7 +528,7 @@ For an interval $[a,b]\subseteq \mathbb{N}$, we write $x\in_R[a,b]$ for the proc
 
 The process for choosing random prime numbers $p\in_R\mathbb{P}_{|x|=l}$ of a given bit length $l$ is similar. It consists of selecting $p\in_R\mathbb{Z}_{|x|=l}$, running a (probabilistic) primality test $\mathit{prime}(p)$ to check whether $p$ is prime, and repeating this procedure until $\mathit{prime}(p)=\mathit{true}$. Generating safe primes is similar but requires an additional primality test for $q=(p-1)/2$ in each iterative step.
 
-Finally, we consider the problem of choosing a random permutation $\pi:\mathbb{Z}_n\rightarrow\mathbb{Z}_n$ uniformly from the set $\Pi_n$ of all such permutations. For this, we select a random rank $x\in \mathbb{Z}_{n!}$ and input it to Myrvold's and Wendy's linear-time unranking algorithm $\mathit{unrank}:\mathbb{Z}_{n!}\rightarrow\Pi_n$ \cite{MR01}. We denote the whole process by $\pi\in_R\Pi_n$.
+Finally, we consider the problem of choosing a random permutation $\pi:\mathbb{Z}_n\rightarrow\mathbb{Z}_n$ uniformly from the set $\Pi_n$ of all such permutations. For this, we select a random rank $x\in \mathbb{Z}_{n!}$ and input it to Myrvold and Wendy's linear-time unranking algorithm $\mathit{unrank}:\mathbb{Z}_{n!}\rightarrow\Pi_n$ \cite{MR01}. We denote the whole process by $\pi\in_R\Pi_n$.
 
 \subsection{Password-Based Key Derivation}\label{pbkd}
 
