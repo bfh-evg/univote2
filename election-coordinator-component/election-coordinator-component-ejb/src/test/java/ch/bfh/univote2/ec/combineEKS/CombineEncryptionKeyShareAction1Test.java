@@ -59,7 +59,7 @@ import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.EncryptionKey;
 import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.JSONConverter;
-import ch.bfh.univote2.component.core.message.Proof;
+import ch.bfh.univote2.component.core.message.SigmaProof;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.ec.ActionManagerMock;
 import ch.bfh.univote2.ec.InformationServiceMock;
@@ -182,7 +182,7 @@ public class CombineEncryptionKeyShareAction1Test {
 		Triple proofTriple = pg.generate(keypair.getFirst(), keypair.getSecond());
 
 		EncryptionKeyShare encryptionKeyShare = new EncryptionKeyShare();
-		Proof proof = new Proof();
+		SigmaProof proof = new SigmaProof();
 		proof.setCommitment(proofTriple.getFirst().convertToString());
 		proof.setChallenge(proofTriple.getSecond().convertToString());
 		proof.setResponse(proofTriple.getThird().convertToString());

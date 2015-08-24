@@ -84,7 +84,7 @@ import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.MixedVotes;
 import ch.bfh.univote2.component.core.message.PartialDecryption;
-import ch.bfh.univote2.component.core.message.Proof;
+import ch.bfh.univote2.component.core.message.SigmaProof;
 import ch.bfh.univote2.component.core.message.Vote;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
@@ -265,7 +265,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 		    partialDecryptions.add(partialDecryption);
 		    partialDecryptionsAsStrings.add(partialDecryption.convertToString());
 		}
-		Proof proofDTO = createProof(tenant, uniCryptCryptoSetting, secretKey, publicKey, partialDecryptions.toArray(new Element[0]), generatorFunctions.toArray(new Function[0]));
+		SigmaProof proofDTO = createProof(tenant, uniCryptCryptoSetting, secretKey, publicKey, partialDecryptions.toArray(new Element[0]), generatorFunctions.toArray(new Function[0]));
 		PartialDecryption partialDecryptionDTO = new PartialDecryption(partialDecryptionsAsStrings, proofDTO);
 
 		String partialDecryptionsString = JSONConverter.marshal(partialDecryptionDTO);
@@ -364,7 +364,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
     /**
      * pi = NIZKP{(x) : y = g^x ∧ (∧_i b_i = a_i^{−x} )}.
      */
-    public Proof createProof(String tenant, UniCryptCryptoSetting cryptoSetting, Element secretKey, Element publicKey, Element[] partialDecryptions, Function[] generatorFunctions) {
+    public SigmaProof createProof(String tenant, UniCryptCryptoSetting cryptoSetting, Element secretKey, Element publicKey, Element[] partialDecryptions, Function[] generatorFunctions) {
 	CyclicGroup cyclicGroup = cryptoSetting.encryptionGroup;
 	Element encryptionGenerator = cryptoSetting.encryptionGenerator;
 	HashAlgorithm hashAlgorithm = cryptoSetting.hashAlgorithm;
@@ -393,7 +393,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	Triple proof = proofSystem.generate(privateInput, publicInput);
 	boolean result = proofSystem.verify(proof, publicInput);
 
-	Proof proofDTO = new Proof(proofSystem.getCommitment(proof).convertToString(), proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
+	SigmaProof proofDTO = new SigmaProof(proofSystem.getCommitment(proof).convertToString(), proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
 	return proofDTO;
     }
 

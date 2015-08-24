@@ -13,7 +13,7 @@
 			"required": ["firstValue", "secondValue"],
 			"additionalProperties": false
 		},	
-		"proof": { "$ref": "proof.jsd" }
+		"proof": { "$ref": "sigmaProof.jsd" }
 	},
 	"required": ["encryptedVote", "proof"],
 	"additionalProperties": false

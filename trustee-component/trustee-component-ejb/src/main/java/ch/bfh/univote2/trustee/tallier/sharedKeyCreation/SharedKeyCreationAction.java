@@ -76,7 +76,7 @@ import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.JSONConverter;
-import ch.bfh.univote2.component.core.message.Proof;
+import ch.bfh.univote2.component.core.message.SigmaProof;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
@@ -310,7 +310,7 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	if (!success) {
 	    throw new UnivoteException("Math for proof system broken.");
 	}
-	Proof proofDTO = new Proof(pg.getCommitment(proof).convertToString(), pg.getChallenge(proof).convertToString(), pg.getResponse(proof).convertToString());
+	SigmaProof proofDTO = new SigmaProof(pg.getCommitment(proof).convertToString(), pg.getChallenge(proof).convertToString(), pg.getResponse(proof).convertToString());
 
 	EnhancedEncryptionKeyShare enhancedEncryptionKeyShare = new EnhancedEncryptionKeyShare();
 	enhancedEncryptionKeyShare.privateKey = (BigInteger) privateKey.convertToBigInteger();

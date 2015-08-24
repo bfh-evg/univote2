@@ -57,32 +57,29 @@ import javax.xml.bind.annotation.XmlType;
  *			"items": { "type": "string"}
  *		},
  *		"generator" : { "type": "string" },
- *		"proofPermutation" : { "$ref": "proof.jsd" },
- *		"proofShuffle" : { "$ref": "proof.jsd" }
+ *		"shuffleProof": { "$ref": "shuffleProof.jsd" }
  *	},
- *	"required": ["mixedKeys", "generator", "proofPermutation","proofShuffle"],
+ *	"required": ["mixedKeys", "generator", "shuffleProof"],
  *	"additionalProperties": false
  *}
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder = {"mixedKeys", "generator", "proofPermutation", "proofShuffle"})
+@XmlType(propOrder = {"mixedKeys", "generator", "shuffleProof"})
 public class KeyMixingResult {
 
 	private List<String> mixedKeys;
 	private String generator;
-	private Proof proofPermutation;
-	private Proof proofShuffle;
+	private ShuffleProof shuffleProof;
 
 	public KeyMixingResult() {
 	}
 
-	public KeyMixingResult(List<String> mixedKeys, String generator, Proof proofPermutation, Proof proofShuffle) {
+	public KeyMixingResult(List<String> mixedKeys, String generator, ShuffleProof shuffleProof) {
 		this.mixedKeys = mixedKeys;
 		this.generator = generator;
-		this.proofPermutation = proofPermutation;
-		this.proofShuffle = proofShuffle;
+		this.shuffleProof = shuffleProof;
 	}
 
 	@XmlElement(required = true)
@@ -104,21 +101,12 @@ public class KeyMixingResult {
 	}
 
 	@XmlElement(required = true)
-	public Proof getProofPermutation() {
-		return proofPermutation;
+	public ShuffleProof getShuffleProof() {
+		return shuffleProof;
 	}
 
-	public void setProofPermutation(Proof proofPermutation) {
-		this.proofPermutation = proofPermutation;
-	}
-
-	@XmlElement(required = true)
-	public Proof getProofShuffle() {
-		return proofShuffle;
-	}
-
-	public void setProofShuffle(Proof proofShuffle) {
-		this.proofShuffle = proofShuffle;
+	public void setShuffleProof(ShuffleProof shuffleProof) {
+		this.shuffleProof = shuffleProof;
 	}
 
 }

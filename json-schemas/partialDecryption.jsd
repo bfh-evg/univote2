@@ -7,7 +7,7 @@
 			"type": "array",
 			"items": { "type": "string"} 
 		},
-		"proof" : { "$ref": "proof.jsd" }
+		"proof" : { "$ref": "sigmaProof.jsd" }
 	},
 	"required": ["partiallyDecryptedVotes", "proof"],
 	"additionalProperties": false

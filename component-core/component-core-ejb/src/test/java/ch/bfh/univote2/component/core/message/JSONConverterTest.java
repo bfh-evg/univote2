@@ -212,7 +212,7 @@ public class JSONConverterTest {
 		assertEquals("1234567890", ev.getFirstValue());
 		assertEquals("9876543210", ev.getSecondValue());
 
-		Proof p = eb.getProof();
+		SigmaProof p = eb.getProof();
 		assertNotNull(p);
 		assertEquals("1234567890", p.getCommitment());
 		assertEquals("9876543210", p.getChallenge());
@@ -268,7 +268,7 @@ public class JSONConverterTest {
 
 		assertEquals("1234567890", eks.getKeyShare());
 
-		Proof p = eks.getProof();
+		SigmaProof p = eks.getProof();
 		assertNotNull(p);
 		assertEquals("1234567890", p.getCommitment());
 		assertEquals("9876543210", p.getChallenge());
@@ -578,15 +578,20 @@ public class JSONConverterTest {
 				= "{\n"
 				+ "	\"mixedKeys\": [\"1234\", \"5678\", \"9012\"],\n"
 				+ "	\"generator\": \"1234567890\",\n"
-				+ "	\"proofPermutation\": {\n"
-				+ "		\"commitment\": \"1234567890\",\n"
-				+ "		\"challenge\": \"9876543210\",\n"
-				+ "		\"response\": \"1234567890\"\n"
-				+ "	},\n"
-				+ "	\"proofShuffle\": {\n"
-				+ "		\"commitment\": \"9876543210\",\n"
-				+ "		\"challenge\": \"1234567890\",\n"
-				+ "		\"response\": \"9876543210\"\n"
+				+ "	\"shuffleProof\": {\n"
+				+ "		\"permutationProof\": {"
+				+ "			\"eValues\" :[\"1234\", \"5678\", \"9012\"],\n"
+				+ "			\"bridgingCommitments\" :[\"1234\", \"5678\", \"9012\"],\n"
+				+ "			\"commitment\": \"1234567890\",\n"
+				+ "			\"challenge\": \"9876543210\",\n"
+				+ "			\"response\": \"1234567890\"\n"
+				+ "		},\n"
+				+ "		\"mixProof\": {\n"
+				+ "			\"eValues\" :[\"1234\", \"5678\", \"9012\"],\n"
+				+ "			\"commitment\": \"1234567890\",\n"
+				+ "			\"challenge\": \"9876543210\",\n"
+				+ "			\"response\": \"1234567890\"\n"
+				+ "		}\n"
 				+ "	}\n"
 				+ "}";
 
@@ -604,15 +609,28 @@ public class JSONConverterTest {
 
 		assertEquals("1234567890", mkr.getGenerator());
 
-		assertNotNull(mkr.getProofPermutation());
-		assertEquals("1234567890", mkr.getProofPermutation().getCommitment());
-		assertEquals("9876543210", mkr.getProofPermutation().getChallenge());
-		assertEquals("1234567890", mkr.getProofPermutation().getResponse());
+		assertNotNull(mkr.getShuffleProof());
+		assertEquals(3, mkr.getShuffleProof().getPermutationProof().geteValues().size());
+		assertEquals("1234", mkr.getShuffleProof().getPermutationProof().geteValues().get(0));
+		assertEquals("5678", mkr.getShuffleProof().getPermutationProof().geteValues().get(1));
+		assertEquals("9012", mkr.getShuffleProof().getPermutationProof().geteValues().get(2));
+		assertEquals(3, mkr.getShuffleProof().getPermutationProof().getBridgingCommitments().size());
+		assertEquals("1234", mkr.getShuffleProof().getPermutationProof().getBridgingCommitments().get(0));
+		assertEquals("5678", mkr.getShuffleProof().getPermutationProof().getBridgingCommitments().get(1));
+		assertEquals("9012", mkr.getShuffleProof().getPermutationProof().getBridgingCommitments().get(2));
+		assertEquals("1234567890", mkr.getShuffleProof().getPermutationProof().getCommitment());
+		assertEquals("9876543210", mkr.getShuffleProof().getPermutationProof().getChallenge());
+		assertEquals("1234567890", mkr.getShuffleProof().getPermutationProof().getResponse());
 
-		assertNotNull(mkr.getProofShuffle());
-		assertEquals("9876543210", mkr.getProofShuffle().getCommitment());
-		assertEquals("1234567890", mkr.getProofShuffle().getChallenge());
-		assertEquals("9876543210", mkr.getProofShuffle().getResponse());
+		assertNotNull(mkr.getShuffleProof());
+		assertEquals(3, mkr.getShuffleProof().getMixProof().geteValues().size());
+		assertEquals("1234", mkr.getShuffleProof().getMixProof().geteValues().get(0));
+		assertEquals("5678", mkr.getShuffleProof().getMixProof().geteValues().get(1));
+		assertEquals("9012", mkr.getShuffleProof().getMixProof().geteValues().get(2));
+		assertEquals("1234567890", mkr.getShuffleProof().getMixProof().getCommitment());
+		assertEquals("9876543210", mkr.getShuffleProof().getMixProof().getChallenge());
+		assertEquals("1234567890", mkr.getShuffleProof().getMixProof().getResponse());
+
 	}
 
 	@Test
@@ -909,16 +927,21 @@ public class JSONConverterTest {
 				+ "    { \"firstValue\": \"3456\", \"secondValue\": \"7890\" },\n"
 				+ "    { \"firstValue\": \"5678\", \"secondValue\": \"9012\" }\n"
 				+ "  ],\n"
-				+ " \"proofPermutation\": {\n"
-				+ "    \"commitment\": \"1234567890\",\n"
-				+ "    \"challenge\": \"9876543210\",\n"
-				+ "    \"response\": \"1234567890\"\n"
-				+ " },\n"
-				+ " \"proofShuffle\": {\n"
-				+ "    \"commitment\": \"9876543210\",\n"
-				+ "    \"challenge\": \"1234567890\",\n"
-				+ "    \"response\": \"9876543210\"\n"
-				+ " }\n"
+				+ "	\"shuffleProof\": {\n"
+				+ "		\"permutationProof\": {"
+				+ "			\"eValues\" :[\"1234\", \"5678\", \"9012\"],\n"
+				+ "			\"bridgingCommitments\" :[\"1234\", \"5678\", \"9012\"],\n"
+				+ "			\"commitment\": \"1234567890\",\n"
+				+ "			\"challenge\": \"9876543210\",\n"
+				+ "			\"response\": \"1234567890\"\n"
+				+ "		},\n"
+				+ "		\"mixProof\": {\n"
+				+ "			\"eValues\" :[\"1234\", \"5678\", \"9012\"],\n"
+				+ "			\"commitment\": \"1234567890\",\n"
+				+ "			\"challenge\": \"9876543210\",\n"
+				+ "			\"response\": \"1234567890\"\n"
+				+ "		}\n"
+				+ "	}\n"
 				+ "}";
 
 		VoteMixingResult dto
@@ -935,15 +958,27 @@ public class JSONConverterTest {
 		assertEquals("5678", dto.getMixedVotes().get(2).getFirstValue());
 		assertEquals("9012", dto.getMixedVotes().get(2).getSecondValue());
 
-		assertNotNull(dto.getProofPermutation());
-		assertEquals("1234567890", dto.getProofPermutation().getCommitment());
-		assertEquals("9876543210", dto.getProofPermutation().getChallenge());
-		assertEquals("1234567890", dto.getProofPermutation().getResponse());
+		assertNotNull(dto.getShuffleProof());
+		assertEquals(3, dto.getShuffleProof().getPermutationProof().geteValues().size());
+		assertEquals("1234", dto.getShuffleProof().getPermutationProof().geteValues().get(0));
+		assertEquals("5678", dto.getShuffleProof().getPermutationProof().geteValues().get(1));
+		assertEquals("9012", dto.getShuffleProof().getPermutationProof().geteValues().get(2));
+		assertEquals(3, dto.getShuffleProof().getPermutationProof().getBridgingCommitments().size());
+		assertEquals("1234", dto.getShuffleProof().getPermutationProof().getBridgingCommitments().get(0));
+		assertEquals("5678", dto.getShuffleProof().getPermutationProof().getBridgingCommitments().get(1));
+		assertEquals("9012", dto.getShuffleProof().getPermutationProof().getBridgingCommitments().get(2));
+		assertEquals("1234567890", dto.getShuffleProof().getPermutationProof().getCommitment());
+		assertEquals("9876543210", dto.getShuffleProof().getPermutationProof().getChallenge());
+		assertEquals("1234567890", dto.getShuffleProof().getPermutationProof().getResponse());
 
-		assertNotNull(dto.getProofShuffle());
-		assertEquals("9876543210", dto.getProofShuffle().getCommitment());
-		assertEquals("1234567890", dto.getProofShuffle().getChallenge());
-		assertEquals("9876543210", dto.getProofShuffle().getResponse());
+		assertNotNull(dto.getShuffleProof());
+		assertEquals(3, dto.getShuffleProof().getMixProof().geteValues().size());
+		assertEquals("1234", dto.getShuffleProof().getMixProof().geteValues().get(0));
+		assertEquals("5678", dto.getShuffleProof().getMixProof().geteValues().get(1));
+		assertEquals("9012", dto.getShuffleProof().getMixProof().geteValues().get(2));
+		assertEquals("1234567890", dto.getShuffleProof().getMixProof().getCommitment());
+		assertEquals("9876543210", dto.getShuffleProof().getMixProof().getChallenge());
+		assertEquals("1234567890", dto.getShuffleProof().getMixProof().getResponse());
 
 		String output
 				= JSONConverter.marshal(dto);
