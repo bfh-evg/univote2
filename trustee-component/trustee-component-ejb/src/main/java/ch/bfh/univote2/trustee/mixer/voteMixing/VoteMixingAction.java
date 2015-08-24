@@ -51,6 +51,7 @@ import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaCha
 import ch.bfh.unicrypt.crypto.proofsystem.classes.PermutationCommitmentProofSystem;
 import ch.bfh.unicrypt.crypto.proofsystem.classes.ReEncryptionShuffleProofSystem;
 import ch.bfh.unicrypt.crypto.schemes.commitment.classes.PermutationCommitmentScheme;
+import ch.bfh.unicrypt.crypto.schemes.encryption.classes.ElGamalEncryptionScheme;
 import ch.bfh.unicrypt.crypto.schemes.encryption.interfaces.ReEncryptionScheme;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.classes.PermutationElement;
@@ -73,8 +74,9 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.component.core.message.EncryptedVote;
 import ch.bfh.univote2.component.core.message.JSONConverter;
-import ch.bfh.univote2.component.core.message.MixedVotes;
+import ch.bfh.univote2.component.core.message.VoteMixingRequest;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
@@ -85,6 +87,7 @@ import ch.bfh.univote2.trustee.QueryFactory;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
 import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import java.security.PublicKey;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -164,8 +167,9 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
     protected void checkAndSetVoteMixingRequest(VoteMixingActionContext actionContext) {
 	ActionContextKey actionContextKey = actionContext.getActionContextKey();
 	String section = actionContext.getSection();
+	String tenant = actionContext.getTenant();
 	try {
-	    MixedVotes voteMixingRequest = actionContext.getVoteMixingRequest();
+	    VoteMixingRequest voteMixingRequest = actionContext.getVoteMixingRequest();
 
 	    //Add Notification
 	    if (voteMixingRequest == null) {
@@ -174,17 +178,17 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	    }
 
 	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not get mixedVotes.", ex);
+	    logger.log(Level.WARNING, "Could not get vote mixing request.", ex);
 	    informationService.informTenant(actionContextKey,
-					    "Error retrieving mixed votes: " + ex.getMessage());
+					    "Error retrieving vote mixing request: " + ex.getMessage());
 	} catch (JsonException ex) {
-	    logger.log(Level.WARNING, "Could not parse mixed votes.", ex);
+	    logger.log(Level.WARNING, "Could not parse vote mixing request.", ex);
 	    informationService.informTenant(actionContextKey,
-					    "Error reading mixed votes.");
+					    "Error reading vote mixing request.");
 	} catch (Exception ex) {
-	    logger.log(Level.WARNING, "Could not parse mixed votes.", ex);
+	    logger.log(Level.WARNING, "Could not parse vote mixing request.", ex);
 	    informationService.informTenant(actionContextKey,
-					    "Error reading mixed votes.");
+					    "Error reading vote mixing request.");
 	}
 	if (actionContext.getVoteMixingRequest() == null) {
 	    //Add Notification
@@ -218,17 +222,19 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	String tenant = actionContext.getTenant();
 	String section = actionContext.getSection();
 	CryptoSetting cryptoSetting = skcac.getCryptoSetting();
-	if (cryptoSetting == null) {
-	    logger.log(Level.SEVERE, "Precondition is reached but crypto setting is empty in Context. That is bad.");
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Error: Precondition reached, but no crypto setting available.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
-	}
-	skcac.get
+	VoteMixingRequest voteMixingRequest = skcac.getVoteMixingRequest();
 	try {
 	    UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
 	    // Ciphertexts
+	    CyclicGroup cyclicGroup = uniCryptCryptoSetting.encryptionGroup;
+	    ElGamalEncryptionScheme encryptionScheme = ElGamalEncryptionScheme.getInstance(cyclicGroup);
+
+	    List<EncryptedVote> votesToMix = voteMixingRequest.getVotesToMix();
+	    Tuple rV = Tuple.getInstance();
+	    for (EncryptedVote encryptedVote : votesToMix) {
+		encryptedVote.getFirstValue();
+	    }
+
 	    Tuple rV = ProductGroup.getInstance(Z_q, size).getRandomElement();
 	    ProductGroup uVSpace = ProductGroup.getInstance(ProductGroup.getInstance(G_q, 2), size);
 	    Tuple uV = uVSpace.getRandomElement();
@@ -260,7 +266,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	    return;
 	}
-	VoteMixingActionContext skcac = (VoteMixingActionContext) actionContext;
+	VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
 
 	this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
 
@@ -277,11 +283,23 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
 		    && GroupEnum.ACCESS_RIGHT.getValue()
 		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
-		skcac.setAccessRightGranted(Boolean.TRUE);
-	    } else if (skcac.getCryptoSetting() == null) {
-		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
-		skcac.setCryptoSetting(cryptoSetting);
+		vmac.setAccessRightGranted(Boolean.TRUE);
 	    }
+	    if (vmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+		    && GroupEnum.CRYPTO_SETTING.getValue()
+		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
+		vmac.setCryptoSetting(cryptoSetting);
+	    }
+	    if (vmac.getVoteMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+		    && GroupEnum.VOTE_MIXING_REQUEST.getValue()
+		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+		VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class, post.getMessage());
+		vmac.setVoteMixingRequest(voteMixingRequest);
+	    }
+
 	    run(actionContext);
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());

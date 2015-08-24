@@ -65,6 +65,7 @@ import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.classes.PermutationElement;
+import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
 import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
@@ -112,15 +113,15 @@ import javax.json.JsonException;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Stateless
-public class KeyMixingAction extends AbstractAction implements NotifiableAction {
+public class SingleKeyMixingAction extends AbstractAction implements NotifiableAction {
 
     //See report.pdf (6.2.2.b)
     public static final String PERSISTENCE_NAME_FOR_PSI = "psi";
     public static final String PERSISTENCE_NAME_FOR_ALPHA = "alpha";
 
-    private static final String ACTION_NAME = KeyMixingAction.class.getSimpleName();
+    private static final String ACTION_NAME = SingleKeyMixingAction.class.getSimpleName();
 
-    private static final Logger logger = Logger.getLogger(KeyMixingAction.class.getName());
+    private static final Logger logger = Logger.getLogger(SingleKeyMixingAction.class.getName());
 
     @EJB
     ActionManager actionManager;
@@ -264,7 +265,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 	    EnhancedKeyMixingResult enhancedKeyMixingResult = createKeyMixingResult(tenant, keyMixingRequest, uniCryptCryptoSetting, alpha, permutation);
 	    permutation = enhancedKeyMixingResult.psi;
-	    alpha = enhancedKeyMixingResult.alpha;
+	    alpha = enhancedKeyMixingResult.EnhancedKeyMixingResult.this.alpha;
 	    KeyMixingResult keyMixingResult = enhancedKeyMixingResult.keyMixingResult;
 	    String keyMixingResultString = JSONConverter.marshal(keyMixingResult);
 	    byte[] keyMixingResultByteArray = keyMixingResultString.getBytes(Charset.forName("UTF-8"));
@@ -280,10 +281,10 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
 						 "Could not post key mixing result. Action failed.");
-	    Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(SingleKeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	} catch (Exception ex) {
-	    Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(SingleKeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
 						 "Could not marshal key mixing result. Action failed.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -422,39 +423,31 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	// Create psi commitment proof
 	Pair privateInputPermutation = Pair.getInstance(psi, permutationCommitmentRandomizations);
 	Element publicInputPermutation = permutationCommitment;
-	Tuple permutationProof = pcps.generate(privateInputPermutation, publicInputPermutation);
+	Tuple proofPermutation = pcps.generate(privateInputPermutation, publicInputPermutation);
 
 	// 2. Shuffle Proof
 	//------------------
 	// Create shuffle proof system
-	IdentityShuffleProofSystem spg = IdentityShuffleProofSystem.getInstance(challengeGenerator, ecg, vks.getArity(), cyclicGroup);
+	IdentityShuffleProofSystem spg = IdentityShuffleProofSystem.getInstance(challengeGenerator, ecg, cyclicGroup, vks.getArity(), cyclicGroup);
 
 	// Proof and verify
 	Tuple privateInputShuffle = Tuple.getInstance(psi, permutationCommitmentRandomizations, alpha);
 	Tuple publicInputShuffle = Tuple.getInstance(permutationCommitment, vks, shuffledVks, gMinus, g);
 
 	// Create shuffle proof
-	Tuple mixProof = spg.generate(privateInputShuffle, publicInputShuffle);
+	Triple proofShuffle = spg.generate(privateInputShuffle, publicInputShuffle);
 
 	EnhancedKeyMixingResult result = new EnhancedKeyMixingResult();
 	result.alpha = alpha.convertToBigInteger();
 	result.psi = psi.convertToBigInteger();
-	List<String> shuffledVKsAsStrings = new ArrayList<>();
+	List<String> shuffledVKsAsString = new ArrayList<>();
 	for (Element shuffledVK : shuffledVks) {
-	    shuffledVKsAsStrings.add(shuffledVK.convertToString());
+	    shuffledVKsAsString.add(shuffledVK.convertToString());
 	}
-
-	Proof proofShuffleDTO = new Proof(mixProof.getFirst().convertToString(), mixProof.getSecond().convertToString(), mixProof.getThird().convertToString());
-	Proof proofPermutationDTO = new Proof(permutationProof.getFirst().convertToString(), permutationProof.getSecond().convertToString(), permutationProof.getThird().convertToString());
+	Proof proofShuffleDTO = new Proof(proofShuffle.getFirst().convertToString(), proofShuffle.getSecond().convertToString(), proofShuffle.getThird().convertToString());
+	Proof proofPermutationDTO = new Proof(proofPermutation.getFirst().convertToString(), proofPermutation.getSecond().convertToString(), proofPermutation.getThird().convertToString());
 
 	result.keyMixingResult = new KeyMixingResult
-
-
-
-
-
-
-
 
 
 

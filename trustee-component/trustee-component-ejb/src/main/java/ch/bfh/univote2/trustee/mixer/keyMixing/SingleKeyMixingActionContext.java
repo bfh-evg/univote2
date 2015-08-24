@@ -39,40 +39,40 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.trustee.mixer.voteMixing;
+package ch.bfh.univote2.trustee.mixer.keyMixing;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.VoteMixingRequest;
+import ch.bfh.univote2.component.core.message.KeyMixingRequest;
 import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class VoteMixingActionContext extends ATrusteeActionContext {
+public class SingleKeyMixingActionContext extends ATrusteeActionContext {
 
-    private VoteMixingRequest voteMixingRequest;
+    private KeyMixingRequest keyMixingRequest;
 
-    public VoteMixingActionContext(ActionContextKey actionContextKey) {
+    public SingleKeyMixingActionContext(ActionContextKey actionContextKey) {
 	super(actionContextKey);
     }
 
     @Override
     public Boolean isSpecializedPreconditionReached() {
-	return this.voteMixingRequest != null;
+	return this.keyMixingRequest != null;
     }
 
     @Override
     protected void purgeSpecializedData() {
-	this.voteMixingRequest = null;
+	this.keyMixingRequest = null;
     }
 
-    public VoteMixingRequest getVoteMixingRequest() {
-	return voteMixingRequest;
+    public KeyMixingRequest getKeyMixingRequest() {
+	return keyMixingRequest;
     }
 
-    public void setVoteMixingRequest(VoteMixingRequest voteMixingRequest) {
-	this.voteMixingRequest = voteMixingRequest;
+    public void setKeyMixingRequest(KeyMixingRequest keyMixingRequest) {
+	this.keyMixingRequest = keyMixingRequest;
     }
 
 }

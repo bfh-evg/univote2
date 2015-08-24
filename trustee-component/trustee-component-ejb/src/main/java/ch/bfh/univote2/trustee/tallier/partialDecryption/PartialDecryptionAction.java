@@ -321,10 +321,23 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 		    && GroupEnum.ACCESS_RIGHT.getValue()
 		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
 		pdac.setAccessRightGranted(Boolean.TRUE);
-	    } else if (pdac.getMixedVotes() == null) {
+	    }
+
+	    if (pdac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+		    && GroupEnum.CRYPTO_SETTING.getValue()
+		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
+		pdac.setCryptoSetting(cryptoSetting);
+	    }
+	    if (pdac.getMixedVotes() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+		    && GroupEnum.MIXED_VOTES.getValue()
+		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
 		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, post.getMessage());
 		pdac.setMixedVotes(mixedVotes);
 	    }
+
 	    run(actionContext);
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());

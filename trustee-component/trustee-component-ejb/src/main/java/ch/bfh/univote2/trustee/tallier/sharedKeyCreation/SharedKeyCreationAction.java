@@ -252,7 +252,11 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 		    && GroupEnum.ACCESS_RIGHT.getValue()
 		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
 		skcac.setAccessRightGranted(Boolean.TRUE);
-	    } else if (skcac.getCryptoSetting() == null) {
+	    }
+	    if (skcac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+		    && GroupEnum.CRYPTO_SETTING.getValue()
+		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
 		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 		skcac.setCryptoSetting(cryptoSetting);
 	    }
