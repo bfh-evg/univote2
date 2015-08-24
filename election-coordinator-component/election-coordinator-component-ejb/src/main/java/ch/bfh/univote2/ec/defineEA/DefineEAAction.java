@@ -80,9 +80,6 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	private InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
-	// TODO Add field when used
-	//@EJB
-	//private ConfigurationManager configurationManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -181,6 +178,8 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 			//Post message
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.ADMIN_CERT.getValue(), message, actionContext.getTenant());
+			this.informationService.informTenant(actionContext.getActionContextKey(), "Posted EA.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not post message.");

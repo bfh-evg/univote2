@@ -260,9 +260,12 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		Function proofFunction = keyPairGen.getPublicKeyGenerationFunction();
 		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(proofFunction);
 		//Fill triple
-		Element commitment = cyclicGroup.getElementFrom(new BigInteger(encryptionKeyShare.getProof().getCommitment()));
-		Element challenge = cyclicGroup.getElementFrom(new BigInteger(encryptionKeyShare.getProof().getChallenge()));
-		Element response = cyclicGroup.getElementFrom(new BigInteger(encryptionKeyShare.getProof().getResponse()));
+		Element commitment
+				= pg.getCommitmentSpace().getElementFrom(new BigInteger(encryptionKeyShare.getProof().getCommitment()));
+		Element challenge
+				= pg.getChallengeSpace().getElementFrom(new BigInteger(encryptionKeyShare.getProof().getChallenge()));
+		Element response
+				= pg.getResponseSpace().getElementFrom(new BigInteger(encryptionKeyShare.getProof().getResponse()));
 
 		Triple proofTriple = Triple.getInstance(commitment, challenge, response);
 
@@ -274,13 +277,11 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 
 		if (pg.verify(proofTriple, publicKey)) {
 
-			BigInteger value = publicKey.convertToBigInteger();
-			actionContext.getKeyShares().put(strTallier, value);
-
+			actionContext.getKeyShares().put(strTallier, publicKey);
 			return true;
 		}
 		//Remove tallier
-		actionContext.getKeyShares().put(strTallier, cyclicGroup.getIdentityElement().convertToBigInteger());
+		actionContext.getKeyShares().put(strTallier, cyclicGroup.getIdentityElement());
 		return false;
 	}
 
@@ -290,9 +291,8 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 
 		Element encKey = cyclicGroup.getIdentityElement();
 
-		for (BigInteger bi : actionContext.getKeyShares().values()) {
-			Element keyShare = cyclicGroup.getElementFrom(bi);
-			encKey.apply(keyShare);
+		for (Element keyShare : actionContext.getKeyShares().values()) {
+			encKey = encKey.apply(keyShare);
 		}
 
 		EncryptionKey message = new EncryptionKey();
