@@ -41,58 +41,66 @@
  */
 package ch.bfh.univote2.component.core.message;
 
-import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
-{
-	"$schema": "http://json-schema.org/draft-04/schema",
-	"title": "UniVote2: Schema of partially decrypted votes.",
-	"type": "object",
-	"properties": {
-		"partiallyDecryptedVotes":  {
-			"type": "array",
-			"items": { "type": "string"}
-		},
-		"proof" : { "$ref": "proof.jsd" }
-	},
-	"required": ["partiallyDecryptedVotes", "proof"],
-	"additionalProperties": false
-}
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of a cryptographic proof",
+ *	"type": "object",
+ *	"properties": {
+ *		"commitment": { "type": "string" },
+ *		"challenge":  { "type": "string" },
+ *		"response":   { "type": "string" }
+ *	},
+ *	"required": ["commitment", "challenge", "response"],
+ *	"additionalProperties": false
+ * }
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"partiallyDecryptedVotes", "proof"})
-public class PartialDecryption {
-	private List<String> partiallyDecryptedVotes;
-	private SigmaProof proof;
+@XmlType(propOrder={"commitment", "challenge", "response"})
+public class SigmaProof {
+	private String commitment;
+	private String challenge;
+	private String response;
 
-	public PartialDecryption() {
+	public SigmaProof() {
 	}
 
-	public PartialDecryption(List<String> partiallyDecryptedVotes, SigmaProof proof) {
-		this.partiallyDecryptedVotes = partiallyDecryptedVotes;
-		this.proof = proof;
-	}
-
-	@XmlElement(required=true)
-	public List<String> getPartiallyDecryptedVotes() {
-		return partiallyDecryptedVotes;
-	}
-
-	public void setPartiallyDecryptedVotes(List<String> partiallyDecryptedVotes) {
-		this.partiallyDecryptedVotes = partiallyDecryptedVotes;
+	public SigmaProof(String commitment, String challenge, String response) {
+		this.commitment = commitment;
+		this.challenge = challenge;
+		this.response = response;
 	}
 
 	@XmlElement(required=true)
-	public SigmaProof getProof() {
-		return proof;
+	public String getCommitment() {
+		return commitment;
 	}
 
-	public void setProof(SigmaProof proof) {
-		this.proof = proof;
+	public void setCommitment(String commitment) {
+		this.commitment = commitment;
+	}
+
+	@XmlElement(required=true)
+	public String getChallenge() {
+		return challenge;
+	}
+
+	public void setChallenge(String challenge) {
+		this.challenge = challenge;
+	}
+
+	@XmlElement(required=true)
+	public String getResponse() {
+		return response;
+	}
+
+	public void setResponse(String response) {
+		this.response = response;
 	}
 }

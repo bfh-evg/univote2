@@ -8,9 +8,8 @@
 			"items": { "type": "string"}
 		},
 		"generator" : { "type": "string" },
-		"proofPermutation" : { "$ref": "proof.jsd" },
-		"proofShuffle" : { "$ref": "proof.jsd" }
+		"shuffleProof": { "$ref": "shuffleProof.jsd" }
 	},
-	"required": ["mixedKeys", "generator", "proofPermutation","proofShuffle"],
+	"required": ["mixedKeys", "generator", "shuffleProof"],
 	"additionalProperties": false
 }

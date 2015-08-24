@@ -47,52 +47,80 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
-{
-	"$schema": "http://json-schema.org/draft-04/schema",
-	"title": "UniVote2: Schema of partially decrypted votes.",
-	"type": "object",
-	"properties": {
-		"partiallyDecryptedVotes":  {
-			"type": "array",
-			"items": { "type": "string"}
-		},
-		"proof" : { "$ref": "proof.jsd" }
-	},
-	"required": ["partiallyDecryptedVotes", "proof"],
-	"additionalProperties": false
-}
+ * ...
+ * "permutationProof" : {
+ *		"type": "object",
+ *		"properties": {
+ *			"eValues" : {
+ *				"type": "array",
+ *				"items": { "type": "string"}},
+ *			"bridgingCommitments" : {
+ *				"type": "array",
+ *				"items": { "type": "string"}},
+ *			"commitment": { "type": "string" },
+ *			"challenge":  { "type": "string" },
+ *			"response":   { "type": "string" }
+ *		},
+ *		"required": ["eValues", "bridgingCommitments","commitment", "challenge", "response"],
+ *		"additionalProperties": false
+ *	}
+ * ...
  * </pre>
  *
- * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
+ * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@XmlType(propOrder={"partiallyDecryptedVotes", "proof"})
-public class PartialDecryption {
-	private List<String> partiallyDecryptedVotes;
-	private SigmaProof proof;
+@XmlType(propOrder = {"eValues", "bridgingCommitments", "commitment", "challenge", "response"})
+public class PermutationProof {
 
-	public PartialDecryption() {
+	private List<String> eValues;
+	private List<String> bridgingCommitments;
+	private String commitment;
+	private String challenge;
+	private String response;
+
+	@XmlElement(required = true)
+	public List<String> geteValues() {
+		return eValues;
 	}
 
-	public PartialDecryption(List<String> partiallyDecryptedVotes, SigmaProof proof) {
-		this.partiallyDecryptedVotes = partiallyDecryptedVotes;
-		this.proof = proof;
+	public void seteValues(List<String> eValues) {
+		this.eValues = eValues;
 	}
 
-	@XmlElement(required=true)
-	public List<String> getPartiallyDecryptedVotes() {
-		return partiallyDecryptedVotes;
+	@XmlElement(required = true)
+	public List<String> getBridgingCommitments() {
+		return bridgingCommitments;
 	}
 
-	public void setPartiallyDecryptedVotes(List<String> partiallyDecryptedVotes) {
-		this.partiallyDecryptedVotes = partiallyDecryptedVotes;
+	public void setBridgingCommitments(List<String> bridgingCommitments) {
+		this.bridgingCommitments = bridgingCommitments;
 	}
 
-	@XmlElement(required=true)
-	public SigmaProof getProof() {
-		return proof;
+	@XmlElement(required = true)
+	public String getCommitment() {
+		return commitment;
 	}
 
-	public void setProof(SigmaProof proof) {
-		this.proof = proof;
+	public void setCommitment(String commitment) {
+		this.commitment = commitment;
 	}
+
+	@XmlElement(required = true)
+	public String getChallenge() {
+		return challenge;
+	}
+
+	public void setChallenge(String challenge) {
+		this.challenge = challenge;
+	}
+
+	@XmlElement(required = true)
+	public String getResponse() {
+		return response;
+	}
+
+	public void setResponse(String response) {
+		this.response = response;
+	}
+
 }

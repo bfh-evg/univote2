@@ -1,0 +1,38 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a shuffle proof.",
+	"properties": {
+		"permutationProof" : {
+			"type": "object",
+			"properties": { 
+				"eValues" : { 
+					"type": "array",
+					"items": { "type": "string"}},
+				"bridgingCommitments" : { 
+					"type": "array",
+					"items": { "type": "string"}},
+				"commitment": { "type": "string" },
+				"challenge":  { "type": "string" },
+				"response":   { "type": "string" }
+			},
+			"required": ["eValues", "bridgingCommitments","commitment", "challenge", "response"],
+			"additionalProperties": false
+		 },
+		"mixProof" : {
+			"type": "object",
+			"properties": { 
+				"eValues" : { 
+					"type": "array",
+					"items": { "type": "string"}},
+				"commitment": { "type": "string" },
+				"challenge":  { "type": "string" },
+				"response":   { "type": "string" }
+			},
+			"required": ["eValues","commitment", "challenge", "response"],
+			"additionalProperties": false
+		 }	
+	},
+	"required": ["permuationProof", "mixProof"],
+	"additionalProperties": false
+
+}

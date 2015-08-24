@@ -15,9 +15,8 @@
 				"additionalProperties": false
 			}
 		},
-		"proofPermutation" : { "$ref": "proof.jsd" },
-		"proofShuffle" : { "$ref": "proof.jsd" }
+		"shuffleProof": { "$ref": "shuffleProof.jsd" }
 	},
-	"required": ["mixedVotes", "proofPermutation","proofShuffle"],
+	"required": ["mixedVotes", "shuffleProof"],
 	"additionalProperties": false
 }
