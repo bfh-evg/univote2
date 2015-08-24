@@ -52,10 +52,10 @@ import javax.xml.bind.annotation.XmlType;
  *	"type": "object",
  *	"properties": {
  *		"default": { "type": "string" },
- *		"german":  { "type": "string" },
- *		"french":  { "type": "string" },
- *		"italien": { "type": "string" },
- *		"english": { "type": "string" }
+ *		"ge": { "type": "string" },
+ *		"fr": { "type": "string" },
+ *		"it": { "type": "string" },
+ *		"en": { "type": "string" }
  *	},
  *	"required": ["default"],
  *	"additionalProperties": true
@@ -63,24 +63,24 @@ import javax.xml.bind.annotation.XmlType;
  * </pre>
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"default", "defaultText", "german" , "french", "italian", "english"})
+@XmlType(propOrder={"default", "defaultText", "ge" , "fr", "it", "en"})
 public class I18nText {
 	@XmlElement(name = "default")
 	private String defaultText;
-	private String german;
-	private String french;
-	private String italian;
-	private String english;
+	private String ge;
+	private String fr;
+	private String it;
+	private String en;
 
 	public I18nText() {
 	}
 
-	public I18nText(String defaultValue, String german, String french, String italian, String english) {
+	public I18nText(String defaultValue, String ge, String fr, String it, String en) {
 		this.defaultText = defaultValue;
-		this.german = german;
-		this.french = french;
-		this.italian = italian;
-		this.english = english;
+		this.ge = ge;
+		this.fr = fr;
+		this.it = it;
+		this.en = en;
 	}
 
 	@XmlElement(required=true)
@@ -92,35 +92,35 @@ public class I18nText {
 		this.defaultText = defaultText;
 	}
 
-	public String getGerman() {
-		return german;
+	public String getGe() {
+		return ge;
 	}
 
-	public void setGerman(String german) {
-		this.german = german;
+	public void setGe(String ge) {
+		this.ge = ge;
 	}
 
-	public String getFrench() {
-		return french;
+	public String getFr() {
+		return fr;
 	}
 
-	public void setFrench(String french) {
-		this.french = french;
+	public void setFr(String fr) {
+		this.fr = fr;
 	}
 
-	public String getItalian() {
-		return italian;
+	public String getIt() {
+		return it;
 	}
 
-	public void setItalian(String italian) {
-		this.italian = italian;
+	public void setIt(String it) {
+		this.it = it;
 	}
 
-	public String getEnglish() {
-		return english;
+	public String getEn() {
+		return en;
 	}
 
-	public void setEnglish(String english) {
-		this.english = english;
+	public void setEn(String en) {
+		this.en = en;
 	}
 }

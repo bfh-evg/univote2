@@ -108,13 +108,13 @@ public class JSONConverterTest {
 				= "{\n"
 				+ "	\"title\": {\n"
 				+ "		\"default\": \"Universität Bern: Wahlen des SUB-StudentInnenrates\",\n"
-				+ "		\"french\": \"Université de Berne: Élection du conseil des étudiant-e-s SUB\",\n"
-				+ "		\"english\": \"University of Bern: SUB Elections\"\n"
+				+ "		\"fr\": \"Université de Berne: Élection du conseil des étudiant-e-s SUB\",\n"
+				+ "		\"en\": \"University of Bern: SUB Elections\"\n"
 				+ "	},\n"
 				+ "	\"administration\": {\n"
 				+ "		\"default\": \"StudentInnenschaft der Universität Bern (SUB)\",\n"
-				+ "		\"french\": \"Ensemble des étudiants de l'Université de Berne (SUB)\",\n"
-				+ "		\"english\": \"Student Body of the University of Bern (SUB)\"\n"
+				+ "		\"fr\": \"Ensemble des étudiants de l'Université de Berne (SUB)\",\n"
+				+ "		\"en\": \"Student Body of the University of Bern (SUB)\"\n"
 				+ "	},\n"
 				+ "	\"votingPeriodBegin\": \"2015-03-08T23:00:00Z\",\n"
 				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
@@ -127,18 +127,18 @@ public class JSONConverterTest {
 		I18nText title = ed.getTitle();
 		assertNotNull(title);
 		assertEquals("Universität Bern: Wahlen des SUB-StudentInnenrates", title.getDefault());
-		assertNull(title.getGerman());
-		assertEquals("Université de Berne: Élection du conseil des étudiant-e-s SUB", title.getFrench());
-		assertNull(title.getItalian());
-		assertEquals("University of Bern: SUB Elections", title.getEnglish());
+		assertNull(title.getGe());
+		assertEquals("Université de Berne: Élection du conseil des étudiant-e-s SUB", title.getFr());
+		assertNull(title.getIt());
+		assertEquals("University of Bern: SUB Elections", title.getEn());
 
 		I18nText administration = ed.getAdministration();
 		assertNotNull(administration);
 		assertEquals("StudentInnenschaft der Universität Bern (SUB)", administration.getDefault());
-		assertNull(administration.getGerman());
-		assertEquals("Ensemble des étudiants de l'Université de Berne (SUB)", administration.getFrench());
-		assertNull(administration.getItalian());
-		assertEquals("Student Body of the University of Bern (SUB)", administration.getEnglish());
+		assertNull(administration.getGe());
+		assertEquals("Ensemble des étudiants de l'Université de Berne (SUB)", administration.getFr());
+		assertNull(administration.getIt());
+		assertEquals("Student Body of the University of Bern (SUB)", administration.getEn());
 
 		Date votingPeriodBegin = ed.getVotingPeriodBegin();
 		assertNotNull(votingPeriodBegin);
@@ -729,13 +729,13 @@ public class JSONConverterTest {
 				= "{\n"
 				+ "	\"title\": {\n"
 				+ "		\"default\": \"Universität Bern: Wahlen des SUB-StudentInnenrates\",\n"
-				+ "		\"french\": \"Université de Berne: Élection du conseil des étudiant-e-s SUB\",\n"
-				+ "		\"english\": \"University of Bern: SUB Elections\"\n"
+				+ "		\"fr\": \"Université de Berne: Élection du conseil des étudiant-e-s SUB\",\n"
+				+ "		\"en\": \"University of Bern: SUB Elections\"\n"
 				+ "	},\n"
 				+ "	\"administration\": {\n"
 				+ "		\"default\": \"StudentInnenschaft der Universität Bern (SUB)\",\n"
-				+ "		\"french\": \"Ensemble des étudiants de l'Université de Berne (SUB)\",\n"
-				+ "		\"english\": \"Student Body of the University of Bern (SUB)\"\n"
+				+ "		\"fr\": \"Ensemble des étudiants de l'Université de Berne (SUB)\",\n"
+				+ "		\"en\": \"Student Body of the University of Bern (SUB)\"\n"
 				+ "	},\n"
 				+ "	\"votingPeriodBegin\": \"2015-03-08T23:00:00Z\",\n"
 				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
