@@ -41,10 +41,10 @@
  */
 package ch.bfh.univote2.ec.combineEKS;
 
+import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +56,7 @@ import java.util.Map;
 public class CombineEncryptionKeyShareActionContext extends ActionContext {
 
 	private int amount = -1;
-	private final Map<String, BigInteger> keyShares = new HashMap<>();
+	private final Map<String, Element> keyShares = new HashMap<>();
 	private CryptoSetting cryptoSetting;
 
 	public CombineEncryptionKeyShareActionContext(ActionContextKey actionContextKey) {
@@ -76,7 +76,7 @@ public class CombineEncryptionKeyShareActionContext extends ActionContext {
 		return amount;
 	}
 
-	public Map<String, BigInteger> getKeyShares() {
+	public Map<String, Element> getKeyShares() {
 		return keyShares;
 	}
 
