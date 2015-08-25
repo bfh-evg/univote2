@@ -1,0 +1,12 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a mixing request to mix a single key",
+	"type": "object",
+	"properties": {
+		"mixerId": { "type": "string" },
+		"publicKey": { "type": "string" },
+		"key": { "type": "string" }
+	},
+	"required": ["mixerId", "publickey", "key"],
+	"additionalProperties": false
+}

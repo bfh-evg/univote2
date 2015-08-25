@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "UniVote2: Schema of a mixing result of a single public key",
+	"type": "object",
+	"properties": {
+		"mixerId": { "type": "string" },
+		"publicKey": { "type": "string" },
+		"mixedKey": { "type": "string" },
+		"proof": { "$ref": "sigmaProof.jsd" }
+	},
+	"required": ["mixerId", "publickey", "mixedKey", "proof"],
+	"additionalProperties": false
+}
