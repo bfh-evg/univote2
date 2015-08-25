@@ -48,6 +48,7 @@ import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
+import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.VotingData;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
@@ -67,6 +68,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -93,8 +95,8 @@ public class CreateVotingDataActionTest {
 				.addClass(SyncCreateVotingDataAction.class)
 				.addClass(UniboardServiceMock1.class)
 				.addClass(InformationServiceMock.class)
-				.addClass(ActionManagerMock.class)
 				.addClass(TenantManagerMock.class)
+				.addClass(ActionManagerMock.class)
 				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
 		//System.out.println(ja.toString(true));
 		return ja;
@@ -108,6 +110,17 @@ public class CreateVotingDataActionTest {
 
 	@EJB
 	private TenantManagerMock tenantManager;
+
+	@EJB
+	private ActionManagerMock actionManagerMock;
+
+	/**
+	 * Ensure that mock instance of board is reset to its initial states.
+	 */
+	@After
+	public void tearDown() {
+		this.uniboardServiceMock.clear();
+	}
 
 	public CreateVotingDataActionTest() {
 	}
@@ -142,9 +155,14 @@ public class CreateVotingDataActionTest {
 		assertTrue(context.getPreconditionQueries().size() > 0);
 	}
 
+	/**
+	 * Test of definePrecondition (via prepareContext) with unpublished data.
+	 *
+	 * @throws Exception if there is an error
+	 */
 	@Test
 	public void testPrepareDefinePreconditionForElectionDefinition1() throws Exception {
-		String tenant = "testPrepareContext2";
+		String tenant = "testPrepareDefinePreconditionForElectionDefinition1";
 		String section = "section";
 		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
 		// None of the expected information for building a voting data recore is on the board:
@@ -153,9 +171,14 @@ public class CreateVotingDataActionTest {
 		assertEquals(5, pcQueries.size());
 	}
 
+	/**
+	 * Test of definePrecondition (via prepareContext) with some published data.
+	 *
+	 * @throws Exception if there is an error
+	 */
 	@Test
 	public void testPrepareDefinePreconditionForElectionDefinition2() throws Exception {
-		String tenant = "testPrepareContext1";
+		String tenant = "testPrepareDefinePreconditionForElectionDefinition2";
 		String section = "section";
 
 		// Post an election definition...
@@ -189,11 +212,169 @@ public class CreateVotingDataActionTest {
 		assertNotNull(cvdContext.getElectionDefinition());
 	}
 
+	/**
+	 * Test of notifyAction with some published data.
+	 *
+	 * @throws Exception if there is an error
+	 */
 	@Test
-	public void testReceivedAllNotifications() throws Exception {
-		String tenant = "testPrepareContext3";
+	public void testNotifyActionHavingReceivedOneNotificationOnly() throws Exception {
+		String tenant = "testNotifyActionHavingReceivedOneNotificationOnly";
 		String section = "section";
 
+		// Notify with signature key
+		String jsonSignatureGenerator
+				= "{\n"
+				+ "	\"signatureGenerator\": \"1234567890\"\n"
+				+ "}";
+		byte[] message5 = jsonSignatureGenerator.getBytes(Charset.forName("UTF-8"));
+		PostDTO post = new PostDTO(message5, null, null);
+		StringValueDTO groupValue = new StringValueDTO(GroupEnum.SIGNATURE_GENERATOR.getValue());
+		AttributesDTO.AttributeDTO attribute = new AttributesDTO.AttributeDTO(AlphaEnum.GROUP.getValue(), groupValue);
+		List<AttributesDTO.AttributeDTO> attributes = new ArrayList<>();
+		attributes.add(attribute);
+		AttributesDTO group = new AttributesDTO(attributes);
+		post.setAlpha(group);
+		ResultDTO response5 = new ResultDTO();
+		response5.getPost().add(post);
+
+		// Let's call notifyAction, check its behavior.
+		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
+		this.createVotingDataAction.notifyAction(context, post);
+
+		assertEquals((ResultStatus.RUN_FINISHED), this.actionManagerMock.getResultStatus());
+	}
+
+	/**
+	 * Test of notifyAction with all required data published.
+	 *
+	 * @throws Exception if there is an error
+	 */
+	@Test
+	public void testNotifyActionHavingReceivedAllNotifications() throws Exception {
+		String tenant = "testNotifyActionHavingReceivedAllNotifications";
+		String section = "section";
+
+		prepareBoardWithFirstFourMessages();
+
+		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
+		// Set dummy public key on tenantManager.
+		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+		this.tenantManager.setPublicKey(publicKey);
+
+		List<PreconditionQuery> pcQueries = context.getPreconditionQueries();
+		assertNotNull(pcQueries);
+		assertEquals(1, pcQueries.size());
+		CreateVotingDataActionContext cvdContext = (CreateVotingDataActionContext) context;
+		assertNotNull(cvdContext.getElectionDefinition());
+		assertNotNull(cvdContext.getElectionDetails());
+		assertNotNull(cvdContext.getCryptoSetting());
+		assertNotNull(cvdContext.getEncryptionKey());
+
+		// Notify with signature key
+		String jsonSignatureGenerator
+				= "{\n"
+				+ "	\"signatureGenerator\": \"1234567890\"\n"
+				+ "}";
+		byte[] message5 = jsonSignatureGenerator.getBytes(Charset.forName("UTF-8"));
+		PostDTO post = new PostDTO(message5, null, null);
+		StringValueDTO groupValue = new StringValueDTO(GroupEnum.SIGNATURE_GENERATOR.getValue());
+		AttributesDTO.AttributeDTO attribute = new AttributesDTO.AttributeDTO(AlphaEnum.GROUP.getValue(), groupValue);
+		List<AttributesDTO.AttributeDTO> attributes = new ArrayList<>();
+		attributes.add(attribute);
+		AttributesDTO group = new AttributesDTO(attributes);
+		post.setAlpha(group);
+		ResultDTO response5 = new ResultDTO();
+		response5.getPost().add(post);
+
+		// Let's call notifyAction, check its behavior.
+		this.createVotingDataAction.notifyAction(cvdContext, post);
+
+		// Check whether the board received a voting data message.
+		PostDTO posted = this.uniboardServiceMock.getPost();
+
+		assertNotNull(posted);
+		byte[] postedMessage = posted.getMessage();
+		assertNotNull(postedMessage);
+		//JsonObject jsonMessage = unmarshal(postedMessage);
+		VotingData vd = JSONConverter.unmarshal(VotingData.class, postedMessage);
+		assertNotNull(vd.getDefinition());
+		assertNotNull(vd.getDetails());
+		assertNotNull(vd.getCryptoSetting());
+		assertNotNull(vd.getEncryptionKey());
+		assertNotNull(vd.getSignatureGenerator());
+
+		assertEquals((ResultStatus.FINISHED), this.actionManagerMock.getResultStatus());
+	}
+
+	/**
+	 * Test of run with all required data published.
+	 *
+	 * @throws Exception if there is an error
+	 */
+	@Test
+	public void testRunHavingReceivedAllNotifications() throws Exception {
+		String tenant = "testRunHavingReceivedAllNotifications";
+		String section = "section";
+
+		prepareBoardWithAllMessages();
+
+		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
+		// Set dummy public key on tenantManager.
+		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+		this.tenantManager.setPublicKey(publicKey);
+		this.createVotingDataAction.run(context);
+
+		assertEquals((ResultStatus.FINISHED), this.actionManagerMock.getResultStatus());
+	}
+
+	/**
+	 * Test of run with some required data published.
+	 *
+	 * @throws Exception if there is an error
+	 */
+	@Test
+	public void testRunHavingReceivedFirstFourNotifications() throws Exception {
+		String tenant = "testRunHavingReceivedAllNotifications";
+		String section = "section";
+
+		prepareBoardWithFirstFourMessages();
+
+		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
+		// Set dummy public key on tenantManager.
+		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+		this.tenantManager.setPublicKey(publicKey);
+		this.createVotingDataAction.run(context);
+
+		assertEquals((ResultStatus.RUN_FINISHED), this.actionManagerMock.getResultStatus());
+	}
+
+	/**
+	 * Test of run with all required data published but no permission.
+	 *
+	 * @throws Exception if there is an error
+	 */
+	@Test
+	public void testRunHavingReceivedAllNotificationsButNoPermission() throws Exception {
+		String tenant = "testRunHavingReceivedAllNotificationsButNoPermission";
+		String section = "section";
+
+		prepareBoardWithAllMessages();
+
+		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
+		this.createVotingDataAction.run(context);
+
+		assertEquals((ResultStatus.FAILURE), this.actionManagerMock.getResultStatus());
+	}
+
+	// Helper
+
+	private void prepareBoardWithAllMessages() {
+		prepareBoardWithFirstFourMessages();
+		prepareBoardWithFithMessage();
+	}
+
+	private void prepareBoardWithFirstFourMessages() {
 		// Post an election definition...
 		String jsonElectionDefinition
 				= "{\n"
@@ -445,53 +626,18 @@ public class CreateVotingDataActionTest {
 		response4.getPost().add(new PostDTO(message4, null, null));
 		// Post message4 to the board.
 		this.uniboardServiceMock.addResponse(response4, GroupEnum.ENCRYPTION_KEY.getValue());
+	}
 
-		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
-		// Set dummy public key on tenantManager.
-		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
-		this.tenantManager.setPublicKey(publicKey);
-
-		List<PreconditionQuery> pcQueries = context.getPreconditionQueries();
-		assertNotNull(pcQueries);
-		assertEquals(1, pcQueries.size());
-		CreateVotingDataActionContext cvdContext = (CreateVotingDataActionContext) context;
-		assertNotNull(cvdContext.getElectionDefinition());
-		assertNotNull(cvdContext.getElectionDetails());
-		assertNotNull(cvdContext.getCryptoSetting());
-		assertNotNull(cvdContext.getEncryptionKey());
-		//assertNotNull(cvdContext.getSignatureGenerator());
-
+	private void prepareBoardWithFithMessage() {
 		// Notify with signature key
 		String jsonSignatureGenerator
 				= "{\n"
 				+ "	\"signatureGenerator\": \"1234567890\"\n"
 				+ "}";
 		byte[] message5 = jsonSignatureGenerator.getBytes(Charset.forName("UTF-8"));
-		PostDTO post = new PostDTO(message5, null, null);
-		StringValueDTO groupValue = new StringValueDTO(GroupEnum.SIGNATURE_GENERATOR.getValue());
-		AttributesDTO.AttributeDTO attribute = new AttributesDTO.AttributeDTO(AlphaEnum.GROUP.getValue(), groupValue);
-		List<AttributesDTO.AttributeDTO> attributes = new ArrayList<>();
-		attributes.add(attribute);
-		AttributesDTO group = new AttributesDTO(attributes);
-		post.setAlpha(group);
 		ResultDTO response5 = new ResultDTO();
-		response5.getPost().add(post);
-
-		// Let's call notifyAction, check its behavior.
-		this.createVotingDataAction.notifyAction(cvdContext, post);
-
-		// Check whether the board received a voting data message.
-		PostDTO posted = this.uniboardServiceMock.getPost();
-
-		assertNotNull(posted);
-		byte[] postedMessage = posted.getMessage();
-		assertNotNull(postedMessage);
-		//JsonObject jsonMessage = unmarshal(postedMessage);
-		VotingData vd = JSONConverter.unmarshal(VotingData.class, postedMessage);
-		assertNotNull(vd.getDefinition());
-		assertNotNull(vd.getDetails());
-		assertNotNull(vd.getCryptoSetting());
-		assertNotNull(vd.getEncryptionKey());
-		assertNotNull(vd.getSignatureGenerator());
+		response5.getPost().add(new PostDTO(message5, null, null));
+		// Post message5 to the board.
+		this.uniboardServiceMock.addResponse(response5, GroupEnum.SIGNATURE_GENERATOR.getValue());
 	}
 }

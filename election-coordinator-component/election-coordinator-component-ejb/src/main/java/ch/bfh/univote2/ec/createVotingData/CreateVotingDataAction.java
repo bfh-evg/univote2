@@ -174,7 +174,21 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	@Override
 	@Asynchronous
 	public void run(ActionContext actionContext) {
-		throw new UnsupportedOperationException("Not supported yet.");
+		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
+		if (actionContext instanceof CreateVotingDataActionContext) {
+			CreateVotingDataActionContext context = (CreateVotingDataActionContext) actionContext;
+			definePreconditions(context);
+			if (context.gotAllNotifications()) {
+				runInternal(context); // handles action manager notifications, failures
+			} else {
+				// Wait for another notification
+				this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
+			}
+		} else {
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Unsupported context.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
 	}
 
 	/**
@@ -197,7 +211,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 					parsePostDTO(post, context);
 					// Let's see iff we got all messages
 					if (context.gotAllNotifications()) {
-						runInternal(context); // handles failures, too...
+						runInternal(context); // handles action manager notification, failures
 					} else {
 						// Wait for another notification
 						this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
@@ -217,7 +231,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	}
 
 	/**
-	 * Given a DTO od JSON post, let's try to parse it in order to obtain one of its
+	 * Given a DTO of a JSON post, let's try to parse it in order to obtain one of its
 	 * properties to be stored in the given context. The schema of the expected post is:
 	 * <pre>
  {
@@ -296,6 +310,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 			this.informationService.informTenant(context.getActionContextKey(),
 					"Could not post ACCESS_RIGHT message.");
 			this.actionManager.runFinished(context, ResultStatus.FAILURE);
+			return;
 		}
 		// TODO: Adjust table in subsectino 11.2.5
 		JsonObject electionDefinition = context.getElectionDefinition();
@@ -362,7 +377,6 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @return the election definition JsonObject instance
 	 */
 	private JsonObject getElectionDefinition(CreateVotingDataActionContext context) {
-		JsonObject electionDefinition = null;
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForElectionDefinition(context.getSection()));
@@ -377,8 +391,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		} catch (UnivoteException ex) {
 			// TODO Provide tenant and section information in logger message.
 			logger.log(Level.INFO, "Could not reach board for retrieving Election Definition.");
+			return null;
 		}
-		return electionDefinition;
 	}
 
 	/**
@@ -387,7 +401,6 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @return the election details JsonObject instance
 	 */
 	private JsonObject getElectionDetails(CreateVotingDataActionContext context) {
-		JsonObject electionDetails = null;
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForElectionDetails(context.getSection()));
@@ -402,8 +415,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		} catch (UnivoteException ex) {
 			// TODO Provide tenant and section information in logger message.
 			logger.log(Level.INFO, "Could not reach board for retrieving Election Details.");
+			return null;
 		}
-		return electionDetails;
 	}
 
 	/**
@@ -412,7 +425,6 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @return the crypto setting JsonObject instance
 	 */
 	private JsonObject getCryptoSetting(CreateVotingDataActionContext context) {
-		JsonObject cryptoSetting = null;
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForCryptoSetting(context.getSection()));
@@ -427,8 +439,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		} catch (UnivoteException ex) {
 			// TODO Provide tenant and section information in logger message.
 			logger.log(Level.INFO, "Could not reach board for retrieving Crypto Setting.");
+			return null;
 		}
-		return cryptoSetting;
 	}
 
 	/**
@@ -437,7 +449,6 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @return the encryption key JsonObject instance
 	 */
 	private JsonObject getEncryptionKey(CreateVotingDataActionContext context) {
-		JsonObject encryptionKey = null;
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForEncryptionKey(context.getSection()));
@@ -452,8 +463,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		} catch (UnivoteException ex) {
 			// TODO Provide tenant and section information in logger message.
 			logger.log(Level.INFO, "Could not reach board for retrieving Encryption Key.");
+			return null;
 		}
-		return encryptionKey;
 	}
 
 	/**
@@ -462,7 +473,6 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @return the signature generator JsonObject instance
 	 */
 	private JsonObject getSignatureGenerator(CreateVotingDataActionContext context) {
-		JsonObject signatureGenerator = null;
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForSignatureGenerator(context.getSection()));
@@ -477,8 +487,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		} catch (UnivoteException ex) {
 			// TODO Provide tenant and section information in logger message.
 			logger.log(Level.INFO, "Could not reach board for retrieving Signature Generator.");
+			return null;
 		}
-		return signatureGenerator;
 	}
 
 	/**
