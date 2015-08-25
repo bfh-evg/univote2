@@ -41,13 +41,26 @@
  */
 package ch.bfh.univote2.ec.combineEKS;
 
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
+import ch.bfh.uniboard.data.StringValueDTO;
+import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
+import ch.bfh.unicrypt.crypto.schemes.encryption.classes.ElGamalEncryptionScheme;
+import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
+import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
+import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.crypto.CryptoProvider;
 import ch.bfh.univote2.component.core.message.AccessRight;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.component.core.message.EncryptionKey;
+import ch.bfh.univote2.component.core.message.EncryptionKeyShare;
 import ch.bfh.univote2.component.core.message.JSONConverter;
+import ch.bfh.univote2.component.core.message.SigmaProof;
+import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.ec.ActionManagerMock;
 import ch.bfh.univote2.ec.InformationServiceMock;
 import ch.bfh.univote2.ec.TenantManagerMock;
@@ -62,6 +75,7 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import sun.security.provider.DSAPublicKey;
@@ -118,10 +132,13 @@ public class CombineEncryptionKeyShareAction1Test {
 
 		CryptoSetting cs = CryptoProvider.getCryptoSetting(0);
 		actionContext.setCryptoSetting(cs);
-		actionContext.getKeyShares().put("tallier1", new BigInteger("12"));
-		actionContext.getKeyShares().put("tallier2", new BigInteger("21"));
-		actionContext.getKeyShares().put("tallier3", new BigInteger("25"));
-		actionContext.getKeyShares().put("tallier4", new BigInteger("34"));
+		CyclicGroup cyclicGroup
+				= CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
+
+		actionContext.getKeyShares().put("tallier1", cyclicGroup.getElementFrom(new BigInteger("38")));
+		actionContext.getKeyShares().put("tallier2", cyclicGroup.getElementFrom(new BigInteger("11")));
+		actionContext.getKeyShares().put("tallier3", cyclicGroup.getElementFrom(new BigInteger("61")));
+		actionContext.getKeyShares().put("tallier4", cyclicGroup.getElementFrom(new BigInteger("77")));
 
 		this.tenantManagerMock.setPublicKey(
 				new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE));
@@ -132,9 +149,56 @@ public class CombineEncryptionKeyShareAction1Test {
 		assertNotNull(arPost);
 		AccessRight ar = JSONConverter.unmarshal(AccessRight.class, arPost.getMessage());
 		assertEquals("1", ar.getCrypto().getPublickey());
+		assertEquals(GroupEnum.ENCRYPTION_KEY.getValue(), ar.getGroup());
 
 		PostDTO encKeyPost = this.uniboardServiceMock.getPost();
 		assertNotNull(encKeyPost);
+
+		EncryptionKey encKey = JSONConverter.unmarshal(EncryptionKey.class, encKeyPost.getMessage());
+		assertEquals("94", encKey.getEncryptionKey());
+
+	}
+
+	/**
+	 * Test validateAndAddKeyShare working
+	 */
+	@Test
+	public void testValidateAndAddKeyShare() throws UnivoteException {
+		String tenant = "validateAndAddKeyShare";
+		String section = "section";
+		ActionContextKey ack = new ActionContextKey("Test", tenant, section);
+		CombineEncryptionKeyShareActionContext actionContext = new CombineEncryptionKeyShareActionContext(ack);
+
+		CryptoSetting cs = CryptoProvider.getCryptoSetting(0);
+		actionContext.setCryptoSetting(cs);
+
+		CyclicGroup cyclicGroup
+				= CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
+		ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(cyclicGroup);
+		KeyPairGenerator keyPairGen = elGamal.getKeyPairGenerator();
+		Function proofFunction = keyPairGen.getPublicKeyGenerationFunction();
+		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(proofFunction);
+		Pair keypair = keyPairGen.generateKeyPair();
+		Triple proofTriple = pg.generate(keypair.getFirst(), keypair.getSecond());
+
+		EncryptionKeyShare encryptionKeyShare = new EncryptionKeyShare();
+		SigmaProof proof = new SigmaProof();
+		proof.setCommitment(proofTriple.getFirst().convertToString());
+		proof.setChallenge(proofTriple.getSecond().convertToString());
+		proof.setResponse(proofTriple.getThird().convertToString());
+		encryptionKeyShare.setProof(proof);
+		encryptionKeyShare.setKeyShare(keypair.getSecond().convertToString());
+
+		byte[] message = JSONConverter.marshal(encryptionKeyShare).getBytes();
+		AttributesDTO alpha = new AttributesDTO();
+		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("publickey", new StringValueDTO(tenant)));
+		PostDTO post = new PostDTO(message, alpha, null);
+
+		this.combineEKSAction.validateAndAddKeyShare(actionContext, post);
+
+		assertEquals(1, actionContext.getKeyShares().size());
+		assertTrue(actionContext.getKeyShares().containsKey(tenant));
+		assertEquals(keypair.getSecond(), actionContext.getKeyShares().get(tenant));
 
 	}
 

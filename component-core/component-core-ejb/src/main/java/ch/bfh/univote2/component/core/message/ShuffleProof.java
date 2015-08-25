@@ -47,60 +47,68 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <pre>
  * {
- *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of a cryptographic proof",
- *	"type": "object",
- *	"properties": {
- *		"commitment": { "type": "string" },
- *		"challenge":  { "type": "string" },
- *		"response":   { "type": "string" }
+ * "$schema": "http://json-schema.org/draft-04/schema",
+ * "title": "UniVote2: Schema of a shuffle proof.",
+ * "properties": {
+ *	"permutationProof" : {
+ *		"type": "object",
+ *		"properties": {
+ *			"eValues" : {
+ *				"type": "array",
+ *				"items": { "type": "string"}},
+ *			"bridgingCommitments" : {
+ *				"type": "array",
+ *				"items": { "type": "string"}},
+ *			"commitment": { "type": "string" },
+ *			"challenge":  { "type": "string" },
+ *			"response":   { "type": "string" }
+ *		},
+ *		"required": ["eValues", "bridgingCommitments","commitment", "challenge", "response"],
+ *		"additionalProperties": false
  *	},
- *	"required": ["commitment", "challenge", "response"],
- *	"additionalProperties": false
+ * "mixProof" : {
+ *		"type": "object",
+ *		"properties": {
+ *			"eValues" : {
+ *				"type": "array",
+ *				"items": { "type": "string"}},
+ *			"commitment": { "type": "string" },
+ *			"challenge":  { "type": "string" },
+ *			"response":   { "type": "string" }
+ *		},
+ *		"required": ["eValues","commitment", "challenge", "response"],
+ *		"additionalProperties": false
+ *	}
+ * },
+ * "required": ["permuationProof", "mixProof"],
+ * "additionalProperties": false
  * }
  * </pre>
  *
- * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
+ * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@XmlType(propOrder={"commitment", "challenge", "response"})
-public class Proof {
-	private String commitment;
-	private String challenge;
-	private String response;
+@XmlType(propOrder = {"permutationProof", "mixProof"})
+public class ShuffleProof {
 
-	public Proof() {
+	private PermutationProof permutationProof;
+	private MixProof mixProof;
+
+	@XmlElement(required = true)
+	public PermutationProof getPermutationProof() {
+		return permutationProof;
 	}
 
-	public Proof(String commitment, String challenge, String response) {
-		this.commitment = commitment;
-		this.challenge = challenge;
-		this.response = response;
+	public void setPermutationProof(PermutationProof permutationProof) {
+		this.permutationProof = permutationProof;
 	}
 
-	@XmlElement(required=true)
-	public String getCommitment() {
-		return commitment;
+	@XmlElement(required = true)
+	public MixProof getMixProof() {
+		return mixProof;
 	}
 
-	public void setCommitment(String commitment) {
-		this.commitment = commitment;
+	public void setMixProof(MixProof mixProof) {
+		this.mixProof = mixProof;
 	}
 
-	@XmlElement(required=true)
-	public String getChallenge() {
-		return challenge;
-	}
-
-	public void setChallenge(String challenge) {
-		this.challenge = challenge;
-	}
-
-	@XmlElement(required=true)
-	public String getResponse() {
-		return response;
-	}
-
-	public void setResponse(String response) {
-		this.response = response;
-	}
 }

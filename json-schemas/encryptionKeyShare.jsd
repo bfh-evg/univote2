@@ -9,7 +9,7 @@
 		},
 		"proof": {
 			"description": "ZKP for DL",
-			"$ref": "proof.jsd"
+			"$ref": "sigmaProof.jsd"
 		}
 	},
 	"required": ["keyShare, proof"],

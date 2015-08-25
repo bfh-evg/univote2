@@ -145,6 +145,7 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 					this.getLogger().log(Level.WARNING, "Could not request ea certificate.", ex);
 					this.informationService.informTenant(actionContext.getActionContextKey(),
 							"Could not request ea certificate.");
+					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 				}
 			}
 		} else {
@@ -205,6 +206,7 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 			this.getLogger().log(Level.WARNING, "Unsupported public key type: {0}", ex.getMessage());
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not post access right for " + this.getGroupName() + ".");
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 		this.informationService.informTenant(actionContext.getActionContextKey(),
 				"Posted access right for " + this.getGroupName() + ".");

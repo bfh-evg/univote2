@@ -80,12 +80,12 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder={"encryptedVote", "proof"})
 public class Ballot {
 	private EncryptedVote encryptedVote;
-	private Proof proof;
+	private SigmaProof proof;
 
 	public Ballot() {
 	}
 
-	public Ballot(EncryptedVote encryptedVote, Proof proof) {
+	public Ballot(EncryptedVote encryptedVote, SigmaProof proof) {
 		this.encryptedVote = encryptedVote;
 		this.proof = proof;
 	}
@@ -100,11 +100,11 @@ public class Ballot {
 	}
 
 	@XmlElement(required=true)
-	public Proof getProof() {
+	public SigmaProof getProof() {
 		return proof;
 	}
 
-	public void setProof(Proof proof) {
+	public void setProof(SigmaProof proof) {
 		this.proof = proof;
 	}
 }

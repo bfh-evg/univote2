@@ -70,12 +70,12 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder={"keyShare", "proof"})
 public class EncryptionKeyShare {
 	private String keyShare;
-	private Proof proof;
+	private SigmaProof proof;
 
 	public EncryptionKeyShare() {
 	}
 
-	public EncryptionKeyShare(String keyShare, Proof proof) {
+	public EncryptionKeyShare(String keyShare, SigmaProof proof) {
 		this.keyShare = keyShare;
 		this.proof = proof;
 	}
@@ -90,11 +90,11 @@ public class EncryptionKeyShare {
 	}
 
 	@XmlElement(required=true)
-	public Proof getProof() {
+	public SigmaProof getProof() {
 		return proof;
 	}
 
-	public void setProof(Proof proof) {
+	public void setProof(SigmaProof proof) {
 		this.proof = proof;
 	}
 }
