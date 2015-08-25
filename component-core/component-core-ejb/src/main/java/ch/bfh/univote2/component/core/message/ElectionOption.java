@@ -49,68 +49,44 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of an election issue",
+ *	"title": "UniVote2: Schema of an election option",
  *	"type": "object",
  *	"properties": {
  *		"id": {
- *			"description": "Issue identifier",
+ *			"description": "Option identifier",
  *			"type": "integer"
  *		},
  *		"type": {
- *			"description": "Issue type",
+ *			"description": "Option type (e.g. candidate, list, answer)",
  *			"type": "string"
- *		},
- *		"title": {
- *			"description": "Issue title",
- *			"$ref": "i18nText.jsd"
- *		},
- *		"description": {
- *			"description": "Description of the issue",
- *			"$ref": "i18nText.jsd"
- *		},
- *		"optionIds": {
- *			"description": "Identifiers of issue options",
- *			"type": "array",
- *			"items": { "type": "integer" }
- *		},
- *		"ruleIds": {
- *			"description": "Identifiers of issue rules",
- *			"type": "array",
- *			"items": { "type": "integer" }
  *		}
  *	},
- *	"required": ["id", "type", "title", "optionIds", "ruleIds"],
+ *	"required": ["id", "type"],
  *	"additionalProperties": true
  * }
+ *
  * </pre>
  * Note: Has additional components since the <code>additionalProperties</code> flag is set to true.
  * Thus, marshalling may not yield the expected result.
  *
- * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
+* @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"id", "type", "title", "description", "optionIds", "ruleIds"})
-public class ElectionIssue {
+@XmlType(propOrder={"id", "type", "other"})
+public class ElectionOption {
 	private Integer id;
 	private String type;
-	private I18nText title;
-	private I18nText description;
-	private List<Integer> optionIds;
-	private List<Integer> ruleIds;
+	private List<Object> other;
 
-	public ElectionIssue() {
+	public ElectionOption() {
 	}
 
-	public ElectionIssue(Integer id, String type, I18nText title, I18nText description, List<Integer> optionIds,
-			List<Integer> ruleIds) {
+	public ElectionOption(Integer id, String type, List<Object> other) {
 		this.id = id;
 		this.type = type;
-		this.title = title;
-		this.description = description;
-		this.optionIds = optionIds;
-		this.ruleIds = ruleIds;
+		this.other = other;
 	}
 
-	@XmlElement(required = true)
+	@XmlElement(required=true)
 	public Integer getId() {
 		return id;
 	}
@@ -119,7 +95,7 @@ public class ElectionIssue {
 		this.id = id;
 	}
 
-	@XmlElement(required = true)
+	@XmlElement(required=true)
 	public String getType() {
 		return type;
 	}
@@ -128,38 +104,11 @@ public class ElectionIssue {
 		this.type = type;
 	}
 
-	@XmlElement(required = true)
-	public I18nText getTitle() {
-		return title;
+	public List<Object> getOther() {
+		return other;
 	}
 
-	public void setTitle(I18nText title) {
-		this.title = title;
-	}
-
-	public I18nText getDescription() {
-		return description;
-	}
-
-	public void setDescription(I18nText description) {
-		this.description = description;
-	}
-
-	@XmlElement(required = true)
-	public List<Integer> getOptionIds() {
-		return optionIds;
-	}
-
-	public void setOptionIds(List<Integer> optionIds) {
-		this.optionIds = optionIds;
-	}
-
-	@XmlElement(required = true)
-	public List<Integer> getRuleIds() {
-		return ruleIds;
-	}
-
-	public void setRuleIds(List<Integer> ruleIds) {
-		this.ruleIds = ruleIds;
+	public void setOther(List<Object> other) {
+		this.other = other;
 	}
 }
