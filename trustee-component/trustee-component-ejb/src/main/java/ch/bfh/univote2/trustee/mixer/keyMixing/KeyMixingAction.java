@@ -81,7 +81,9 @@ import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.KeyMixingRequest;
 import ch.bfh.univote2.component.core.message.KeyMixingResult;
-import ch.bfh.univote2.component.core.message.Proof;
+import ch.bfh.univote2.component.core.message.MixProof;
+import ch.bfh.univote2.component.core.message.PermutationProof;
+import ch.bfh.univote2.component.core.message.ShuffleProof;
 import ch.bfh.univote2.component.core.query.AlphaEnum;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
@@ -357,7 +359,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
     private EnhancedKeyMixingResult createKeyMixingResult(String tenant, KeyMixingRequest keyMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting, BigInteger alphaAsBigInt, BigInteger psiAsBigInt) {
 	CyclicGroup cyclicGroup = uniCryptCryptoSetting.signatureGroup;
-	Element generator = uniCryptCryptoSetting.signatureGenerator;
+	Element generator = uniCryptCryptoSetting.encryptionGroup.getElementFrom(keyMixingRequest.getGenerator());
 
 	// d)
 	Element alpha = null;
@@ -407,7 +409,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
 
 	// Create e-values challenge generator
-	ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(cyclicGroup, vks.getArity());
+	ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(cyclicGroup.getZModOrder(), vks.getArity());
 
 	// 1. Permutation Proof
 	//----------------------
@@ -439,29 +441,35 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	EnhancedKeyMixingResult result = new EnhancedKeyMixingResult();
 	result.alpha = alpha.convertToBigInteger();
 	result.psi = psi.convertToBigInteger();
+
 	List<String> shuffledVKsAsStrings = new ArrayList<>();
 	for (Element shuffledVK : shuffledVks) {
 	    shuffledVKsAsStrings.add(shuffledVK.convertToString());
 	}
 
-	Proof proofShuffleDTO = new Proof(mixProof.getFirst().convertToString(), mixProof.getSecond().convertToString(), mixProof.getThird().convertToString());
-	Proof proofPermutationDTO = new Proof(permutationProof.getFirst().convertToString(), permutationProof.getSecond().convertToString(), permutationProof.getThird().convertToString());
+	List<String> eValuesAsStrings = new ArrayList<>();
 
-	result.keyMixingResult = new KeyMixingResult
+	for (Element eValue : ((Tuple) spg.getEValues(mixProof)).getSequence()) {
+	    eValuesAsStrings.add(eValue.convertToString());
+	}
 
+	MixProof mixProofDTO = new MixProof();
+	mixProofDTO.setChallenge(spg.getChallenge(mixProof).convertToString());
+	mixProofDTO.setCommitment(spg.getCommitment(mixProof).convertToString());
+	mixProofDTO.setResponse(spg.getResponse(mixProof).convertToString());
+	mixProofDTO.seteValues(shuffledVKsAsStrings);
 
+	PermutationProof permutationProofDTO = new PermutationProof();
+//-->	//Not yet finished! Not draus komming ...
 
+	ShuffleProof shuffleProofDTO = new ShuffleProof();
+	shuffleProofDTO.setMixProof(mixProofDTO);
+	shuffleProofDTO.setPermutationProof(permutationProofDTO);
 
-
-
-
-
-
-
-
-
-
-	return;
+	shuffleProofDTO.setPermutationProof(null);
+	KeyMixingResult keyMixingResult = new KeyMixingResult(shuffledVKsAsStrings, generator.convertToString(), shuffleProofDTO);
+	result.keyMixingResult = keyMixingResult;
+	return result;
     }
 
     protected class EnhancedKeyMixingResult {

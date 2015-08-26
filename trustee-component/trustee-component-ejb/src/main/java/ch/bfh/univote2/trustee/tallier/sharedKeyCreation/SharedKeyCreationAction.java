@@ -322,6 +322,7 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 
 	protected EncryptionKeyShare encryptionKeyShare;
 	protected BigInteger privateKey;
+
     }
 
 }

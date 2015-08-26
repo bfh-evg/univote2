@@ -20,12 +20,6 @@
 	    <artifactId>component-core-ejb</artifactId>
 	    <version>${project.version}</version>
 	</dependency>
-	<dependency>
-	    <groupId>ch.bfh.unicrypt</groupId>
-	    <artifactId>unicrypt2</artifactId>
-	    <version>2.1-SNAPSHOT</version>
-	    <type>jar</type>
-	</dependency>
     </dependencies>
     <properties>
 	<maven.compiler.source>1.8</maven.compiler.source>
