@@ -43,6 +43,7 @@ package ch.bfh.univote2.ec.keyMix;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import ch.bfh.univote2.component.core.message.CryptoSetting;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,18 +58,24 @@ public class KeyMixingActionContext extends ActionContext {
 
 	private final List<String> mixerOrder;
 	private final Map<String, PublicKey> mixerKeys;
-	private boolean erReceived = false;
+	private List<String> currentKeys;
+	private String currentMixer;
+	private String generator;
+	private CryptoSetting cryptoSetting;
+	private boolean grantedARRequest = false;
 
 	public KeyMixingActionContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), false);
 		this.mixerOrder = new ArrayList<>();
 		this.mixerKeys = new HashMap<>();
+		this.currentKeys = new ArrayList<>();
 	}
 
 	@Override
 	protected void purgeData() {
 		mixerOrder.clear();
 		mixerKeys.clear();
+		cryptoSetting = null;
 	}
 
 	public List<String> getMixerOrder() {
@@ -79,12 +86,44 @@ public class KeyMixingActionContext extends ActionContext {
 		return mixerKeys;
 	}
 
-	public void setErReceived(boolean erReceived) {
-		this.erReceived = erReceived;
+	public String getCurrentMixer() {
+		return currentMixer;
 	}
 
-	public boolean isErReceived() {
-		return erReceived;
+	public void setCurrentMixer(String currentMixer) {
+		this.currentMixer = currentMixer;
+	}
+
+	public String getGenerator() {
+		return generator;
+	}
+
+	public void setGenerator(String generator) {
+		this.generator = generator;
+	}
+
+	public CryptoSetting getCryptoSetting() {
+		return cryptoSetting;
+	}
+
+	public void setCryptoSetting(CryptoSetting cryptoSetting) {
+		this.cryptoSetting = cryptoSetting;
+	}
+
+	public boolean isGrantedARRequest() {
+		return grantedARRequest;
+	}
+
+	public void setGrantedARRequest(boolean grantedACRequest) {
+		this.grantedARRequest = grantedACRequest;
+	}
+
+	public List<String> getCurrentKeys() {
+		return currentKeys;
+	}
+
+	public void setCurrentKeys(List<String> currentKeys) {
+		this.currentKeys = currentKeys;
 	}
 
 }
