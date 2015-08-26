@@ -125,4 +125,12 @@ public class UniboardServiceMock1 implements UniboardService {
 	public PostDTO getPost() {
 		return this.post;
 	}
+
+	/**
+	 * Resets mock.
+	 */
+	public void clear() {
+		this.post = null;
+		this.groupedPostings.clear();
+	}
 }

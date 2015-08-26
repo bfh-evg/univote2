@@ -49,117 +49,89 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * {
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of an election issue",
+ *	"title": "UniVote2: Schema of election details",
  *	"type": "object",
  *	"properties": {
- *		"id": {
- *			"description": "Issue identifier",
- *			"type": "integer"
+ *		"options": {
+ *			"description": "Election options",
+ *			"type": "array",
+ *			"items": { "$ref": "electionOption.jsd" }
  *		},
- *		"type": {
- *			"description": "Issue type",
+ *		"rules": {
+ *			"description": "Election rules",
+ *			"type": "array",
+ *			"items": { "$ref": "electionRule.jsd" }
+ *		},
+ *		"issues": {
+ *			"description": "Election issues",
+ *			"type": "array",
+ *			"items": { "$ref": "electionIssue.jsd" }
+ *		},
+ *		"ballotEncoding": {
+ *			"description": "Identifier of the ballot encoding scheme",
  *			"type": "string"
- *		},
- *		"title": {
- *			"description": "Issue title",
- *			"$ref": "i18nText.jsd"
- *		},
- *		"description": {
- *			"description": "Description of the issue",
- *			"$ref": "i18nText.jsd"
- *		},
- *		"optionIds": {
- *			"description": "Identifiers of issue options",
- *			"type": "array",
- *			"items": { "type": "integer" }
- *		},
- *		"ruleIds": {
- *			"description": "Identifiers of issue rules",
- *			"type": "array",
- *			"items": { "type": "integer" }
  *		}
  *	},
- *	"required": ["id", "type", "title", "optionIds", "ruleIds"],
- *	"additionalProperties": true
+ *	"required": ["options", "rules", "issues", "ballotEncoding"],
+ *	"additionalProperties": false
  * }
  * </pre>
- * Note: Has additional components since the <code>additionalProperties</code> flag is set to true.
+ * Note: Contains sub-components having set the <code>additionalProperties</code> flag to true.
  * Thus, marshalling may not yield the expected result.
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"id", "type", "title", "description", "optionIds", "ruleIds"})
-public class ElectionIssue {
-	private Integer id;
-	private String type;
-	private I18nText title;
-	private I18nText description;
-	private List<Integer> optionIds;
-	private List<Integer> ruleIds;
+@XmlType(propOrder={"options", "rules", "issues", "ballotEncoding"})
+public class ElectionDetails {
+	private List<ElectionOption> options;
+	private List<Rule> rules;
+	private List<ElectionIssue> issues;
+	private String ballotEncoding;
 
-	public ElectionIssue() {
+	public ElectionDetails() {
 	}
 
-	public ElectionIssue(Integer id, String type, I18nText title, I18nText description, List<Integer> optionIds,
-			List<Integer> ruleIds) {
-		this.id = id;
-		this.type = type;
-		this.title = title;
-		this.description = description;
-		this.optionIds = optionIds;
-		this.ruleIds = ruleIds;
+	public ElectionDetails(List<ElectionOption> options, List<Rule> rules, List<ElectionIssue> issues,
+			String ballotEncoding) {
+		this.options = options;
+		this.rules = rules;
+		this.issues = issues;
+		this.ballotEncoding = ballotEncoding;
 	}
 
-	@XmlElement(required = true)
-	public Integer getId() {
-		return id;
+	@XmlElement(required=true)
+	public List<ElectionOption> getOptions() {
+		return options;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public void setOptions(List<ElectionOption> options) {
+		this.options = options;
 	}
 
-	@XmlElement(required = true)
-	public String getType() {
-		return type;
+	@XmlElement(required=true)
+	public List<Rule> getRules() {
+		return rules;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setRules(List<Rule> rules) {
+		this.rules = rules;
 	}
 
-	@XmlElement(required = true)
-	public I18nText getTitle() {
-		return title;
+	@XmlElement(required=true)
+	public List<ElectionIssue> getIssues() {
+		return issues;
 	}
 
-	public void setTitle(I18nText title) {
-		this.title = title;
+	public void setIssues(List<ElectionIssue> issues) {
+		this.issues = issues;
 	}
 
-	public I18nText getDescription() {
-		return description;
+	@XmlElement(required=true)
+	public String getBallotEncoding() {
+		return ballotEncoding;
 	}
 
-	public void setDescription(I18nText description) {
-		this.description = description;
-	}
-
-	@XmlElement(required = true)
-	public List<Integer> getOptionIds() {
-		return optionIds;
-	}
-
-	public void setOptionIds(List<Integer> optionIds) {
-		this.optionIds = optionIds;
-	}
-
-	@XmlElement(required = true)
-	public List<Integer> getRuleIds() {
-		return ruleIds;
-	}
-
-	public void setRuleIds(List<Integer> ruleIds) {
-		this.ruleIds = ruleIds;
+	public void setBallotEncoding(String ballotEncoding) {
+		this.ballotEncoding = ballotEncoding;
 	}
 }
