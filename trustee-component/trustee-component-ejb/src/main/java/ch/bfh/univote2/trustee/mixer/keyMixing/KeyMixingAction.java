@@ -447,26 +447,44 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	    shuffledVKsAsStrings.add(shuffledVK.convertToString());
 	}
 
-	List<String> eValuesAsStrings = new ArrayList<>();
+	PermutationProof permutationProofDTO = new PermutationProof();
+	permutationProofDTO.setChallenge(pcps.getChallenge(permutationProof).convertToString());
+	permutationProofDTO.setCommitment(pcps.getCommitment(permutationProof).convertToString());
+	permutationProofDTO.setResponse(pcps.getResponse(permutationProof).convertToString());
+	{
+	    List<String> bridgingCommitmentsAsStrings = new ArrayList<>();
 
-	for (Element eValue : ((Tuple) spg.getEValues(mixProof)).getSequence()) {
-	    eValuesAsStrings.add(eValue.convertToString());
+	    for (Element bridgingCommitment : ((Tuple) pcps.getBridingCommitment(permutationProof)).getSequence()) {
+		bridgingCommitmentsAsStrings.add(bridgingCommitment.convertToString());
+	    }
+	    permutationProofDTO.setBridgingCommitments(bridgingCommitmentsAsStrings);
+	}
+	{
+	    List<String> eValuesAsStrings = new ArrayList<>();
+
+	    for (Element eValue : ((Tuple) pcps.getEValues(permutationProof)).getSequence()) {
+		eValuesAsStrings.add(eValue.convertToString());
+	    }
+	    permutationProofDTO.seteValues(eValuesAsStrings);
 	}
 
 	MixProof mixProofDTO = new MixProof();
 	mixProofDTO.setChallenge(spg.getChallenge(mixProof).convertToString());
 	mixProofDTO.setCommitment(spg.getCommitment(mixProof).convertToString());
 	mixProofDTO.setResponse(spg.getResponse(mixProof).convertToString());
-	mixProofDTO.seteValues(shuffledVKsAsStrings);
+	{
+	    List<String> eValuesAsStrings = new ArrayList<>();
 
-	PermutationProof permutationProofDTO = new PermutationProof();
-//-->	//Not yet finished! Not draus komming ...
+	    for (Element eValue : ((Tuple) spg.getEValues(mixProof)).getSequence()) {
+		eValuesAsStrings.add(eValue.convertToString());
+	    }
+	    mixProofDTO.seteValues(eValuesAsStrings);
+	}
 
 	ShuffleProof shuffleProofDTO = new ShuffleProof();
 	shuffleProofDTO.setMixProof(mixProofDTO);
 	shuffleProofDTO.setPermutationProof(permutationProofDTO);
 
-	shuffleProofDTO.setPermutationProof(null);
 	KeyMixingResult keyMixingResult = new KeyMixingResult(shuffledVKsAsStrings, generator.convertToString(), shuffleProofDTO);
 	result.keyMixingResult = keyMixingResult;
 	return result;
