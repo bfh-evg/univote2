@@ -42,6 +42,7 @@
 package ch.bfh.univote2.trustee.mixer.voteMixing;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import ch.bfh.univote2.component.core.message.EncryptionKey;
 import ch.bfh.univote2.component.core.message.VoteMixingRequest;
 import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
@@ -52,6 +53,7 @@ import ch.bfh.univote2.trustee.ATrusteeActionContext;
 public class VoteMixingActionContext extends ATrusteeActionContext {
 
     private VoteMixingRequest voteMixingRequest;
+    private EncryptionKey encryptionKey;
 
     public VoteMixingActionContext(ActionContextKey actionContextKey) {
 	super(actionContextKey);
@@ -59,12 +61,14 @@ public class VoteMixingActionContext extends ATrusteeActionContext {
 
     @Override
     public Boolean isSpecializedPreconditionReached() {
-	return this.voteMixingRequest != null;
+	return this.voteMixingRequest != null
+		&& this.encryptionKey != null;
     }
 
     @Override
     protected void purgeSpecializedData() {
 	this.voteMixingRequest = null;
+	this.encryptionKey = null;
     }
 
     public VoteMixingRequest getVoteMixingRequest() {
@@ -73,6 +77,14 @@ public class VoteMixingActionContext extends ATrusteeActionContext {
 
     public void setVoteMixingRequest(VoteMixingRequest voteMixingRequest) {
 	this.voteMixingRequest = voteMixingRequest;
+    }
+
+    public EncryptionKey getEncryptionKey() {
+	return encryptionKey;
+    }
+
+    public void setEncryptionKey(EncryptionKey encryptionKey) {
+	this.encryptionKey = encryptionKey;
     }
 
 }

@@ -53,10 +53,12 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.component.core.message.EncryptionKey;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
+import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingActionContext;
 import java.security.PublicKey;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -103,6 +105,40 @@ public class TrusteeActionHelper {
 
     }
 
+    public static void checkAndSetEncryptionKey(VoteMixingActionContext actionContext, UniboardService uniboardService, InformationService informationService, Logger logger) {
+	ActionContextKey actionContextKey = actionContext.getActionContextKey();
+	String section = actionContext.getSection();
+	try {
+	    EncryptionKey encryptionKey = actionContext.getEncryptionKey();
+
+	    //Add Notification
+	    if (encryptionKey == null) {
+		encryptionKey = retrieveEncryptionKey(actionContext, uniboardService);
+		actionContext.setEncryptionKey(encryptionKey);
+	    }
+
+	} catch (UnivoteException ex) {
+	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error retrieving securitySetting: " + ex.getMessage());
+	} catch (JsonException ex) {
+	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error reading securitySetting.");
+	} catch (Exception ex) {
+	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error reading securitySetting.");
+	}
+	if (actionContext.getEncryptionKey() == null) {
+	    //Add Notification
+	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+		    QueryFactory.getQueryForEncryptionKey(section), BoardsEnum.UNIVOTE.getValue());
+	    actionContext.getPreconditionQueries().add(bQuery);
+	}
+
+    }
+
     public static void checkAndSetAccsessRight(ATrusteeActionContext actionContext, GroupEnum groupEnum, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
 	ActionContextKey actionContextKey = actionContext.getActionContextKey();
 	String section = actionContext.getSection();
@@ -123,6 +159,18 @@ public class TrusteeActionHelper {
 	if (!Objects.equals(actionContext.getAccessRightGranted(), Boolean.TRUE)) {
 	    actionContext.getPreconditionQueries().add(bQuery);
 	}
+
+    }
+
+    public static EncryptionKey retrieveEncryptionKey(ActionContext actionContext, UniboardService uniboardService) throws UnivoteException, Exception {
+	ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+							QueryFactory.getQueryForEncryptionKey(actionContext.getSection()));
+	if (result.getResult().getPost().isEmpty()) {
+	    throw new UnivoteException("Cryptosetting not published yet.");
+
+	}
+	EncryptionKey encryptionKey = JSONConverter.unmarshal(EncryptionKey.class, result.getResult().getPost().get(0).getMessage());
+	return encryptionKey;
 
     }
 
