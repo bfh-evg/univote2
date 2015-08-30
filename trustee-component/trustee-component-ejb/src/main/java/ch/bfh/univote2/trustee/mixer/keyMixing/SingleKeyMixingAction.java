@@ -114,14 +114,14 @@ import javax.json.JsonException;
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
 @Stateless
-public class KeyMixingAction extends AbstractAction implements NotifiableAction {
+public class SingleKeyMixingAction extends AbstractAction implements NotifiableAction {
 
     //See report.pdf (6.2.2.b)
     public static final String PERSISTENCE_NAME_FOR_ALPHA = "alpha";
 
-    private static final String ACTION_NAME = KeyMixingAction.class.getSimpleName();
+    private static final String ACTION_NAME = SingleKeyMixingAction.class.getSimpleName();
 
-    private static final Logger logger = Logger.getLogger(KeyMixingAction.class.getName());
+    private static final Logger logger = Logger.getLogger(SingleKeyMixingAction.class.getName());
 
     @EJB
     ActionManager actionManager;
@@ -142,15 +142,15 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
     @Override
     protected boolean checkPostCondition(ActionContext actionContext) {
-	if (!(actionContext instanceof KeyMixingActionContext)) {
+	if (!(actionContext instanceof SingleKeyMixingActionContext)) {
 	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 	    return false;
 	}
-	KeyMixingActionContext vmac = (KeyMixingActionContext) actionContext;
+	SingleKeyMixingActionContext vmac = (SingleKeyMixingActionContext) actionContext;
 	try {
 	    PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 	    ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-								 QueryFactory.getQueryForKeyMixingResult(actionContext.getSection(), publicKey));
+								 QueryFactory.getQueryForSingleKeyMixingResult(actionContext.getSection(), publicKey));
 	    if (!result.getResult().getPost().isEmpty()) {
 		return true;
 	    }
@@ -272,10 +272,10 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
 						 "Could not post key mixing result. Action failed.");
-	    Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(SingleKeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	} catch (Exception ex) {
-	    Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(SingleKeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
 						 "Could not marshal key mixing result. Action failed.");
 	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);

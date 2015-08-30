@@ -45,6 +45,7 @@ import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
+import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModPrime;
 import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -52,10 +53,12 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.component.core.message.EncryptionKey;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
+import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingActionContext;
 import java.security.PublicKey;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -102,6 +105,40 @@ public class TrusteeActionHelper {
 
     }
 
+    public static void checkAndSetEncryptionKey(VoteMixingActionContext actionContext, UniboardService uniboardService, InformationService informationService, Logger logger) {
+	ActionContextKey actionContextKey = actionContext.getActionContextKey();
+	String section = actionContext.getSection();
+	try {
+	    EncryptionKey encryptionKey = actionContext.getEncryptionKey();
+
+	    //Add Notification
+	    if (encryptionKey == null) {
+		encryptionKey = retrieveEncryptionKey(actionContext, uniboardService);
+		actionContext.setEncryptionKey(encryptionKey);
+	    }
+
+	} catch (UnivoteException ex) {
+	    logger.log(Level.WARNING, "Could not get securitySetting.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error retrieving securitySetting: " + ex.getMessage());
+	} catch (JsonException ex) {
+	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error reading securitySetting.");
+	} catch (Exception ex) {
+	    logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
+	    informationService.informTenant(actionContextKey,
+					    "Error reading securitySetting.");
+	}
+	if (actionContext.getEncryptionKey() == null) {
+	    //Add Notification
+	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+		    QueryFactory.getQueryForEncryptionKey(section), BoardsEnum.UNIVOTE.getValue());
+	    actionContext.getPreconditionQueries().add(bQuery);
+	}
+
+    }
+
     public static void checkAndSetAccsessRight(ATrusteeActionContext actionContext, GroupEnum groupEnum, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
 	ActionContextKey actionContextKey = actionContext.getActionContextKey();
 	String section = actionContext.getSection();
@@ -125,6 +162,18 @@ public class TrusteeActionHelper {
 
     }
 
+    public static EncryptionKey retrieveEncryptionKey(ActionContext actionContext, UniboardService uniboardService) throws UnivoteException, Exception {
+	ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+							QueryFactory.getQueryForEncryptionKey(actionContext.getSection()));
+	if (result.getResult().getPost().isEmpty()) {
+	    throw new UnivoteException("Cryptosetting not published yet.");
+
+	}
+	EncryptionKey encryptionKey = JSONConverter.unmarshal(EncryptionKey.class, result.getResult().getPost().get(0).getMessage());
+	return encryptionKey;
+
+    }
+
     public static CryptoSetting retrieveCryptoSetting(ActionContext actionContext, UniboardService uniboardService) throws UnivoteException, Exception {
 	ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 							QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
@@ -138,25 +187,27 @@ public class TrusteeActionHelper {
     }
 
     public static UniCryptCryptoSetting getUnicryptCryptoSetting(CryptoSetting setting) throws UnivoteException {
-	CyclicGroup cyclicGroup = null;
-	Element generator = null;
+	CyclicGroup cyclicEncryptionGroup = null;
+	Element encryptionGenerator = null;
+	CyclicGroup cyclicSignatureGroup = null;
+	Element signatureGenerator = null;
 	HashAlgorithm hashAlgorithm = null;
 	switch (setting.getEncryptionSetting()) {
 	    case "RC0e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
+		cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(8);
+		encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
 		break;
 	    case "RC1e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(8);
-		generator = cyclicGroup.getDefaultGenerator();
+		cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(8);
+		encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
 		break;
 	    case "RC2e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(1024);
-		generator = cyclicGroup.getDefaultGenerator();
+		cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(1024);
+		encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
 		break;
 	    case "RC3e":
-		cyclicGroup = GStarModSafePrime.getFirstInstance(2048);
-		generator = cyclicGroup.getDefaultGenerator();
+		cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(2048);
+		encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
 		break;
 	    default:
 		throw new UnivoteException("Unknown RC_e level");
@@ -179,7 +230,27 @@ public class TrusteeActionHelper {
 	    default:
 		throw new UnivoteException("Unknown H_ level");
 	}
-	return new UniCryptCryptoSetting(cyclicGroup, generator, hashAlgorithm);
+	switch (setting.getSignatureSetting()) {
+	    case "RC0s":
+		cyclicSignatureGroup = GStarModPrime.getFirstInstance(8, 6);
+		signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
+		break;
+	    case "RC1s":
+		cyclicSignatureGroup = GStarModPrime.getFirstInstance(1024, 160);
+		signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
+		break;
+	    case "RC2s":
+		cyclicSignatureGroup = GStarModPrime.getFirstInstance(2048, 224);
+		signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
+		break;
+	    case "RC3s":
+		cyclicSignatureGroup = GStarModPrime.getFirstInstance(3072, 256);
+		signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
+		break;
+	    default:
+		throw new UnivoteException("Unknown H_ level");
+	}
+	return new UniCryptCryptoSetting(cyclicEncryptionGroup, encryptionGenerator, cyclicSignatureGroup, signatureGenerator, hashAlgorithm);
 
     }
 

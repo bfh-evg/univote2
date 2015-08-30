@@ -53,11 +53,17 @@ public class UniCryptCryptoSetting {
 
     public final CyclicGroup encryptionGroup;
     public final Element encryptionGenerator;
+
+    public final CyclicGroup signatureGroup;
+    public final Element signatureGenerator;
+
     public final HashAlgorithm hashAlgorithm;
 
-    public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, HashAlgorithm hashAlgorithm) {
+    public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, CyclicGroup signatureGroup, Element signatureGenerator, HashAlgorithm hashAlgorithm) {
 	this.encryptionGroup = encryptionGroup;
 	this.encryptionGenerator = encryptionGenerator;
+	this.signatureGroup = signatureGroup;
+	this.signatureGenerator = signatureGenerator;
 	this.hashAlgorithm = hashAlgorithm;
     }
 

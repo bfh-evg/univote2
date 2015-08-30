@@ -41,31 +41,67 @@
  */
 package ch.bfh.univote2.ec.keyMix;
 
+import ch.bfh.uniboard.clientlib.AttributeHelper;
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.uniboard.data.StringValueDTO;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.ChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.IdentityShuffleProofSystem;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.PermutationCommitmentProofSystem;
+import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
+import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
+import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashMethod;
+import ch.bfh.unicrypt.helper.math.Alphabet;
+import ch.bfh.unicrypt.helper.math.MathUtil;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
+import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
+import ch.bfh.univote2.component.core.crypto.CryptoProvider;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.message.Certificate;
-import ch.bfh.univote2.component.core.message.JSONConverter;
+import ch.bfh.univote2.component.core.message.CryptoSetting;
 import ch.bfh.univote2.component.core.message.ElectoralRoll;
+import ch.bfh.univote2.component.core.message.JSONConverter;
+import ch.bfh.univote2.component.core.message.KeyMixingRequest;
+import ch.bfh.univote2.component.core.message.KeyMixingResult;
+import ch.bfh.univote2.component.core.message.MixedKeys;
 import ch.bfh.univote2.component.core.message.TrusteeCertificates;
+import ch.bfh.univote2.component.core.query.AlphaEnum;
+import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
+import ch.bfh.univote2.ec.MessageFactory;
 import ch.bfh.univote2.ec.QueryFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.math.BigInteger;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -86,6 +122,8 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	private InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
+	@EJB
+	private TenantManager tenantManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -103,14 +141,47 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			return !result.getResult().getPost().isEmpty();
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not check post condition. UniBoard is not reachable.");
+					"Could not check post condition. UniBoard is not reachable. " + ex.getMessage());
 			return false;
 		}
 	}
 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
-		//TODO
+		KeyMixingActionContext ceksac = (KeyMixingActionContext) actionContext;
+		try {
+			this.retrieveElectoralRoll(ceksac);
+		} catch (UnivoteException ex) {
+			//Add Notification
+			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+					QueryFactory.getQueryForElectoralRoll(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
+			actionContext.getPreconditionQueries().add(bQuery);
+			logger.log(Level.WARNING, "Could not get electoral roll.", ex);
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Error retrieving electoral roll: " + ex.getMessage());
+		}
+		try {
+			this.retrieveMixers(ceksac);
+		} catch (UnivoteException ex) {
+			//Add Notification
+			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+					QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
+			actionContext.getPreconditionQueries().add(bQuery);
+			logger.log(Level.WARNING, "Could not get trustee certs.", ex);
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Error retrieving trustee certs: " + ex.getMessage());
+		}
+		try {
+			this.retrieveCryptoSetting(ceksac);
+		} catch (UnivoteException ex) {
+			//Add Notification
+			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+					QueryFactory.getQueryForCryptoSetting(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
+			actionContext.getPreconditionQueries().add(bQuery);
+			logger.log(Level.WARNING, "Could not get crypto setting.", ex);
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Error retrieving electoral roll: " + ex.getMessage());
+		}
 		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForKeyMixingResults(
 				actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 		actionContext.getPreconditionQueries().add(bQuery);
@@ -120,8 +191,46 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	public void run(ActionContext actionContext) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
 		if (actionContext instanceof KeyMixingActionContext) {
-			KeyMixingActionContext ceksac = (KeyMixingActionContext) actionContext;
-			//TODO
+			KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
+			//Check ER
+			if (kmac.getCurrentKeys().isEmpty()) {
+				try {
+					this.retrieveElectoralRoll(kmac);
+
+				} catch (UnivoteException ex) {
+					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+					return;
+				}
+			}
+			//Mixer List
+			if (kmac.getMixerKeys().isEmpty()) {
+				try {
+					this.retrieveMixers(kmac);
+
+				} catch (UnivoteException ex) {
+					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+					return;
+				}
+			}
+			//Cryptosetting
+			if (kmac.getCryptoSetting() == null) {
+				try {
+					this.retrieveCryptoSetting(kmac);
+
+				} catch (UnivoteException ex) {
+					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+					return;
+				}
+			}
+			try {
+				this.determineCurrentMixer(kmac);
+			} catch (UnivoteException ex) {
+				this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			}
 		} else {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Unsupported context.");
@@ -132,10 +241,63 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	@Override
 	public void notifyAction(ActionContext actionContext, Object notification) {
 		if (actionContext instanceof KeyMixingActionContext) {
-			KeyMixingActionContext ceksac = (KeyMixingActionContext) actionContext;
+			KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
-				//TODO
+				AttributesDTO.AttributeDTO group
+						= AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
+				String groupStr = ((StringValueDTO) group.getValue()).getValue();
+				//Check Type (TC, ER, MR)
+				if (groupStr.equals(GroupEnum.TRUSTEE_CERTIFICATES.getValue())) {
+					try {
+						//TC: save mixers in context
+						this.parseMixers(kmac, post);
+						//Check if we can start
+						if (!kmac.getCurrentKeys().isEmpty() && kmac.getCryptoSetting() != null) {
+							this.createMixingRequest(kmac);
+						}
+					} catch (UnivoteException ex) {
+						this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+						this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+					}
+				} else if (groupStr.equals(GroupEnum.ELECTORAL_ROLL.getValue())) {
+					try {
+						//ER: save ER
+						ElectoralRoll electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, post.getMessage());
+						this.retrieveInitialKeys(kmac, electoralRoll);
+						//Check if we can start
+						if (!kmac.getMixerKeys().isEmpty() && kmac.getCryptoSetting() != null) {
+							this.createMixingRequest(kmac);
+						}
+					} catch (UnivoteException ex) {
+						this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+						this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+					}
+				} else if (groupStr.equals(GroupEnum.CRYPTO_SETTING.getValue())) {
+					try {
+						//ER: save ER
+						CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
+						kmac.setCryptoSetting(cryptoSetting);
+						//Check if we can start
+						if (!kmac.getMixerKeys().isEmpty() && !kmac.getMixerKeys().isEmpty()) {
+							this.createMixingRequest(kmac);
+						}
+					} catch (UnivoteException ex) {
+						this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+						this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+					}
+				} else if (groupStr.equals(GroupEnum.KEY_MIXING_RESULT.getValue())) {
+					try {
+						//MR: create request for next or post mixed keys
+						KeyMixingResult keyMixingResult
+								= JSONConverter.unmarshal(KeyMixingResult.class, post.getMessage());
+
+						this.validteMixingResult(kmac, keyMixingResult);
+					} catch (UnivoteException ex) {
+						this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+						this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+					}
+				}
 			} else {
 				this.informationService.informTenant(actionContext.getActionContextKey(), "Unknown notification: "
 						+ notification.toString());
@@ -148,61 +310,260 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 	}
 
-	protected ElectoralRoll retrieveElectoralRoll(ActionContext actionContext) throws UnivoteException {
+	protected void retrieveElectoralRoll(KeyMixingActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForElectoralRoll(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Electoral roll not published yet.");
 		}
 		byte[] message = result.getResult().getPost().get(0).getMessage();
-		ElectoralRoll electoralRoll;
-		try {
-			electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, message);
-		} catch (Exception ex) {
-			throw new UnivoteException("Invalid electoral roll message. Can not be unmarshalled.");
-		}
-		return electoralRoll;
-
+		ElectoralRoll electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, message);
+		this.retrieveInitialKeys(actionContext, electoralRoll);
 	}
 
-	protected void retrieveMixers(KeyMixingActionContext actionContext) throws
-			UnivoteException {
+	protected void retrieveInitialKeys(KeyMixingActionContext actionContext, ElectoralRoll electoralRoll) {
+		for (String voterId : electoralRoll.getVoterIds()) {
+			try {
+				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
+						QueryFactory.getQueryFormUniCertForVoterCert(voterId));
+				if (result.getResult().getPost().isEmpty()) {
+					PostDTO post = result.getResult().getPost().get(0);
+					Certificate certi = JSONConverter.unmarshal(Certificate.class, post.getMessage());
+					String pem = certi.getPem();
+
+					CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+					InputStream in = new ByteArrayInputStream(pem.getBytes());
+					X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
+					PublicKey pk = cert.getPublicKey();
+					actionContext.getCurrentKeys().add(this.computePublicKeyString(pk));
+				}
+			} catch (UnivoteException | CertificateException ex) {
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Could not request voter certificate: " + voterId);
+				logger.log(Level.INFO, ex.getMessage());
+			}
+
+		}
+	}
+
+	protected void retrieveCryptoSetting(KeyMixingActionContext actionContext)
+			throws UnivoteException {
+		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
+		byte[] message = result.getResult().getPost().get(0).getMessage();
+		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, message);
+		actionContext.setCryptoSetting(cryptoSetting);
+	}
+
+	protected void retrieveMixers(KeyMixingActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		this.parseMixers(actionContext, result.getResult().getPost().get(0));
+	}
+
+	protected void parseMixers(KeyMixingActionContext actionContext, PostDTO post) throws UnivoteException {
+		byte[] message = post.getMessage();
 		TrusteeCertificates trusteeCertificates;
-		try {
-			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
-		} catch (Exception ex) {
-			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.");
-		}
+		trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
 		List<Certificate> mixers = trusteeCertificates.getMixerCertificates();
 		if (mixers == null || mixers.isEmpty()) {
 			throw new UnivoteException("Invalid trustees certificates message. mixerCertificates is missing.");
 		}
-		for (Certificate c : trusteeCertificates.getMixerCertificates()) {
+		boolean first = true;
+		for (Certificate c
+				: trusteeCertificates.getMixerCertificates()) {
 			try {
 				CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 				InputStream in = new ByteArrayInputStream(c.getPem().getBytes());
 				X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
 				PublicKey pk = cert.getPublicKey();
 				actionContext.getMixerKeys().put(c.getCommonName(), pk);
+				if (first) {
+					actionContext.setCurrentMixer(c.getCommonName());
+					first = false;
+				}
 			} catch (CertificateException ex) {
 				throw new UnivoteException("Invalid trustees certificates message. Could not load pem.", ex);
 			}
 		}
 	}
 
-	protected void createMixingRequest(KeyMixingActionContext actionContext, String mixer) {
-		//TODO
+	protected void determineCurrentMixer(KeyMixingActionContext actionContext) throws UnivoteException {
+		//Retrieve last KeyMixingRequest
+		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForLastKeyMixingRequest(actionContext.getSection()));
+		//Not yet started
+		if (result.getResult().getPost().isEmpty()) {
+			actionContext.setCurrentMixer(actionContext.getMixerOrder().get(0));
+			//Set generator
+			Element generator = CryptoProvider.getSignatureSetup(actionContext.getCryptoSetting()
+					.getSignatureSetting()).getDefaultGenerator();
+			actionContext.setGenerator(generator.convertToString());
+			this.createMixingRequest(actionContext);
+		}
+		//Try to retrieve a corresponding mixing result
+		KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class,
+				result.getResult().getPost().get(0).getMessage());
+		PublicKey pk = actionContext.getMixerKeys().get(keyMixingRequest.getMixerId());
+		ResultContainerDTO result2 = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForKeyMixingResultForMixer(actionContext.getSection(), pk));
+		if (result2.getResult().getPost().isEmpty()) {
+			//Current Mixer has not published his/her result yet
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Waiting for mixing result of " + actionContext.getCurrentMixer());
+			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+			return;
+		}
+		//Validate mixing result and continue
+		KeyMixingResult keyMixingResult = JSONConverter.unmarshal(KeyMixingResult.class,
+				result2.getResult().getPost().get(0).getMessage());
+		this.validteMixingResult(actionContext, keyMixingResult);
+	}
+
+	protected void createMixingRequest(KeyMixingActionContext actionContext) {
+		KeyMixingRequest keyMixingRequest = new KeyMixingRequest();
+		keyMixingRequest.setMixerId(actionContext.getCurrentMixer());
+		keyMixingRequest.setGenerator(actionContext.getGenerator());
+		keyMixingRequest.setKeys(actionContext.getCurrentKeys());
+
+		try {
+			if (!actionContext.isGrantedARRequest()) {
+				this.grantARforKeyMixingRequest(actionContext);
+			}
+			//post ac for keyMixingResult
+			PublicKey pk = actionContext.getMixerKeys().get(actionContext.getCurrentMixer());
+			byte[] arMessage = MessageFactory.createAccessRight(GroupEnum.KEY_MIXING_RESULT, pk, 1);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.ACCESS_RIGHT.getValue(), arMessage, actionContext.getTenant());
+			//post keyMixingRequest
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.KEY_MIXING_REQUEST.getValue(),
+					JSONConverter.marshal(keyMixingRequest).getBytes(Charset.forName("UTF-8")),
+					actionContext.getTenant());
+			//inform am
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Requested key mixing from: " + actionContext.getCurrentMixer());
+			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
 
 	}
 
-	protected void validteMixingResult(KeyMixingActionContext actionContext, Object mixingResult, String mixer) throws
-			UnivoteException {
-		//TODO
+	protected void validteMixingResult(KeyMixingActionContext actionContext, KeyMixingResult mixingResult)
+			throws UnivoteException {
+		//TODO Verify proof
+		CyclicGroup cyclicGroup
+				= CryptoProvider.getSignatureSetup(actionContext.getCryptoSetting().getSignatureSetting());
+
+		Element currentG = cyclicGroup.getElementFrom(actionContext.getGenerator());
+		Element newG = cyclicGroup.getElementFrom(mixingResult.getGenerator());
+
+		Tuple vks = Tuple.getInstance();
+		for (String string : actionContext.getCurrentKeys()) {
+			vks = vks.add(cyclicGroup.getElementFrom(string));
+		}
+		Tuple shuffledVks = Tuple.getInstance();
+		for (String string : mixingResult.getMixedKeys()) {
+			shuffledVks = shuffledVks.add(cyclicGroup.getElementFrom(string));
+		}
+
+		Tuple permutationCommitment = Tuple.getInstance();
+		for (String string : mixingResult.getShuffleProof().getPermutationProof().getBridgingCommitments()) {
+			permutationCommitment = permutationCommitment.add(cyclicGroup.getElementFrom(string));
+		}
+
+		// 0. Setup
+		// Create sigma challenge generator
+		StringElement otherInput
+				= StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(actionContext.getCurrentMixer());
+
+		HashMethod hashMethod = HashMethod.getInstance(
+				CryptoProvider.getHashAlgorithm(actionContext.getCryptoSetting().getHashSetting()));
+		ConvertMethod convertMethod = ConvertMethod.getInstance(
+				BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+				StringToByteArray.getInstance(Charset.forName("UTF-8")));
+
+		Converter converter = ByteArrayToBigInteger.getInstance(hashMethod.getHashAlgorithm().getByteLength(), 1);
+
+		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
+
+		// Create e-values challenge generator
+		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(
+				cyclicGroup.getZModOrder(), vks.getArity());
+
+		Tuple publicInputShuffle = Tuple.getInstance(permutationCommitment, vks, shuffledVks, currentG, newG);
+		IdentityShuffleProofSystem spg
+				= IdentityShuffleProofSystem.getInstance(challengeGenerator, ecg, vks.getArity(), cyclicGroup);
+
+		if (spg.verify(publicInputShuffle, otherInput)) {
+
+			actionContext.setCurrentKeys(mixingResult.getMixedKeys());
+			actionContext.setGenerator(mixingResult.getGenerator());
+
+			int i = actionContext.getMixerOrder().indexOf(actionContext.getCurrentMixer());
+			//Check if last mixer
+			if (i + 1 == actionContext.getMixerOrder().size()) {
+				//post mixedKeys
+				this.postMixedKeys(actionContext);
+			} else {
+				actionContext.setCurrentMixer(actionContext.getMixerOrder().get(i + 1));
+
+				this.createMixingRequest(actionContext);
+			}
+		}
+	}
+
+	protected void postMixedKeys(KeyMixingActionContext actionContext) {
+		try {
+			MixedKeys mixedKeys = new MixedKeys();
+			mixedKeys.setMixedKeys(actionContext.getCurrentKeys());
+			mixedKeys.setGenerator(actionContext.getGenerator());
+			//post ac for mixedKeys
+			PublicKey pk = this.tenantManager.getPublicKey(actionContext.getTenant());
+			byte[] arMessage = MessageFactory.createAccessRight(GroupEnum.MIXED_KEYS, pk);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.ACCESS_RIGHT.getValue(), arMessage, actionContext.getTenant());
+
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.MIXED_KEYS.getValue(),
+					JSONConverter.marshal(mixedKeys).getBytes(Charset.forName("UTF-8")),
+					actionContext.getTenant());
+			//inform tenant
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Posted mixed keys." + actionContext.getCurrentMixer());
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
+
+	}
+
+	protected void grantARforKeyMixingRequest(KeyMixingActionContext actionContext) throws UnivoteException {
+		//post ac for keyMixingResult
+		PublicKey pk = this.tenantManager.getPublicKey(actionContext.getTenant());
+		byte[] arMessage = MessageFactory.createAccessRight(GroupEnum.KEY_MIXING_REQUEST, pk);
+		this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+				GroupEnum.ACCESS_RIGHT.getValue(), arMessage, actionContext.getTenant());
+		actionContext.setGrantedARRequest(true);
+	}
+
+	protected String computePublicKeyString(PublicKey publicKey) throws UnivoteException {
+		if (publicKey instanceof DSAPublicKey) {
+			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
+			return dsaPubKey.getY().toString(10);
+		} else if (publicKey instanceof RSAPublicKey) {
+			RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
+			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
+
+			return unicertRsaPubKey.toString(10);
+		}
+		throw new UnivoteException("Unssuport public key type");
 	}
 }

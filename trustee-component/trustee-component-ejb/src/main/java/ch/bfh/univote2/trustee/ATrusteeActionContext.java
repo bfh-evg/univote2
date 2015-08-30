@@ -56,7 +56,11 @@ public abstract class ATrusteeActionContext extends ActionContext {
     private Boolean accessRightGranted;
 
     public ATrusteeActionContext(ActionContextKey actionContextKey) {
-	super(actionContextKey, new ArrayList<>(), false);
+	this(actionContextKey, false);
+    }
+
+    public ATrusteeActionContext(ActionContextKey actionContextKey, boolean runsInParallel) {
+	super(actionContextKey, new ArrayList<>(), runsInParallel);
     }
 
     @Override

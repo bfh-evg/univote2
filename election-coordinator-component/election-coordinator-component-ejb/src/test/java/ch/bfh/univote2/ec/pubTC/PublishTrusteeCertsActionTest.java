@@ -61,7 +61,6 @@ import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -122,7 +121,7 @@ public class PublishTrusteeCertsActionTest {
 	 *
 	 * @throws Exception
 	 */
-	@Ignore
+	@Test
 	public void testPrepareContext2() throws Exception {
 		String tenant = "testPrepareContext2";
 		String section = "section";
@@ -155,7 +154,7 @@ public class PublishTrusteeCertsActionTest {
 	 *
 	 * @throws Exception
 	 */
-	@Ignore
+	@Test
 	public void testPrepareContext3() throws Exception {
 		String tenant = "testPrepareContext3";
 		String section = "section";
@@ -193,7 +192,7 @@ public class PublishTrusteeCertsActionTest {
 	 *
 	 * @throws Exception
 	 */
-	@Ignore
+	@Test
 	public void testRun2() throws Exception {
 		String tenant = "testRun2";
 		String section = "section";
@@ -232,7 +231,7 @@ public class PublishTrusteeCertsActionTest {
 	 *
 	 * @throws Exception
 	 */
-	@Ignore
+	@Test
 	public void testRun3() throws Exception {
 		String tenant = "testRun3";
 		String section = "section";
@@ -291,7 +290,7 @@ public class PublishTrusteeCertsActionTest {
 	 *
 	 * @throws Exception
 	 */
-	@Ignore
+	@Test
 	public void testNotifyAction3() throws Exception {
 		String tenant = "testNotifyAction3";
 		String section = "section";
