@@ -119,6 +119,10 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
     //See report.pdf (6.2.2.b)
     public static final String PERSISTENCE_NAME_FOR_ALPHA = "alpha";
 
+    //This generator should not be stored here but taken from the board... However, this is a QUERY
+    //unknown for the programmer so for now the simple (but wrong) way is choosen to store gMinus localy. (Sorry)
+    public static final String PERSISTENCE_NAME_FOR_G_MINUS = "gMinus";
+
     private static final String ACTION_NAME = KeyMixingAction.class.getSimpleName();
 
     private static final Logger logger = Logger.getLogger(KeyMixingAction.class.getName());
@@ -258,11 +262,13 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 	    EnhancedKeyMixingResult enhancedKeyMixingResult = createKeyMixingResult(tenant, keyMixingRequest, uniCryptCryptoSetting, alpha);
 	    alpha = enhancedKeyMixingResult.alpha;
+	    BigInteger gMinus = enhancedKeyMixingResult.gMinus;
 	    KeyMixingResult keyMixingResult = enhancedKeyMixingResult.keyMixingResult;
 	    String keyMixingResultString = JSONConverter.marshal(keyMixingResult);
 	    byte[] keyMixingResultByteArray = keyMixingResultString.getBytes(Charset.forName("UTF-8"));
 
 	    securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_ALPHA, alpha);
+	    securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_G_MINUS, gMinus);
 
 	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.KEY_MIXING_RESULT.getValue(), keyMixingResultByteArray, tenant);
 	    this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -349,7 +355,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
     private EnhancedKeyMixingResult createKeyMixingResult(String tenant, KeyMixingRequest keyMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting, BigInteger alphaAsBigInt) {
 	CyclicGroup cyclicGroup = uniCryptCryptoSetting.signatureGroup;
-	Element generator = uniCryptCryptoSetting.encryptionGroup.getElementFrom(keyMixingRequest.getGenerator());
 
 	// d)
 	Element alpha = null;
@@ -425,6 +430,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 	EnhancedKeyMixingResult result = new EnhancedKeyMixingResult();
 	result.alpha = alpha.convertToBigInteger();
+	result.gMinus = gMinus.convertToBigInteger();
 
 	List<String> shuffledVKsAsStrings = new ArrayList<>();
 	for (Element shuffledVK : shuffledVks) {
@@ -469,7 +475,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	shuffleProofDTO.setMixProof(mixProofDTO);
 	shuffleProofDTO.setPermutationProof(permutationProofDTO);
 
-	KeyMixingResult keyMixingResult = new KeyMixingResult(shuffledVKsAsStrings, generator.convertToString(), shuffleProofDTO);
+	KeyMixingResult keyMixingResult = new KeyMixingResult(shuffledVKsAsStrings, g.convertToString(), shuffleProofDTO);
 	result.keyMixingResult = keyMixingResult;
 	return result;
     }
@@ -478,6 +484,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 	protected KeyMixingResult keyMixingResult;
 	protected BigInteger alpha;
+	protected BigInteger gMinus;
     }
 
 }
