@@ -2,7 +2,7 @@ package ch.bfh.univote.admin.data;
 
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(propOrder = {"id", "number", "lastName", "firstName", "sex", "yearOfBirth", "studyBranch", "studyBranch", "studyDegree", "studySemester", "status"})
+@XmlType(propOrder = {"id", "number", "lastName", "firstName", "sex", "yearOfBirth", "studyBranch", "studyDegree", "studySemester", "status"})
 public class CandidateOption extends ElectionOption {
 
 	public enum Sex {
