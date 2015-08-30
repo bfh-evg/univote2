@@ -112,7 +112,7 @@ import javax.json.JsonException;
 
 /**
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
 @Stateless
 public class PartialDecryptionAction extends AbstractAction implements NotifiableAction {
@@ -172,6 +172,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
 	TrusteeActionHelper.checkAndSetCryptoSetting(pdac, uniboardService, tenantManager, informationService, logger);
 	TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.PARTIAL_DECRYPTION, uniboardService, tenantManager, informationService, logger);
+	this.checkAndSetMixedVotes(pdac);
     }
 
     protected void checkAndSetMixedVotes(PartialDecryptionActionContext actionContext) {
@@ -320,10 +321,23 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 		    && GroupEnum.ACCESS_RIGHT.getValue()
 		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
 		pdac.setAccessRightGranted(Boolean.TRUE);
-	    } else if (pdac.getMixedVotes() == null) {
+	    }
+
+	    if (pdac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+		    && GroupEnum.CRYPTO_SETTING.getValue()
+		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
+		pdac.setCryptoSetting(cryptoSetting);
+	    }
+	    if (pdac.getMixedVotes() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+		    && GroupEnum.MIXED_VOTES.getValue()
+		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
 		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, post.getMessage());
 		pdac.setMixedVotes(mixedVotes);
 	    }
+
 	    run(actionContext);
 	} catch (UnivoteException ex) {
 	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
@@ -342,8 +356,8 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	    throw new UnivoteException("mixed votes not published yet.");
 
 	}
-	MixedVotes cryptoSetting = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
-	return cryptoSetting;
+	MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
+	return mixedVotes;
 
     }
 

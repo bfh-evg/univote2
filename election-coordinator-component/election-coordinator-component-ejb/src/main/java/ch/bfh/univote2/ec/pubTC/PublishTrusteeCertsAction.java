@@ -52,6 +52,8 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.message.JSONConverter;
+import ch.bfh.univote2.component.core.message.Trustees;
 import ch.bfh.univote2.component.core.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -66,7 +68,6 @@ import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.JsonException;
 
 /**
  *
@@ -75,7 +76,7 @@ import javax.json.JsonException;
 @Stateless
 public class PublishTrusteeCertsAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "PublishTrusteeCertsAction";
+	private static final String ACTION_NAME = PublishTrusteeCertsAction.class.getSimpleName();
 	private static final Logger logger = Logger.getLogger(PublishTrusteeCertsAction.class.getName());
 
 	@EJB
@@ -121,12 +122,7 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 			logger.log(Level.WARNING, "Could not get trustees.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Error retrieving trustees: " + ex.getMessage());
-		} catch (JsonException ex) {
-			logger.log(Level.WARNING, "Could not parse trustees.", ex);
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error reading trustees.");
 		}
-
 	}
 
 	@Override
@@ -183,7 +179,7 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 
 	}
 
-	protected byte[] retrieveTrustees(ActionContext actionContext) throws JsonException, UnivoteException {
+	protected byte[] retrieveTrustees(ActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrustees(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
@@ -194,13 +190,9 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	}
 
 	protected void fillContext(PublishTrusteeCertsActionContext ptcac, byte[] message) throws UnivoteException {
-//		Trustees trustees;
-//		try {
-//			trustees = Converter.unmarshal(Trustees.class, message);
-//		} catch (Exception ex) {
-//			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.", ex);
-//		}
-		//TODO save trustees in context
+		Trustees trustees = JSONConverter.unmarshal(Trustees.class, message);
+		ptcac.getMixers().addAll(trustees.getMixerIds());
+		ptcac.getTalliers().addAll(trustees.getTallierIds());
 	}
 
 	private void runInternal(PublishTrusteeCertsActionContext actionContext) {

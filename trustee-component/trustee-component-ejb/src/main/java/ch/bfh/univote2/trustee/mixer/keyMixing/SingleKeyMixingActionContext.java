@@ -39,34 +39,40 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.trustee.parallel;
+package ch.bfh.univote2.trustee.mixer.keyMixing;
 
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.data.PreconditionQuery;
-import java.util.Date;
-import java.util.List;
+import ch.bfh.univote2.component.core.message.SingleKeyMixingRequest;
+import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class ParallelActionContext extends ActionContext {
+public class SingleKeyMixingActionContext extends ATrusteeActionContext {
 
-	private Date timeOut;
+    private SingleKeyMixingRequest keyMixingRequest;
 
-	public ParallelActionContext(ActionContextKey actionContextKey, List<PreconditionQuery> preconditionQueries) {
-		super(actionContextKey, preconditionQueries, true);
-		this.timeOut = new Date();
-	}
+    public SingleKeyMixingActionContext(ActionContextKey actionContextKey) {
+	super(actionContextKey, true);
+    }
 
-	@Override
-	protected void purgeData() {
-		this.timeOut = null;
-	}
+    @Override
+    public Boolean isSpecializedPreconditionReached() {
+	return this.keyMixingRequest != null;
+    }
 
-	public Date getTimeOut() {
-		return timeOut;
-	}
+    @Override
+    protected void purgeSpecializedData() {
+	this.keyMixingRequest = null;
+    }
+
+    public SingleKeyMixingRequest getSingleKeyMixingRequest() {
+	return keyMixingRequest;
+    }
+
+    public void setSingleKeyMixingRequest(SingleKeyMixingRequest keyMixingRequest) {
+	this.keyMixingRequest = keyMixingRequest;
+    }
 
 }

@@ -11,32 +11,34 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
+import org.junit.Test;
 
 public class JAXBMarshalingTest {
 
 	private static final String DOCUMENT_PATH = "json-examples/sub-2015/electionDetails.json";
 
-	public static void main(String[] args) throws Exception {
+	@Test
+	public void test() throws Exception {
 		JAXBContext jaxbContext = initJAXBContext(ElectionDetails.class);
 		ElectionDetails electionDetails = unmarshal(jaxbContext, ElectionDetails.class, DOCUMENT_PATH);
 		String jsonString = marshal(jaxbContext, electionDetails);
 		System.out.println(jsonString);
 	}
 
-	private static <T> JAXBContext initJAXBContext(Class<T> type) throws Exception {
+	private <T> JAXBContext initJAXBContext(Class<T> type) throws Exception {
 		Map<String, Object> properties = new HashMap();
 		properties.put("eclipselink.media-type", "application/json");
 		properties.put("eclipselink.json.include-root", false);
 		return JAXBContext.newInstance(new Class[]{type}, properties);
 	}
 
-	private static <T> T unmarshal(JAXBContext jaxbContext, Class<T> type, String path) throws Exception {
+	private <T> T unmarshal(JAXBContext jaxbContext, Class<T> type, String path) throws Exception {
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 		Reader reader = new InputStreamReader(new FileInputStream(path), "UTF-8");
 		return unmarshaller.unmarshal(new StreamSource(reader), type).getValue();
 	}
 
-	private static String marshal(JAXBContext jaxbContext, Object object) throws Exception {
+	private String marshal(JAXBContext jaxbContext, Object object) throws Exception {
 		StringWriter writer = new StringWriter();
 		Marshaller marshaller = jaxbContext.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");

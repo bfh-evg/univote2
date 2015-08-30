@@ -61,6 +61,8 @@ public enum GroupEnum {
 	ENCRYPTION_KEY("encryptionKey"),
 	KEY_MIXING_REQUEST("keyMixingRequest"),
 	KEY_MIXING_RESULT("keyMixingResult"),
+	SINGLE_KEY_MIXING_REQUEST("singleKeyMixingRequest"),
+	SINGLE_KEY_MIXING_RESULT("SingleKeyMixingResult"),
 	MIXED_KEYS("mixedKeys"),
 	PARTIAL_DECRYPTION("partialDecryption"),
 	SIGNATURE_GENERATOR("signatureGenerator"),
