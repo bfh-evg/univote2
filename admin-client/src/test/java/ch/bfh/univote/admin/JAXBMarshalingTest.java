@@ -2,7 +2,8 @@ package ch.bfh.univote.admin;
 
 import ch.bfh.univote.admin.data.ElectionDetails;
 import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +32,14 @@ public class JAXBMarshalingTest {
 
 	private static <T> T unmarshal(JAXBContext jaxbContext, Class<T> type, String path) throws Exception {
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-		InputStream stream = new FileInputStream(path);
-		return unmarshaller.unmarshal(new StreamSource(stream), type).getValue();
+		Reader reader = new InputStreamReader(new FileInputStream(path), "UTF-8");
+		return unmarshaller.unmarshal(new StreamSource(reader), type).getValue();
 	}
 
 	private static String marshal(JAXBContext jaxbContext, Object object) throws Exception {
 		StringWriter writer = new StringWriter();
 		Marshaller marshaller = jaxbContext.createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		marshaller.marshal(object, writer);
 		return writer.toString();
