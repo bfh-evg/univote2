@@ -364,7 +364,7 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 	Function f2 = GeneratorFunction.getInstance(kMinus);
 	// Private and public input and prover id
 	Element privateInput = alpha;
-	Pair publicInput = Pair.getInstance(g, k);
+	Pair publicInput = Pair.getInstance(kMinus, k);
 	StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
 	HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
 	ConvertMethod convertMethod = ConvertMethod.getInstance(
