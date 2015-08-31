@@ -401,7 +401,7 @@
 			var saltB64 = CryptoJS.enc.Base64.stringify(salt);
 
 			// 3. Derivate key from password
-			var symKey = CryptoJS.PBKDF2(password, salt, {keySize: uvConfig.SYM_KEY_SIZE / 32, iterations: uvConfig.PWD_KEY_DERIVATION_ITERATION});
+			var symKey = CryptoJS.PBKDF2(password, salt, {keySize: uvConfig.SYM_KEY_SIZE / 32, hasher: uvConfig.PWD_KEY_DERIVATION_HASHER, iterations: uvConfig.PWD_KEY_DERIVATION_ITERATION});
 
 			// 4. Create an IV of exactly 128 bits
 			var iv = CryptoJS.lib.WordArray.random(128 / 8);
@@ -457,7 +457,7 @@
 			var encrypted = keyC.substring(48);
 
 			// 4. Derivate key from password
-			var symKey = CryptoJS.PBKDF2(password, salt, {keySize: uvConfig.SYM_KEY_SIZE / 32, iterations: uvConfig.PWD_KEY_DERIVATION_ITERATION});
+			var symKey = CryptoJS.PBKDF2(password, salt, {keySize: uvConfig.SYM_KEY_SIZE / 32, hasher: uvConfig.PWD_KEY_DERIVATION_HASHER, iterations: uvConfig.PWD_KEY_DERIVATION_ITERATION});
 
 			// 5. Decrypt private key with symetric key
 			var decrypted = hex2a(CryptoJS.AES.decrypt(encrypted, symKey, {iv: iv}));
