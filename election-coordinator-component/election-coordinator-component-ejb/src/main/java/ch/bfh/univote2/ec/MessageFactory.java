@@ -44,7 +44,6 @@ package ch.bfh.univote2.ec;
 import ch.bfh.unicrypt.helper.math.MathUtil;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.message.AccessRight;
-import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.DL;
 import ch.bfh.univote2.component.core.message.JSONConverter;
 import ch.bfh.univote2.component.core.message.RSA;
@@ -92,7 +91,11 @@ public class MessageFactory {
 			RSA rsa = new RSA(unicertRsaPubKey.toString(10));
 			accessRight.setCrypto(rsa);
 		} else {
-			throw new UnivoteException("Unsupported public key: " + publicKey.getClass());
+			if (publicKey == null) {
+				throw new UnivoteException("Inexistent public key: " + publicKey);
+			} else {
+				throw new UnivoteException("Unsupported public key: " + publicKey.getClass());
+			}
 		}
 		try {
 			return JSONConverter.marshal(accessRight).getBytes(Charset.forName("UTF-8"));
