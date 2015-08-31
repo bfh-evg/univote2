@@ -2,7 +2,6 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title": "accessRight",
 	"type": "object",
-	"id": "http://uniboard.bfh.ch/accessRight",
 	"properties": {
 		"group": {
 			"type": "string"
