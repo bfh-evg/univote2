@@ -28,7 +28,7 @@ import java.util.List;
 
 public class MessageGet {
 
-	private static final String BOARD_CERTIFICATE_PATH = "ub-certificate.pem";
+	private static final String BOARD_CERTIFICATE_PATH = "board-certificate.pem";
 	private static final String CERTIFICATE_PATH = "ea-certificate.pem";
 
 	private static final String UNIBOARD_ADDRESS = "http://urd.bfh.ch:10080/UniBoardService/UniBoardServiceImpl";
