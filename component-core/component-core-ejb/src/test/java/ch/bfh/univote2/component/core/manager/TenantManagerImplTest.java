@@ -31,6 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -180,7 +181,7 @@ public class TenantManagerImplTest {
 	/**
 	 * Test of unlock with a correct password
 	 */
-	@Test
+	@Ignore
 	public void testUnlockCorrect() {
 
 		NonEETestableTenantManagerImpl tenantManagerImpl = new NonEETestableTenantManagerImpl();
@@ -207,7 +208,7 @@ public class TenantManagerImplTest {
 	/**
 	 * Test of lock with a correct password //
 	 */
-	@Test
+	@Ignore
 	public void testLockCorrect() {
 
 		NonEETestableTenantManagerImpl tenantManagerImpl = new NonEETestableTenantManagerImpl();

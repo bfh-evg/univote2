@@ -9,7 +9,7 @@
 			<env-entry>
 				<env-entry-name>JNDI_URI</env-entry-name>
 				<env-entry-type>java.lang.String</env-entry-type>
-				<env-entry-value>univote2/example</env-entry-value>
+				<env-entry-value>trustee/config</env-entry-value>
 			</env-entry>
 		</session>
 	</enterprise-beans>

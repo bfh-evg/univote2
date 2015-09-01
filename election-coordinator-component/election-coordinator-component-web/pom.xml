@@ -17,7 +17,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>example-component-ejb</artifactId>
+			<artifactId>election-coordinator-component-ejb</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

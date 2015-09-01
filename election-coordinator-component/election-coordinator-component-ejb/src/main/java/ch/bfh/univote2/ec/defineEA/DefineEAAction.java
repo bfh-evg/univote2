@@ -118,9 +118,10 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
 		if (actionContext instanceof DefineEAActionContext) {
 			DefineEAActionContext deaa = (DefineEAActionContext) actionContext;
-			if (!deaa.getName().isEmpty()) {
+			if (deaa.getName() != null) {
 				this.runInternal(deaa);
 			} else {
+				logger.log(Level.INFO, actionContext.toString());
 				this.informationService.informTenant(actionContext.getActionContextKey(),
 						"No name set for EA.");
 				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);

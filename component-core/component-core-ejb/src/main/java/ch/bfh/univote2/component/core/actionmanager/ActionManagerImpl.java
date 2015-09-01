@@ -206,7 +206,7 @@ public class ActionManagerImpl implements ActionManager {
 		if (!this.actionContexts.containsKey(new ActionContextKey(actionName, tenant, section))) {
 			try {
 				ActionContext ac = this.getAction(actionName).prepareContext(tenant, section);
-				this.actionContexts.put(new ActionContextKey(actionName, tenant, section), ac);
+				this.actionContexts.put(ac.getActionContextKey(), ac);
 				if (ac.checkPostCondition()) {
 					for (String aName : this.actionGraph.get(ac.getActionContextKey().getAction())) {
 						this.checkActionState(aName, tenant, section);

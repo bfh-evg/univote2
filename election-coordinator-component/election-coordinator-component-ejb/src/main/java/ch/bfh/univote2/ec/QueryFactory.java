@@ -60,6 +60,7 @@ import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
 
 /**
  *
@@ -87,7 +88,7 @@ public class QueryFactory {
 		//Where cert type is trustee
 		IdentifierDTO identifier4 = new MessageIdentifierDTO();
 		identifier4.getPart().add("roles");
-		InDTO constraint4 = new InDTO();
+		InDTO constraint4 = new InDTO(identifier4, new ArrayList<>());
 		constraint4.getElement().add(new StringValueDTO("electionAdministrator"));
 		query.getConstraint().add(constraint4);
 		//Order by timestamp desc

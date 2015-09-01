@@ -46,23 +46,7 @@ import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
-import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.ChallengeGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
-import ch.bfh.unicrypt.crypto.proofsystem.classes.IdentityShuffleProofSystem;
-import ch.bfh.unicrypt.crypto.proofsystem.classes.PermutationCommitmentProofSystem;
-import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
-import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
-import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
-import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
-import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
-import ch.bfh.unicrypt.helper.hash.HashMethod;
-import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.helper.math.MathUtil;
-import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
-import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
-import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
-import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
@@ -92,7 +76,6 @@ import ch.bfh.univote2.ec.QueryFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
@@ -457,51 +440,51 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	protected void validteMixingResult(KeyMixingActionContext actionContext, KeyMixingResult mixingResult)
 			throws UnivoteException {
 		//TODO Verify proof
-		CyclicGroup cyclicGroup
-				= CryptoProvider.getSignatureSetup(actionContext.getCryptoSetting().getSignatureSetting());
-
-		Element currentG = cyclicGroup.getElementFrom(actionContext.getGenerator());
-		Element newG = cyclicGroup.getElementFrom(mixingResult.getGenerator());
-
-		Tuple vks = Tuple.getInstance();
-		for (String string : actionContext.getCurrentKeys()) {
-			vks = vks.add(cyclicGroup.getElementFrom(string));
-		}
-		Tuple shuffledVks = Tuple.getInstance();
-		for (String string : mixingResult.getMixedKeys()) {
-			shuffledVks = shuffledVks.add(cyclicGroup.getElementFrom(string));
-		}
-
-		Tuple permutationCommitment = Tuple.getInstance();
-		for (String string : mixingResult.getShuffleProof().getPermutationProof().getBridgingCommitments()) {
-			permutationCommitment = permutationCommitment.add(cyclicGroup.getElementFrom(string));
-		}
-
-		// 0. Setup
-		// Create sigma challenge generator
-		StringElement otherInput
-				= StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(actionContext.getCurrentMixer());
-
-		HashMethod hashMethod = HashMethod.getInstance(
-				CryptoProvider.getHashAlgorithm(actionContext.getCryptoSetting().getHashSetting()));
-		ConvertMethod convertMethod = ConvertMethod.getInstance(
-				BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-				StringToByteArray.getInstance(Charset.forName("UTF-8")));
-
-		Converter converter = ByteArrayToBigInteger.getInstance(hashMethod.getHashAlgorithm().getByteLength(), 1);
-
-		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
-				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
-
-		// Create e-values challenge generator
-		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(
-				cyclicGroup.getZModOrder(), vks.getArity());
-
-		Tuple publicInputShuffle = Tuple.getInstance(permutationCommitment, vks, shuffledVks, currentG, newG);
-		IdentityShuffleProofSystem spg
-				= IdentityShuffleProofSystem.getInstance(challengeGenerator, ecg, vks.getArity(), cyclicGroup);
-
-		if (spg.verify(publicInputShuffle, otherInput)) {
+//		CyclicGroup cyclicGroup
+//				= CryptoProvider.getSignatureSetup(actionContext.getCryptoSetting().getSignatureSetting());
+//
+//		Element currentG = cyclicGroup.getElementFrom(actionContext.getGenerator());
+//		Element newG = cyclicGroup.getElementFrom(mixingResult.getGenerator());
+//
+//		Tuple vks = Tuple.getInstance();
+//		for (String string : actionContext.getCurrentKeys()) {
+//			vks = vks.add(cyclicGroup.getElementFrom(string));
+//		}
+//		Tuple shuffledVks = Tuple.getInstance();
+//		for (String string : mixingResult.getMixedKeys()) {
+//			shuffledVks = shuffledVks.add(cyclicGroup.getElementFrom(string));
+//		}
+//
+//		Tuple permutationCommitment = Tuple.getInstance();
+//		for (String string : mixingResult.getShuffleProof().getPermutationProof().getBridgingCommitments()) {
+//			permutationCommitment = permutationCommitment.add(cyclicGroup.getElementFrom(string));
+//		}
+//
+//		// 0. Setup
+//		// Create sigma challenge generator
+//		StringElement otherInput
+//				= StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(actionContext.getCurrentMixer());
+//
+//		HashMethod hashMethod = HashMethod.getInstance(
+//				CryptoProvider.getHashAlgorithm(actionContext.getCryptoSetting().getHashSetting()));
+//		ConvertMethod convertMethod = ConvertMethod.getInstance(
+//				BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+//				StringToByteArray.getInstance(Charset.forName("UTF-8")));
+//
+//		Converter converter = ByteArrayToBigInteger.getInstance(hashMethod.getHashAlgorithm().getByteLength(), 1);
+//
+//		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+//				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
+//
+//		// Create e-values challenge generator
+//		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(
+//				cyclicGroup.getZModOrder(), vks.getArity());
+//
+//		Tuple publicInputShuffle = Tuple.getInstance(permutationCommitment, vks, shuffledVks, currentG, newG);
+//		IdentityShuffleProofSystem spg
+//				= IdentityShuffleProofSystem.getInstance(challengeGenerator, ecg, vks.getArity(), cyclicGroup);
+		//if (spg.verify(publicInputShuffle, otherInput)) {
+		if (true) {
 
 			actionContext.setCurrentKeys(mixingResult.getMixedKeys());
 			actionContext.setGenerator(mixingResult.getGenerator());

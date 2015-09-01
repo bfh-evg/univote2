@@ -61,6 +61,7 @@ import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -231,7 +232,7 @@ public class PublishTrusteeCertsActionTest {
 	 *
 	 * @throws Exception
 	 */
-	@Test
+	@Ignore
 	public void testRun3() throws Exception {
 		String tenant = "testRun3";
 		String section = "section";

@@ -39,10 +39,11 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.trustee.parallel;
+package ch.bfh.univote2.ec.init;
 
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TaskManager;
+import ch.bfh.univote2.ec.defineEA.EANameUserInput;
 import java.io.Serializable;
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
@@ -52,12 +53,12 @@ import javax.inject.Inject;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@Named(value = "parallelActionBean")
+@Named(value = "defineEAActionBean")
 @ViewScoped
-public class ParallelActionBean implements Serializable {
+public class DefineEAActionBean implements Serializable {
 
 	private String notificationCode;
-	private String parallelValue;
+	private String eaName;
 
 	@Inject
 	TaskManager taskManager;
@@ -65,7 +66,7 @@ public class ParallelActionBean implements Serializable {
 	/**
 	 * Creates a new instance of InitActionBean
 	 */
-	public ParallelActionBean() {
+	public DefineEAActionBean() {
 	}
 
 	public String getNotificationCode() {
@@ -76,22 +77,23 @@ public class ParallelActionBean implements Serializable {
 		this.notificationCode = notificationCode;
 	}
 
-	public String getParallelValue() {
-		return parallelValue;
+	public String getEaName() {
+		return eaName;
 	}
 
-	public void setParallelValue(String parallelValue) {
-		this.parallelValue = parallelValue;
+	public void setEaName(String section) {
+		this.eaName = section;
 	}
 
 	public String sendInput() {
-		ParallelUserInput userInput = new ParallelUserInput(parallelValue);
+		EANameUserInput userInput = new EANameUserInput(eaName);
 		try {
 			this.taskManager.userInputReceived(notificationCode, userInput);
 		} catch (UnivoteException ex) {
+			System.out.println(ex.getMessage());
 			return "";
 		}
-		return "/secured/tasks";
+		return "tasks.xhtml";
 	}
 
 }

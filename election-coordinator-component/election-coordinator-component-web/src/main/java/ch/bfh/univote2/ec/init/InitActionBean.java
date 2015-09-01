@@ -39,7 +39,7 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.example.init;
+package ch.bfh.univote2.ec.init;
 
 import ch.bfh.univote2.component.core.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TaskManager;

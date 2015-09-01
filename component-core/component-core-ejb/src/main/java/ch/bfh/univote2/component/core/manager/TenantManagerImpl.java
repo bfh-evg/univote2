@@ -42,7 +42,6 @@
 package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.uniboard.clientlib.KeyHelper;
-import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
 import ch.bfh.unicrypt.crypto.schemes.hashing.classes.FixedByteArrayHashingScheme;
 import ch.bfh.unicrypt.helper.array.classes.ByteArray;
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
@@ -51,7 +50,6 @@ import ch.bfh.unicrypt.helper.hash.HashMethod;
 import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
 import ch.bfh.unicrypt.math.algebra.dualistic.classes.Z;
-import ch.bfh.unicrypt.math.algebra.general.classes.FiniteByteArrayElement;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.component.core.UnivoteException;
@@ -85,13 +83,6 @@ public class TenantManagerImpl implements TenantManager {
 
 	protected static final HashMethod HASH_METHOD = HashMethod.getInstance(HashAlgorithm.SHA256,
 			BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN));
-//			HashMethod.getInstance(
-//			HashAlgorithm.SHA256,
-//			ConvertMethod.getInstance(
-//					BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-//					ByteArrayToByteArray.getInstance(false),
-//					StringToByteArray.getInstance(Charset.forName("UTF-8"))),
-//			HashMethod.Mode.RECURSIVE);
 
 	protected final Map<String, UnlockedTenant> unlockedTentants = new HashMap<>();
 
@@ -107,24 +98,24 @@ public class TenantManagerImpl implements TenantManager {
 		}
 		if (this.checkHash(password, tenantEntity.getHashValue(), tenantEntity.getSalt())) {
 			try {
-				AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
-				FiniteByteArrayElement aesKey = aes.getPasswordBasedKey(password);
-				//TODO Compute aes key
-				Element encPrivKey = aes.getMessageSpace().getElement(tenantEntity.getEncPrivateKey());
-				//Load tenant from persistence
-				BigInteger dsaPrivKey = aes.decrypt(aesKey, encPrivKey).convertToBigInteger();
-                //Decrypt the private key
+				// Computes aes key and decrypts the UniVote-Private key received via e-mail (with pre- and postfix)
+				// into a pure private key
+				byte[] decryptedBytes
+						= PasswordBasedKeyDerivation.decryptPrivateKey(tenantEntity.getEncPrivateKey(), password);
+				ByteArray element = ByteArray.getInstance(decryptedBytes);
+				BigInteger dsaPrivKey = new BigInteger(decryptedBytes);
 
 				//Create the private key
 				PrivateKey privKey = KeyHelper.createDSAPrivateKey(tenantEntity.getModulus(),
 						tenantEntity.getOrderFactor(), tenantEntity.getGenerator(), dsaPrivKey);
 				//Add tenant
-				this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey.getValue(), privKey));
+				this.unlockedTentants.put(tenant, new UnlockedTenant(element, privKey));
 				return true;
 			} catch (InvalidKeySpecException | NoSuchAlgorithmException | IllegalArgumentException ex) {
 				//throw new UnivoteException("Could not retrieve privateKey: " + tenant, ex);
 				logger.log(Level.WARNING, ex.getMessage());
-				return false;
+			} catch (Exception ex) {
+				Logger.getLogger(TenantManagerImpl.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
 		return false;
