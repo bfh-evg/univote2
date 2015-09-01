@@ -49,6 +49,7 @@ public enum GroupEnum {
 
 	ADMIN_CERT("administrationCertificate"),
 	ACCESS_RIGHT("accessRight"),
+	BALLOT("ballot"),
 	ELECTION_DEFINITION("electionDefinition"),
 	ELECTION_DETAILS("electionDetails"),
 	TRUSTEES("trustees"),
