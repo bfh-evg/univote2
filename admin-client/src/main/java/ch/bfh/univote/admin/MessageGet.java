@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2014 Berner Fachhochschule, Switzerland.
+ * Bern University of Applied Sciences, Engineering and Information Technology,
+ * Research Institute for Security in the Information Society, E-Voting Group,
+ * Biel, Switzerland.
+ *
+ * Project UniBoard.
+ *
+ * Distributable under GPL license.
+ * See terms of license at gnu.org.
+ */
 package ch.bfh.univote.admin;
 
 import ch.bfh.uniboard.clientlib.GetHelper;
@@ -17,7 +28,7 @@ import java.util.List;
 
 public class MessageGet {
 
-	private static final String BOARD_CERTIFICATE_PATH = "ub-certificate.pem";
+	private static final String BOARD_CERTIFICATE_PATH = "board-certificate.pem";
 	private static final String CERTIFICATE_PATH = "ea-certificate.pem";
 
 	private static final String UNIBOARD_ADDRESS = "http://urd.bfh.ch:10080/UniBoardService/UniBoardServiceImpl";

@@ -11,8 +11,27 @@
  */
 package ch.bfh.univote.admin.data;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-@XmlSeeAlso({CandidateOption.class, ListOption.class, VotingOption.class})
-public class ElectionOption {
+@XmlSeeAlso({RSA.class, DL.class, ECDL.class})
+public abstract class Crypto {
+
+	private String publickey;
+
+	public Crypto() {
+	}
+
+	public Crypto(String publickey) {
+		this.publickey = publickey;
+	}
+
+	@XmlElement(required = true)
+	public String getPublickey() {
+		return publickey;
+	}
+
+	public void setPublickey(String publickey) {
+		this.publickey = publickey;
+	}
 }

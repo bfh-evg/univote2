@@ -86,6 +86,11 @@
 		this.PWD_KEY_DERIVATION_ITERATION = 1000;
 
 		/**
+		 * The underlying hash function of the PBKDF2
+		 */
+		this.PWD_KEY_DERIVATION_HASHER = CryptoJS.algo.SHA1;
+
+		/**
 		 * UniVote Board setting: p, q and g for Schnorr signature.
 		 */
 		this.BOARD_SETTING = {

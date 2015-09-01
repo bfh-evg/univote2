@@ -11,14 +11,15 @@
  */
 package ch.bfh.univote.admin.data;
 
-import java.util.List;
+import javax.xml.bind.annotation.XmlType;
 
-public class SummationRule extends ElectionRule {
+@XmlType(name = "RSA", propOrder = {"publickey"})
+public class RSA extends Crypto {
 
-	public SummationRule() {
+	public RSA() {
 	}
 
-	public SummationRule(Integer id, List<Integer> optionIds, Integer lowerBound, Integer upperBound) {
-		super(id, optionIds, lowerBound, upperBound);
+	public RSA(String publickey) {
+		super(publickey);
 	}
 }

@@ -306,9 +306,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
 					GroupEnum.ACCESS_RIGHT.getValue(), arMessage, context.getTenant());
 		} catch (Exception ex) {
-			logger.log(Level.SEVERE, "Could not post ACCESS_RIGHT message.", ex);
+			logger.log(Level.SEVERE, "Could not post ACCESS_RIGHT message: {0}", ex.getMessage());
 			this.informationService.informTenant(context.getActionContextKey(),
-					"Could not post ACCESS_RIGHT message.");
+					"Could not post ACCESS_RIGHT message: " + ex.getMessage());
 			this.actionManager.runFinished(context, ResultStatus.FAILURE);
 			return;
 		}
