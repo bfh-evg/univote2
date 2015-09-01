@@ -612,8 +612,8 @@
 			var b = leemon.powMod(encryptionKey, r, encryptionSetting.p);
 			b = leemon.multMod(b, vote, encryptionSetting.p);
 			var encVote = {
-				firstvalue: leemon.bigInt2str(a, uvConfig.BASE),
-				secondvalue: leemon.bigInt2str(b, uvConfig.BASE)};
+				firstValue: leemon.bigInt2str(a, uvConfig.BASE),
+				secondValue: leemon.bigInt2str(b, uvConfig.BASE)};
 			return {encVote: encVote, r: r, a: a, b: b};
 		};
 
