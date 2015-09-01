@@ -128,7 +128,8 @@
 
 \begin{document}
 	
-	\title{UniVote2 System Specification}
+	\title{UniVote2 System Specification\\
+	(work in progress)}
 	\maketitle
 	% To adjust order of appearance consult:
 	% http://mirror.switch.ch/ftp/mirror/tex/macros/latex/contrib/vhistory/doc/vh_sets_en.pdf
@@ -141,16 +142,16 @@
 		\vhEntry{0.5.1}{30.04.2013}{Haenni Rolf}{Improved notational consistency.}
 		\vhEntry{0.5.2}{21.05.2013}{Haenni Rolf}{Two important notational corrections.}
 		\vhEntry{0.6}{07.01.2015}{Koenig Reto E.}{Quality: Change of title; re-establishement of the version history.}
-		\vhEntry{0.6.1}{15.06.2015}{Koenig Reto E.}{Revised section on Randomness.}
+		\vhEntry{0.6.1}{15.06.2015}{Koenig Reto E.}{Revised section on randomness.}
 		\vhEntry{0.6.2}{16.06.2015}{Hauser Severin}{Revision of UniVote.}
 		\vhEntry{0.6.3}{16.06.2015}{Koenig Reto E.}{Revision of UniVote.}
 		\vhEntry{0.6.4}{26.06.2015}{Haenni Rolf}{Table in Section 7 adjusted.}
-		\vhEntry{0.6.5}{20.07.2015}{Haenni Rolf}{Updated tables in Section 7; Updated late registration procedure.}
+		\vhEntry{0.6.5}{20.07.2015}{Haenni Rolf}{Updated tables in Section 7; updated late registration procedure.}
 		\vhEntry{0.6.6}{22.07.2015}{Haenni Rolf}{Final minor protocol adjustments.}
 		\vhEntry{0.6.7}{04.08.2015}{Haenni Rolf}{Cleanup in encoding and hashing.}	
 		\vhEntry{0.6.8}{18.08.2015}{Haenni Rolf}{Encoding section updated.}	
-		\vhEntry{0.6.9}{27.08.2015}{Haenni Rolf}{Password-Based Key Derivation.}	
-		\vhEntry{0.6.10}{01.09.2015}{Dubuis Eric}{Reformatted tables for actions.}
+		\vhEntry{0.6.9}{27.08.2015}{Haenni Rolf}{Password-based key derivation.}	
+		\vhEntry{0.6.10}{01.09.2015}{Dubuis Eric}{Reformatted tables for actions and other matters.}
 	\end{versionhistory}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,6 +166,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\emph{To be provided.}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Theoretical Background}
@@ -505,8 +509,12 @@ A standard construction of a DRBG for password-based key derivation is called PB
 
 
 \paragraph*{Hash-DRBG}
+\emph{To be provided.}
+
 
 \paragraph*{HMAC-DRBG}
+\emph{To be provided.}
+
 
 
 %\subsection{Reseedable Pseudo-Random Bit Generators}
@@ -726,7 +734,7 @@ instead of $N$ individual proofs of the second type. As discussed in \subsecref{
 \section{Verifiable Mix-Nets}
 %-----------------------------------------------------------------------------------------------
 
-\emph{not yet implemented}
+\emph{To be provided.}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -895,7 +903,7 @@ $\mathrm{Unregister}(c): -$
 \end{enumerate}
 
 \paragraph*{Multiple instances}
-As there can be multiple instances of UniBoard running, they need to be recognisable. This is achieved by denoting every operation with an application identifier , e.g. $\mathrm{Post}_{UV}(m,\alpha):\beta$ for UniVote 
+As there can be multiple instances of UniBoard running, they need to be recognisable. This is achieved by denoting every operation with an application identifier, e.g.\ $\mathrm{Post}_{UV}(m,\alpha):\beta$ for UniVote.
 %This property is completely on the operational level as the bulletin board for each application $l$ is independent. This property allows one UniBoard instance to provide service to multiple applications. This is achieved by adding the application $l$ to every operation provided by UniBoard, e.g. $\mathrm{Post}_l(m,\alpha):\beta$.
 
 
@@ -910,7 +918,7 @@ UniCert is a certification authority, that issues digital certificates used to a
 UniCert then issues a certificate based on the identity information present in the token and on other properties provided by the requester.  Therefore, UniCert uses a function $\mathit{f}(t_{auth})$, to extract the needed information from the authentication token, resulting in a identifier $id$. $\mathit{f}$ must use at least one unique identifier present in the token in order to be able to output different results for two different inputs. UniCert defines a set $\mathcal{F}$ of functions $\mathit{f}$ allowing to select information from the authentication token, or to make some processing on them before putting them in the certificate (e.g anonymization by using a one-way function). The user has to choose one of the functions provided by UniCert. A reference to the identity provider used is inserted in the certificate.
 
 
-\paragraph*{Application Identifier and Role} A user should have the possibility to request multiple certificates. This allows them to manage them differently. For example, they can use a certificate for critical tasks and another one for less critical tasks. The way the user manages the private keys of these two certificates is certainly different. In order make it possible for the user to request multiple certificates, there must be a way to distinguish them. In some cases, this could be done using the cryptographic values in the certificate\footnote{For example different p, q and generators in discrete logarithm certificates.} but this is not always possible.\footnote{For example in RSA certificates: $e,n$ is always different and thus it cannot be defined that such setup is for such task} Therefore, two additional fields are added to the certificate: an \textit{application identifier} $a$ and a \textit{role} $r$. The application identifier allows the user to request certificates for different applications. The application where the certificate is used can (but does not have to) check this field if necessary. The role allows to distinguish certificates issued for the same application. This way, the user can use different certificates for different purposes inside the same application. So, if an application wants to use roles, it has to define them. $a$ and $r$ are both strings. The pair ($a$, $r$) should be unique among all applications, but UniCert cannot ensure that fact since it does not know all applications.
+\paragraph*{Application Identifier and Role} A user should have the possibility to request multiple certificates. This allows them to manage them differently. For example, they can use a certificate for critical tasks and another one for less critical tasks. The way the user manages the private keys of these two certificates is certainly different. In order make it possible for the user to request multiple certificates, there must be a way to distinguish them. In some cases, this could be done using the cryptographic values in the certificate\footnote{For example different p, q and generators in discrete logarithm certificates.} but this is not always possible.\footnote{For example in RSA certificates: $e,n$ is always different and thus it cannot be defined that such setup is for such task} Therefore, two additional fields are added to the certificate: an \textit{application identifier} $a$ and a \textit{role} $r$. The application identifier allows the user to request certificates for different applications. The application where the certificate is used can (but does not have to) check this field if necessary. The role allows to distinguish certificates issued for the same application. This way, the user can use different certificates for different purposes inside the same application. So, if an application wants to use roles, it has to define them. $a$ and $r$ are both strings. The pair ($a$, $r$) should be unique among all applications, but UniCert cannot ensure this since it does not know all applications.
 
 \paragraph*{Certificate revocation} Certificates are not explicitly revoked. An application can consider a certificate as implicitly revoked if a newer one has been issued for the same user, the same application identifier $a$, the same role $r$ and the same identity provider.
 
@@ -987,7 +995,7 @@ UniCert then issues a certificate based on the identity information present in t
 	\item $\mathcal{S}$: only one section is used to publish all certificates by UniCert. This avoids that a new section has to be created each time a new application identifier is used. So, $\mathcal{S} = \{\text{"unicert"}\}$
 	\item $\mathcal{G}$: one group is needed for stocking the issued certificates. So, $\mathcal{G} = \{\text{"certificates"}\}$
 	\item $\mathcal{K} = \{k_{\UC}\}$
-	\item $\mathcal{M}_{certificates}$: Format of a certificate.
+	\item $\mathcal{M}_{\mathit{certificates}}$: Format of a certificate.
 \end{itemize}
 
 %First of all, the requester has to authenticate themselves against an identity provider. The authentication token returned is transmitted to UniCert. Then, the requester has to select the usage for which the certificate must be emitted. Then, they have to generate the private key and the corresponding public key with the setup linked to the selected usage. The usage and the public key can then be provided to UniCert.
@@ -1007,10 +1015,12 @@ UniCert then issues a certificate based on the identity information present in t
 %===============================================================================================
 \chapter{UniVote}
 %===============================================================================================
+\emph{Introductory text to be provided.}
 
 %===============================================================================================
 \section{Introduction}
 %===============================================================================================
+\emph{To be provided.}
 
 
 %-----------------------------------------------------------------------------------------------
@@ -1056,7 +1066,7 @@ Bulletin Board (UniCert):
 UniCert:
 \begin{itemize}
 	\item Identifier: \CA
-	\item Public certificate: $Z_{\CA}$, self-signed or certified by public certification authority at time $t$
+	\item Public certificate: $Z_{\CA}$, self-signed or certified by public certification authority at time~$t$
 	\item Public verification key: $\VK{\CA}$
 	\item Private signature key: $\SK{\CA}$
 \end{itemize}
@@ -1106,10 +1116,11 @@ Voters: (for $1\leq i\leq n$)
 %-----------------------------------------------------------------------------------------------
 \subsection{Posting and Getting Messages}
 %-----------------------------------------------------------------------------------------------
+\emph{To be provided.}
 
-Post involves signature and section id
+%Post involves signature and section id
 
-Get involves checking the signature
+%Get involves checking the signature
 
 %===============================================================================================
 \section{Detailed Protocol Specification}
@@ -1300,7 +1311,7 @@ Let $\hat{\mathit{VK}}=\mathit{VK}_m$ denote the set of mixed public keys and $\
 	\item For every $\vkhat{i}\in \hat{\mathit{VK}}$, post $(\mathsf{accessRight}:\vkhat{i}, \mathsf{ballot}, 1,\electionPeriod)$.
 	\item Get $(\mathsf{electionDefinition}: \electionTitle,\electionPeriod)$ from \UBV.
 	\item Get $(\mathsf{electionDetails}:\mathcal{Q},\mathcal{R},\electionIssues,\encode)$ from \UBV.
-	\item Post $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode, \mathit{encryptSetting}, \mathit{signSetting}, \mathit{hashSetting}, y, \hat{g})$ to \UBV.\footnote{This post is only for improved convenience. It contains all the relevant information for casting a vote. Retrieving this information in a single step is the purpose of this post.}
+	\item Post $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode, \mathit{encryptSetting}, \mathit{signSetting}, \mathit{hashSetting},$ $y, \hat{g})$ to \UBV.\footnote{This post is only for improved convenience. It contains all the relevant information for casting a vote. Retrieving this information in a single step is the purpose of this post.}
 \end{enumerate}
 
 %-----------------------------------------------------------------------------------------------
@@ -1309,7 +1320,7 @@ Let $\hat{\mathit{VK}}=\mathit{VK}_m$ denote the set of mixed public keys and $\
 	
 $\Voter{i}\in V$ performs the following steps:
 \begin{enumerate}
-	\item Get $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode,  \mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting},y, \hat{g})$ from \UBV.
+	\item Get $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode,  \mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting},$ $y, \hat{g})$ from \UBV.
 	\item Select $\mathcal{G}_Q$ and $G$ from $\mathit{encryptSetting}$.
 	\item Select $G_q$ from $\mathit{signSetting}$.
 	\item Choose $v_i=(v_{i,1},\ldots,v_{i,s})\in\validVotes(\mathcal{Q},\mathcal{R})$.
@@ -1475,6 +1486,9 @@ Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 \section{Summary of Election Data}
 %===============================================================================================
 
+% todo: add automatic page reference
+See tables on page 47 and 48.
+
 \begin{center}
 	\begin{table}[ht]
 		\begin{tabular}{c|l|c|l|c}
@@ -1570,26 +1584,30 @@ Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 
 Let \Verifier be a verifier. To verify the correctness of the election result, \Verifier performs the following steps:
 
+
 \subsubsection{Election Setup}
-\begin{itemize}
-	\item 
-\end{itemize}
+\emph{To be provided.}
+%\begin{itemize}
+%	\item 
+%\end{itemize}
 
 \subsubsection{Election Preparation}
-\begin{itemize}
-	\item 
-\end{itemize}
+\emph{To be provided.}
+%\begin{itemize}
+%	\item 
+%\end{itemize}
 
 \subsubsection{Mixing and Tallying}
-\begin{itemize}
-	\item 
-\end{itemize}
+\emph{To be provided.}
+%\begin{itemize}
+%	\item 
+%\end{itemize}
 
 %===============================================================================================
 \section{Options, Rules, and Votes}\label{options}
 %===============================================================================================
 
-To allow a variety of different election types, we consider two finite sets, a set $\mathcal{Q}=\{Q_1,\ldots,Q_s\}$ of possible \emph{election options} and a set $\mathcal{R}$ of \emph{election rules}. For each election option $Q_j\in \mathcal{Q}$ in a given election, the UniVote outputs the number $r_j$ of valid votes that $Q_j$ has received from the voters. Each election rule in $\mathcal{R}$ defines some constraints on how voters can distribute their votes among the election options. We use $v_{i,j}$ to denote this number for a particular ballot $B_i$ and election option $Q_j$. The tuple $v_i=(v_{i,1},\ldots,v_{i,s})\in\validVotes(\mathcal{Q},\mathcal{R})$ represents a valid vote, where $\validVotes(\mathcal{Q},\mathcal{R})$ denotes the set of all valid votes for given sets $\mathcal{Q}$ and $\mathcal{R}$.
+To allow a variety of different election types, we consider two finite sets: Set $\mathcal{Q}=\{Q_1,\ldots,Q_s\}$ of possible \emph{election options} and set $\mathcal{R}$ of \emph{election rules}. For each election option $Q_j\in \mathcal{Q}$ in a given election, the UniVote outputs the number $r_j$ of valid votes that $Q_j$ has received from the voters. Each election rule in $\mathcal{R}$ defines some constraints on how voters can distribute their votes among the election options. We use $v_{i,j}$ to denote this number for a particular ballot $B_i$ and election option $Q_j$. The tuple $v_i=(v_{i,1},\ldots,v_{i,s})\in\validVotes(\mathcal{Q},\mathcal{R})$ represents a valid vote, where $\validVotes(\mathcal{Q},\mathcal{R})$ denotes the set of all valid votes for given sets $\mathcal{Q}$ and $\mathcal{R}$.
 
 
 We distinguish three types of election rules:
@@ -1706,7 +1724,7 @@ for two sets of options and corresponding sets of rules. Note that this can be u
 \chapter{Cryptographic Settings}\label{settings}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The following parameters are assumed to be known in advance and not to change over time.
+The following parameters are assumed to be known in advance and do not  change over time.
 	
 %	\begin{center}
 %		\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|}\hline
@@ -2030,11 +2048,12 @@ To create a signature a recursive hash-algorithm is used.
 To sign the post the author hashes [message,alpha] where alpha  = [section, group].
 To sign the post UniBoard  hashes [message,alpha,beta] where alpha = [section,group, signature,key] and
 beta = [timestamp,rank].
+
 \section{Read Signature}
 To create a signature a recursive hash-algorithm is used.
-To sign the result of the query UniBoard hashes [query,resultcontainer] where query=[contraints,order,limit]
-constraint=[type,identifier,value1,...] identifier=[type,s1,s2,s3,...] order=[identifier,ascDesc] resultcontainer=[result,gamma]
-result [p1,p2,...] post=[message,alpha,beta] alpha=[section,group,signature,key] beta=[timestamp,rank,boardSignature] gamma=[timestamp]
+To sign the result of the query UniBoard hashes [query,resultcontainer] where query = [contraints,order,limit]
+constraint = [type,identifier,value1,...] identifier = [type,s1,s2,s3,...] order = [identifier,ascDesc] resultcontainer = [result,gamma]
+result [p1,p2,...] post = [message,alpha,beta] alpha = [section,group,signature,key] beta = [timestamp,rank,boardSignature] gamma = [timestamp]
 
 \section{Error and Rejects}
 \begin{tabularx}{\linewidth}{|c|c|X|}
