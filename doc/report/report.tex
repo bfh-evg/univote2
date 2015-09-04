@@ -128,27 +128,30 @@
 
 \begin{document}
 	
-	\title{UniVote2 System Specification}
+	\title{UniVote2 System Specification\\
+	(work in progress)}
 	\maketitle
-	
+	% To adjust order of appearance consult:
+	% http://mirror.switch.ch/ftp/mirror/tex/macros/latex/contrib/vhistory/doc/vh_sets_en.pdf
 	\begin{versionhistory}
-		\vhEntry{0.1}{14.07.2012}{Rolf Haenni}{Initial Draft.}
-		\vhEntry{0.2}{15.08.2012}{Rolf Haenni}{Complete revision of initial draft.}
-		\vhEntry{0.3}{10.09.2012}{Rolf Haenni}{Includes now the case of late registrations.}
-		\vhEntry{0.4}{13.03.2013}{Rolf Haenni}{Improved ballot acceptance and closing the urn.}
-		\vhEntry{0.5}{04.04.2013}{Rolf Haenni}{Revised section on zero-knowledge proofs.}
-		\vhEntry{0.5.1}{30.04.2013}{Rolf Haenni}{Improved notational consistency.}
-		\vhEntry{0.5.2}{21.05.2013}{Rolf Haenni}{Two important notational corrections.}
-		\vhEntry{0.6}{07.01.2015}{Reto E. Koenig}{Quality: Change of title; re-establishement of the version history.}
-		\vhEntry{0.6.1}{15.06.2015}{Reto E. Koenig}{Revised section on Randomness.}
-		\vhEntry{0.6.2}{16.06.2015}{Severin Hauser}{Revision of UniVote.}
-		\vhEntry{0.6.3}{16.06.2015}{Reto E. Koenig}{Revision of UniVote.}
-		\vhEntry{0.6.4}{26.06.2015}{Rolf Haenni}{Table in Section 7 adjusted.}
-		\vhEntry{0.6.5}{20.07.2015}{Rolf Haenni}{Updated tables in Section 7; Updated late registration procedure.}
-		\vhEntry{0.6.6}{22.07.2015}{Rolf Haenni}{Final minor protocol adjustments.}
-		\vhEntry{0.6.7}{04.08.2015}{Rolf Haenni}{Cleanup in encoding and hashing.}	
-		\vhEntry{0.6.8}{18.08.2015}{Rolf Haenni}{Encoding section updated.}	
-		\vhEntry{0.6.9}{27.08.2015}{Rolf Haenni}{Password-Based Key Derivation.}	
+		\vhEntry{0.1}{14.07.2012}{Haenni Rolf}{Initial Draft.}
+		\vhEntry{0.2}{15.08.2012}{Haenni Rolf}{Complete revision of initial draft.}
+		\vhEntry{0.3}{10.09.2012}{Haenni Rolf}{Includes now the case of late registrations.}
+		\vhEntry{0.4}{13.03.2013}{Haenni Rolf}{Improved ballot acceptance and closing the urn.}
+		\vhEntry{0.5}{04.04.2013}{Haenni Rolf}{Revised section on zero-knowledge proofs.}
+		\vhEntry{0.5.1}{30.04.2013}{Haenni Rolf}{Improved notational consistency.}
+		\vhEntry{0.5.2}{21.05.2013}{Haenni Rolf}{Two important notational corrections.}
+		\vhEntry{0.6}{07.01.2015}{Koenig Reto E.}{Quality: Change of title; re-establishement of the version history.}
+		\vhEntry{0.6.1}{15.06.2015}{Koenig Reto E.}{Revised section on randomness.}
+		\vhEntry{0.6.2}{16.06.2015}{Hauser Severin}{Revision of UniVote.}
+		\vhEntry{0.6.3}{16.06.2015}{Koenig Reto E.}{Revision of UniVote.}
+		\vhEntry{0.6.4}{26.06.2015}{Haenni Rolf}{Table in Section 7 adjusted.}
+		\vhEntry{0.6.5}{20.07.2015}{Haenni Rolf}{Updated tables in Section 7; updated late registration procedure.}
+		\vhEntry{0.6.6}{22.07.2015}{Haenni Rolf}{Final minor protocol adjustments.}
+		\vhEntry{0.6.7}{04.08.2015}{Haenni Rolf}{Cleanup in encoding and hashing.}	
+		\vhEntry{0.6.8}{18.08.2015}{Haenni Rolf}{Encoding section updated.}	
+		\vhEntry{0.6.9}{27.08.2015}{Haenni Rolf}{Password-based key derivation.}	
+		\vhEntry{0.6.10}{01.09.2015}{Dubuis Eric}{Reformatted tables for actions and other matters.}
 	\end{versionhistory}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -163,6 +166,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\emph{To be provided.}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \part{Theoretical Background}
@@ -503,8 +509,12 @@ A standard construction of a DRBG for password-based key derivation is called PB
 
 
 \paragraph*{Hash-DRBG}
+\emph{To be provided.}
+
 
 \paragraph*{HMAC-DRBG}
+\emph{To be provided.}
+
 
 
 %\subsection{Reseedable Pseudo-Random Bit Generators}
@@ -724,7 +734,7 @@ instead of $N$ individual proofs of the second type. As discussed in \subsecref{
 \section{Verifiable Mix-Nets}
 %-----------------------------------------------------------------------------------------------
 
-\emph{not yet implemented}
+\emph{To be provided.}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -893,7 +903,7 @@ $\mathrm{Unregister}(c): -$
 \end{enumerate}
 
 \paragraph*{Multiple instances}
-As there can be multiple instances of UniBoard running, they need to be recognisable. This is achieved by denoting every operation with an application identifier , e.g. $\mathrm{Post}_{UV}(m,\alpha):\beta$ for UniVote 
+As there can be multiple instances of UniBoard running, they need to be recognisable. This is achieved by denoting every operation with an application identifier, e.g.\ $\mathrm{Post}_{UV}(m,\alpha):\beta$ for UniVote.
 %This property is completely on the operational level as the bulletin board for each application $l$ is independent. This property allows one UniBoard instance to provide service to multiple applications. This is achieved by adding the application $l$ to every operation provided by UniBoard, e.g. $\mathrm{Post}_l(m,\alpha):\beta$.
 
 
@@ -908,7 +918,7 @@ UniCert is a certification authority, that issues digital certificates used to a
 UniCert then issues a certificate based on the identity information present in the token and on other properties provided by the requester.  Therefore, UniCert uses a function $\mathit{f}(t_{auth})$, to extract the needed information from the authentication token, resulting in a identifier $id$. $\mathit{f}$ must use at least one unique identifier present in the token in order to be able to output different results for two different inputs. UniCert defines a set $\mathcal{F}$ of functions $\mathit{f}$ allowing to select information from the authentication token, or to make some processing on them before putting them in the certificate (e.g anonymization by using a one-way function). The user has to choose one of the functions provided by UniCert. A reference to the identity provider used is inserted in the certificate.
 
 
-\paragraph*{Application Identifier and Role} A user should have the possibility to request multiple certificates. This allows them to manage them differently. For example, they can use a certificate for critical tasks and another one for less critical tasks. The way the user manages the private keys of these two certificates is certainly different. In order make it possible for the user to request multiple certificates, there must be a way to distinguish them. In some cases, this could be done using the cryptographic values in the certificate\footnote{For example different p, q and generators in discrete logarithm certificates.} but this is not always possible.\footnote{For example in RSA certificates: $e,n$ is always different and thus it cannot be defined that such setup is for such task} Therefore, two additional fields are added to the certificate: an \textit{application identifier} $a$ and a \textit{role} $r$. The application identifier allows the user to request certificates for different applications. The application where the certificate is used can (but does not have to) check this field if necessary. The role allows to distinguish certificates issued for the same application. This way, the user can use different certificates for different purposes inside the same application. So, if an application wants to use roles, it has to define them. $a$ and $r$ are both strings. The pair ($a$, $r$) should be unique among all applications, but UniCert cannot ensure that fact since it does not know all applications.
+\paragraph*{Application Identifier and Role} A user should have the possibility to request multiple certificates. This allows them to manage them differently. For example, they can use a certificate for critical tasks and another one for less critical tasks. The way the user manages the private keys of these two certificates is certainly different. In order make it possible for the user to request multiple certificates, there must be a way to distinguish them. In some cases, this could be done using the cryptographic values in the certificate\footnote{For example different p, q and generators in discrete logarithm certificates.} but this is not always possible.\footnote{For example in RSA certificates: $e,n$ is always different and thus it cannot be defined that such setup is for such task} Therefore, two additional fields are added to the certificate: an \textit{application identifier} $a$ and a \textit{role} $r$. The application identifier allows the user to request certificates for different applications. The application where the certificate is used can (but does not have to) check this field if necessary. The role allows to distinguish certificates issued for the same application. This way, the user can use different certificates for different purposes inside the same application. So, if an application wants to use roles, it has to define them. $a$ and $r$ are both strings. The pair ($a$, $r$) should be unique among all applications, but UniCert cannot ensure this since it does not know all applications.
 
 \paragraph*{Certificate revocation} Certificates are not explicitly revoked. An application can consider a certificate as implicitly revoked if a newer one has been issued for the same user, the same application identifier $a$, the same role $r$ and the same identity provider.
 
@@ -985,7 +995,7 @@ UniCert then issues a certificate based on the identity information present in t
 	\item $\mathcal{S}$: only one section is used to publish all certificates by UniCert. This avoids that a new section has to be created each time a new application identifier is used. So, $\mathcal{S} = \{\text{"unicert"}\}$
 	\item $\mathcal{G}$: one group is needed for stocking the issued certificates. So, $\mathcal{G} = \{\text{"certificates"}\}$
 	\item $\mathcal{K} = \{k_{\UC}\}$
-	\item $\mathcal{M}_{certificates}$: Format of a certificate.
+	\item $\mathcal{M}_{\mathit{certificates}}$: Format of a certificate.
 \end{itemize}
 
 %First of all, the requester has to authenticate themselves against an identity provider. The authentication token returned is transmitted to UniCert. Then, the requester has to select the usage for which the certificate must be emitted. Then, they have to generate the private key and the corresponding public key with the setup linked to the selected usage. The usage and the public key can then be provided to UniCert.
@@ -1005,10 +1015,12 @@ UniCert then issues a certificate based on the identity information present in t
 %===============================================================================================
 \chapter{UniVote}
 %===============================================================================================
+\emph{Introductory text to be provided.}
 
 %===============================================================================================
 \section{Introduction}
 %===============================================================================================
+\emph{To be provided.}
 
 
 %-----------------------------------------------------------------------------------------------
@@ -1054,7 +1066,7 @@ Bulletin Board (UniCert):
 UniCert:
 \begin{itemize}
 	\item Identifier: \CA
-	\item Public certificate: $Z_{\CA}$, self-signed or certified by public certification authority at time $t$
+	\item Public certificate: $Z_{\CA}$, self-signed or certified by public certification authority at time~$t$
 	\item Public verification key: $\VK{\CA}$
 	\item Private signature key: $\SK{\CA}$
 \end{itemize}
@@ -1104,10 +1116,11 @@ Voters: (for $1\leq i\leq n$)
 %-----------------------------------------------------------------------------------------------
 \subsection{Posting and Getting Messages}
 %-----------------------------------------------------------------------------------------------
+\emph{To be provided.}
 
-Post involves signature and section id
+%Post involves signature and section id
 
-Get involves checking the signature
+%Get involves checking the signature
 
 %===============================================================================================
 \section{Detailed Protocol Specification}
@@ -1298,7 +1311,7 @@ Let $\hat{\mathit{VK}}=\mathit{VK}_m$ denote the set of mixed public keys and $\
 	\item For every $\vkhat{i}\in \hat{\mathit{VK}}$, post $(\mathsf{accessRight}:\vkhat{i}, \mathsf{ballot}, 1,\electionPeriod)$.
 	\item Get $(\mathsf{electionDefinition}: \electionTitle,\electionPeriod)$ from \UBV.
 	\item Get $(\mathsf{electionDetails}:\mathcal{Q},\mathcal{R},\electionIssues,\encode)$ from \UBV.
-	\item Post $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode, \mathit{encryptSetting}, \mathit{signSetting}, \mathit{hashSetting}, y, \hat{g})$ to \UBV.\footnote{This post is only for improved convenience. It contains all the relevant information for casting a vote. Retrieving this information in a single step is the purpose of this post.}
+	\item Post $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode, \mathit{encryptSetting}, \mathit{signSetting}, \mathit{hashSetting},$ $y, \hat{g})$ to \UBV.\footnote{This post is only for improved convenience. It contains all the relevant information for casting a vote. Retrieving this information in a single step is the purpose of this post.}
 \end{enumerate}
 
 %-----------------------------------------------------------------------------------------------
@@ -1307,7 +1320,7 @@ Let $\hat{\mathit{VK}}=\mathit{VK}_m$ denote the set of mixed public keys and $\
 	
 $\Voter{i}\in V$ performs the following steps:
 \begin{enumerate}
-	\item Get $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode,  \mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting},y, \hat{g})$ from \UBV.
+	\item Get $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode,  \mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting},$ $y, \hat{g})$ from \UBV.
 	\item Select $\mathcal{G}_Q$ and $G$ from $\mathit{encryptSetting}$.
 	\item Select $G_q$ from $\mathit{signSetting}$.
 	\item Choose $v_i=(v_{i,1},\ldots,v_{i,s})\in\validVotes(\mathcal{Q},\mathcal{R})$.
@@ -1473,6 +1486,9 @@ Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 \section{Summary of Election Data}
 %===============================================================================================
 
+% todo: add automatic page reference
+See tables on page 47 and 48.
+
 \begin{center}
 	\begin{table}[ht]
 		\begin{tabular}{c|l|c|l|c}
@@ -1568,26 +1584,30 @@ Let $\vkhat{i}=\vk{i,m}$ denote the result of this sub-routine.
 
 Let \Verifier be a verifier. To verify the correctness of the election result, \Verifier performs the following steps:
 
+
 \subsubsection{Election Setup}
-\begin{itemize}
-	\item 
-\end{itemize}
+\emph{To be provided.}
+%\begin{itemize}
+%	\item 
+%\end{itemize}
 
 \subsubsection{Election Preparation}
-\begin{itemize}
-	\item 
-\end{itemize}
+\emph{To be provided.}
+%\begin{itemize}
+%	\item 
+%\end{itemize}
 
 \subsubsection{Mixing and Tallying}
-\begin{itemize}
-	\item 
-\end{itemize}
+\emph{To be provided.}
+%\begin{itemize}
+%	\item 
+%\end{itemize}
 
 %===============================================================================================
 \section{Options, Rules, and Votes}\label{options}
 %===============================================================================================
 
-To allow a variety of different election types, we consider two finite sets, a set $\mathcal{Q}=\{Q_1,\ldots,Q_s\}$ of possible \emph{election options} and a set $\mathcal{R}$ of \emph{election rules}. For each election option $Q_j\in \mathcal{Q}$ in a given election, the UniVote outputs the number $r_j$ of valid votes that $Q_j$ has received from the voters. Each election rule in $\mathcal{R}$ defines some constraints on how voters can distribute their votes among the election options. We use $v_{i,j}$ to denote this number for a particular ballot $B_i$ and election option $Q_j$. The tuple $v_i=(v_{i,1},\ldots,v_{i,s})\in\validVotes(\mathcal{Q},\mathcal{R})$ represents a valid vote, where $\validVotes(\mathcal{Q},\mathcal{R})$ denotes the set of all valid votes for given sets $\mathcal{Q}$ and $\mathcal{R}$.
+To allow a variety of different election types, we consider two finite sets: Set $\mathcal{Q}=\{Q_1,\ldots,Q_s\}$ of possible \emph{election options} and set $\mathcal{R}$ of \emph{election rules}. For each election option $Q_j\in \mathcal{Q}$ in a given election, the UniVote outputs the number $r_j$ of valid votes that $Q_j$ has received from the voters. Each election rule in $\mathcal{R}$ defines some constraints on how voters can distribute their votes among the election options. We use $v_{i,j}$ to denote this number for a particular ballot $B_i$ and election option $Q_j$. The tuple $v_i=(v_{i,1},\ldots,v_{i,s})\in\validVotes(\mathcal{Q},\mathcal{R})$ represents a valid vote, where $\validVotes(\mathcal{Q},\mathcal{R})$ denotes the set of all valid votes for given sets $\mathcal{Q}$ and $\mathcal{R}$.
 
 
 We distinguish three types of election rules:
@@ -1704,7 +1724,7 @@ for two sets of options and corresponding sets of rules. Note that this can be u
 \chapter{Cryptographic Settings}\label{settings}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The following parameters are assumed to be known in advance and not to change over time.
+The following parameters are assumed to be known in advance and do not  change over time.
 	
 %	\begin{center}
 %		\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|}\hline
@@ -2028,11 +2048,12 @@ To create a signature a recursive hash-algorithm is used.
 To sign the post the author hashes [message,alpha] where alpha  = [section, group].
 To sign the post UniBoard  hashes [message,alpha,beta] where alpha = [section,group, signature,key] and
 beta = [timestamp,rank].
+
 \section{Read Signature}
 To create a signature a recursive hash-algorithm is used.
-To sign the result of the query UniBoard hashes [query,resultcontainer] where query=[contraints,order,limit]
-constraint=[type,identifier,value1,...] identifier=[type,s1,s2,s3,...] order=[identifier,ascDesc] resultcontainer=[result,gamma]
-result [p1,p2,...] post=[message,alpha,beta] alpha=[section,group,signature,key] beta=[timestamp,rank,boardSignature] gamma=[timestamp]
+To sign the result of the query UniBoard hashes [query,resultcontainer] where query = [contraints,order,limit]
+constraint = [type,identifier,value1,...] identifier = [type,s1,s2,s3,...] order = [identifier,ascDesc] resultcontainer = [result,gamma]
+result [p1,p2,...] post = [message,alpha,beta] alpha = [section,group,signature,key] beta = [timestamp,rank,boardSignature] gamma = [timestamp]
 
 \section{Error and Rejects}
 \begin{tabularx}{\linewidth}{|c|c|X|}
@@ -2151,196 +2172,221 @@ The issued certificate are published on UniBoard. In order to allow UniBoard to 
 \chapter{UniVote}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+This chapter describes the detailed design of UniVote. It starts off by defining the actions which make up the core of the components of UniVote. Later, more design details will be provided.
 
-\begin{landscape}
-	\section{EC Setup Phase Actions}
+Actions are triggered either by notification (normal case) or by manual intervention. Upon an notification (\emph{Notification} column in the tables), the following tables define the steps an action undertakes (\emph{Work}), the message it sends to the board (\emph{Post}) and the successor action(s) if any (\emph{Successors}) that may occur as a consequence of terminating the current the action.
+
+
+\section{EC Setup Phase Actions}
+
+Actions relevant of the setup phase.
+
 	\subsection{Initial}
-	\begin{tabular}{|c|c|c|c|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\ 
-		\hline accessRight & Start the new election & -  & DefineEA \\  
-		\hline 
-	\end{tabular} 
-	\subsection{DefineEA}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
-		\hline Notification & Work & Post & Successors\\ 
-		\hline EA defined & Search and set cert for EA & administrationCertificate : $Z_{EA}$ & GrantElectionDefinition, GrantTrustees, GrantSecurityLevel, GrantElectionDefinition, GrantElectoralRoll, GrantElectionIssues \\ 
+		\hline accessRight & Start the new election & -  & \mbox{DefineEA} \\  
 		\hline 
 	\end{tabularx} 
-	\subsection{GrantElectionDefinition}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+
+	\subsection{DefineEA}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\ 
-		\hline administrationCertificate & Grant EA access to electionDefinition & accessRight : $vk_{EA} , electionDefinition  ,1 $ & CreateElectionData \\ 
+		\hline EA defined & Search and set cert for EA & administrationCertificate: $Z_{EA}$ & \mbox{GrantElectionDefinition}, \mbox{GrantTrustees}, \mbox{GrantSecurityLevel}, \mbox{GrantElectoralRoll}, \mbox{GrantElectionIssues} \\ 
+		\hline 
+	\end{tabularx} 
+
+	\subsection{GrantElectionDefinition}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
+		\hline Notification & Work & Post & Successors\\ 
+		\hline administration\-Certificate & Grant EA access to electionDefinition & accessRight: $vk_{EA}$, \emph{electionDefinition}, 1 & CreateVotingData \\ 
 		\hline 
 	\end{tabularx}
+
 	\subsection{GrantTrustees}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\ 
-		\hline administrationCertificate & Grant EA access to trustees & accessRight : $vk_{EA} , trustees, 1 $ & PublishTrusteeCerts \\  
+		\hline administration\-Certificate & Grant EA access to trustees & accessRight: $vk_{EA}$, \emph{trustees}, 1 & PublishTrusteeCerts \\  
 		\hline 
 	\end{tabularx}
 	
 	\subsection{GrantSecurityLevel}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\ 
-		\hline administrationCertificate & Grant EA access to securityLevel & accessRight : $vk_{EA} , securityLevel, 1 $ & SetCryptoSetting \\ 
+		\hline administration\-Certificate & Grant EA access to securityLevel & accessRight: $vk_{EA}$, \emph{securityLevel}, 1 & SetCryptoSetting \\ 
 		\hline 
 	\end{tabularx}
 	
 	\subsection{PublishTrusteeCerts}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\ 
-		\hline trustees & Get Trustee certificates and publish them & trusteeCertificates : $\mathcal{Z}_T , \mathcal{Z}_M$ & GrantEncyptionKeyShares \\ 
+		\hline trustees & Get Trustee certificates and publish them & trusteeCertificates: $\mathcal{Z}_T$, $\mathcal{Z}_M$ & GrantEncyptionKeyShares \\ 
 		\hline 
 	\end{tabularx}
 	
 	\subsection{SetCryptoSetting}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\  
-		\hline securityLevel & Publish the crypto setting for this election &cryptoSetting : $settings$  & GrantEncyptionKeyShares \\
-		
+		\hline securityLevel & Publish the crypto setting for this election & cryptoSetting: \emph{settings} & GrantEncyptionKeyShares \\
 		\hline 
 	\end{tabularx}
 	
 	\subsection{GrantEncyptionKeyShares}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\  
-		\hline  trusteeCertificates & Grant Trustees access to keyshares & accessRight : $vk_t, encrytptionKeyShare , 1 $ & CombineEncryptionKeyShares  \\  
+		\hline  trustee\-Certificates & Grant Trustees access to keyshares & accessRight: $vk_t$, \emph{encrytptionKeyShare}, 1 & CombineEncryptionKey\-Shares  \\  
 		\hline 
 	\end{tabularx}
 	
 	\subsection{CombineEncryptionKeyShares}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\  
-		\hline  encryptionKeyShare & Validate keyshare and if all keyshare are published combine them & encyptionKey : $y$ & CreateElectionData \\ 
+		\hline  encryption\-KeyShare & Validate key share and if all key shares are published combine them & encryptionKey: $y$ & CreateVotingData \\ 
 		\hline 
 	\end{tabularx}
-		
-		
-	
-	\section{EC Perparation Phase Actions}
-	
+
+\section{EC Preparation Phase Actions}
+
+Actions relevant for the preparation phase of the EC.
+
 	\subsection{GrantElectionIssues}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\
-		administrationCertificate & Grant EA access for EI & accessRight : $vk_{EA}, electionIssues , 1 $ & CreateElectionData \\
+		\hline administration\-Certificate & Grant EA access for EI & accessRight: $vk_{EA}$, \emph{electionIssues}, 1 & CreateVotingData \\
 		\hline 
 	\end{tabularx}
 	
 	\subsection{GrantElectoralRoll}
-		\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 			\hline Notification & Work & Post & Successors\\
-			administrationCertificate & Grant EA access for ER & accessRight : $vk_{EA}, electoralRoll , 1 $ & KeyMixing \\ 
+			\hline administration\-Certificate & Grant EA access for ER & accessRight: $vk_{EA}$, \emph{electoralRoll}, 1 & KeyMixing \\ 
 			\hline 
 		\end{tabularx}
 	
 	\subsection{KeyMixing}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\
-		\hline electoralRoll & Retrieve voter certs and create the first mixing request & voterCertificates : $\mathcal{Z}_V$ & \multirow{6}{*}{GrantBallot, CreateElectionData} \\ 
-		& & keyMixingRequest : $M_1,g_0, VK_0 $ &   \\ 
-		& & accessRight : $vk_1, keyMixingResult , 1 $ & \\ \cline{1-3}
-		keyMixingRequest & Create next request or publish mixed keys & keyMixingRequest : $M_k,g_k, VK_k $ & \\ 
-		& & accessRight : $vk_k, keyMixingResult , 1 $ & \\
-		& & mixedKeys : $\hat{\mathit{VK}}$ &  \\
+		\hline electoralRoll & Retrieve voter certs and create the first mixing request &
+		voterCertificates: $\mathcal{Z}_V$ \newline
+		keyMixingRequest: $M_1$, $g_0$, $\mathit{VK}_0$ \newline
+		accessRight: $\mathit{vk}_1$, \emph{keyMixingResult}, 1
+		& GrantBallot, CreateElectionData \\ 
+		\cline{1-3}
+		keyMixing\-Request & Create next request or publish mixed keys &
+		keyMixingRequest: $M_k,g_k$, $\mathit{VK}_k$ \newline
+		accessRight: $\mathit{vk}_k$, \emph{keyMixingResult}, 1 \newline
+		mixedKeys: $\hat{\mathit{VK}}$ &  \\
 		\hline 
 	\end{tabularx}
 	
 	\subsection{GrantBallot}
-	\begin{tabularx}{\linewidth}{|c|c|c|X|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\
-		\hline mixedKeys & Grant all registered voters access for Ballot & accessRight : $\hat{vk}_i, ballot,1, period$ & - \\ 
+		\hline mixedKeys & Grant all registered voters access for Ballot & accessRight: $\hat{\mathit{vk}}_i$, \emph{ballot}, 1, \emph{period} & - \\ 
 		\hline 
 	\end{tabularx}
 	
 	\subsection{CreateVotingData}
-	\begin{tabularx}{\linewidth}{|c|c|X|c|}
+	\begin{tabularx}{\textwidth}{|p{2.5cm}|p{2.5cm}|p{4.2cm}|X|}
 		\hline Notification & Work & Post & Successors\\
-		\hline electionDefinition & \multirow{5}{*}{Create the voting data when all parts are available and publish it.} & \multirow{5}{*}{$\begin{aligned}[t]\mathit{votingData}:\electionTitle, \electionPeriod,\\ C, R, electionDetails,\\ \mathit{encryptSetting},\mathit{signSetting},\\ \mathit{hashSetting},y, \hat{g}\end{aligned}$ } & \multirow{4}{*}{-} \\ 
-		encyptionKey &&& \\
-		electionIssues &&& \\
-		electoralRoll &&& \\
+		\hline election\-Definition, election\-Details, cryptoSetting, encryptionKey, signature\-Generator & Create the voting data when all parts are available and publish it. & votingData: $\electionTitle$, $\electionPeriod$, $C$, $R$, \emph{electionDetails}, \emph{encryptSetting}, \emph{signSetting}, \emph{hashSetting}, $y$, $\hat{g}$ & - \\ 
 		\hline 
 	\end{tabularx}
-	
-	\section{Trustees}
+
+\section{Trustees}
+
+Actions relevant for the trustees. A trustee can be either a tallier of a mixer.
+
 	\subsection{Tallier: CreateSharedKey}
-	\begin{tabular}{|l|l|l|l|}
+	\begin{tabularx}{\textwidth}{|p{2.1cm}|p{5.5cm}|p{3.0cm}|X|}
 		\hline 
 		Notification & Work & Post & Successor \\ 
 		\hline 
-		accessRight:encryptionKeyShare & Get crpytoSetting from UBV  & KeyShare : $y$ & PartialDecryption\\ 
-		& Store: $x \in_R \mathbb{Z}_Q$ & $Proof : \pi$ &\\
-		& $y=G^x$ &   & \\  
-		& $\pi=NIZKP\{(x):y=G^x\} $&&\\
-		& finish.&&\\
+		accessRight: encryptionKeyShare &
+		Get crypto setting from UBV \newline
+		Store: $x \in_R \mathbb{Z}_Q$ \newline
+		$y=G^x$ \newline
+		$\pi = \mathit{NIZKP}\{(x):y=G^x\}$ \newline
+		finish.
+		& KeyShare: $y$  \newline
+		Store: $x \in_R \mathbb{Z}_Q$
+		& PartialDecryption\\ 
 		\hline 
-	\end{tabular} 
+	\end{tabularx} 
+
 	\subsection{Tallier: PartialDecryption}
-	\begin{tabular}{|l|l|l|l|}
+	\begin{tabularx}{\textwidth}{|p{2.1cm}|p{5.5cm}|p{3.0cm}|X|}
 		\hline 
 		Notification & Work & Post & Successor \\ 
 		\hline 
-		accessRight:partialDecryption & Get cryptoSetting from UBV  & partialDecryption: $A,\pi$ & -\\ 
-		& Get mixedVotes : $\hat{\mathcal{E}}$ from UBV & & \\
-		& Retrieve: $x$  &   & \\
-		& $A'=(a_1,\ldots,a_N)\in \mathbb(G)^N_Q $ from $ \hat{\mathcal{E}}$  &   & \\
-		& $A= \forall a \in A', a^{-x}$  &   & \\
-		& $\pi=NIZKP\{(x):y=G^x \wedge (\bigwedge_i a_i=a_i^{-x})\} $&&\\
-		& finish.&&\\
+		accessRight: partialDecryption &
+		Get mixedVotes $\hat{\mathcal{E}}$ from UBV \newline
+		Retrieve: $x$ \newline % correct? (due1)
+		$A'=(a_1,\ldots,a_N)\in \mathbb(G)^N_Q $ from $\hat{\mathcal{E}}$ \newline
+		$\pi = \mathit{NIZKP}\{(x):y=G^x \wedge (\bigwedge_i a_i=a_i^{-x})\}$ \newline
+		finish.
+		& partialDecryption: $A$, $\pi$ & -\\
 		\hline 
-	\end{tabular} 
+	\end{tabularx}
+
 	\subsection{Mixer: MixingPublicKey}
-	\begin{tabular}{|l|l|l|l|}
+	\begin{tabularx}{\textwidth}{|p{2.1cm}|p{5.5cm}|p{3.0cm}|X|}
 		\hline 
 		Notification & Work &  Post & Successor \\ 
 		\hline 
-		keyMixingRequest & Get crpytoSetting from UBV & keyMixingResult: $g,VK,\pi$ & CancellingExistingKey\\ 
-		& Store: $\alpha \in_R \mathbb{Z}_Q$& & AddingNewKey\\
-		& $g=g_{\_}^\alpha$ & &MixingVote\\  
-		& Store: $\psi \in_R \Psi_n$ (permutation vector)&&\\
-		& $\pi=NIZKP\{(\psi,\alpha)\:g=g_{\_}^\alpha \wedge VK=\mathit{shuffle}_\psi (VK_{\_},\alpha)\}$  &&\\
-		&finish.&&\\
+		keyMixing\-Request &
+		Get crpytoSetting from UBV \newline
+		Store: $\alpha \in_R \mathbb{Z}_Q$ \newline
+		$g=g_{\_}^\alpha$ \newline
+		Store: $\psi \in_R \Psi_n$ (permutation vector) \newline
+		$\pi=\mathit{NIZKP}\{(\psi,\alpha)\:g=g_{\_}^\alpha \wedge \mathit{VK}=\mathit{shuffle}_\psi (\mathit{VK}_{\_},\alpha)\}$\newline
+		finish.
+		& keyMixingResult: $g$, $\mathit{VK}$, $\pi$ & Cancelling\-ExistingKey\\ 
 		\hline 
-	\end{tabular}
+	\end{tabularx} 
+
 	\subsection{Mixer: MixingVote}
-	\begin{tabular}{|l|l|l|l|}
+	\begin{tabularx}{\textwidth}{|p{2.1cm}|p{5.5cm}|p{3.0cm}|X|}
 		\hline 
 		Notification & Work &  Post & Successor \\ 
 		\hline 
-		voteMixingRequest & Get electionSetting:$\mathcal{G}_q,G$ from UBV & voteMixingResult: $\mathcal{E}_{\_},\pi$ & - \\ 
-		& $R=(r_1,\ldots,r_N) \in_R \mathbb{Z}^N_Q $& & \\
-		& $\tau:[1,N]\rightarrow[1,N] \in_R \Psi_N $& &\\  
-		& $\mathcal{E}=\mathit{shuffle}_\tau(\mathcal{E}_{\_},R)$
-		& Store: $\psi \in_R \Psi_n$ (permutation vector)&\\
-		& $\pi=NIZKP\{(\tau,R)\:\mathcal{E}=shuffle_\tau (\mathcal{E}_{\_},R)\}$  &&\\
-		&finish.&&\\
+		voteMixing\-Request &
+		Get electionSetting: $\mathcal{G}_q,G$ from UBV \newline
+		$R=(r_1,\ldots,r_N) \in_R \mathbb{Z}^N_Q $ \newline
+		$\tau:[1,N]\rightarrow[1,N] \in_R \Psi_N $ \newline
+		$\mathcal{E}=\mathit{shuffle}_\tau(\mathcal{E}_{\_},R)$ \newline
+		$\pi=\mathit{NIZKP}\{(\tau,R):\mathcal{E}=\mathit{shuffle}_\tau (\mathcal{E}_{\_},R)\}$ \newline
+		finish.
+		& voteMixingResult: $\mathcal{E}_{\_}$, $\pi$ & - \\ 
 		\hline 
-	\end{tabular}
+	\end{tabularx} 
+
 	\subsection{Mixer: AddingNewKey}
-	\begin{tabular}{|l|l|l|l|}
+	\begin{tabularx}{\textwidth}{|p{2.1cm}|p{5.5cm}|p{3.0cm}|X|}
 		\hline 
 		Notification & Work &  Post & Successor \\
 		\hline
-		ElectionEndTimer &
-		run finish.&&\\
-		&if ElectionEndTimer $\rightarrow$ finish.&&\\
+		ElectionEnd\-Timer &
+		run finish.& - & - \\
+		&if ElectionEndTimer $\rightarrow$ finish.& & \\ % correct? (due1)
 		\hline 
-	\end{tabular}
+	\end{tabularx} 
 	
 	\subsection{Mixer: CancellingExistingKey}
-	\begin{tabular}{|l|l|l|l|}
+	\begin{tabularx}{\textwidth}{|p{2.1cm}|p{5.5cm}|p{3.0cm}|X|}
 		\hline 
 		Notification & Work &  Post & Successor \\ 
 		\hline 
-		keyCancellingRequest & Get $V_i, vk_{i,\_}$ from UVB & keyCancellingResult: $V_i, vk_i,\pi_i$& -\\
-		ElectionEndTimer& Get $\alpha$ & & \\
-		& $vk_i=vk_{i,\_}^{\alpha}$ & & \\
-		& $\pi=NIZKP\{(\alpha):g=g_{\_}^\alpha \wedge vk_i=vk_{i,\_}^{\alpha}\}$ & & \\
-		& run finish.&&\\
-		&if ElectionEndTimer $\rightarrow$ finish.&&\\
+		keyCancelling\-Request, ElectionEndTimer &
+		Get $V_i, vk_{i,\_}$ from UVB \newline
+		Get $\alpha$ \newline
+		$\mathit{vk}_i=\mathit{vk}_{i,\_}^{\alpha}$ \newline
+		$\pi=\mathit{NIZKP}\{(\alpha):g=g_{\_}^\alpha \wedge \mathit{vk}_i=\mathit{vk}_{i,\_}^{\alpha}\}$ \newline
+		run finish\newline\newline
+		if ElectionEndTimer $\rightarrow$ finish.
+		& keyCancelling\-Result: $V_i$, $\mathit{vk}_i$, $\pi_i$ & -\\
 		\hline 
-	\end{tabular}
-\end{landscape}
+	\end{tabularx} 
+%\end{landscape}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\chapter{Conclusion}
