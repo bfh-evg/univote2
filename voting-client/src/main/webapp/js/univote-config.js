@@ -81,14 +81,21 @@
 		this.SYM_KEY_SIZE = 128;
 
 		/**
-		 * The number of iterations of the PBKDF2
+		 * The number of iterations of the PBKDF2.
 		 */
 		this.PWD_KEY_DERIVATION_ITERATION = 1000;
 
 		/**
-		 * The underlying hash function of the PBKDF2
+		 * The underlying hash function of the PBKDF2 (must be a Hasher because
+		 * of the need of progressive hashing).
 		 */
-		this.PWD_KEY_DERIVATION_HASHER = CryptoJS.algo.SHA1;
+		this.PWD_KEY_DERIVATION_HASHER = CryptoJS.algo.SHA1; // CryptoJS.algo.SHA256;
+
+
+		/**
+		 * The hash function used all over the client.
+		 */
+		this.HASH_FUNCTION = CryptoJS.SHA256; // CryptoJS.SHA512;
 
 		/**
 		 * UniVote Board setting: p, q and g for Schnorr signature.

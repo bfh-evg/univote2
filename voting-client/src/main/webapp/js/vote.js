@@ -124,16 +124,14 @@ function retrieveElectionData() {
 		// Process retreived election data
 		var es = uvConfig.CS[message.cryptoSetting.encryptionSetting];
 		var ss = uvConfig.CS[message.cryptoSetting.signatureSetting];
-		var hs = uvConfig.CS[message.cryptoSetting.hashSetting];
-		if (!(es && ss && hs)) {
-			console.log("ERROR: Either encryption-, signature- or hash-setting is unknown! (" + JSON.stringify(message.cryptoSetting) + ")");
+		if (!(es && ss)) {
+			console.log("ERROR: Either encryption- or signature-setting is unknown! (" + JSON.stringify(message.cryptoSetting) + ")");
 			processFatalError(msg.incompatibleDataReceived);
 			return;
 		}
 
 		uvCrypto.setEncryptionParameters(es);
 		uvCrypto.setSignatureParameters(ss);
-		uvCrypto.setHashParameters(hs);
 
 		encryptionKey = leemon.str2bigInt(message.encryptionKey, 10, 1);
 		signatureGenerator = leemon.str2bigInt(message.signatureGenerator, 10, 1);
@@ -872,9 +870,9 @@ function finalizeVote() {
 			// TODO: Order of post is currently ignored!
 			castVoteSuccessCallback(ballotData, {timestamp: beta.attribute[0].value.value, rank: beta.attribute[1].value.value, signature: beta.attribute[2].value.value});
 		};
-		var errorCB = function () {
+		var errorCB = function (xhr, status, error) {
 			clearInterval(update);
-			castVoteErrorCallback();
+			castVoteErrorCallback(error);
 		};
 		UniBoard.POST(post, successCB, errorCB);
 	};
