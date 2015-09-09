@@ -10,12 +10,8 @@
 		"signatureSetting": {
 			"description": "Identifier of the signature setting",
 			"type": "string"
-		},
-		"hashSetting": {
-			"description": "Identifier of the hash setting",
-			"type": "string"
 		}
 	},
-	"required": ["encryptionSetting", "signatureSetting", "hashSetting"],
+	"required": ["encryptionSetting", "signatureSetting"],
 	"additionalProperties": false
 }

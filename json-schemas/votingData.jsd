@@ -12,7 +12,7 @@
 			"$ref": "electionDetails.jsd"
 		},
 		"cryptoSetting": {
-			"description": "Crypto setting (encryption, signature, hashing)",
+			"description": "Crypto setting (encryption, signature)",
 			"$ref": "cryptoSetting.jsd"
 		},
 		"encryptionKey": {

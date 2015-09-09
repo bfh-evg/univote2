@@ -867,7 +867,7 @@
 	var Hash = new function () {
 
 		// Default hash method
-		var hashMethod = CryptoJS.SHA256;
+		var hashMethod = uvConfig.HASH_FUNCTION;
 
 		this.setHashMethod = function (method) {
 			switch (method) {

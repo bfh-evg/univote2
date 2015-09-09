@@ -6,6 +6,12 @@
 			"it": "Votazione del 14 giugno 2015",
 			"rm": "Votaziun dal pievel dals 14 da zercladur 2015"
 		},
+		"administration": {
+			"default": "Schweizerische Eidgenossenschaft",
+			"fr": "Confédération suisse",
+			"it": "Confederazione Svizzera",
+			"rm": "Confederaziun svizra"
+		},
 		"votingPeriodBegin": "2015-06-01T23:00:00Z",
 		"votingPeriodEnd": "2015-12-14T11:00:00Z"
 	},
@@ -24,22 +30,22 @@
 			{
 				"id": 3,
 				"type": "votingOption",
-				"answer": { "default": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+				"answer": { "default": "Ja", "fr": "Oui", "it": "Si"}
 			},
 			{
 				"id": 4,
 				"type": "votingOption",
-				"answer": { "default": "Ja", "fr": "Oui", "it": "Si"}
+				"answer": { "default": "Nein", "fr": "Non", "it": "No"}
 			},
 			{
 				"id": 5,
 				"type": "votingOption",
-				"answer": { "default": "Nein", "fr": "Non", "it": "No"}
+				"answer": { "default": "Ja", "fr": "Oui", "it": "Si"}
 			},
 			{
 				"id": 6,
 				"type": "votingOption",
-				"answer": { "default": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
+				"answer": { "default": "Nein", "fr": "Non", "it": "No"}
 			},
 			{
 				"id": 7,
@@ -50,82 +56,62 @@
 				"id": 8,
 				"type": "votingOption",
 				"answer": { "default": "Nein", "fr": "Non", "it": "No"}
-			},
-			{
-				"id": 9,
-				"type": "votingOption",
-				"answer": { "default": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
-			},
-			{
-				"id": 10,
-				"type": "votingOption",
-				"answer": { "default": "Ja", "fr": "Oui", "it": "Si"}
-			},
-			{
-				"id": 11,
-				"type": "votingOption",
-				"answer": { "default": "Nein", "fr": "Non", "it": "No"}
-			},
-			{
-				"id": 12,
-				"type": "votingOption",
-				"answer": { "default": "Enthaltung", "fr": "Abstention", "it": "Astensione"}
 			}
 		],
 		"rules": [
 			{
 				"id": 1,
 				"type": "summationRule",
-				"optionIds": [1, 2, 3],
+				"optionIds": [1, 2],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 2,
 				"type": "cumulationRule",
-				"optionIds": [1, 2, 3],
+				"optionIds": [1, 2],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 3,
 				"type": "summationRule",
-				"optionIds": [4, 5, 6],
+				"optionIds": [3, 4],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 4,
 				"type": "cumulationRule",
-				"optionIds": [4, 5, 6],
+				"optionIds": [3, 4],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 5,
 				"type": "summationRule",
-				"optionIds": [7, 8, 9],
+				"optionIds": [5, 6],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 6,
 				"type": "cumulationRule",
-				"optionIds": [7, 8, 9],
+				"optionIds": [5, 6],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 7,
 				"type": "summationRule",
-				"optionIds": [10, 11, 12],
+				"optionIds": [7, 8],
 				"lowerBound": 0,
 				"upperBound": 1
 			},
 			{
 				"id": 8,
 				"type": "cumulationRule",
-				"optionIds": [10, 11, 12],
+				"optionIds": [7, 8],
 				"lowerBound": 0,
 				"upperBound": 1
 			}
@@ -146,7 +132,7 @@
 					"it": "Volete accettare il decreto federale del 12 dicembre 2014 concernente la modifica dell’articolo costituzionale relativo alla medicina riproduttiva e all’ingegneria genetica in ambito umano?",
 					"rm": "Vulais Vus acceptar il Conclus federal dals 12 da december 2014 davart la midada da l’artitgel constituziunal concernent la medischina da reproducziun e la tecnologia da gens sin il sectur uman?"
 				},
-				"optionIds": [1, 2, 3],
+				"optionIds": [1, 2],
 				"ruleIds": [1, 2]
 			},
 			{
@@ -164,7 +150,7 @@
 					"it": "Volete accettare l’iniziativa popolare «Sulle borse di studio»?",
 					"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Iniziativa davart ils stipendis»?"
 				},
-				"optionIds": [4, 5, 6],
+				"optionIds": [3, 4],
 				"ruleIds": [3, 4]
 			},
 			{
@@ -182,7 +168,7 @@
 					"it": "Volete accettare l’iniziativa popolare «Tassare le eredità milionarie per finanziare la nostra AVS (Riforma dell’impostasulle successioni)»?",
 					"rm": "Vulais Vus acceptar l’iniziativa dal pievel «Far pajar taglias sin iertas da milliuns per finanziar nossa AVS (Refurma da la tagliasin l’ierta)»?"
 				},
-				"optionIds": [7, 8, 9],
+				"optionIds": [5, 6],
 				"ruleIds": [5, 6]
 			},
 			{
@@ -200,16 +186,15 @@
 					"it": "Volete accettare la modifica del 26 settembre 2014 della legge federale sulla radiotelevisione (LRTV)?",
 					"rm": "Vulais Vus acceptar la midada dals 26 da settember 2014 da la Lescha federala davart radio e televisiun (LRTV)?"
 				},
-				"optionIds": [10, 11, 12],
+				"optionIds": [7, 8],
 				"ruleIds": [7, 8]
 			}
 		],
 		"ballotEncoding": "E1"
 	},
 	"cryptoSetting": {
-		"encryptionSetting": "RC2e",
-		"signatureSetting": "RC2s",
-		"hashSetting": "H2"
+		"encryptionSetting": "RC1e",
+		"signatureSetting": "RC1s"
 	},
 	"encryptionKey": "91119287387482810725299284597751730297358595357967339129245557319362300326317603349124577759531942586879523260357064133075657405043421423278179218133399049314945190759226487413938851037528971806505834896476263628153957882527151512135458357322989509505305049487723315898812780201104384863495612707468258957878",
 	"signatureGenerator": "43753966268956158683794141044609048074944399463497118601009260015278907944793396888872654797436679156171704835263342098747229841982963550871557447683404359446377648645751856913829280577934384831381295103182368037001170314531189658120206052644043469275562473160989451140877931368137440524162645073654512304068"
