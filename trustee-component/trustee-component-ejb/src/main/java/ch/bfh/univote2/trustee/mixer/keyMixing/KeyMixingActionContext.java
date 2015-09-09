@@ -42,7 +42,7 @@
 package ch.bfh.univote2.trustee.mixer.keyMixing;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.KeyMixingRequest;
+import ch.bfh.univote2.common.message.KeyMixingRequest;
 import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
 /**

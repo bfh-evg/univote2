@@ -50,7 +50,7 @@ import ch.bfh.uniboard.clientlib.signaturehelper.SignatureException;
 import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.data.UniBoard;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.manager.UniBoardManager;

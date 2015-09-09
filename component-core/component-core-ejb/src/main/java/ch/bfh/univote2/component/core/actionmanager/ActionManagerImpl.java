@@ -45,7 +45,7 @@ import ch.bfh.univote2.component.core.services.InitialisationService;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.data.BoardNotificationData;
 import ch.bfh.univote2.component.core.data.NotificationData;

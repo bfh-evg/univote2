@@ -69,7 +69,7 @@ import ch.bfh.unicrypt.math.algebra.general.classes.PermutationElement;
 import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -78,22 +78,22 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
-import ch.bfh.univote2.component.core.message.CryptoSetting;
-import ch.bfh.univote2.component.core.message.EncryptedVote;
-import ch.bfh.univote2.component.core.message.EncryptionKey;
-import ch.bfh.univote2.component.core.message.JSONConverter;
-import ch.bfh.univote2.component.core.message.MixProof;
-import ch.bfh.univote2.component.core.message.PermutationProof;
-import ch.bfh.univote2.component.core.message.ShuffleProof;
-import ch.bfh.univote2.component.core.message.VoteMixingRequest;
-import ch.bfh.univote2.component.core.message.VoteMixingResult;
-import ch.bfh.univote2.component.core.query.AlphaEnum;
-import ch.bfh.univote2.component.core.query.GroupEnum;
+import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.EncryptedVote;
+import ch.bfh.univote2.common.message.EncryptionKey;
+import ch.bfh.univote2.common.message.JSONConverter;
+import ch.bfh.univote2.common.message.MixProof;
+import ch.bfh.univote2.common.message.PermutationProof;
+import ch.bfh.univote2.common.message.ShuffleProof;
+import ch.bfh.univote2.common.message.VoteMixingRequest;
+import ch.bfh.univote2.common.message.VoteMixingResult;
+import ch.bfh.univote2.common.query.AlphaEnum;
+import ch.bfh.univote2.common.query.GroupEnum;
+import ch.bfh.univote2.common.query.QueryFactory;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
-import ch.bfh.univote2.trustee.QueryFactory;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
 import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import ch.bfh.univote2.trustee.mixer.keyMixing.KeyMixingAction;
@@ -117,343 +117,343 @@ import javax.json.JsonException;
 @Stateless
 public class VoteMixingAction extends AbstractAction implements NotifiableAction {
 
-    private static final String ACTION_NAME = VoteMixingAction.class.getSimpleName();
+	private static final String ACTION_NAME = VoteMixingAction.class.getSimpleName();
 
-    private static final Logger logger = Logger.getLogger(VoteMixingAction.class.getName());
+	private static final Logger logger = Logger.getLogger(VoteMixingAction.class.getName());
 
-    @EJB
-    ActionManager actionManager;
-    @EJB
-    TenantManager tenantManager;
-    @EJB
-    InformationService informationService;
-    @EJB
-    private UniboardService uniboardService;
-    @EJB
-    private SecurePersistenceService securePersistenceService;
+	@EJB
+	ActionManager actionManager;
+	@EJB
+	TenantManager tenantManager;
+	@EJB
+	InformationService informationService;
+	@EJB
+	private UniboardService uniboardService;
+	@EJB
+	private SecurePersistenceService securePersistenceService;
 
-    @Override
-    protected ActionContext createContext(String tenant, String section) {
-	ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-	return new VoteMixingActionContext(ack);
-    }
-
-    @Override
-    protected boolean checkPostCondition(ActionContext actionContext) {
-	if (!(actionContext instanceof VoteMixingActionContext)) {
-	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
-	    return false;
-	}
-	VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
-	try {
-	    PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
-	    ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-								 QueryFactory.getQueryForVoteMixingResult(actionContext.getSection(), publicKey));
-	    if (!result.getResult().getPost().isEmpty()) {
-		return true;
-	    }
-	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not request vote mixing result.", ex);
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Could not check post condition.");
-	    return false;
-	}
-	return false;
-    }
-
-    @Override
-    protected void definePreconditions(ActionContext actionContext) {
-	BoardPreconditionQuery bQuery = null;
-	ActionContextKey actionContextKey = actionContext.getActionContextKey();
-	String section = actionContext.getSection();
-	String tenant = actionContext.getTenant();
-	if (!(actionContext instanceof VoteMixingActionContext)) {
-	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
-	    return;
-	}
-	VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
-	TrusteeActionHelper.checkAndSetCryptoSetting(vmac, uniboardService, tenantManager, informationService, logger);
-	TrusteeActionHelper.checkAndSetAccsessRight(vmac, GroupEnum.VOTE_MIXING_RESULT, uniboardService, tenantManager, informationService, logger);
-	TrusteeActionHelper.checkAndSetEncryptionKey(vmac, uniboardService, informationService, logger);
-	this.checkAndSetVoteMixingRequest(vmac);
-    }
-
-    protected VoteMixingRequest retrieveVoteMixingRequest(ActionContext actionContext) throws UnivoteException, Exception {
-	PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
-	ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-						    QueryFactory.getQueryForKeyMixingRequest(actionContext.getSection(), publicKey)).getResult();
-	if (result.getPost().isEmpty()) {
-	    throw new UnivoteException("key mixing request not published yet.");
-
-	}
-	VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class, result.getPost().get(0).getMessage());
-	return voteMixingRequest;
-
-    }
-
-    protected void checkAndSetVoteMixingRequest(VoteMixingActionContext actionContext) {
-	ActionContextKey actionContextKey = actionContext.getActionContextKey();
-	String section = actionContext.getSection();
-	String tenant = actionContext.getTenant();
-	try {
-	    VoteMixingRequest voteMixingRequest = actionContext.getVoteMixingRequest();
-
-	    //Add Notification
-	    if (voteMixingRequest == null) {
-		voteMixingRequest = retrieveVoteMixingRequest(actionContext);
-		actionContext.setVoteMixingRequest(voteMixingRequest);
-	    }
-
-	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not get vote mixing request.", ex);
-	    informationService.informTenant(actionContextKey,
-					    "Error retrieving vote mixing request: " + ex.getMessage());
-	} catch (JsonException ex) {
-	    logger.log(Level.WARNING, "Could not parse vote mixing request.", ex);
-	    informationService.informTenant(actionContextKey,
-					    "Error reading vote mixing request.");
-	} catch (Exception ex) {
-	    logger.log(Level.WARNING, "Could not parse vote mixing request.", ex);
-	    informationService.informTenant(actionContextKey,
-					    "Error reading vote mixing request.");
-	}
-	try {
-	    if (actionContext.getVoteMixingRequest() == null) {
-		//Add Notification
-		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-			QueryFactory.getQueryForVoteMixingRequest(section, tenantManager.getPublicKey(tenant)), BoardsEnum.UNIVOTE.getValue());
-		actionContext.getPreconditionQueries().add(bQuery);
-	    }
-	} catch (UnivoteException exception) {
-	    logger.log(Level.WARNING, "Could not get tenant for vote mixing request.", exception);
-	    informationService.informTenant(actionContextKey,
-					    "Error retrieving tenant for vote mixing request: " + exception.getMessage());
+	@Override
+	protected ActionContext createContext(String tenant, String section) {
+		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
+		return new VoteMixingActionContext(ack);
 	}
 
-    }
-
-    @Override
-    @Asynchronous
-    public void run(ActionContext actionContext) {
-	if (!(actionContext instanceof VoteMixingActionContext)) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
-	}
-	VoteMixingActionContext skcac = (VoteMixingActionContext) actionContext;
-	//The following if is strange, as the run should not happen in this case?!
-	if (skcac.isPreconditionReached() == null) {
-	    logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-
-	    return;
-	}
-	if (Objects.equals(skcac.isPreconditionReached(), Boolean.FALSE)) {
-	    logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
-	}
-	String tenant = actionContext.getTenant();
-	String section = actionContext.getSection();
-	CryptoSetting cryptoSetting = skcac.getCryptoSetting();
-	VoteMixingRequest voteMixingRequest = skcac.getVoteMixingRequest();
-	EncryptionKey encryptionKey = skcac.getEncryptionKey();
-	try {
-
-	    UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
-	    String encryptionKeyAsString = encryptionKey.getEncryptionKey();
-	    VoteMixingResult voteMixingResult = createVoteMixingResult(tenant, voteMixingRequest, uniCryptCryptoSetting, encryptionKeyAsString);
-	    String voteMixingResultString = JSONConverter.marshal(voteMixingResult);
-	    byte[] voteMixingResultByteArray = voteMixingResultString.getBytes(Charset.forName("UTF-8"));
-
-	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.VOTE_MIXING_RESULT.getValue(), voteMixingResultByteArray, tenant);
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Posted vote mixing result. Action finished.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-
-	} catch (UnivoteException ex) {
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Could not post vote mixing result. Action failed.");
-	    Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	} catch (Exception ex) {
-	    Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Could not marshal vote mixing result. Action failed.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	}
-    }
-
-    @Override
-    @Asynchronous
-    public void notifyAction(ActionContext actionContext, Object notification) {
-	if (!(actionContext instanceof VoteMixingActionContext)) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
-	}
-	VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
-
-	this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
-
-	if (!(notification instanceof PostDTO)) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
-	}
-	PostDTO post = (PostDTO) notification;
-	try {
-	    Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
-	    attr.containsKey(AlphaEnum.GROUP.getValue());
-
-	    if (attr.containsKey(AlphaEnum.GROUP.getValue())
-		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-		    && GroupEnum.ACCESS_RIGHT.getValue()
-		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
-		vmac.setAccessRightGranted(Boolean.TRUE);
-	    }
-	    if (vmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-		    && GroupEnum.CRYPTO_SETTING.getValue()
-		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
-		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
-		vmac.setCryptoSetting(cryptoSetting);
-	    }
-	    if (vmac.getVoteMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-		    && GroupEnum.VOTE_MIXING_REQUEST.getValue()
-		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
-		VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class, post.getMessage());
-		vmac.setVoteMixingRequest(voteMixingRequest);
-	    }
-	    if (vmac.getVoteMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-		    && GroupEnum.ENCRYPTION_KEY.getValue()
-		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
-		EncryptionKey encryptionKey = JSONConverter.unmarshal(EncryptionKey.class, post.getMessage());
-		vmac.setEncryptionKey(encryptionKey);
-	    }
-
-	    run(actionContext);
-	} catch (UnivoteException ex) {
-	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	} catch (Exception ex) {
-	    Logger.getLogger(VoteMixingAction.class.getName()).log(Level.SEVERE, null, ex);
-	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	}
-    }
-
-    private VoteMixingResult createVoteMixingResult(String tenant, VoteMixingRequest voteMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting, String encryptionKeyAsString) {
-	CyclicGroup cyclicGroup = uniCryptCryptoSetting.encryptionGroup;
-	Element encryptionKey = cyclicGroup.getElementFrom(encryptionKeyAsString);
-	List<EncryptedVote> vString = voteMixingRequest.getVotesToMix();
-	Tuple vs = Tuple.getInstance();
-	for (EncryptedVote vote : vString) {
-	    vs = vs.add(Pair.getInstance(cyclicGroup.getElementFrom(vote.getFirstValue()), cyclicGroup.getElementFrom(vote.getSecondValue())));
+	@Override
+	protected boolean checkPostCondition(ActionContext actionContext) {
+		if (!(actionContext instanceof VoteMixingActionContext)) {
+			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
+			return false;
+		}
+		VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
+		try {
+			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
+			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+					QueryFactory.getQueryForVoteMixingResult(actionContext.getSection(), publicKey));
+			if (!result.getResult().getPost().isEmpty()) {
+				return true;
+			}
+		} catch (UnivoteException ex) {
+			logger.log(Level.WARNING, "Could not request vote mixing result.", ex);
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not check post condition.");
+			return false;
+		}
+		return false;
 	}
 
-	ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(uniCryptCryptoSetting.encryptionGenerator);
-	// Create mixer and shuffle
-	ReEncryptionMixer mixer = ReEncryptionMixer.getInstance(elGamal, encryptionKey, vs.getArity());
+	@Override
+	protected void definePreconditions(ActionContext actionContext) {
+		BoardPreconditionQuery bQuery = null;
+		ActionContextKey actionContextKey = actionContext.getActionContextKey();
+		String section = actionContext.getSection();
+		String tenant = actionContext.getTenant();
+		if (!(actionContext instanceof VoteMixingActionContext)) {
+			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
+			return;
+		}
+		VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
+		TrusteeActionHelper.checkAndSetCryptoSetting(vmac, uniboardService, tenantManager, informationService, logger);
+		TrusteeActionHelper.checkAndSetAccsessRight(vmac, GroupEnum.VOTE_MIXING_RESULT, uniboardService, tenantManager, informationService, logger);
+		TrusteeActionHelper.checkAndSetEncryptionKey(vmac, uniboardService, informationService, logger);
+		this.checkAndSetVoteMixingRequest(vmac);
+	}
 
-	// f) Create psi
-	PermutationElement psi = mixer.getPermutationGroup().getRandomElement();
+	protected VoteMixingRequest retrieveVoteMixingRequest(ActionContext actionContext) throws UnivoteException, Exception {
+		PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
+		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForKeyMixingRequest(actionContext.getSection(), publicKey)).getResult();
+		if (result.getPost().isEmpty()) {
+			throw new UnivoteException("key mixing request not published yet.");
 
-	Tuple rs = mixer.generateRandomizations();
+		}
+		VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class, result.getPost().get(0).getMessage());
+		return voteMixingRequest;
 
-	// Perfom shuffle
-	Tuple shuffledVs = mixer.shuffle(vs, psi, rs);
+	}
+
+	protected void checkAndSetVoteMixingRequest(VoteMixingActionContext actionContext) {
+		ActionContextKey actionContextKey = actionContext.getActionContextKey();
+		String section = actionContext.getSection();
+		String tenant = actionContext.getTenant();
+		try {
+			VoteMixingRequest voteMixingRequest = actionContext.getVoteMixingRequest();
+
+			//Add Notification
+			if (voteMixingRequest == null) {
+				voteMixingRequest = retrieveVoteMixingRequest(actionContext);
+				actionContext.setVoteMixingRequest(voteMixingRequest);
+			}
+
+		} catch (UnivoteException ex) {
+			logger.log(Level.WARNING, "Could not get vote mixing request.", ex);
+			informationService.informTenant(actionContextKey,
+					"Error retrieving vote mixing request: " + ex.getMessage());
+		} catch (JsonException ex) {
+			logger.log(Level.WARNING, "Could not parse vote mixing request.", ex);
+			informationService.informTenant(actionContextKey,
+					"Error reading vote mixing request.");
+		} catch (Exception ex) {
+			logger.log(Level.WARNING, "Could not parse vote mixing request.", ex);
+			informationService.informTenant(actionContextKey,
+					"Error reading vote mixing request.");
+		}
+		try {
+			if (actionContext.getVoteMixingRequest() == null) {
+				//Add Notification
+				BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+						QueryFactory.getQueryForVoteMixingRequest(section, tenantManager.getPublicKey(tenant)), BoardsEnum.UNIVOTE.getValue());
+				actionContext.getPreconditionQueries().add(bQuery);
+			}
+		} catch (UnivoteException exception) {
+			logger.log(Level.WARNING, "Could not get tenant for vote mixing request.", exception);
+			informationService.informTenant(actionContextKey,
+					"Error retrieving tenant for vote mixing request: " + exception.getMessage());
+		}
+
+	}
+
+	@Override
+	@Asynchronous
+	public void run(ActionContext actionContext) {
+		if (!(actionContext instanceof VoteMixingActionContext)) {
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		VoteMixingActionContext skcac = (VoteMixingActionContext) actionContext;
+		//The following if is strange, as the run should not happen in this case?!
+		if (skcac.isPreconditionReached() == null) {
+			logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+
+			return;
+		}
+		if (Objects.equals(skcac.isPreconditionReached(), Boolean.FALSE)) {
+			logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		String tenant = actionContext.getTenant();
+		String section = actionContext.getSection();
+		CryptoSetting cryptoSetting = skcac.getCryptoSetting();
+		VoteMixingRequest voteMixingRequest = skcac.getVoteMixingRequest();
+		EncryptionKey encryptionKey = skcac.getEncryptionKey();
+		try {
+
+			UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
+			String encryptionKeyAsString = encryptionKey.getEncryptionKey();
+			VoteMixingResult voteMixingResult = createVoteMixingResult(tenant, voteMixingRequest, uniCryptCryptoSetting, encryptionKeyAsString);
+			String voteMixingResultString = JSONConverter.marshal(voteMixingResult);
+			byte[] voteMixingResultByteArray = voteMixingResultString.getBytes(Charset.forName("UTF-8"));
+
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.VOTE_MIXING_RESULT.getValue(), voteMixingResultByteArray, tenant);
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Posted vote mixing result. Action finished.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not post vote mixing result. Action failed.");
+			Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		} catch (Exception ex) {
+			Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not marshal vote mixing result. Action failed.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
+	}
+
+	@Override
+	@Asynchronous
+	public void notifyAction(ActionContext actionContext, Object notification) {
+		if (!(actionContext instanceof VoteMixingActionContext)) {
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
+
+		this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
+
+		if (!(notification instanceof PostDTO)) {
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		PostDTO post = (PostDTO) notification;
+		try {
+			Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
+			attr.containsKey(AlphaEnum.GROUP.getValue());
+
+			if (attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+					&& GroupEnum.ACCESS_RIGHT.getValue()
+					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
+				vmac.setAccessRightGranted(Boolean.TRUE);
+			}
+			if (vmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+					&& GroupEnum.CRYPTO_SETTING.getValue()
+					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
+				vmac.setCryptoSetting(cryptoSetting);
+			}
+			if (vmac.getVoteMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+					&& GroupEnum.VOTE_MIXING_REQUEST.getValue()
+					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+				VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class, post.getMessage());
+				vmac.setVoteMixingRequest(voteMixingRequest);
+			}
+			if (vmac.getVoteMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+					&& GroupEnum.ENCRYPTION_KEY.getValue()
+					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+				EncryptionKey encryptionKey = JSONConverter.unmarshal(EncryptionKey.class, post.getMessage());
+				vmac.setEncryptionKey(encryptionKey);
+			}
+
+			run(actionContext);
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		} catch (Exception ex) {
+			Logger.getLogger(VoteMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
+	}
+
+	private VoteMixingResult createVoteMixingResult(String tenant, VoteMixingRequest voteMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting, String encryptionKeyAsString) {
+		CyclicGroup cyclicGroup = uniCryptCryptoSetting.encryptionGroup;
+		Element encryptionKey = cyclicGroup.getElementFrom(encryptionKeyAsString);
+		List<EncryptedVote> vString = voteMixingRequest.getVotesToMix();
+		Tuple vs = Tuple.getInstance();
+		for (EncryptedVote vote : vString) {
+			vs = vs.add(Pair.getInstance(cyclicGroup.getElementFrom(vote.getFirstValue()), cyclicGroup.getElementFrom(vote.getSecondValue())));
+		}
+
+		ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(uniCryptCryptoSetting.encryptionGenerator);
+		// Create mixer and shuffle
+		ReEncryptionMixer mixer = ReEncryptionMixer.getInstance(elGamal, encryptionKey, vs.getArity());
+
+		// f) Create psi
+		PermutationElement psi = mixer.getPermutationGroup().getRandomElement();
+
+		Tuple rs = mixer.generateRandomizations();
+
+		// Perfom shuffle
+		Tuple shuffledVs = mixer.shuffle(vs, psi, rs);
 
 	// P R O O F
-	//-----------
-	// 0. Setup
-	// Create sigma challenge generator
-	StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
-	HashMethod hashMethod = HashMethod.getInstance(uniCryptCryptoSetting.hashAlgorithm);
-	ConvertMethod convertMethod = ConvertMethod.getInstance(
-		BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-		StringToByteArray.getInstance(Charset.forName("UTF-8")));
+		//-----------
+		// 0. Setup
+		// Create sigma challenge generator
+		StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
+		HashMethod hashMethod = HashMethod.getInstance(uniCryptCryptoSetting.hashAlgorithm);
+		ConvertMethod convertMethod = ConvertMethod.getInstance(
+				BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+				StringToByteArray.getInstance(Charset.forName("UTF-8")));
 
-	Converter converter = ByteArrayToBigInteger.getInstance(uniCryptCryptoSetting.hashAlgorithm.getByteLength(), 1);
+		Converter converter = ByteArrayToBigInteger.getInstance(uniCryptCryptoSetting.hashAlgorithm.getByteLength(), 1);
 
-	SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
-		cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
+		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
 
-	// Create e-values challenge generator
-	ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(cyclicGroup.getZModOrder(), vs.getArity());
+		// Create e-values challenge generator
+		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(cyclicGroup.getZModOrder(), vs.getArity());
 
 	// 1. Permutation Proof
-	//----------------------
-	// Create psi commitment
-	PermutationCommitmentScheme pcs = PermutationCommitmentScheme.getInstance(cyclicGroup, vs.getArity());
-	Tuple permutationCommitmentRandomizations = pcs.getRandomizationSpace().getRandomElement();
-	Tuple permutationCommitment = pcs.commit(psi, permutationCommitmentRandomizations);
+		//----------------------
+		// Create psi commitment
+		PermutationCommitmentScheme pcs = PermutationCommitmentScheme.getInstance(cyclicGroup, vs.getArity());
+		Tuple permutationCommitmentRandomizations = pcs.getRandomizationSpace().getRandomElement();
+		Tuple permutationCommitment = pcs.commit(psi, permutationCommitmentRandomizations);
 
-	// Create psi commitment proof system
-	PermutationCommitmentProofSystem pcps = PermutationCommitmentProofSystem.getInstance(challengeGenerator, ecg, cyclicGroup, vs.getArity());
+		// Create psi commitment proof system
+		PermutationCommitmentProofSystem pcps = PermutationCommitmentProofSystem.getInstance(challengeGenerator, ecg, cyclicGroup, vs.getArity());
 
-	// Create psi commitment proof
-	Pair privateInputPermutation = Pair.getInstance(psi, permutationCommitmentRandomizations);
-	Element publicInputPermutation = permutationCommitment;
-	Tuple permutationProof = pcps.generate(privateInputPermutation, publicInputPermutation);
+		// Create psi commitment proof
+		Pair privateInputPermutation = Pair.getInstance(psi, permutationCommitmentRandomizations);
+		Element publicInputPermutation = permutationCommitment;
+		Tuple permutationProof = pcps.generate(privateInputPermutation, publicInputPermutation);
 
 	// 2. Shuffle Proof
-	//------------------
-	// Create shuffle proof system
-	ReEncryptionShuffleProofSystem spg = ReEncryptionShuffleProofSystem.getInstance(challengeGenerator, ecg, vs.getArity(), elGamal, encryptionKey);
+		//------------------
+		// Create shuffle proof system
+		ReEncryptionShuffleProofSystem spg = ReEncryptionShuffleProofSystem.getInstance(challengeGenerator, ecg, vs.getArity(), elGamal, encryptionKey);
 
-	// Proof and verify
-	Tuple privateInputShuffle = Tuple.getInstance(psi, permutationCommitmentRandomizations, rs);
-	Tuple publicInputShuffle = Tuple.getInstance(permutationCommitment, vs, shuffledVs);
+		// Proof and verify
+		Tuple privateInputShuffle = Tuple.getInstance(psi, permutationCommitmentRandomizations, rs);
+		Tuple publicInputShuffle = Tuple.getInstance(permutationCommitment, vs, shuffledVs);
 
-	// Create shuffle proof
-	Tuple mixProof = spg.generate(privateInputShuffle, publicInputShuffle);
+		// Create shuffle proof
+		Tuple mixProof = spg.generate(privateInputShuffle, publicInputShuffle);
 
-	List<EncryptedVote> shuffledVsAsEncryptedVote = new ArrayList<>();
-	for (Element shuffledV : shuffledVs) {
-	    Pair encVote = (Pair) shuffledV;
-	    shuffledVsAsEncryptedVote.add(new EncryptedVote(encVote.getFirst().convertToString(), encVote.getSecond().convertToString()));
+		List<EncryptedVote> shuffledVsAsEncryptedVote = new ArrayList<>();
+		for (Element shuffledV : shuffledVs) {
+			Pair encVote = (Pair) shuffledV;
+			shuffledVsAsEncryptedVote.add(new EncryptedVote(encVote.getFirst().convertToString(), encVote.getSecond().convertToString()));
+		}
+
+		PermutationProof permutationProofDTO = new PermutationProof();
+		permutationProofDTO.setChallenge(pcps.getChallenge(permutationProof).convertToString());
+		permutationProofDTO.setCommitment(pcps.getCommitment(permutationProof).convertToString());
+		permutationProofDTO.setResponse(pcps.getResponse(permutationProof).convertToString());
+		{
+			List<String> bridgingCommitmentsAsStrings = new ArrayList<>();
+
+			for (Element bridgingCommitment : ((Tuple) pcps.getBridingCommitment(permutationProof)).getSequence()) {
+				bridgingCommitmentsAsStrings.add(bridgingCommitment.convertToString());
+			}
+			permutationProofDTO.setBridgingCommitments(bridgingCommitmentsAsStrings);
+		}
+		{
+			List<String> eValuesAsStrings = new ArrayList<>();
+
+			for (Element eValue : ((Tuple) pcps.getEValues(permutationProof)).getSequence()) {
+				eValuesAsStrings.add(eValue.convertToString());
+			}
+			permutationProofDTO.seteValues(eValuesAsStrings);
+		}
+
+		MixProof mixProofDTO = new MixProof();
+		mixProofDTO.setChallenge(spg.getChallenge(mixProof).convertToString());
+		mixProofDTO.setCommitment(spg.getCommitment(mixProof).convertToString());
+		mixProofDTO.setResponse(spg.getResponse(mixProof).convertToString());
+		{
+			List<String> eValuesAsStrings = new ArrayList<>();
+
+			for (Element eValue : ((Tuple) spg.getEValues(mixProof)).getSequence()) {
+				eValuesAsStrings.add(eValue.convertToString());
+			}
+			mixProofDTO.seteValues(eValuesAsStrings);
+		}
+
+		ShuffleProof shuffleProofDTO = new ShuffleProof();
+		shuffleProofDTO.setMixProof(mixProofDTO);
+		shuffleProofDTO.setPermutationProof(permutationProofDTO);
+
+		VoteMixingResult result = new VoteMixingResult(shuffledVsAsEncryptedVote, shuffleProofDTO);
+		return result;
 	}
-
-	PermutationProof permutationProofDTO = new PermutationProof();
-	permutationProofDTO.setChallenge(pcps.getChallenge(permutationProof).convertToString());
-	permutationProofDTO.setCommitment(pcps.getCommitment(permutationProof).convertToString());
-	permutationProofDTO.setResponse(pcps.getResponse(permutationProof).convertToString());
-	{
-	    List<String> bridgingCommitmentsAsStrings = new ArrayList<>();
-
-	    for (Element bridgingCommitment : ((Tuple) pcps.getBridingCommitment(permutationProof)).getSequence()) {
-		bridgingCommitmentsAsStrings.add(bridgingCommitment.convertToString());
-	    }
-	    permutationProofDTO.setBridgingCommitments(bridgingCommitmentsAsStrings);
-	}
-	{
-	    List<String> eValuesAsStrings = new ArrayList<>();
-
-	    for (Element eValue : ((Tuple) pcps.getEValues(permutationProof)).getSequence()) {
-		eValuesAsStrings.add(eValue.convertToString());
-	    }
-	    permutationProofDTO.seteValues(eValuesAsStrings);
-	}
-
-	MixProof mixProofDTO = new MixProof();
-	mixProofDTO.setChallenge(spg.getChallenge(mixProof).convertToString());
-	mixProofDTO.setCommitment(spg.getCommitment(mixProof).convertToString());
-	mixProofDTO.setResponse(spg.getResponse(mixProof).convertToString());
-	{
-	    List<String> eValuesAsStrings = new ArrayList<>();
-
-	    for (Element eValue : ((Tuple) spg.getEValues(mixProof)).getSequence()) {
-		eValuesAsStrings.add(eValue.convertToString());
-	    }
-	    mixProofDTO.seteValues(eValuesAsStrings);
-	}
-
-	ShuffleProof shuffleProofDTO = new ShuffleProof();
-	shuffleProofDTO.setMixProof(mixProofDTO);
-	shuffleProofDTO.setPermutationProof(permutationProofDTO);
-
-	VoteMixingResult result = new VoteMixingResult(shuffledVsAsEncryptedVote, shuffleProofDTO);
-	return result;
-    }
 
 }

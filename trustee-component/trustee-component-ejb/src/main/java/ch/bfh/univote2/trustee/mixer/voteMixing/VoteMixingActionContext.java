@@ -42,8 +42,8 @@
 package ch.bfh.univote2.trustee.mixer.voteMixing;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.EncryptionKey;
-import ch.bfh.univote2.component.core.message.VoteMixingRequest;
+import ch.bfh.univote2.common.message.EncryptionKey;
+import ch.bfh.univote2.common.message.VoteMixingRequest;
 import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
 /**

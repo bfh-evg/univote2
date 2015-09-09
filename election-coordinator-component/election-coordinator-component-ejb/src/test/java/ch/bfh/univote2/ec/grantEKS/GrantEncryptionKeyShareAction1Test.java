@@ -43,11 +43,11 @@ package ch.bfh.univote2.ec.grantEKS;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.JSONConverter;
-import ch.bfh.univote2.component.core.message.TrusteeCertificates;
+import ch.bfh.univote2.common.message.JSONConverter;
+import ch.bfh.univote2.common.message.TrusteeCertificates;
 import ch.bfh.univote2.ec.ActionManagerMock;
 import ch.bfh.univote2.ec.InformationServiceMock;
 import ch.bfh.univote2.ec.UniboardServiceMock;

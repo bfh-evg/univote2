@@ -41,7 +41,7 @@
  */
 package ch.bfh.univote2.ec.init;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import ch.bfh.univote2.ec.defineEA.EANameUserInput;
 import java.io.Serializable;

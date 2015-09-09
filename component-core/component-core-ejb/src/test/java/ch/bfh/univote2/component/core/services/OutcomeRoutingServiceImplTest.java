@@ -5,7 +5,7 @@
  */
 package ch.bfh.univote2.component.core.services;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import java.util.Map;
 import java.util.Properties;
 import javax.ejb.EJB;

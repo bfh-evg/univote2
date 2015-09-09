@@ -41,8 +41,9 @@
  */
 package ch.bfh.univote2.ec;
 
-import ch.bfh.univote2.component.core.UnivoteException;
-import ch.bfh.univote2.component.core.query.GroupEnum;
+import ch.bfh.univote2.common.query.MessageFactory;
+import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.query.GroupEnum;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;

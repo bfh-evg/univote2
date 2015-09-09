@@ -42,7 +42,7 @@
 package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.common.message.CryptoSetting;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -85,7 +85,7 @@ public class SharedKeyCreationActionContextTest {
 		ActionContextKey ack = new ActionContextKey("X", "Y", "Z");
 		SharedKeyCreationActionContext instance = new SharedKeyCreationActionContext(ack);
 		instance.setAccessRightGranted(Boolean.TRUE);
-		instance.setCryptoSetting(new CryptoSetting("a", "b", "c"));
+		instance.setCryptoSetting(new CryptoSetting("a", "b"));
 		Assert.assertEquals(instance.getCryptoSetting(), null);
 		Assert.assertEquals(null, instance.getAccessRightGranted());
 
@@ -134,7 +134,7 @@ public class SharedKeyCreationActionContextTest {
 		ActionContextKey ack = new ActionContextKey("X", "Y", "Z");
 		SharedKeyCreationActionContext instance = new SharedKeyCreationActionContext(ack);
 		Assert.assertEquals(null, instance.getCryptoSetting());
-		CryptoSetting cryptoSetting = new CryptoSetting("a", "b", "c");
+		CryptoSetting cryptoSetting = new CryptoSetting("a", "b");
 		instance.setCryptoSetting(cryptoSetting);
 		Assert.assertEquals(cryptoSetting, instance.getCryptoSetting());
 	}
@@ -149,7 +149,7 @@ public class SharedKeyCreationActionContextTest {
 		Assert.assertEquals(null, instance.isPreconditionReached());
 		instance.setAccessRightGranted(Boolean.TRUE);
 		Assert.assertEquals(null, instance.isPreconditionReached());
-		instance.setCryptoSetting(new CryptoSetting("a", "b", "c"));
+		instance.setCryptoSetting(new CryptoSetting("a", "b"));
 		Assert.assertEquals(Boolean.TRUE, instance.isPreconditionReached());
 		instance.setAccessRightGranted(Boolean.FALSE);
 		Assert.assertEquals(Boolean.FALSE, instance.isPreconditionReached());

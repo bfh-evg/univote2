@@ -41,7 +41,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;

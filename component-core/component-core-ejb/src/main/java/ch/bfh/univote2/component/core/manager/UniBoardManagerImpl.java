@@ -42,7 +42,7 @@
 package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.uniboard.clientlib.KeyHelper;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.data.UniBoard;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;

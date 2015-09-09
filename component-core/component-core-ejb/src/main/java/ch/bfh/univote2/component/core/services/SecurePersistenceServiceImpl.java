@@ -43,7 +43,7 @@ package ch.bfh.univote2.component.core.services;
 
 import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.persistence.EncryptedBigIntEntity;
 import ch.bfh.univote2.component.core.persistence.EncryptedBigIntEntity_;

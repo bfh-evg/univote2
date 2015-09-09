@@ -43,8 +43,8 @@ package ch.bfh.univote2.ec.grantVK;
  */
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.CryptoSetting;
-import ch.bfh.univote2.component.core.message.MixedKeys;
+import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.MixedKeys;
 import java.util.ArrayList;
 
 /**

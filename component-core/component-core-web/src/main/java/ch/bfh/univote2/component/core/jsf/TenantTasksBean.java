@@ -41,7 +41,7 @@
  */
 package ch.bfh.univote2.component.core.jsf;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.data.RunActionTask;
 import ch.bfh.univote2.component.core.data.Task;
 import ch.bfh.univote2.component.core.data.UserInputTask;

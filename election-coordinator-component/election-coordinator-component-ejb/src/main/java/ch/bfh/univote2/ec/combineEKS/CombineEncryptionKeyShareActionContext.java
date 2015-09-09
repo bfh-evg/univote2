@@ -44,7 +44,7 @@ package ch.bfh.univote2.ec.combineEKS;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.common.message.CryptoSetting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

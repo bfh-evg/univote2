@@ -44,7 +44,7 @@ package ch.bfh.univote2.component.core.services;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.notification.NotificationService;
 import ch.bfh.uniboard.notification.NotificationService_Service;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.data.UniBoard;
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.manager.UniBoardManager;

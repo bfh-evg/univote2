@@ -42,7 +42,7 @@
 package ch.bfh.univote2.component.core.actionmanager;
 
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInput;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;

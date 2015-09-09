@@ -42,7 +42,7 @@
 package ch.bfh.univote2.ec.grantT;
 
 import ch.bfh.univote2.component.core.action.NotifiableAction;
-import ch.bfh.univote2.component.core.query.GroupEnum;
+import ch.bfh.univote2.common.query.GroupEnum;
 import ch.bfh.univote2.ec.generic.GrantAccessRightEAAction;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;

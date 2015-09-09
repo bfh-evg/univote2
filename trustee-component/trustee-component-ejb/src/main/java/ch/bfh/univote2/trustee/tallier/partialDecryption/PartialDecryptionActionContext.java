@@ -42,7 +42,7 @@
 package ch.bfh.univote2.trustee.tallier.partialDecryption;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.MixedVotes;
+import ch.bfh.univote2.common.message.MixedVotes;
 import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
 /**

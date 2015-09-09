@@ -43,7 +43,7 @@ package ch.bfh.univote2.component.core.manager;
 
 import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.general.classes.FixedStringSet;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.RunActionTask;
 import ch.bfh.univote2.component.core.data.Task;

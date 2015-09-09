@@ -42,7 +42,7 @@
 package ch.bfh.univote2.ec;
 
 import ch.bfh.unicrypt.helper.array.classes.ByteArray;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import java.security.PrivateKey;
 import java.security.PublicKey;

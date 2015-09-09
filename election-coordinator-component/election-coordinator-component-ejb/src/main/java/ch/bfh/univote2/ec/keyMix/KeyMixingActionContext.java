@@ -43,7 +43,7 @@ package ch.bfh.univote2.ec.keyMix;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.message.CryptoSetting;
+import ch.bfh.univote2.common.message.CryptoSetting;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;

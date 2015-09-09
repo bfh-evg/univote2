@@ -41,10 +41,11 @@
  */
 package ch.bfh.univote2.ec;
 
+import ch.bfh.univote2.common.query.QueryFactory;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.univote2.component.core.query.GroupEnum;
+import ch.bfh.univote2.common.query.GroupEnum;
 import java.nio.charset.Charset;
 import java.util.List;
 import javax.ejb.EJB;

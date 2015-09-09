@@ -18,7 +18,7 @@ import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
 import ch.bfh.unicrypt.math.algebra.dualistic.classes.Z;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.persistence.TenantEntity;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;

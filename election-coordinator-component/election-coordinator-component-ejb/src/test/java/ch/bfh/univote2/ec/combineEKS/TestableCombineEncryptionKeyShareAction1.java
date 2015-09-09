@@ -42,7 +42,7 @@
 package ch.bfh.univote2.ec.combineEKS;
 
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 

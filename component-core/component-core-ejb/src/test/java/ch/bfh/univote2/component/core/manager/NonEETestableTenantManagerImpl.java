@@ -11,7 +11,7 @@
  */
 package ch.bfh.univote2.component.core.manager;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TenantManagerImpl;
 import ch.bfh.univote2.component.core.manager.UnlockedTenant;
 import ch.bfh.univote2.component.core.persistence.TenantEntity;

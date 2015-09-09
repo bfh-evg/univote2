@@ -47,7 +47,7 @@ import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import java.util.concurrent.ArrayBlockingQueue;
 import javax.ejb.LocalBean;

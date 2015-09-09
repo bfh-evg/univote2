@@ -5,7 +5,7 @@
  */
 package ch.bfh.univote2.component.core.actionmanager;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.action.Action;
 import ch.bfh.univote2.component.core.data.NotificationData;
 import ch.bfh.univote2.component.core.data.NotificationDataAccessor;

@@ -41,9 +41,9 @@
  */
 package ch.bfh.univote2.ec.grantEKS;
 
-import ch.bfh.univote2.component.core.UnivoteException;
+import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.message.TrusteeCertificates;
+import ch.bfh.univote2.common.message.TrusteeCertificates;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
