@@ -49,7 +49,6 @@ public class TaskManagerMock implements TaskManager {
 
 	@Override
 	public void addRunActionTask(RunActionTask runActionTask) {
-		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override

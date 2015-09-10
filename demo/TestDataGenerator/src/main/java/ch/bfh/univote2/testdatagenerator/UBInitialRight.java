@@ -46,7 +46,7 @@ public class UBInitialRight {
 		String ecAlias = "ec-demo";
 		String ecPKPass = "12345678";
 		String eaAlias = "ea-demo";
-		String section = "sub-2015";
+		String section = "qqqqqqq";
 
 		KeyStore caKs = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType", "jks"));
 

@@ -102,4 +102,9 @@ public class ActionContextKey {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "ActionContextKey{" + "action=" + action + ", tenant=" + tenant + ", section=" + section + '}';
+	}
+
 }

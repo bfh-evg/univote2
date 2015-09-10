@@ -69,6 +69,8 @@ public class UniBoardManagerImpl implements UniBoardManager {
 	private static final String CONFIG_NAME = "uniboard-manager";
 	private static final String WSDL_URL = "wsdlLocation";
 	private static final String ENDPOINT_URL = "endPointUrl";
+	private static final String NOTIFICATION_WSDL_URL = "notificationWsdlLocation";
+	private static final String NOTIFICATION_ENDPOINT_URL = "notificationEndPointUrl";
 	private static final Logger logger = Logger.getLogger(UniBoardManagerImpl.class.getName());
 
 	private Map<String, UniBoard> uniboards;
@@ -87,8 +89,11 @@ public class UniBoardManagerImpl implements UniBoardManager {
 				Properties tmpProp = this.configurationManager.getConfiguration(name);
 				String wsdlUrl = tmpProp.getProperty(WSDL_URL);
 				String endPointUrl = tmpProp.getProperty(ENDPOINT_URL);
+				String notificationWsdlLocation = tmpProp.getProperty(NOTIFICATION_WSDL_URL);
+				String notificationEndPointUrl = tmpProp.getProperty(NOTIFICATION_ENDPOINT_URL);
 				PublicKey publicKey = this.getBoardKey(tmpProp);
-				UniBoard tmpUniBoard = new UniBoard(wsdlUrl, endPointUrl, publicKey);
+				UniBoard tmpUniBoard = new UniBoard(wsdlUrl, endPointUrl, notificationWsdlLocation,
+						notificationEndPointUrl, publicKey);
 				this.uniboards.put(name, tmpUniBoard);
 
 			}

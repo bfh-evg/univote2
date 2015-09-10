@@ -114,7 +114,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 		try {
 
 			URL wsdlLocation = new URL(board.getWsdlURL());
-			QName qname = new QName("http://uniboard.bfh.ch/", "UniBoardService");
+			QName qname = new QName("http://uniboard.bfh.ch/notification/", "NotificationService");
 			NotificationService_Service ubService = new NotificationService_Service(wsdlLocation, qname);
 			NotificationService notificationService = ubService.getNotificationServicePort();
 			BindingProvider bp = (BindingProvider) notificationService;

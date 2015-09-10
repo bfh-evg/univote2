@@ -53,6 +53,7 @@ import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.NotificationDataAccessor;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.data.RunActionTask;
 import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.data.TimerNotificationData;
 import ch.bfh.univote2.component.core.data.UserInput;
@@ -311,9 +312,17 @@ public class ActionManagerImpl implements ActionManager {
 
 	@Override
 	public void runAction(String actionName, String tenant, String section) {
-		//TODO
-		if (this.actionContexts.containsKey(new ActionContextKey(actionName, tenant, section))) {
-
+		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
+		if (this.actionContexts.containsKey(ack)) {
+			ActionContext actionContext = this.actionContexts.get(ack);
+			if (actionContext.runsInParallel() || !actionContext.isInUse()) {
+				try {
+					NotifiableAction action = this.getAction(actionName);
+					action.run(actionContext);
+				} catch (UnivoteException ex) {
+					this.log("Could not run action" + actionName, Level.WARNING);
+				}
+			}
 		}
 	}
 
@@ -360,8 +369,9 @@ public class ActionManagerImpl implements ActionManager {
 			case FAILURE:
 				if (!actionContext.runsInParallel()) {
 					actionContext.setInUse(false);
-				}
-			//TODO Register a RunActionTask
+				}//Register a RunActionTask
+				this.userTaskManager.addRunActionTask(new RunActionTask(actionContext.getActionContextKey()));
+
 		}
 	}
 

@@ -53,10 +53,12 @@ import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.data.UserInputTask;
 import ch.bfh.univote2.common.query.GroupEnum;
+import ch.bfh.univote2.common.query.MessageFactory;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.common.query.QueryFactory;
+import ch.bfh.univote2.component.core.manager.TenantManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -80,6 +82,8 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	private InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
+	@EJB
+	private TenantManager tenantManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -174,6 +178,11 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 			}
 			PostDTO post = result.getResult().getPost().get(0);
 
+			//Grant urself the right to post
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.ACCESS_RIGHT.getValue(), MessageFactory.createAccessRight(GroupEnum.ADMIN_CERT,
+							this.tenantManager.getPublicKey(actionContext.getTenant()), 1), actionContext.getTenant());
+
 			//Create message from the retrieved certificate
 			byte[] message = post.getMessage();
 			//Post message
@@ -184,8 +193,8 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not post message.");
-			logger.log(Level.WARNING, "Could not post message. context: {0}. ex: {1}",
-					new Object[]{actionContext.getActionContextKey(), ex.getMessage()});
+			logger.log(Level.WARNING, "Could not post message. context: " + actionContext.getActionContextKey()
+					+ ". ex: " + ex.getMessage(), ex);
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 	}

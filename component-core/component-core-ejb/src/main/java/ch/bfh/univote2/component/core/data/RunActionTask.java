@@ -41,6 +41,8 @@
  */
 package ch.bfh.univote2.component.core.data;
 
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+
 public class RunActionTask extends Task {
 
 	private final String actionName;
@@ -48,6 +50,11 @@ public class RunActionTask extends Task {
 	public RunActionTask(String actionName, String tenant, String section) {
 		super(tenant, section);
 		this.actionName = actionName;
+	}
+
+	public RunActionTask(ActionContextKey ack) {
+		super(ack.getTenant(), ack.getSection());
+		this.actionName = ack.getAction();
 	}
 
 	public String getActionName() {

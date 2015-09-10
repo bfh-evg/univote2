@@ -77,12 +77,9 @@ public class UniBoardServiceImpl implements UniboardService {
 			GetHelper getHelper = new GetHelper(boardConfig.getPublicKey(), boardConfig.getWsdlURL(),
 					boardConfig.getEndPointURL());
 			return getHelper.get(query);
-		} catch (GetException ex) {
-			throw new UnivoteException("Could not create wsclient.", ex);
-		} catch (SignatureException ex) {
-			throw new UnivoteException("Could not verify answer.", ex);
+		} catch (GetException | SignatureException ex) {
+			throw new UnivoteException(ex.getMessage(), ex);
 		}
-
 	}
 
 	@Override
@@ -94,12 +91,8 @@ public class UniBoardServiceImpl implements UniboardService {
 					this.tenantManager.getPrivateKey(tenant), boardConfig.getPublicKey(), boardConfig.getWsdlURL(),
 					boardConfig.getEndPointURL());
 			return postHelper.post(message, section, group);
-		} catch (PostException ex) {
-			throw new UnivoteException("Could not create wsclient.", ex);
-		} catch (SignatureException ex) {
-			throw new UnivoteException("Could not sign message/Verify response.", ex);
-		} catch (BoardErrorException ex) {
-			throw new UnivoteException("Uniboard rejected the message", ex);
+		} catch (PostException | SignatureException | BoardErrorException ex) {
+			throw new UnivoteException(ex.getMessage(), ex);
 		}
 	}
 

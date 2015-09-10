@@ -45,14 +45,14 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.persistence.TenantInformationEntity;
 import ch.bfh.univote2.component.core.persistence.TenantInformationEntity_;
 import java.util.List;
-import javax.ejb.Singleton;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-@Singleton
+@Stateless
 public class InformationServiceImpl implements InformationService {
 
 	@PersistenceContext(unitName = "ComponentPU")

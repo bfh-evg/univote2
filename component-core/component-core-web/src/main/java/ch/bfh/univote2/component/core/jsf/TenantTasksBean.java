@@ -50,8 +50,6 @@ import ch.bfh.univote2.component.core.services.OutcomeRoutingService;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -88,8 +86,7 @@ public class TenantTasksBean implements Serializable {
 			this.taskManager.runAction(notificationCode);
 			return "/secured/tasks";
 		} catch (UnivoteException ex) {
-			//TODO Log
-			Logger.getLogger(TenantTasksBean.class.getName()).log(Level.SEVERE, null, ex);
+			MessageFactory.error("Could not run task.", ex);
 			return "/secured/tasks";
 		}
 	}
@@ -98,7 +95,7 @@ public class TenantTasksBean implements Serializable {
 		try {
 			return this.outcomeRoutingService.getRoutingForUserInput(inputName);
 		} catch (UnivoteException ex) {
-			Logger.getLogger(TenantTasksBean.class.getName()).log(Level.SEVERE, null, ex);
+			MessageFactory.error("Could not go to input form.", ex);
 			return "/secured/tasks";
 		}
 	}

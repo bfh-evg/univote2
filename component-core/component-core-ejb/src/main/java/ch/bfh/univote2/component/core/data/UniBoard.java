@@ -51,12 +51,17 @@ public class UniBoard {
 
 	private final String wsdlURL;
 	private final String endPointURL;
+	private final String notificationWsdlURL;
+	private final String notifictionEndPointURL;
 
 	private final PublicKey publicKey;
 
-	public UniBoard(String wsdlURL, String endPointURL, PublicKey publicKey) {
+	public UniBoard(String wsdlURL, String endPointURL, String notificationWsdlURL, String notifictionEndPointURL,
+			PublicKey publicKey) {
 		this.wsdlURL = wsdlURL;
 		this.endPointURL = endPointURL;
+		this.notificationWsdlURL = notificationWsdlURL;
+		this.notifictionEndPointURL = notifictionEndPointURL;
 		this.publicKey = publicKey;
 	}
 
@@ -70,6 +75,14 @@ public class UniBoard {
 
 	public PublicKey getPublicKey() {
 		return publicKey;
+	}
+
+	public String getNotificationWsdlURL() {
+		return notificationWsdlURL;
+	}
+
+	public String getNotifictionEndPointURL() {
+		return notifictionEndPointURL;
 	}
 
 }
