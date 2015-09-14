@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote.admin;
+package ch.bfh.univote.admin.util;
 
 import ch.bfh.uniboard.clientlib.GetHelper;
 import ch.bfh.uniboard.clientlib.UniBoardAttributesName;
@@ -21,6 +21,7 @@ import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
+import ch.bfh.univote2.common.crypto.KeyUtil;
 import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collections;

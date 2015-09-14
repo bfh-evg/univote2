@@ -9,12 +9,14 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote.admin;
+package ch.bfh.univote.admin.util;
 
+import ch.bfh.univote.admin.JsonConverter;
 import ch.bfh.uniboard.clientlib.PostHelper;
 import ch.bfh.univote.admin.data.AccessRight;
 import ch.bfh.univote.admin.data.Crypto;
 import ch.bfh.univote.admin.data.DL;
+import ch.bfh.univote2.common.crypto.KeyUtil;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;

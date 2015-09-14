@@ -9,9 +9,10 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote.admin;
+package ch.bfh.univote.admin.util;
 
 import ch.bfh.uniboard.clientlib.PostHelper;
+import ch.bfh.univote2.common.crypto.KeyUtil;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.interfaces.DSAPrivateKey;
