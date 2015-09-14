@@ -64,10 +64,7 @@
 					</div>
 					<div class="large-8 medium-8 columns chooser_content">
 						<select id="setup" class="select radius" name="setup" size="1" onchange="updateSetup()">
-							<!-- TODO Get values from JNDI -->
 							<option value="">#{msg.pleaseSelect}</option>
-							<option value="manually">#{msg.manually}</option>
-							<option value="uv-vsbfh">VSBFH</option>
 						</select>
 						<div id="manual_setup" class="hidden">
 							<select id="crypto_setup_type" class="select radius" name="crypto_setup_type" size="1" onchange="updateKeysOptions()">
