@@ -209,8 +209,10 @@ public class ActionManagerImpl implements ActionManager {
 				ActionContext ac = this.getAction(actionName).prepareContext(tenant, section);
 				this.actionContexts.put(ac.getActionContextKey(), ac);
 				if (ac.checkPostCondition()) {
-					for (String aName : this.actionGraph.get(ac.getActionContextKey().getAction())) {
-						this.checkActionState(aName, tenant, section);
+					if (this.actionGraph.containsKey(ac.getActionContextKey().getAction())) {
+						for (String aName : this.actionGraph.get(ac.getActionContextKey().getAction())) {
+							this.checkActionState(aName, tenant, section);
+						}
 					}
 				} else {
 					if (ac.getPreconditionQueries().isEmpty()) {
@@ -344,8 +346,10 @@ public class ActionManagerImpl implements ActionManager {
 				actionContext.purge();
 				//Check successors
 				ActionContextKey ack = actionContext.getActionContextKey();
-				for (String successor : this.actionGraph.get(ack.getAction())) {
-					this.checkActionState(successor, ack.getTenant(), ack.getSection());
+				if (this.actionGraph.get(ack.getAction()) != null) {
+					for (String successor : this.actionGraph.get(ack.getAction())) {
+						this.checkActionState(successor, ack.getTenant(), ack.getSection());
+					}
 				}
 				break;
 			case RUN_FINISHED:

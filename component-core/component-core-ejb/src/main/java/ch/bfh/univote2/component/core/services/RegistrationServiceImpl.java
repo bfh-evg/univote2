@@ -113,15 +113,16 @@ public class RegistrationServiceImpl implements RegistrationService {
 	private NotificationService getNotificationService(UniBoard board) throws UnivoteException {
 		try {
 
-			URL wsdlLocation = new URL(board.getWsdlURL());
+			URL wsdlLocation = new URL(board.getNotificationWsdlURL());
 			QName qname = new QName("http://uniboard.bfh.ch/notification/", "NotificationService");
 			NotificationService_Service ubService = new NotificationService_Service(wsdlLocation, qname);
 			NotificationService notificationService = ubService.getNotificationServicePort();
 			BindingProvider bp = (BindingProvider) notificationService;
-			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, board.getEndPointURL());
+			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, board.getNotifictionEndPointURL());
 			return notificationService;
 		} catch (Exception ex) {
-			throw new UnivoteException("Unable to connect to UniBoard service: " + board.getEndPointURL(), ex);
+			throw new UnivoteException("Unable to connect to UniBoard service: "
+					+ board.getNotifictionEndPointURL(), ex);
 		}
 	}
 

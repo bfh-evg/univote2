@@ -44,6 +44,7 @@ package ch.bfh.univote2.ec.setCS;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -53,11 +54,14 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.SecurityLevel;
+import ch.bfh.univote2.common.query.GroupEnum;
+import ch.bfh.univote2.common.query.MessageFactory;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.common.query.QueryFactory;
-import ch.bfh.univote2.ec.pubTC.PublishTrusteeCertsActionContext;
+import ch.bfh.univote2.component.core.manager.TenantManager;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -80,9 +84,8 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 	private InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
-	// TODO Add field or remove next two comment lines
-	//@EJB
-	//private ConfigurationManager configurationManager;
+	@EJB
+	private TenantManager tenantManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -125,7 +128,7 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 	@Asynchronous
 	public void run(ActionContext actionContext) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
-		if (actionContext instanceof PublishTrusteeCertsActionContext) {
+		if (actionContext instanceof SetCryptoSettingActionContext) {
 			SetCryptoSettingActionContext scsac = (SetCryptoSettingActionContext) actionContext;
 			if (scsac.getSecurityLevel() != null) {
 				this.runInternal(scsac);
@@ -149,7 +152,7 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 	@Asynchronous
 	public void notifyAction(ActionContext actionContext, Object notification) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
-		if (actionContext instanceof PublishTrusteeCertsActionContext) {
+		if (actionContext instanceof SetCryptoSettingActionContext) {
 			SetCryptoSettingActionContext scsac = (SetCryptoSettingActionContext) actionContext;
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
@@ -198,6 +201,67 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 	}
 
 	private void runInternal(SetCryptoSettingActionContext actionContext) {
-		//Where to retrieve the settings from?
+
+		CryptoSetting cryptoSetting;
+		switch (actionContext.getSecurityLevel()) {
+			case 0:
+				cryptoSetting = new CryptoSetting("RC0e", "RC0s");
+				break;
+			case 1:
+				cryptoSetting = new CryptoSetting("RC1e", "RC1s");
+				break;
+			case 2:
+				cryptoSetting = new CryptoSetting("RC2e", "RC2s");
+				break;
+			case 3:
+				cryptoSetting = new CryptoSetting("RC3e", "RC3s");
+				break;
+			case 4:
+				cryptoSetting = new CryptoSetting("RC4e", "RC4s");
+				break;
+			case 5:
+				cryptoSetting = new CryptoSetting("RC5e", "RC5s");
+				break;
+			default:
+				this.informationService.informTenant(actionContext.getActionContextKey(), "Invalid securityLevel");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+		}
+		try {
+			//Grant urself the right to post
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.ACCESS_RIGHT.getValue(),
+					MessageFactory.createAccessRight(GroupEnum.CRYPTO_SETTING,
+							this.tenantManager.getPublicKey(actionContext.getTenant()), 1),
+					actionContext.getTenant());
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not post accessRight.");
+			logger.log(Level.WARNING, "Could not post accessRight. context: " + actionContext.getActionContextKey()
+					+ ". ex: " + ex.getMessage(), ex);
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+
+		//Create message from the retrieved certificate
+		//Post message
+		String message = "";
+		try {
+			message = JSONConverter.marshal(cryptoSetting);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.CRYPTO_SETTING.getValue(),
+					message.getBytes(Charset.forName("UTF-8")),
+					actionContext.getTenant());
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Posted crypto setting. Action finished.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not post message.");
+			logger.log(Level.WARNING, "Could not post message. context: {0}. ex: {1}",
+					new Object[]{actionContext.getActionContextKey(), ex.getMessage()});
+			logger.log(Level.INFO, "Message: {0}", message);
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
 	}
 }

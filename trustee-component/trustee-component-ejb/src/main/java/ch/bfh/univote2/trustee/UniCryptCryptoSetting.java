@@ -41,7 +41,6 @@
  */
 package ch.bfh.univote2.trustee;
 
-import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 
@@ -51,20 +50,18 @@ import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
  */
 public class UniCryptCryptoSetting {
 
-    public final CyclicGroup encryptionGroup;
-    public final Element encryptionGenerator;
+	public final CyclicGroup encryptionGroup;
+	public final Element encryptionGenerator;
 
-    public final CyclicGroup signatureGroup;
-    public final Element signatureGenerator;
+	public final CyclicGroup signatureGroup;
+	public final Element signatureGenerator;
 
-    public final HashAlgorithm hashAlgorithm;
-
-    public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, CyclicGroup signatureGroup, Element signatureGenerator, HashAlgorithm hashAlgorithm) {
-	this.encryptionGroup = encryptionGroup;
-	this.encryptionGenerator = encryptionGenerator;
-	this.signatureGroup = signatureGroup;
-	this.signatureGenerator = signatureGenerator;
-	this.hashAlgorithm = hashAlgorithm;
-    }
+	public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, CyclicGroup signatureGroup,
+			Element signatureGenerator) {
+		this.encryptionGroup = encryptionGroup;
+		this.encryptionGenerator = encryptionGenerator;
+		this.signatureGroup = signatureGroup;
+		this.signatureGenerator = signatureGenerator;;
+	}
 
 }

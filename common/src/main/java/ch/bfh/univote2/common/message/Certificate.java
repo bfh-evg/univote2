@@ -198,7 +198,7 @@ public class Certificate {
 		this.pem = pem;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public String getCommonName() {
 		return commonName;
 	}
@@ -271,7 +271,7 @@ public class Certificate {
 		this.givenName = givenName;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public String getIssuer() {
 		return issuer;
 	}
@@ -280,7 +280,7 @@ public class Certificate {
 		this.issuer = issuer;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public String getSerialNumber() {
 		return serialNumber;
 	}
@@ -289,7 +289,7 @@ public class Certificate {
 		this.serialNumber = serialNumber;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public Date getValidFrom() {
 		return validFrom;
 	}
@@ -298,7 +298,7 @@ public class Certificate {
 		this.validFrom = validFrom;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public Date getValidUntil() {
 		return validUntil;
 	}
@@ -323,7 +323,7 @@ public class Certificate {
 		this.roles = roles;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public String getIdentityProvider() {
 		return identityProvider;
 	}
@@ -332,13 +332,23 @@ public class Certificate {
 		this.identityProvider = identityProvider;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public String getPem() {
 		return pem;
 	}
 
 	public void setPem(String pem) {
 		this.pem = pem;
+	}
+
+	@Override
+	public String toString() {
+		return "Certificate{" + "commonName=" + commonName + ", uniqueIdentifier=" + uniqueIdentifier
+				+ ", organisation=" + organisation + ", organisationUnit=" + organisationUnit + ", countryName="
+				+ countryName + ", state=" + state + ", locality=" + locality + ", surname=" + surname + ", givenName="
+				+ givenName + ", issuer=" + issuer + ", serialNumber=" + serialNumber + ", validFrom=" + validFrom
+				+ ", validUntil=" + validUntil + ", applicationIdentifier=" + applicationIdentifier + ", roles=" + roles
+				+ ", identityProvider=" + identityProvider + ", pem=" + pem + '}';
 	}
 
 }

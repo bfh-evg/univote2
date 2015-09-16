@@ -43,6 +43,7 @@ package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.StringValue;
@@ -90,7 +91,6 @@ import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -101,7 +101,7 @@ import javax.ejb.Stateless;
 public class SharedKeyCreationAction extends AbstractAction implements NotifiableAction {
 
 	private static final String ACTION_NAME = SharedKeyCreationAction.class.getSimpleName();
-	public static final String PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE = "SECRET_KEY_FOR_KEY_SHARE";
+	public static final String PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE = "SECRET_KEY_FOR_KEY_SHARE";
 
 	private static final Logger logger = Logger.getLogger(SharedKeyCreationAction.class.getName());
 
@@ -128,7 +128,6 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 			return false;
 		}
-		SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 		try {
 			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
@@ -147,69 +146,73 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
-		ActionContextKey actionContextKey = actionContext.getActionContextKey();
-		String section = actionContext.getSection();
 		if (!(actionContext instanceof SharedKeyCreationActionContext)) {
 			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 			return;
 		}
 		SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
 		TrusteeActionHelper.checkAndSetCryptoSetting(skcac, uniboardService, tenantManager, informationService, logger);
-		TrusteeActionHelper.checkAndSetAccsessRight(skcac, GroupEnum.ENCRYPTION_KEY_SHARE, uniboardService, tenantManager, informationService, logger);
+		TrusteeActionHelper.checkAndSetAccsessRight(skcac, GroupEnum.ENCRYPTION_KEY_SHARE, uniboardService,
+				tenantManager, informationService, logger);
 	}
 
 	@Override
 	@Asynchronous
 	public void run(ActionContext actionContext) {
 		if (!(actionContext instanceof SharedKeyCreationActionContext)) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), "Unsupported context.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			return;
 		}
 		SharedKeyCreationActionContext skcac = (SharedKeyCreationActionContext) actionContext;
-		//The following if is strange, as the run should not happen in this case?!
-		if (skcac.isPreconditionReached() == null) {
-			logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-
-			return;
-		}
-		if (Objects.equals(skcac.isPreconditionReached(), Boolean.FALSE)) {
-			logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			return;
+		if (!skcac.getAccessRightGranted()) {
+			TrusteeActionHelper.checkAndSetAccsessRight(skcac, GroupEnum.TRUSTEES, uniboardService,
+					tenantManager, informationService, logger);
+			if (!skcac.getAccessRightGranted()) {
+				logger.log(Level.INFO, "Access right has not been granted yet.");
+				this.informationService.informTenant(skcac.getActionContextKey(), "Access right not yet granted.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
 		}
 		String tenant = actionContext.getTenant();
 		String section = actionContext.getSection();
 
 		CryptoSetting cryptoSetting = skcac.getCryptoSetting();
 		if (cryptoSetting == null) {
-			logger.log(Level.SEVERE, "Precondition is reached but crypto setting is empty in Context. That is bad.");
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error: Precondition reached, but no crypto setting available.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			return;
+			try {
+				skcac.setCryptoSetting(TrusteeActionHelper.retrieveCryptoSetting(actionContext, uniboardService));
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, "Crypto setting is not published yet.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Crypto setting not published yet.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
 		}
 		try {
 			UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
 			BigInteger privateKey;
 			EnhancedEncryptionKeyShare enhancedEncryptionKeyShare;
 			try {
-				privateKey = securePersistenceService.retrieve(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE);
+				privateKey = securePersistenceService.retrieve(tenant, section,
+						PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE);
 				enhancedEncryptionKeyShare = createEncryptionKeyShare(tenant, uniCryptCryptoSetting, privateKey);
 
 			} catch (UnivoteException ex) {
 				//No key available so a new one will be built
 				enhancedEncryptionKeyShare = createEncryptionKeyShare(tenant, uniCryptCryptoSetting);
 				privateKey = enhancedEncryptionKeyShare.privateKey;
+				securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE, privateKey);
 			}
 
 			EncryptionKeyShare encryptionKeyShare = enhancedEncryptionKeyShare.encryptionKeyShare;
 			String encryptionKeyShareString = JSONConverter.marshal(encryptionKeyShare);
+			logger.log(Level.INFO, encryptionKeyShareString);
 			byte[] encryptionKeyShareByteArray = encryptionKeyShareString.getBytes(Charset.forName("UTF-8"));
 
-			securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_FOR_KEY_SHARE, privateKey);
-
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.ENCRYPTION_KEY_SHARE.getValue(), encryptionKeyShareByteArray, tenant);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.ENCRYPTION_KEY_SHARE.getValue(),
+					encryptionKeyShareByteArray, tenant);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Posted key share for encrcyption. Action finished.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
@@ -218,11 +221,6 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not post key share for encrcyption. Action failed.");
 			Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		} catch (Exception ex) {
-			Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not marshal key share for encrcyption. Action failed.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 	}
@@ -264,42 +262,46 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		} catch (Exception ex) {
+		} catch (TransformException ex) {
 			Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 	}
 
-	protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting) throws UnivoteException {
+	protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting)
+			throws UnivoteException {
 		return this.createEncryptionKeyShare(tenant, setting, null);
 	}
 
-	protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting, BigInteger privateKeyAsBigInt) throws UnivoteException {
+	protected EnhancedEncryptionKeyShare createEncryptionKeyShare(String tenant, UniCryptCryptoSetting setting,
+			BigInteger privateKeyAsBigInt) throws UnivoteException {
 		CyclicGroup cyclicGroup = setting.encryptionGroup;
 		Element encryptionGenerator = setting.encryptionGenerator;
-		HashAlgorithm hashAlgorithm = setting.hashAlgorithm;
 
 		// Create ElGamal encryption scheme
 		ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(encryptionGenerator);
 
 		// Generate keys
+		Element privateKey;
 		KeyPairGenerator kpg = elGamal.getKeyPairGenerator();
-		Element privateKey = cyclicGroup.getElementFrom(privateKeyAsBigInt);
-		if (privateKey == null) {
+		if (privateKeyAsBigInt == null) {
 			privateKey = kpg.generatePrivateKey();
+		} else {
+			privateKey = cyclicGroup.getElementFrom(privateKeyAsBigInt);
+
 		}
 		Element publicKey = kpg.generatePublicKey(privateKey);
 
 		// Generate proof generator
 		Function function = kpg.getPublicKeyGenerationFunction();
 		StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
-		HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
+		HashMethod hashMethod = HashMethod.getInstance(HashAlgorithm.SHA256);
 		ConvertMethod convertMethod = ConvertMethod.getInstance(
 				BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
 				StringToByteArray.getInstance(Charset.forName("UTF-8")));
 
-		Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
+		Converter converter = ByteArrayToBigInteger.getInstance(HashAlgorithm.SHA256.getByteLength(), 1);
 
 		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
 				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
@@ -310,11 +312,14 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 		if (!success) {
 			throw new UnivoteException("Math for proof system broken.");
 		}
-		SigmaProof proofDTO = new SigmaProof(pg.getCommitment(proof).convertToString(), pg.getChallenge(proof).convertToString(), pg.getResponse(proof).convertToString());
+		SigmaProof proofDTO = new SigmaProof(pg.getCommitment(proof).convertToString(),
+				pg.getChallenge(proof).convertToString(), pg.getResponse(proof).convertToString());
 
 		EnhancedEncryptionKeyShare enhancedEncryptionKeyShare = new EnhancedEncryptionKeyShare();
 		enhancedEncryptionKeyShare.privateKey = (BigInteger) privateKey.convertToBigInteger();
-		EncryptionKeyShare encryptionKeyShare = new EncryptionKeyShare(publicKey.getHashValue().toString(), proofDTO);
+		EncryptionKeyShare encryptionKeyShare
+				= new EncryptionKeyShare(publicKey.convertToBigInteger().toString(10), proofDTO);
+		enhancedEncryptionKeyShare.encryptionKeyShare = encryptionKeyShare;
 		return enhancedEncryptionKeyShare;
 	}
 

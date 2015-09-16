@@ -124,4 +124,18 @@ public class PasswordBasedKeyDerivation {
 		return cipher.doFinal(encryption);
 
 	}
+
+	public static byte[] getAESKey(String privateKey, String password) throws Exception {
+		String toDecrypt = privateKey.replace(ENC_PRIVATE_KEY_PREFIX, "");
+		toDecrypt = toDecrypt.replace(ENC_PRIVATE_KEY_POSTFIX, "");
+		toDecrypt = toDecrypt.replaceAll("\n", "");
+		toDecrypt = toDecrypt.trim();
+
+		byte[] salt = DatatypeConverter.parseBase64Binary(toDecrypt.substring(0, 24));
+		PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_SIZE);
+		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(SECRET_KEY_ALGORITHM);
+		SecretKey secretKey = keyFactory.generateSecret(keySpec);
+
+		return secretKey.getEncoded();
+	}
 }

@@ -12,6 +12,6 @@
 			"$ref": "sigmaProof.jsd"
 		}
 	},
-	"required": ["keyShare, proof"],
+	"required": ["keyShare", "proof"],
 	"additionalProperties": false
 }

@@ -99,9 +99,9 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 			this.retrieveEA(actionContext);
 			precondition = true;
 		} catch (UnivoteException ex) {
-			this.getLogger().log(Level.WARNING, "Could not request trustee certificates.", ex);
+			this.getLogger().log(Level.WARNING, "Could not request ea certificate.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not request trustee certificates.");
+					"Could not request ea certificate.");
 		}
 
 		if (precondition) {

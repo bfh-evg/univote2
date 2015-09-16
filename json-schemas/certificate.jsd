@@ -49,11 +49,13 @@
 		},
 		"validFrom": {
 			"type": "string",
-			"description": "Date when the certificate starts to be valid"
+			"description": "Date when the certificate starts to be valid",
+			"format": "date-time"
 		},
 		"validUntil": {
 			"type": "string",
-			"description": "Date when the certificate ends to be valid"
+			"description": "Date when the certificate ends to be valid",
+			"format": "date-time"
 		}, 
 		"applicationIdentifier": {
 			"type": "string",

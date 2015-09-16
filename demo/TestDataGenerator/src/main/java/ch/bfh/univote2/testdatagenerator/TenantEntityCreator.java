@@ -60,10 +60,10 @@ import java.security.interfaces.DSAPublicKey;
  */
 public class TenantEntityCreator {
 
-	private static final String TENANT_CERTIFICATE = "../ec-certificate.pem";
-	private static final String TENANT_ENCRYPTED_PRIVATE_KEY = "../ec-encrypted-private-key.pem";
+	private static final String TENANT_CERTIFICATE = "../trustee-certificate.pem";
+	private static final String TENANT_ENCRYPTED_PRIVATE_KEY = "../trustee-encrypted-private-key.pem";
 	private static final String TENANT_PRIVATE_KEY_PASSWORD = "12345678";
-	private static final String TENANT_NAME = "ec";
+	private static final String TENANT_NAME = "sevi";
 
 	/**
 	 * @param args the command line arguments
@@ -88,7 +88,6 @@ public class TenantEntityCreator {
 		FixedByteArrayHashingScheme scheme = FixedByteArrayHashingScheme.getInstance(messageSpace);
 
 		Element hash = scheme.hash(message);
-		System.out.println(hash.convertToBigInteger());
 		// TODO Print sql statement
 		String sql = "INSERT INTO `TENANTENTITY` (`ID`, `ENCPRIVATEKEY`, `GENERATOR`, `HASHVALUE`, `MODULUS`,"
 				+ " `NAME`, `ORDERFACTOR`, `PUBLICKEY`, `SALT`) VALUES ("

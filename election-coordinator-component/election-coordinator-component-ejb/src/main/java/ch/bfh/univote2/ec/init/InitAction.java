@@ -64,7 +64,7 @@ import javax.ejb.Stateless;
 @Stateless
 public class InitAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "InitAction";
+	private static final String ACTION_NAME = InitAction.class.getSimpleName();
 	private static final String INPUT_NAME = "InitInput";
 
 	@EJB
@@ -85,6 +85,10 @@ public class InitAction extends AbstractAction implements NotifiableAction {
 		ActionContext newContext = new InitActionContext(ack, new ArrayList<>());
 		this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
 				userInput.getSection(), "New course of action defined for section: " + userInput.getSection());
+		UserInputPreconditionQuery query = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
+				actionContext.getActionContextKey().getTenant(),
+				actionContext.getActionContextKey().getSection()));
+		this.actionManager.reRequireUserInput(actionContext, query);
 		this.actionManager.runFinished(newContext, ResultStatus.FINISHED);
 	}
 

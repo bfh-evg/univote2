@@ -50,18 +50,13 @@ import ch.bfh.univote2.trustee.ATrusteeActionContext;
  */
 public class SharedKeyCreationActionContext extends ATrusteeActionContext {
 
-    public SharedKeyCreationActionContext(ActionContextKey actionContextKey) {
-	super(actionContextKey);
-    }
+	public SharedKeyCreationActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey);
+	}
 
-    @Override
-    protected Boolean isSpecializedPreconditionReached() {
-	return true;
-    }
-
-    @Override
-    protected void purgeSpecializedData() {
-	//nothing to do
-    }
+	@Override
+	protected void purgeSpecializedData() {
+		//nothing to do
+	}
 
 }

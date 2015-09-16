@@ -83,7 +83,7 @@ public class QueryFactory {
 		//Where cert type is trustee
 		IdentifierDTO identifier4 = new MessageIdentifierDTO();
 		identifier4.getPart().add("roles");
-		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("electionAdministrator"));
+		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("ElectionAdministrator"));
 		query.getConstraint().add(constraint4);
 		//Order by timestamp desc
 		IdentifierDTO identifier5 = new BetaIdentifierDTO();
@@ -114,7 +114,7 @@ public class QueryFactory {
 		//Where cert type is trustee
 		IdentifierDTO identifier4 = new MessageIdentifierDTO();
 		identifier4.getPart().add("roles");
-		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("trustee"));
+		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("Trustee"));
 		query.getConstraint().add(constraint4);
 		//Order by timestamp desc
 		IdentifierDTO identifier5 = new BetaIdentifierDTO();
@@ -145,7 +145,7 @@ public class QueryFactory {
 		//Where cert type is trustee
 		IdentifierDTO identifier4 = new MessageIdentifierDTO();
 		identifier4.getPart().add("roles");
-		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("voter"));
+		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("Voter"));
 		query.getConstraint().add(constraint4);
 		//Order by timestamp desc
 		IdentifierDTO identifier5 = new BetaIdentifierDTO();
@@ -520,13 +520,13 @@ public class QueryFactory {
 
 		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
 		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-		ConstraintDTO constraint2 = new EqualDTO(identifier,
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
 				new StringValueDTO(GroupEnum.ACCESS_RIGHT.getValue()));
 		query.getConstraint().add(constraint2);
 
 		IdentifierDTO identifier3 = new MessageIdentifierDTO();
 		identifier3.getPart().add(AlphaEnum.GROUP.getValue());
-		ConstraintDTO constraint3 = new EqualDTO(identifier,
+		ConstraintDTO constraint3 = new EqualDTO(identifier3,
 				new StringValueDTO(group.getValue()));
 		query.getConstraint().add(constraint3);
 
@@ -647,14 +647,14 @@ public class QueryFactory {
 			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
 			IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
 			keyIdent1.getPart().add("crypto");
-			keyIdent1.getPart().add("publicKey");
+			keyIdent1.getPart().add("publickey");
 			ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(unicertRsaPubKey.toString(10)));
 			query.getConstraint().add(keyConstraint1);
 		} else if (publicKey instanceof DSAPublicKey) {
 			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
 			IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
 			keyIdent1.getPart().add("crypto");
-			keyIdent1.getPart().add("publicKey");
+			keyIdent1.getPart().add("publickey");
 			ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(dsaPubKey.getY().toString(10)));
 			query.getConstraint().add(keyConstraint1);
 			IdentifierDTO keyIdent2 = new MessageIdentifierDTO();

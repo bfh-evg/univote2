@@ -51,28 +51,23 @@ import ch.bfh.univote2.trustee.ATrusteeActionContext;
  */
 public class SingleKeyMixingActionContext extends ATrusteeActionContext {
 
-    private SingleKeyMixingRequest keyMixingRequest;
+	private SingleKeyMixingRequest keyMixingRequest;
 
-    public SingleKeyMixingActionContext(ActionContextKey actionContextKey) {
-	super(actionContextKey, true);
-    }
+	public SingleKeyMixingActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, true);
+	}
 
-    @Override
-    public Boolean isSpecializedPreconditionReached() {
-	return this.keyMixingRequest != null;
-    }
+	@Override
+	protected void purgeSpecializedData() {
+		this.keyMixingRequest = null;
+	}
 
-    @Override
-    protected void purgeSpecializedData() {
-	this.keyMixingRequest = null;
-    }
+	public SingleKeyMixingRequest getSingleKeyMixingRequest() {
+		return keyMixingRequest;
+	}
 
-    public SingleKeyMixingRequest getSingleKeyMixingRequest() {
-	return keyMixingRequest;
-    }
-
-    public void setSingleKeyMixingRequest(SingleKeyMixingRequest keyMixingRequest) {
-	this.keyMixingRequest = keyMixingRequest;
-    }
+	public void setSingleKeyMixingRequest(SingleKeyMixingRequest keyMixingRequest) {
+		this.keyMixingRequest = keyMixingRequest;
+	}
 
 }

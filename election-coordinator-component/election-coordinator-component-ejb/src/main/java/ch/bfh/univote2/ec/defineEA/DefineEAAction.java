@@ -72,7 +72,7 @@ import javax.ejb.Stateless;
 @Stateless
 public class DefineEAAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "DefineEAAction";
+	private static final String ACTION_NAME = DefineEAAction.class.getSimpleName();
 	private static final String INPUT_NAME = "EAName";
 	private static final Logger logger = Logger.getLogger(DefineEAAction.class.getName());
 
@@ -100,9 +100,9 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 					QueryFactory.getQueryForEACert(actionContext.getSection()));
 			return !result.getResult().getPost().isEmpty();
 		} catch (UnivoteException ex) {
-			logger.log(Level.WARNING, "No certificate for EA found on board, or another error occured.", ex);
+			logger.log(Level.WARNING, "Could not check the board for the ea certificate.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"No certificate for EA found on board, or another error occured.");
+					"Could not check the board for the ea certificate.");
 			return false;
 		}
 	}
@@ -128,7 +128,7 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 				logger.log(Level.INFO, actionContext.toString());
 				this.informationService.informTenant(actionContext.getActionContextKey(),
 						"No name set for EA.");
-				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
 			}
 		} else {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -162,29 +162,48 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	}
 
 	private void runInternal(DefineEAActionContext actionContext) {
+
+		ResultContainerDTO result;
 		try {
 			//Get Certificate from UniCert
-			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
+			result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
 					QueryFactory.getQueryFormUniCertForEACert(actionContext.getName()));
-			if (result.getResult().getPost().isEmpty()) {
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"No certificate found for the specified EA name.");
-				UserInputPreconditionQuery uiQuery = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
-						actionContext.getActionContextKey().getTenant(),
-						actionContext.getActionContextKey().getSection()));
-				this.actionManager.reRequireUserInput(actionContext, uiQuery);
-				this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
-				return;
-			}
-			PostDTO post = result.getResult().getPost().get(0);
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not retrieve certificate.");
+			logger.log(Level.WARNING, "Could not retrieve certificate. context: " + actionContext.getActionContextKey()
+					+ ". ex: " + ex.getMessage(), ex);
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		if (result.getResult().getPost().isEmpty()) {
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"No certificate found for the specified EA name.");
+			UserInputPreconditionQuery uiQuery = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
+					actionContext.getActionContextKey().getTenant(),
+					actionContext.getActionContextKey().getSection()));
+			this.actionManager.reRequireUserInput(actionContext, uiQuery);
+			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+			return;
+		}
+		PostDTO post = result.getResult().getPost().get(0);
 
+		try {
 			//Grant urself the right to post
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.ACCESS_RIGHT.getValue(), MessageFactory.createAccessRight(GroupEnum.ADMIN_CERT,
 							this.tenantManager.getPublicKey(actionContext.getTenant()), 1), actionContext.getTenant());
-
-			//Create message from the retrieved certificate
-			byte[] message = post.getMessage();
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not post accessRight.");
+			logger.log(Level.WARNING, "Could not post accessRight. context: " + actionContext.getActionContextKey()
+					+ ". ex: " + ex.getMessage(), ex);
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		//Create message from the retrieved certificate
+		byte[] message = post.getMessage();
+		try {
 			//Post message
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.ADMIN_CERT.getValue(), message, actionContext.getTenant());

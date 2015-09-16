@@ -60,6 +60,7 @@ import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
 import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.helper.hash.HashMethod;
 import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
@@ -102,7 +103,6 @@ import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -173,12 +173,13 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		}
 		VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
 		TrusteeActionHelper.checkAndSetCryptoSetting(vmac, uniboardService, tenantManager, informationService, logger);
-		TrusteeActionHelper.checkAndSetAccsessRight(vmac, GroupEnum.VOTE_MIXING_RESULT, uniboardService, tenantManager, informationService, logger);
+		TrusteeActionHelper.checkAndSetAccsessRight(vmac, GroupEnum.VOTE_MIXING_RESULT, uniboardService, tenantManager,
+				informationService, logger);
 		TrusteeActionHelper.checkAndSetEncryptionKey(vmac, uniboardService, informationService, logger);
 		this.checkAndSetVoteMixingRequest(vmac);
 	}
 
-	protected VoteMixingRequest retrieveVoteMixingRequest(ActionContext actionContext) throws UnivoteException, Exception {
+	protected VoteMixingRequest retrieveVoteMixingRequest(ActionContext actionContext) throws UnivoteException {
 		PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForKeyMixingRequest(actionContext.getSection(), publicKey)).getResult();
@@ -186,7 +187,8 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 			throw new UnivoteException("key mixing request not published yet.");
 
 		}
-		VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class, result.getPost().get(0).getMessage());
+		VoteMixingRequest voteMixingRequest
+				= JSONConverter.unmarshal(VoteMixingRequest.class, result.getPost().get(0).getMessage());
 		return voteMixingRequest;
 
 	}
@@ -221,7 +223,8 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 			if (actionContext.getVoteMixingRequest() == null) {
 				//Add Notification
 				BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-						QueryFactory.getQueryForVoteMixingRequest(section, tenantManager.getPublicKey(tenant)), BoardsEnum.UNIVOTE.getValue());
+						QueryFactory.getQueryForVoteMixingRequest(section, tenantManager.getPublicKey(tenant)),
+						BoardsEnum.UNIVOTE.getValue());
 				actionContext.getPreconditionQueries().add(bQuery);
 			}
 		} catch (UnivoteException exception) {
@@ -240,32 +243,63 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 			return;
 		}
 		VoteMixingActionContext skcac = (VoteMixingActionContext) actionContext;
-		//The following if is strange, as the run should not happen in this case?!
-		if (skcac.isPreconditionReached() == null) {
-			logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		if (!skcac.getAccessRightGranted()) {
+			TrusteeActionHelper.checkAndSetAccsessRight(skcac, GroupEnum.TRUSTEES, uniboardService,
+					tenantManager, informationService, logger);
+			if (!skcac.getAccessRightGranted()) {
+				logger.log(Level.INFO, "Access right has not been granted yet.");
+				this.informationService.informTenant(skcac.getActionContextKey(), "Access right not yet granted.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+		}
+		if (skcac.getCryptoSetting() == null) {
+			try {
+				skcac.setCryptoSetting(TrusteeActionHelper.retrieveCryptoSetting(actionContext, uniboardService));
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, "Crypto setting is not published yet.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Crypto setting not published yet.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+		}
+		if (skcac.getVoteMixingRequest() == null) {
+			try {
+				skcac.setVoteMixingRequest(this.retrieveVoteMixingRequest(actionContext));
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, "Vote mixing request is not published yet.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Vote mixing request not published yet.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+		}
+		if (skcac.getEncryptionKey() == null) {
+			try {
+				skcac.setEncryptionKey(TrusteeActionHelper.retrieveEncryptionKey(actionContext, uniboardService));
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, "Encryption key is not published yet.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Encryption key not published yet.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+		}
 
-			return;
-		}
-		if (Objects.equals(skcac.isPreconditionReached(), Boolean.FALSE)) {
-			logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			return;
-		}
 		String tenant = actionContext.getTenant();
-		String section = actionContext.getSection();
-		CryptoSetting cryptoSetting = skcac.getCryptoSetting();
-		VoteMixingRequest voteMixingRequest = skcac.getVoteMixingRequest();
-		EncryptionKey encryptionKey = skcac.getEncryptionKey();
 		try {
 
-			UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
-			String encryptionKeyAsString = encryptionKey.getEncryptionKey();
-			VoteMixingResult voteMixingResult = createVoteMixingResult(tenant, voteMixingRequest, uniCryptCryptoSetting, encryptionKeyAsString);
+			UniCryptCryptoSetting uniCryptCryptoSetting
+					= TrusteeActionHelper.getUnicryptCryptoSetting(skcac.getCryptoSetting());
+			String encryptionKeyAsString = skcac.getEncryptionKey().getEncryptionKey();
+			VoteMixingResult voteMixingResult = createVoteMixingResult(tenant, skcac.getVoteMixingRequest(),
+					uniCryptCryptoSetting, encryptionKeyAsString);
 			String voteMixingResultString = JSONConverter.marshal(voteMixingResult);
 			byte[] voteMixingResultByteArray = voteMixingResultString.getBytes(Charset.forName("UTF-8"));
 
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.VOTE_MIXING_RESULT.getValue(), voteMixingResultByteArray, tenant);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+					GroupEnum.VOTE_MIXING_RESULT.getValue(), voteMixingResultByteArray, tenant);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Posted vote mixing result. Action finished.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
@@ -363,17 +397,17 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		// Perfom shuffle
 		Tuple shuffledVs = mixer.shuffle(vs, psi, rs);
 
-	// P R O O F
+		// P R O O F
 		//-----------
 		// 0. Setup
 		// Create sigma challenge generator
 		StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
-		HashMethod hashMethod = HashMethod.getInstance(uniCryptCryptoSetting.hashAlgorithm);
+		HashMethod hashMethod = HashMethod.getInstance(HashAlgorithm.SHA256);
 		ConvertMethod convertMethod = ConvertMethod.getInstance(
 				BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
 				StringToByteArray.getInstance(Charset.forName("UTF-8")));
 
-		Converter converter = ByteArrayToBigInteger.getInstance(uniCryptCryptoSetting.hashAlgorithm.getByteLength(), 1);
+		Converter converter = ByteArrayToBigInteger.getInstance(HashAlgorithm.SHA256.getByteLength(), 1);
 
 		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
 				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
@@ -381,7 +415,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		// Create e-values challenge generator
 		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(cyclicGroup.getZModOrder(), vs.getArity());
 
-	// 1. Permutation Proof
+		// 1. Permutation Proof
 		//----------------------
 		// Create psi commitment
 		PermutationCommitmentScheme pcs = PermutationCommitmentScheme.getInstance(cyclicGroup, vs.getArity());
@@ -396,7 +430,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		Element publicInputPermutation = permutationCommitment;
 		Tuple permutationProof = pcps.generate(privateInputPermutation, publicInputPermutation);
 
-	// 2. Shuffle Proof
+		// 2. Shuffle Proof
 		//------------------
 		// Create shuffle proof system
 		ReEncryptionShuffleProofSystem spg = ReEncryptionShuffleProofSystem.getInstance(challengeGenerator, ecg, vs.getArity(), elGamal, encryptionKey);

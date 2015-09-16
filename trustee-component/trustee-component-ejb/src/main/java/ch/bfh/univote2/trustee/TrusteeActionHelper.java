@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.trustee;
 
+import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
@@ -61,10 +62,8 @@ import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingActionContext;
 import java.security.PublicKey;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.json.JsonException;
 
 /**
  *
@@ -72,7 +71,8 @@ import javax.json.JsonException;
  */
 public class TrusteeActionHelper {
 
-	public static void checkAndSetCryptoSetting(ATrusteeActionContext actionContext, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
+	public static void checkAndSetCryptoSetting(ATrusteeActionContext actionContext, UniboardService uniboardService,
+			TenantManager tenantManager, InformationService informationService, Logger logger) {
 		ActionContextKey actionContextKey = actionContext.getActionContextKey();
 		String section = actionContext.getSection();
 		try {
@@ -85,28 +85,18 @@ public class TrusteeActionHelper {
 			}
 
 		} catch (UnivoteException ex) {
-			logger.log(Level.WARNING, "Could not get securitySetting.", ex);
+			logger.log(Level.WARNING, "Could not get cryptoSetting.", ex);
 			informationService.informTenant(actionContextKey,
-					"Error retrieving securitySetting: " + ex.getMessage());
-		} catch (JsonException ex) {
-			logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error reading securitySetting.");
-		} catch (Exception ex) {
-			logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error reading securitySetting.");
-		}
-		if (actionContext.getCryptoSetting() == null) {
+					"Error retrieving cryptoSetting: " + ex.getMessage());
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
 		}
-
 	}
 
-	public static void checkAndSetEncryptionKey(VoteMixingActionContext actionContext, UniboardService uniboardService, InformationService informationService, Logger logger) {
+	public static void checkAndSetEncryptionKey(VoteMixingActionContext actionContext, UniboardService uniboardService,
+			InformationService informationService, Logger logger) {
 		ActionContextKey actionContextKey = actionContext.getActionContextKey();
 		String section = actionContext.getSection();
 		try {
@@ -119,70 +109,67 @@ public class TrusteeActionHelper {
 			}
 
 		} catch (UnivoteException ex) {
-			logger.log(Level.WARNING, "Could not get securitySetting.", ex);
+			logger.log(Level.INFO, "Could not retrive encryption key.", ex);
 			informationService.informTenant(actionContextKey,
-					"Error retrieving securitySetting: " + ex.getMessage());
-		} catch (JsonException ex) {
-			logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error reading securitySetting.");
-		} catch (Exception ex) {
-			logger.log(Level.WARNING, "Could not parse securitySetting.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error reading securitySetting.");
-		}
-		if (actionContext.getEncryptionKey() == null) {
+					"Could not retrive encryption key: " + ex.getMessage());
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForEncryptionKey(section), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
 		}
-
 	}
 
-	public static void checkAndSetAccsessRight(ATrusteeActionContext actionContext, GroupEnum groupEnum, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
+	public static void checkAndSetAccsessRight(ATrusteeActionContext actionContext, GroupEnum groupEnum,
+			UniboardService uniboardService, TenantManager tenantManager, InformationService informationService,
+			Logger logger) {
 		ActionContextKey actionContextKey = actionContext.getActionContextKey();
 		String section = actionContext.getSection();
-		BoardPreconditionQuery bQuery = null;
+
 		try {
 			//Check if there is an initial AccessRight for this tenant
-			//TODO: Check if there is an actual valid access right... Right now it is only checking if there is any access right.
 			String tenant = actionContext.getTenant();
 			PublicKey publicKey = tenantManager.getPublicKey(tenant);
-			bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForAccessRight(section, publicKey, groupEnum), BoardsEnum.UNIVOTE.getValue());
-			actionContext.setAccessRightGranted(uniboardService.get(bQuery.getBoard(), bQuery.getQuery()).getResult().getPost().isEmpty());
+			QueryDTO query = QueryFactory.getQueryForAccessRight(section, publicKey, groupEnum);
+			if (uniboardService.get(BoardsEnum.UNIVOTE.getValue(), query).getResult().getPost().isEmpty()) {
+				BoardPreconditionQuery bQuery = new BoardPreconditionQuery(query,
+						BoardsEnum.UNIVOTE.getValue());
+				actionContext.getPreconditionQueries().add(bQuery);
+				actionContext.setAccessRightGranted(false);
+			} else {
+				actionContext.setAccessRightGranted(true);
+			}
 		} catch (UnivoteException ex) {
 			logger.log(Level.WARNING, "Could not get access right.", ex);
 			informationService.informTenant(actionContextKey,
 					"Error retrieving access rights: " + ex.getMessage());
-		}
-		//Add Notification
-		if (!Objects.equals(actionContext.getAccessRightGranted(), Boolean.TRUE)) {
-			actionContext.getPreconditionQueries().add(bQuery);
+			actionContext.setAccessRightGranted(false);
 		}
 
 	}
 
-	public static EncryptionKey retrieveEncryptionKey(ActionContext actionContext, UniboardService uniboardService) throws UnivoteException, Exception {
+	public static EncryptionKey retrieveEncryptionKey(ActionContext actionContext, UniboardService uniboardService)
+			throws UnivoteException {
 		ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForEncryptionKey(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
-			throw new UnivoteException("Cryptosetting not published yet.");
-
+			throw new UnivoteException("Encryption key not published yet.");
 		}
-		EncryptionKey encryptionKey = JSONConverter.unmarshal(EncryptionKey.class, result.getResult().getPost().get(0).getMessage());
+		EncryptionKey encryptionKey
+				= JSONConverter.unmarshal(EncryptionKey.class, result.getResult().getPost().get(0).getMessage());
 		return encryptionKey;
 
 	}
 
-	public static CryptoSetting retrieveCryptoSetting(ActionContext actionContext, UniboardService uniboardService) throws UnivoteException, Exception {
+	public static CryptoSetting retrieveCryptoSetting(ActionContext actionContext, UniboardService uniboardService)
+			throws UnivoteException {
 		ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
-			throw new UnivoteException("Cryptosetting not published yet.");
+			throw new UnivoteException("Crypto setting not published yet.");
 
 		}
-		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
+		CryptoSetting cryptoSetting
+				= JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
 		return cryptoSetting;
 
 	}
@@ -231,9 +218,10 @@ public class TrusteeActionHelper {
 				signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
 				break;
 			default:
-				throw new UnivoteException("Unknown H_ level");
+				throw new UnivoteException("Unknown RC_s level");
 		}
-		return new UniCryptCryptoSetting(cyclicEncryptionGroup, encryptionGenerator, cyclicSignatureGroup, signatureGenerator, hashAlgorithm);
+		return new UniCryptCryptoSetting(cyclicEncryptionGroup, encryptionGenerator, cyclicSignatureGroup,
+				signatureGenerator);
 
 	}
 
