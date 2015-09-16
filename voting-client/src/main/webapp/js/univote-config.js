@@ -54,6 +54,15 @@
 		this.CONCAT_SEPARATOR = "|";
 
 		/**
+		 * The list of preconfigured registration-settings (key: label). The settings must
+		 * be configured on the server via JNDI (JNDI Name: /univote/#key#).
+		 */
+		this.REGISTRATION_SETTINGS = {
+			'uv-vsbfh': 'BFH',
+			'administrator': 'Administrator'
+		};
+
+		/**
 		 * Pre- and postfix used for secret key padding. Important: As the padded
 		 * secret key is converted into a bigInt only leemon's base64 charset can
 		 * be used (0-9, A-Z, a-z, _ and =)

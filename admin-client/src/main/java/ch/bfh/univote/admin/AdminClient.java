@@ -12,6 +12,7 @@
 package ch.bfh.univote.admin;
 
 import ch.bfh.uniboard.clientlib.PostHelper;
+import ch.bfh.univote2.common.crypto.KeyUtil;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.interfaces.DSAPrivateKey;
@@ -23,7 +24,7 @@ import java.util.Scanner;
  *
  * @author Stephan Fischli &lt;stephan.fischli@bfh.ch&gt;
  */
-public class AdminCient {
+public class AdminClient {
 
 	private static final String UNIBOARD_ADDRESS = "http://urd.bfh.ch:10080/UniBoardService/UniBoardServiceImpl";
 	private static final String UNIBOARD_SECTION = "sub-2015";

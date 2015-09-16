@@ -109,6 +109,11 @@ $(function () {
 	//Fills personal fields
 	elements.retreiveSecretKeyButton.innerHTML = elements.retreiveSecretKeyButton.innerHTML + ' ' + requester.email.value;
 
+	//
+	for (var key in uvConfig.REGISTRATION_SETTINGS || {}) {
+		$('#setup').append($('<option value="' + key + '">' + uvConfig.REGISTRATION_SETTINGS[key] + '</option>'));
+	}
+
 	//Construct with data received
 	if (requester.idp.value == "SwitchAAI") {
 		elements.identity_function.remove(4);
@@ -190,11 +195,14 @@ function retrieveData(params) {
 
 			clearInterval(update);
 
-			if (data == null || data == undefined) {
+			if (data == null || data == undefined || (data.keyType != RSA && data.keyType != DLOG)) {
+				console.log("ERROR: No registration setup for '" + params + "' configured (JNDI)!");
 				$.unblockUI();
 				$.blockUI({message: '<p>' + msg.dataRetrievalError + '</p>'});
+				$('#setup').val('');
 				setTimeout(function () {
-					location.href = uvConfig.HOME_SITE;
+					//location.href = uvConfig.HOME_SITE;
+					$.unblockUI();
 				}, BLOCK_UI_TIMEOUT);
 				return;
 			}
@@ -220,6 +228,7 @@ function retrieveData(params) {
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
 			clearInterval(update);
+			console.log("ERROR: Unable to retreive registration setup for '" + params + "' (JNDI)!");
 			$.unblockUI();
 			$.blockUI({message: '<p>' + msg.dataRetrievalError + '</p><p>' + textStatus + ': ' + errorThrown});
 			setTimeout(function () {
