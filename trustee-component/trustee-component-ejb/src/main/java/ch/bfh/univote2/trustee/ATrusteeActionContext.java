@@ -52,50 +52,40 @@ import java.util.ArrayList;
  */
 public abstract class ATrusteeActionContext extends ActionContext {
 
-    private CryptoSetting cryptoSetting;
-    private Boolean accessRightGranted;
+	private CryptoSetting cryptoSetting;
+	private boolean accessRightGranted;
 
-    public ATrusteeActionContext(ActionContextKey actionContextKey) {
-	this(actionContextKey, false);
-    }
-
-    public ATrusteeActionContext(ActionContextKey actionContextKey, boolean runsInParallel) {
-	super(actionContextKey, new ArrayList<>(), runsInParallel);
-    }
-
-    @Override
-    protected void purgeData() {
-	this.cryptoSetting = null;
-	this.accessRightGranted = null;
-	purgeSpecializedData();
-
-    }
-
-    public Boolean getAccessRightGranted() {
-	return accessRightGranted;
-    }
-
-    public void setAccessRightGranted(Boolean accessRightGranted) {
-	this.accessRightGranted = accessRightGranted;
-    }
-
-    public CryptoSetting getCryptoSetting() {
-	return cryptoSetting;
-    }
-
-    public void setCryptoSetting(CryptoSetting cryptoSetting) {
-	this.cryptoSetting = cryptoSetting;
-    }
-
-    public Boolean isPreconditionReached() {
-	if (cryptoSetting == null || accessRightGranted == null || isSpecializedPreconditionReached() == null) {
-	    return null;
+	public ATrusteeActionContext(ActionContextKey actionContextKey) {
+		this(actionContextKey, false);
 	}
-	return accessRightGranted.booleanValue() && isSpecializedPreconditionReached();
-    }
 
-    protected abstract Boolean isSpecializedPreconditionReached();
+	public ATrusteeActionContext(ActionContextKey actionContextKey, boolean runsInParallel) {
+		super(actionContextKey, new ArrayList<>(), runsInParallel);
+	}
 
-    protected abstract void purgeSpecializedData();
+	@Override
+	protected void purgeData() {
+		this.cryptoSetting = null;
+		purgeSpecializedData();
+
+	}
+
+	public boolean getAccessRightGranted() {
+		return accessRightGranted;
+	}
+
+	public void setAccessRightGranted(Boolean accessRightGranted) {
+		this.accessRightGranted = accessRightGranted;
+	}
+
+	public CryptoSetting getCryptoSetting() {
+		return cryptoSetting;
+	}
+
+	public void setCryptoSetting(CryptoSetting cryptoSetting) {
+		this.cryptoSetting = cryptoSetting;
+	}
+
+	protected abstract void purgeSpecializedData();
 
 }

@@ -52,39 +52,33 @@ import ch.bfh.univote2.trustee.ATrusteeActionContext;
  */
 public class VoteMixingActionContext extends ATrusteeActionContext {
 
-    private VoteMixingRequest voteMixingRequest;
-    private EncryptionKey encryptionKey;
+	private VoteMixingRequest voteMixingRequest;
+	private EncryptionKey encryptionKey;
 
-    public VoteMixingActionContext(ActionContextKey actionContextKey) {
-	super(actionContextKey);
-    }
+	public VoteMixingActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey);
+	}
 
-    @Override
-    public Boolean isSpecializedPreconditionReached() {
-	return this.voteMixingRequest != null
-		&& this.encryptionKey != null;
-    }
+	@Override
+	protected void purgeSpecializedData() {
+		this.voteMixingRequest = null;
+		this.encryptionKey = null;
+	}
 
-    @Override
-    protected void purgeSpecializedData() {
-	this.voteMixingRequest = null;
-	this.encryptionKey = null;
-    }
+	public VoteMixingRequest getVoteMixingRequest() {
+		return voteMixingRequest;
+	}
 
-    public VoteMixingRequest getVoteMixingRequest() {
-	return voteMixingRequest;
-    }
+	public void setVoteMixingRequest(VoteMixingRequest voteMixingRequest) {
+		this.voteMixingRequest = voteMixingRequest;
+	}
 
-    public void setVoteMixingRequest(VoteMixingRequest voteMixingRequest) {
-	this.voteMixingRequest = voteMixingRequest;
-    }
+	public EncryptionKey getEncryptionKey() {
+		return encryptionKey;
+	}
 
-    public EncryptionKey getEncryptionKey() {
-	return encryptionKey;
-    }
-
-    public void setEncryptionKey(EncryptionKey encryptionKey) {
-	this.encryptionKey = encryptionKey;
-    }
+	public void setEncryptionKey(EncryptionKey encryptionKey) {
+		this.encryptionKey = encryptionKey;
+	}
 
 }

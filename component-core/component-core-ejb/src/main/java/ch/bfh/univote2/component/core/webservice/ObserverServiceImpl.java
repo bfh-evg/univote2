@@ -43,7 +43,9 @@ package ch.bfh.univote2.component.core.webservice;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.notification.ObserverService;
-import ch.bfh.univote2.component.core.actionmanager.ActionManagerImpl;
+import ch.bfh.univote2.component.core.actionmanager.ActionManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.jws.WebService;
@@ -60,11 +62,14 @@ import javax.jws.WebService;
 @Stateless
 public class ObserverServiceImpl implements ObserverService {
 
+	static final Logger logger = Logger.getLogger(ObserverServiceImpl.class.getName());
+
 	@EJB
-	ActionManagerImpl notificationManager;
+	ActionManager notificationManager;
 
 	@Override
 	public void notify(String notificationCode, PostDTO post) {
+		logger.log(Level.INFO, "Received notification: {0}", notificationCode);
 		notificationManager.onBoardNotification(notificationCode, post);
 	}
 

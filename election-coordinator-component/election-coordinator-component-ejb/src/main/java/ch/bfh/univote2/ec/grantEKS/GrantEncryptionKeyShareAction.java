@@ -69,12 +69,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.json.JsonException;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
+@Stateless
 public class GrantEncryptionKeyShareAction implements NotifiableAction {
 
 	private static final String ACTION_NAME = GrantEncryptionKeyShareAction.class.getSimpleName();
@@ -123,6 +125,9 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 				}
 			}
 			//Set postcondition
+			if (finished) {
+				this.informationService.informTenant(ack, "Already granted all accessRights.");
+			}
 			actionContext.setPostCondition(finished);
 		} else {
 			//Set postcondition

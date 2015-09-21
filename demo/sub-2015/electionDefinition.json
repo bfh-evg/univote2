@@ -1,0 +1,14 @@
+{
+	"title": {
+		"default": "Wahlen des SUB-StudentInnenrates",
+		"fr": "Élection du conseil des étudiant-e-s SUB",
+		"en": "SUB Elections"
+	},
+	"administration": {
+		"default": "Universität Bern",
+		"fr": "Université de Berne",
+		"en": "University of Bern"
+	},
+	"votingPeriodBegin": "2015-03-08T23:00:00Z",
+	"votingPeriodEnd": "2015-09-26T11:00:00Z"
+}

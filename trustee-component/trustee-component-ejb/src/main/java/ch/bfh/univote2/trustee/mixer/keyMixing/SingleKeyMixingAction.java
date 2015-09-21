@@ -94,7 +94,6 @@ import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -170,7 +169,8 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 		}
 		SingleKeyMixingActionContext skmac = (SingleKeyMixingActionContext) actionContext;
 		TrusteeActionHelper.checkAndSetCryptoSetting(skmac, uniboardService, tenantManager, informationService, logger);
-		TrusteeActionHelper.checkAndSetAccsessRight(skmac, GroupEnum.SINGLE_KEY_MIXING_RESULT, uniboardService, tenantManager, informationService, logger);
+		TrusteeActionHelper.checkAndSetAccsessRight(skmac, GroupEnum.SINGLE_KEY_MIXING_RESULT, uniboardService,
+				tenantManager, informationService, logger);
 		this.checkAndSetSingleKeyMixingRequest(skmac);
 	}
 
@@ -204,7 +204,8 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 				PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 				//Add Notification
 				BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-						QueryFactory.getQueryForSingleKeyMixingRequest(section, publicKey), BoardsEnum.UNIVOTE.getValue());
+						QueryFactory.getQueryForSingleKeyMixingRequest(section, publicKey),
+						BoardsEnum.UNIVOTE.getValue());
 				actionContext.getPreconditionQueries().add(bQuery);
 			}
 		} catch (UnivoteException exception) {
@@ -224,17 +225,17 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 		}
 		SingleKeyMixingActionContext skmac = (SingleKeyMixingActionContext) actionContext;
 		//The following if is strange, as the run should not happen in this case?!
-		if (skmac.isPreconditionReached() == null) {
-			logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-
-			return;
-		}
-		if (Objects.equals(skmac.isPreconditionReached(), Boolean.FALSE)) {
-			logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			return;
-		}
+//		if (skmac.isPreconditionReached() == null) {
+//			logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
+//			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+//
+//			return;
+//		}
+//		if (Objects.equals(skmac.isPreconditionReached(), Boolean.FALSE)) {
+//			logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
+//			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+//			return;
+//		}
 		String tenant = actionContext.getTenant();
 		String section = actionContext.getSection();
 
@@ -254,17 +255,20 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 				return;
 			}
-			SingleKeyMixingResult singleKeyMixingResult = createSingleKeyMixingResult(tenant, singleKeyMixingRequest, uniCryptCryptoSetting, alpha, gMinus);
+			SingleKeyMixingResult singleKeyMixingResult = createSingleKeyMixingResult(tenant, singleKeyMixingRequest,
+					uniCryptCryptoSetting, alpha, gMinus);
 			String singleKeyMixingResultString = JSONConverter.marshal(singleKeyMixingResult);
 			byte[] singleKeyMixingResultByteArray = singleKeyMixingResultString.getBytes(Charset.forName("UTF-8"));
 
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.SINGLE_KEY_MIXING_RESULT.getValue(), singleKeyMixingResultByteArray, tenant);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section,
+					GroupEnum.SINGLE_KEY_MIXING_RESULT.getValue(), singleKeyMixingResultByteArray, tenant);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Posted single key mixing result. Action finished.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not post single key mixing result. Action failed. Is there an alpha value set for this trustee?");
+					"Could not post single key mixing result. Action failed."
+					+ " Is there an alpha value set for this trustee?");
 			Logger.getLogger(SingleKeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		} catch (Exception ex) {
@@ -312,7 +316,8 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
 					&& GroupEnum.KEY_MIXING_REQUEST.getValue()
 					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
-				SingleKeyMixingRequest singlekeyMixingRequest = JSONConverter.unmarshal(SingleKeyMixingRequest.class, post.getMessage());
+				SingleKeyMixingRequest singlekeyMixingRequest
+						= JSONConverter.unmarshal(SingleKeyMixingRequest.class, post.getMessage());
 				skmac.setSingleKeyMixingRequest(singlekeyMixingRequest);
 			}
 
@@ -327,21 +332,25 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 		}
 	}
 
-	protected SingleKeyMixingRequest retrieveSingleKeyMixingRequest(ActionContext actionContext) throws UnivoteException, Exception {
+	protected SingleKeyMixingRequest retrieveSingleKeyMixingRequest(ActionContext actionContext)
+			throws UnivoteException {
 		PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForSingleKeyMixingRequest(actionContext.getSection(), publicKey)).getResult();
 		if (result.getPost().isEmpty()) {
 			throw new UnivoteException("Key mixing request not published yet.");
 		}
-		SingleKeyMixingRequest singleKeyMixingRequest = JSONConverter.unmarshal(SingleKeyMixingRequest.class, result.getPost().get(0).getMessage());
+		SingleKeyMixingRequest singleKeyMixingRequest
+				= JSONConverter.unmarshal(SingleKeyMixingRequest.class, result.getPost().get(0).getMessage());
 		return singleKeyMixingRequest;
 
 	}
 
-	private SingleKeyMixingResult createSingleKeyMixingResult(String tenant, SingleKeyMixingRequest singleKeyMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting, BigInteger alphaAsBigInt, BigInteger gMinusAsBigInt) {
+	private SingleKeyMixingResult createSingleKeyMixingResult(String tenant,
+			SingleKeyMixingRequest singleKeyMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting,
+			BigInteger alphaAsBigInt, BigInteger gMinusAsBigInt) {
 		CyclicGroup cyclicGroup = uniCryptCryptoSetting.signatureGroup;
-		HashAlgorithm hashAlgorithm = uniCryptCryptoSetting.hashAlgorithm;
+		HashAlgorithm hashAlgorithm = HashAlgorithm.SHA256;
 
 		Element alpha = cyclicGroup.getElementFrom(alphaAsBigInt);
 
@@ -355,7 +364,7 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 
 		Element g = gMinus.selfApply(alpha);
 
-	// P R O O F
+		// P R O O F
 		//-----------
 		// 0. Setup
 		// Create sigma challenge generator
@@ -379,8 +388,10 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 		// Generate and verify proof
 		Triple proof = proofSystem.generate(privateInput, publicInput);
 
-		SigmaProof proofDTO = new SigmaProof(proofSystem.getCommitment(proof).convertToString(), proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
-		SingleKeyMixingResult result = new SingleKeyMixingResult(tenant, singleKeyMixingRequest.getPublicKey(), k.convertToString(), proofDTO);
+		SigmaProof proofDTO = new SigmaProof(proofSystem.getCommitment(proof).convertToString(),
+				proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
+		SingleKeyMixingResult result = new SingleKeyMixingResult(tenant, singleKeyMixingRequest.getPublicKey(),
+				k.convertToString(), proofDTO);
 		return result;
 	}
 }

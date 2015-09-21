@@ -55,7 +55,6 @@ public enum GroupEnum {
 	TRUSTEES("trustees"),
 	TRUSTEE_CERTIFICATES("trusteeCertificates"),
 	ELECTORAL_ROLL("electoralRoll"),
-	ELECTION_ISSUES("electionIssues"),
 	SECURITY_LEVEL("securityLevel"),
 	CRYPTO_SETTING("cryptoSetting"),
 	ENCRYPTION_KEY_SHARE("encryptionKeyShare"),

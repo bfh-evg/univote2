@@ -44,6 +44,7 @@ package ch.bfh.univote2.ec.pubTC;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.message.Certificate;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -53,13 +54,15 @@ import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.common.message.JSONConverter;
+import ch.bfh.univote2.common.message.TrusteeCertificates;
 import ch.bfh.univote2.common.message.Trustees;
 import ch.bfh.univote2.common.query.GroupEnum;
+import ch.bfh.univote2.common.query.MessageFactory;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
-import ch.bfh.univote2.common.query.MessageFactory;
 import ch.bfh.univote2.common.query.QueryFactory;
+import ch.bfh.univote2.component.core.manager.TenantManager;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +88,8 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	private InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
+	@EJB
+	private TenantManager tenantManager;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -198,7 +203,7 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	private void runInternal(PublishTrusteeCertsActionContext actionContext) {
 
 		List<String> missingMixers = new ArrayList<>();
-		List<String> mixerCerts = new ArrayList<>();
+		List<Certificate> mixerCerts = new ArrayList<>();
 		for (String mixer : actionContext.getMixers()) {
 			//Get Certificate from UniCert
 			ResultContainerDTO result;
@@ -215,10 +220,17 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 				missingMixers.add(mixer);
 			}
 			PostDTO post = result.getResult().getPost().get(0);
-			mixerCerts.add(new String(post.getMessage(), Charset.forName("UTF-8")));
+			try {
+				mixerCerts.add(JSONConverter.unmarshal(Certificate.class, post.getMessage()));
+			} catch (UnivoteException ex) {
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Post was not a valid certificate:" + mixer);
+				logger.log(Level.WARNING, ex.getMessage());
+				missingMixers.add(mixer);
+			}
 		}
 		List<String> missingTalliers = new ArrayList<>();
-		List<String> tallierCerts = new ArrayList<>();
+		List<Certificate> tallierCerts = new ArrayList<>();
 		for (String tallier : actionContext.getMixers()) {
 			//Get Certificate from UniCert
 			ResultContainerDTO result;
@@ -235,16 +247,42 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 				missingTalliers.add(tallier);
 			}
 			PostDTO post = result.getResult().getPost().get(0);
-			tallierCerts.add(new String(post.getMessage(), Charset.forName("UTF-8")));
+			try {
+				tallierCerts.add(JSONConverter.unmarshal(Certificate.class, post.getMessage()));
+			} catch (UnivoteException ex) {
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Post was not a valid certificate:" + tallier);
+				missingTalliers.add(tallier);
+			}
 		}
 		if (missingTalliers.isEmpty() && missingMixers.isEmpty()) {
 
-			//Create message from the retrieved certificate
-			byte[] message = MessageFactory.createTrusteeCerts(mixerCerts, tallierCerts);
-			//Post message
 			try {
+				//Grant urself the right to post
 				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
-						GroupEnum.ADMIN_CERT.getValue(), message, actionContext.getTenant());
+						GroupEnum.ACCESS_RIGHT.getValue(),
+						MessageFactory.createAccessRight(GroupEnum.TRUSTEE_CERTIFICATES,
+								this.tenantManager.getPublicKey(actionContext.getTenant()), 1),
+						actionContext.getTenant());
+			} catch (UnivoteException ex) {
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Could not post accessRight.");
+				logger.log(Level.WARNING, "Could not post accessRight. context: " + actionContext.getActionContextKey()
+						+ ". ex: " + ex.getMessage(), ex);
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+
+			//Create message from the retrieved certificate
+			TrusteeCertificates trusteeCertificates = new TrusteeCertificates(mixerCerts, tallierCerts);
+			//Post message
+			String message = "";
+			try {
+				message = JSONConverter.marshal(trusteeCertificates);
+				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+						GroupEnum.TRUSTEE_CERTIFICATES.getValue(),
+						message.getBytes(Charset.forName("UTF-8")),
+						actionContext.getTenant());
 				this.informationService.informTenant(actionContext.getActionContextKey(),
 						"Posted trustee certs. Action finished.");
 				this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
@@ -253,6 +291,7 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 						"Could not post message.");
 				logger.log(Level.WARNING, "Could not post message. context: {0}. ex: {1}",
 						new Object[]{actionContext.getActionContextKey(), ex.getMessage()});
+				logger.log(Level.INFO, "Message: {0}", message);
 				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			}
 		} else {

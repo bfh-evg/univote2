@@ -42,6 +42,9 @@
 package ch.bfh.univote2.component.core.services;
 
 import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
+import ch.bfh.unicrypt.crypto.schemes.padding.classes.PKCSPaddingScheme;
+import ch.bfh.unicrypt.crypto.schemes.padding.interfaces.ReversiblePaddingScheme;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.ByteArrayMonoid;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.manager.TenantManager;
@@ -49,6 +52,7 @@ import ch.bfh.univote2.component.core.persistence.EncryptedBigIntEntity;
 import ch.bfh.univote2.component.core.persistence.EncryptedBigIntEntity_;
 import java.math.BigInteger;
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -57,6 +61,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+@Stateless
 public class SecurePersistenceServiceImpl implements SecurePersistenceService {
 
 	@PersistenceContext(unitName = "ComponentPU")
@@ -81,9 +86,11 @@ public class SecurePersistenceServiceImpl implements SecurePersistenceService {
 					+ ", type " + type + ".", ex);
 		}
 		AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
-		Element aesKey = aes.getEncryptionKeySpace().getElement(this.tenantManager.getAESKey(tenant));
-		Element bigInt = aes.getMessageSpace().getElementFrom(value);
-		Element encBigIntElement = aes.encrypt(aesKey, bigInt);
+		Element aesKey = aes.getEncryptionKeySpace().getElementFrom(this.tenantManager.getAESKey(tenant));
+		Element message = ByteArrayMonoid.getInstance().getElementFrom(value);
+		ReversiblePaddingScheme pkcs = PKCSPaddingScheme.getInstance(16);
+		Element paddedMessage = pkcs.pad(message);
+		Element encBigIntElement = aes.encrypt(aesKey, paddedMessage);
 		encBigInt.setBigInteger(encBigIntElement.convertToBigInteger());
 		this.persist(encBigInt);
 	}
@@ -100,7 +107,9 @@ public class SecurePersistenceServiceImpl implements SecurePersistenceService {
 		Element aesKey = aes.getEncryptionKeySpace().getElement(this.tenantManager.getAESKey(tenant));
 		Element encBigInt = aes.getMessageSpace().getElementFrom(encBigIntEntity.getBigInteger());
 		Element bigInt = aes.decrypt(aesKey, encBigInt);
-		return bigInt.convertToBigInteger();
+		ReversiblePaddingScheme pkcs = PKCSPaddingScheme.getInstance(16);
+		Element unpaddedBigInt = pkcs.unpad(bigInt);
+		return unpaddedBigInt.convertToBigInteger();
 	}
 
 	protected EncryptedBigIntEntity getEncryptedBigInteger(String tenant, String section, String type)

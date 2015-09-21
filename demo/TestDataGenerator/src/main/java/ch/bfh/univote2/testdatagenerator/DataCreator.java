@@ -13,7 +13,11 @@ package ch.bfh.univote2.testdatagenerator;
 
 import ch.bfh.uniboard.clientlib.GetHelper;
 import ch.bfh.uniboard.clientlib.PostHelper;
+import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.uniboard.data.Transformer;
+import ch.bfh.univote2.common.crypto.KeyUtil;
+import ch.bfh.univote2.common.query.GroupEnum;
 import ch.bfh.univote2.common.query.QueryFactory;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,8 +40,8 @@ import java.security.interfaces.DSAPublicKey;
 class DataCreator {
 
 	//URLs of the board
-	private static final String uniBoardUrl = "http://urd.bfh.ch:9080/UniBoardService/UniBoardServiceImpl";
-	private static final String uniBoardWSDLurl = "http://urd.bfh.ch:9080/UniBoardService/UniBoardServiceImpl?wsdl";
+	private static final String uniBoardUrl = "http://urd.bfh.ch:10080/UniBoardService/UniBoardServiceImpl";
+	private static final String uniBoardWSDLurl = "http://urd.bfh.ch:10080/UniBoardService/UniBoardServiceImpl?wsdl";
 
 	private static final String keystorePath = "../UniVote.jks";
 	private static final String keystorePass = "12345678";
@@ -63,8 +67,9 @@ class DataCreator {
 		KeyStore ks = loadKeyStore(keystorePath, keystorePass);
 
 		PrivateKey privKey = (DSAPrivateKey) ks.getKey("ec-demo", privKeyPass.toCharArray());
-		DSAPublicKey pubKey = (DSAPublicKey) ks.getCertificate("ec-demo").getPublicKey();
-		DSAPublicKey boardKey = (DSAPublicKey) ks.getCertificate("uniboardcert").getPublicKey();
+//		DSAPublicKey pubKey = (DSAPublicKey) ks.getCertificate("ec-demo").getPublicKey();
+		DSAPublicKey pubKey = KeyUtil.getDSAPublicKey("../ea-certificate.pem");
+		DSAPublicKey boardKey = (DSAPublicKey) ks.getCertificate("uniboardvote").getPublicKey();
 		String posterPublicKey = pubKey.getY().toString(10);//MathUtil.pair(pubKey.getPublicExponent(), pubKey.getModulus()).toString(10);
 		System.out.println(pubKey.getY().toString(10));
 
@@ -72,7 +77,11 @@ class DataCreator {
 				"uniboardvote").getPublicKey(), uniBoardWSDLurl, uniBoardUrl);
 
 		GetHelper gh = new GetHelper(boardKey, uniBoardWSDLurl, uniBoardUrl);
-		ResultContainerDTO result = gh.get(QueryFactory.getQueryFormUniCertForEACert("severin.hauser@bfh.ch"));
+		QueryDTO q = QueryFactory.getQueryForAccessRight("sub-2015", pubKey, GroupEnum.TRUSTEES);
+		System.out.println(Transformer.convertQueryDTOtoQuery(q));
+		System.out.println(q);
+		ResultContainerDTO result = gh.get(q);
+		System.out.println(result.getResult().getPost().size());
 
 //		try {
 //			AccessRight ar = new AccessRight();

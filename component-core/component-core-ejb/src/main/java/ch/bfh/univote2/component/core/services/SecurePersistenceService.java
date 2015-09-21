@@ -43,11 +43,13 @@ package ch.bfh.univote2.component.core.services;
 
 import ch.bfh.univote2.common.UnivoteException;
 import java.math.BigInteger;
+import javax.ejb.Local;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
+@Local
 public interface SecurePersistenceService {
 
 	public void persist(String tenant, String section, String type, BigInteger value) throws UnivoteException;

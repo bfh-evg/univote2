@@ -56,14 +56,14 @@ import javax.xml.bind.annotation.XmlType;
  *			"description": "Certificates of the mixers",
  *			"type": "array",
  *			"items": {
- *				"$ref": "certificateSchema.json"
+ *				"$ref": "certificate.jsd"
  *			}
  *		},
  *		"tallierCertificates": {
  *			"description": "Certificates of the talliers",
  *			"type": "array",
  *			"items": {
- *				"$ref": "certificateSchema.json"
+ *				"$ref": "certificate.jsd"
  *			}
  *		}
  *	},
@@ -74,7 +74,7 @@ import javax.xml.bind.annotation.XmlType;
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixerCertificates", "tallierCertificates"})
+@XmlType(propOrder = {"mixerCertificates", "tallierCertificates"})
 public class TrusteeCertificates {
 
 	private List<Certificate> mixerCertificates;
@@ -88,7 +88,7 @@ public class TrusteeCertificates {
 		this.tallierCertificates = tallierCertificates;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public List<Certificate> getMixerCertificates() {
 		return mixerCertificates;
 	}
@@ -97,7 +97,7 @@ public class TrusteeCertificates {
 		this.mixerCertificates = mixerCertificates;
 	}
 
-	@XmlElement(required=true)
+	@XmlElement(required = true)
 	public List<Certificate> getTallierCertificates() {
 		return tallierCertificates;
 	}

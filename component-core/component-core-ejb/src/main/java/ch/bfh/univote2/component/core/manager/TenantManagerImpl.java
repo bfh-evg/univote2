@@ -102,14 +102,15 @@ public class TenantManagerImpl implements TenantManager {
 				// into a pure private key
 				byte[] decryptedBytes
 						= PasswordBasedKeyDerivation.decryptPrivateKey(tenantEntity.getEncPrivateKey(), password);
-				ByteArray element = ByteArray.getInstance(decryptedBytes);
+				ByteArray aesKey = ByteArray.getInstance(
+						PasswordBasedKeyDerivation.getAESKey(tenantEntity.getEncPrivateKey(), password));
 				BigInteger dsaPrivKey = new BigInteger(decryptedBytes);
 
 				//Create the private key
 				PrivateKey privKey = KeyHelper.createDSAPrivateKey(tenantEntity.getModulus(),
 						tenantEntity.getOrderFactor(), tenantEntity.getGenerator(), dsaPrivKey);
 				//Add tenant
-				this.unlockedTentants.put(tenant, new UnlockedTenant(element, privKey));
+				this.unlockedTentants.put(tenant, new UnlockedTenant(aesKey, privKey));
 				return true;
 			} catch (InvalidKeySpecException | NoSuchAlgorithmException | IllegalArgumentException ex) {
 				//throw new UnivoteException("Could not retrieve privateKey: " + tenant, ex);
@@ -202,6 +203,7 @@ public class TenantManagerImpl implements TenantManager {
 		Element saltElement = z.getElement(salt);
 
 		Pair pair = Pair.getInstance(passwordElement, saltElement);
+
 		FixedByteArrayHashingScheme scheme = FixedByteArrayHashingScheme.getInstance(pair.getSet());
 		Element hashElement = scheme.getHashSpace().getElementFrom(hash);
 

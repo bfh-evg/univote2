@@ -51,28 +51,23 @@ import ch.bfh.univote2.trustee.ATrusteeActionContext;
  */
 public class PartialDecryptionActionContext extends ATrusteeActionContext {
 
-    private MixedVotes mixedVotes;
+	private MixedVotes mixedVotes;
 
-    public PartialDecryptionActionContext(ActionContextKey actionContextKey) {
-	super(actionContextKey);
-    }
+	public PartialDecryptionActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey);
+	}
 
-    public MixedVotes getMixedVotes() {
-	return mixedVotes;
-    }
+	public MixedVotes getMixedVotes() {
+		return mixedVotes;
+	}
 
-    public void setMixedVotes(MixedVotes mixedVotes) {
-	this.mixedVotes = mixedVotes;
-    }
+	public void setMixedVotes(MixedVotes mixedVotes) {
+		this.mixedVotes = mixedVotes;
+	}
 
-    @Override
-    public Boolean isSpecializedPreconditionReached() {
-	return mixedVotes != null;
-    }
-
-    @Override
-    protected void purgeSpecializedData() {
-	mixedVotes = null;
-    }
+	@Override
+	protected void purgeSpecializedData() {
+		mixedVotes = null;
+	}
 
 }

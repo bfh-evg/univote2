@@ -44,6 +44,7 @@ package ch.bfh.univote2.trustee.mixer.keyMixing;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
+import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.StringValue;
@@ -59,6 +60,7 @@ import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
 import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
 import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.unicrypt.helper.hash.HashMethod;
 import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
@@ -101,13 +103,11 @@ import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.JsonException;
 
 /**
  *
@@ -119,7 +119,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	//See report.pdf (6.2.2.b)
 	public static final String PERSISTENCE_NAME_FOR_ALPHA = "alpha";
 
-    //This generator should not be stored here but taken from the board... However, this is a QUERY
+	//This generator should not be stored here but taken from the board... However, this is a QUERY
 	//unknown for the programmer so for now the simple (but wrong) way is choosen to store gMinus localy. (Sorry)
 	public static final String PERSISTENCE_NAME_FOR_G_MINUS = "gMinus";
 
@@ -179,7 +179,8 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 		KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
 		TrusteeActionHelper.checkAndSetCryptoSetting(kmac, uniboardService, tenantManager, informationService, logger);
-		TrusteeActionHelper.checkAndSetAccsessRight(kmac, GroupEnum.KEY_MIXING_RESULT, uniboardService, tenantManager, informationService, logger);
+		TrusteeActionHelper.checkAndSetAccsessRight(kmac, GroupEnum.KEY_MIXING_RESULT, uniboardService,
+				tenantManager, informationService, logger);
 		this.checkAndSetKeyMixingRequest(kmac);
 	}
 
@@ -199,14 +200,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			logger.log(Level.WARNING, "Could not get key mixing request.", ex);
 			informationService.informTenant(actionContextKey,
 					"Error retrieving key mixing request: " + ex.getMessage());
-		} catch (JsonException ex) {
-			logger.log(Level.WARNING, "Could not parse key mixing request.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error reading key mixing request.");
-		} catch (Exception ex) {
-			logger.log(Level.WARNING, "Could not parse key mixing request.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error reading key mixing request.");
 		}
 		try {
 			if (actionContext.getKeyMixingRequest() == null) {
@@ -232,17 +225,37 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			return;
 		}
 		KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
-		//The following if is strange, as the run should not happen in this case?!
-		if (kmac.isPreconditionReached() == null) {
-			logger.log(Level.WARNING, "Run was called but preCondition is unknown in Context.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-
-			return;
+		if (!kmac.getAccessRightGranted()) {
+			TrusteeActionHelper.checkAndSetAccsessRight(kmac, GroupEnum.TRUSTEES, uniboardService,
+					tenantManager, informationService, logger);
+			if (!kmac.getAccessRightGranted()) {
+				logger.log(Level.INFO, "Access right has not been granted yet.");
+				this.informationService.informTenant(kmac.getActionContextKey(), "Access right not yet granted.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
 		}
-		if (Objects.equals(kmac.isPreconditionReached(), Boolean.FALSE)) {
-			logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			return;
+		if (kmac.getCryptoSetting() == null) {
+			try {
+				kmac.setCryptoSetting(TrusteeActionHelper.retrieveCryptoSetting(actionContext, uniboardService));
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, "Crypto setting is not published yet.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Crypto setting not published yet.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+		}
+		if (kmac.getKeyMixingRequest() == null) {
+			try {
+				kmac.setKeyMixingRequest(this.retrieveKeyMixingRequest(actionContext));
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, "Key mixing request is not published yet.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Key mixing request not published yet.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
 		}
 		String tenant = actionContext.getTenant();
 		String section = actionContext.getSection();
@@ -260,7 +273,8 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 				//No exponent available so a new one will be built
 			}
 
-			EnhancedKeyMixingResult enhancedKeyMixingResult = createKeyMixingResult(tenant, keyMixingRequest, uniCryptCryptoSetting, alpha);
+			EnhancedKeyMixingResult enhancedKeyMixingResult = createKeyMixingResult(tenant, keyMixingRequest,
+					uniCryptCryptoSetting, alpha);
 			alpha = enhancedKeyMixingResult.alpha;
 			BigInteger gMinus = enhancedKeyMixingResult.gMinus;
 			KeyMixingResult keyMixingResult = enhancedKeyMixingResult.keyMixingResult;
@@ -270,7 +284,8 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_ALPHA, alpha);
 			securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_G_MINUS, gMinus);
 
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.KEY_MIXING_RESULT.getValue(), keyMixingResultByteArray, tenant);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section, GroupEnum.KEY_MIXING_RESULT.getValue(),
+					keyMixingResultByteArray, tenant);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Posted key mixing result. Action finished.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
@@ -333,14 +348,14 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		} catch (Exception ex) {
+		} catch (TransformException ex) {
 			Logger.getLogger(VoteMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 	}
 
-	protected KeyMixingRequest retrieveKeyMixingRequest(ActionContext actionContext) throws UnivoteException, Exception {
+	protected KeyMixingRequest retrieveKeyMixingRequest(ActionContext actionContext) throws UnivoteException {
 		PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForKeyMixingRequest(actionContext.getSection(), publicKey)).getResult();
@@ -348,16 +363,18 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			throw new UnivoteException("key mixing request not published yet.");
 
 		}
-		KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class, result.getPost().get(0).getMessage());
+		KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class,
+				result.getPost().get(0).getMessage());
 		return keyMixingRequest;
 
 	}
 
-	private EnhancedKeyMixingResult createKeyMixingResult(String tenant, KeyMixingRequest keyMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting, BigInteger alphaAsBigInt) {
+	private EnhancedKeyMixingResult createKeyMixingResult(String tenant, KeyMixingRequest keyMixingRequest,
+			UniCryptCryptoSetting uniCryptCryptoSetting, BigInteger alphaAsBigInt) {
 		CyclicGroup cyclicGroup = uniCryptCryptoSetting.signatureGroup;
 
 		// d)
-		Element alpha = null;
+		Element alpha;
 		if (alphaAsBigInt != null) {
 			alpha = cyclicGroup.getElementFrom(alphaAsBigInt);
 		} else {
@@ -383,25 +400,26 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		// Perfom shuffle
 		Tuple shuffledVks = mixer.shuffle(vks, psi, alpha);
 
-	// P R O O F
+		// P R O O F
 		//-----------
 		// 0. Setup
 		// Create sigma challenge generator
 		StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
-		HashMethod hashMethod = HashMethod.getInstance(uniCryptCryptoSetting.hashAlgorithm);
+		HashMethod hashMethod = HashMethod.getInstance(HashAlgorithm.SHA256);
 		ConvertMethod convertMethod = ConvertMethod.getInstance(
 				BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
 				StringToByteArray.getInstance(Charset.forName("UTF-8")));
 
-		Converter converter = ByteArrayToBigInteger.getInstance(uniCryptCryptoSetting.hashAlgorithm.getByteLength(), 1);
+		Converter converter = ByteArrayToBigInteger.getInstance(HashAlgorithm.SHA256.getByteLength(), 1);
 
 		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
 				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
 
 		// Create e-values challenge generator
-		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(cyclicGroup.getZModOrder(), vks.getArity());
+		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(
+				cyclicGroup.getZModOrder(), vks.getArity());
 
-	// 1. Permutation Proof
+		// 1. Permutation Proof
 		//----------------------
 		// Create psi commitment
 		PermutationCommitmentScheme pcs = PermutationCommitmentScheme.getInstance(cyclicGroup, vks.getArity());
@@ -409,17 +427,19 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		Tuple permutationCommitment = pcs.commit(psi, permutationCommitmentRandomizations);
 
 		// Create psi commitment proof system
-		PermutationCommitmentProofSystem pcps = PermutationCommitmentProofSystem.getInstance(challengeGenerator, ecg, cyclicGroup, vks.getArity());
+		PermutationCommitmentProofSystem pcps = PermutationCommitmentProofSystem.getInstance(challengeGenerator,
+				ecg, cyclicGroup, vks.getArity());
 
 		// Create psi commitment proof
 		Pair privateInputPermutation = Pair.getInstance(psi, permutationCommitmentRandomizations);
 		Element publicInputPermutation = permutationCommitment;
 		Tuple permutationProof = pcps.generate(privateInputPermutation, publicInputPermutation);
 
-	// 2. Shuffle Proof
+		// 2. Shuffle Proof
 		//------------------
 		// Create shuffle proof system
-		IdentityShuffleProofSystem spg = IdentityShuffleProofSystem.getInstance(challengeGenerator, ecg, vks.getArity(), cyclicGroup);
+		IdentityShuffleProofSystem spg = IdentityShuffleProofSystem.getInstance(challengeGenerator, ecg,
+				vks.getArity(), cyclicGroup);
 
 		// Proof and verify
 		Tuple privateInputShuffle = Tuple.getInstance(psi, permutationCommitmentRandomizations, alpha);
@@ -475,7 +495,8 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		shuffleProofDTO.setMixProof(mixProofDTO);
 		shuffleProofDTO.setPermutationProof(permutationProofDTO);
 
-		KeyMixingResult keyMixingResult = new KeyMixingResult(shuffledVKsAsStrings, g.convertToString(), shuffleProofDTO);
+		KeyMixingResult keyMixingResult = new KeyMixingResult(shuffledVKsAsStrings, g.convertToString(),
+				shuffleProofDTO);
 		result.keyMixingResult = keyMixingResult;
 		return result;
 	}
