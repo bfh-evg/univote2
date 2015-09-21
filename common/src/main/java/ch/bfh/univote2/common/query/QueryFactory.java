@@ -410,6 +410,29 @@ public class QueryFactory {
 	return query;
     }
 
+    public static QueryDTO getQueryForBallot(String section, String mixedVK) {
+	QueryDTO query = new QueryDTO();
+	IdentifierDTO identifier = new AlphaIdentifierDTO();
+	identifier.getPart().add(AlphaEnum.SECTION.getValue());
+	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+	query.getConstraint().add(constraint);
+
+	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.BALLOT.getValue()));
+	query.getConstraint().add(constraint2);
+
+	IdentifierDTO identifier3 = new AlphaIdentifierDTO();
+	identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
+	ConstraintDTO constraint3 = new EqualDTO(identifier3,
+						 new StringValueDTO(mixedVK));
+	query.getConstraint().add(constraint3);
+
+	//Return only first post
+	query.setLimit(1);
+	return query;
+    }
+
     public static QueryDTO getQueryForAddedVoterCertificate(String section, String commonName) {
 	QueryDTO query = new QueryDTO();
 	IdentifierDTO identifier = new AlphaIdentifierDTO();
