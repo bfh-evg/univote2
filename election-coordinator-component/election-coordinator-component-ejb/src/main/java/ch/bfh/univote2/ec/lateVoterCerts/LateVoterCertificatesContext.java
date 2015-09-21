@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.ec.lateVoterCerts;
 
+import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
@@ -53,6 +54,7 @@ import java.util.ArrayList;
 public class LateVoterCertificatesContext extends ActionContext {
 
 	private ElectoralRoll electoralRoll;
+	private CryptoSetting cryptoSetting;
 
 	public LateVoterCertificatesContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), false); //TODO: Parallelize this action by setting the flag to true
@@ -61,6 +63,7 @@ public class LateVoterCertificatesContext extends ActionContext {
 	@Override
 	protected void purgeData() {
 		this.electoralRoll = null;
+		this.cryptoSetting = null;
 	}
 
 	public ElectoralRoll getElectoralRoll() {
@@ -71,7 +74,15 @@ public class LateVoterCertificatesContext extends ActionContext {
 		this.electoralRoll = electoralRoll;
 	}
 
+	public CryptoSetting getCryptoSetting() {
+		return cryptoSetting;
+	}
+
+	public void setCryptoSetting(CryptoSetting cryptoSetting) {
+		this.cryptoSetting = cryptoSetting;
+	}
+
 	public boolean gotAllNotifications() {
-		return this.electoralRoll != null;
+		return this.electoralRoll != null && this.cryptoSetting != null;
 	}
 }

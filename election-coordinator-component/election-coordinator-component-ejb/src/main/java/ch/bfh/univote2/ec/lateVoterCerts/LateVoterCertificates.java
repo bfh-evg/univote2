@@ -44,8 +44,13 @@ package ch.bfh.univote2.ec.lateVoterCerts;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.unicrypt.helper.math.MathUtil;
+import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModPrime;
 import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.message.AccessRight;
 import ch.bfh.univote2.common.message.Certificate;
+import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.DL;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.VoterCertificates;
@@ -118,14 +123,25 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 		}
 		LateVoterCertificatesContext context = (LateVoterCertificatesContext) actionContext;
 		try {
-			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-					QueryFactory.getQueryForElectoralRoll(actionContext.getSection())).getResult();
-			if (result.getPost().isEmpty()) {
-				throw new UnivoteException("Electoral Roll not yet published.");
+			{
+				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+						QueryFactory.getQueryForElectoralRoll(actionContext.getSection())).getResult();
+				if (result.getPost().isEmpty()) {
+					throw new UnivoteException("Electoral Roll not yet published.");
 
+				}
+				ElectoralRoll electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, result.getPost().get(0).getMessage());
+				context.setElectoralRoll(electoralRoll);
 			}
-			ElectoralRoll electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, result.getPost().get(0).getMessage());
-			context.setElectoralRoll(electoralRoll);
+			{
+				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+						QueryFactory.getQueryForCryptoSetting(actionContext.getSection())).getResult();
+				if (result.getPost().isEmpty()) {
+					throw new UnivoteException("Crypto setting not yet published.");
+				}
+				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
+				context.setCryptoSetting(cryptoSetting);
+			}
 
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryFormUniCertForVoterCert(), BoardsEnum.UNICERT.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
@@ -169,6 +185,10 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 
 	private void internalRun(LateVoterCertificatesContext context, Certificate voterCertificate) throws UnivoteException {
 		//TODO: Verify Z'_i.
+
+		CryptoSetting cryptoSetting = context.getCryptoSetting();
+		GStarModPrime signatureGroup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting());
+
 		ElectoralRoll roll = context.getElectoralRoll();
 		String commonName = voterCertificate.getCommonName();
 
@@ -242,12 +262,32 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 			// get vk'_i from Z'_i
 			//...
 			Certificate revokableCertificate = voterCertificateList.get(0);
-			PublicKey pk = getPublicKeyFromCertificate(revokableCertificate);
-			String pkString = computePublicKeyString(pk);
+			PublicKey revokedPK = getPublicKeyFromCertificate(revokableCertificate);
+			String revokedVK = computePublicKeyString(revokedPK);
 
-			// TODO: Call Mixer
+			// TODO: Call Mixer for mixed vk_i and get the information out there
+			String revokedMixedVK = revokedVK;
+			String mixedKeyGenerator = signatureGroup.getDefaultGenerator().convertToString();
+
+			// Check if a ballot exists for revoked mixed vk_i if so... abort.
 			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-					QueryFactory.getQueryForVotingData(context.getSection())).getResult();
+					QueryFactory.getQueryForBallot(context.getSection(), revokedMixedVK)).getResult();
+			if (!result.getPost().isEmpty()) {
+				return;
+			}
+			// Revoke AccessRight for revokable mixed vk_i
+			{
+				AccessRight ar = new AccessRight();
+				ar.setCrypto(new DL(signatureGroup.getModulus().toString(), signatureGroup.getOrder().toString(), mixedKeyGenerator, revokedMixedVK));
+				ar.setAmount(0);
+				ar.setGroup(GroupEnum.BALLOT.getValue());
+				byte[] message = JSONConverter.marshal(ar).getBytes();
+				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(), GroupEnum.ACCESS_RIGHT.getValue(), message, revokedMixedVK);
+				this.informationService.informTenant(context.getActionContextKey(),
+						"AccessRight for voter revoked.");
+			}
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(), GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue(), JSONConverter.marshal(revokableCertificate).getBytes(), context.getTenant());
+
 		}
 
 	}
