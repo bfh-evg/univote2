@@ -48,6 +48,10 @@ import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.query.AlphaEnum;
+import ch.bfh.univote2.common.query.GroupEnum;
+import ch.bfh.univote2.common.query.MessageFactory;
+import ch.bfh.univote2.common.query.QueryFactory;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -56,13 +60,9 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
-import ch.bfh.univote2.common.query.AlphaEnum;
-import ch.bfh.univote2.common.query.GroupEnum;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
-import ch.bfh.univote2.common.query.MessageFactory;
-import ch.bfh.univote2.common.query.QueryFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -108,8 +108,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	}
 
 	/**
-	 * Checks whether a voting data message has already been sent to the board, and returns
-	 * true if so, false otherwise.
+	 * Checks whether a voting data message has already been sent to the board, and returns true if so, false otherwise.
 	 *
 	 * @param actionContext the context for this action
 	 * @return true iff a voting data message was previously sent to the board, false otherwise
@@ -130,9 +129,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	}
 
 	/**
-	 * Try to retrieve, in order, each of the JSON components necessary to build the
-	 * voting data message from the board. For each non-available JSON component,
-	 * set up a future notification on the board.
+	 * Try to retrieve, in order, each of the JSON components necessary to build the voting data message from the board.
+	 * For each non-available JSON component, set up a future notification on the board.
 	 *
 	 * @param actionContext the action context associated to this action
 	 */
@@ -193,8 +191,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 
 	/**
 	 * If notified we expect one out of four different messages. See
-	 * {@link #parsePostDTO(PostDTO, CreateVotingDataActionContext)}
-	 * for a JSON schema mentioning the expected JSON messages.
+	 * {@link #parsePostDTO(PostDTO, CreateVotingDataActionContext)} for a JSON schema mentioning the expected JSON
+	 * messages.
 	 *
 	 * @param actionContext the action context for this action
 	 * @param notification the notification containing one of the expected messages
@@ -231,39 +229,39 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	}
 
 	/**
-	 * Given a DTO of a JSON post, let's try to parse it in order to obtain one of its
-	 * properties to be stored in the given context. The schema of the expected post is:
+	 * Given a DTO of a JSON post, let's try to parse it in order to obtain one of its properties to be stored in the
+	 * given context. The schema of the expected post is:
 	 * <pre>
- {
-  	"$schema": "http://jsonVotingData-schema.org/draft-04/schema",
-  	"title": "UniVote2: Schema of voting data",
-  	"type": "object",
-  	"properties": {
-  		"definition": {
-  			"description": "Election definition",
-  			"$ref": "electionDefinition.jsd"
-  		},
-  		"details": {
-  			"description": "Election details",
-  			"$ref": "electionDetails.jsd"
-  		},
-  		"cryptoSetting": {
-  			"description": "Crypto setting (encryption, signature, hashing)",
-  			"$ref": "cryptoSetting.jsd"
-  		},
-  		"encryptionKey": {
-  			"description": "Encryption key (decimal notation)",
-  			"type": "string"
-  		},
-  		"signatureGenerator": {
-  			"description": "Signature generator (decimal notation)",
-  			"type": "string"
-  		}
-  	},
-  	"required": ["definition", "details", "signatureGenerator", "signatureGenerator", "signatureGenerator"],
-  	"additionalProperties": false
-  }
-  </pre>
+	 * {
+	 * "$schema": "http://jsonVotingData-schema.org/draft-04/schema",
+	 * "title": "UniVote2: Schema of voting data",
+	 * "type": "object",
+	 * "properties": {
+	 * "definition": {
+	 * "description": "Election definition",
+	 * "$ref": "electionDefinition.jsd"
+	 * },
+	 * "details": {
+	 * "description": "Election details",
+	 * "$ref": "electionDetails.jsd"
+	 * },
+	 * "cryptoSetting": {
+	 * "description": "Crypto setting (encryption, signature, hashing)",
+	 * "$ref": "cryptoSetting.jsd"
+	 * },
+	 * "encryptionKey": {
+	 * "description": "Encryption key (decimal notation)",
+	 * "type": "string"
+	 * },
+	 * "signatureGenerator": {
+	 * "description": "Signature generator (decimal notation)",
+	 * "type": "string"
+	 * }
+	 * },
+	 * "required": ["definition", "details", "signatureGenerator", "signatureGenerator", "signatureGenerator"],
+	 * "additionalProperties": false
+	 * }
+	 * </pre>
 	 *
 	 * @param post the post to parse
 	 * @param context a context to store the parsed post
@@ -285,7 +283,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 			JsonObject encryptionKey = unmarshal(post.getMessage());
 			context.setEncryptionKey(encryptionKey);
 		} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.SIGNATURE_GENERATOR.getValue())) {
-			JsonObject  signatureGenerator = unmarshal(post.getMessage());
+			JsonObject signatureGenerator = unmarshal(post.getMessage());
 			context.setSignatureGenerator(signatureGenerator);
 		} else {
 			// Fatal error: Do not understand post.
@@ -294,8 +292,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	}
 
 	/**
-	 * Given a context having all required notifications, compile a voting data message and post it
-	 * onto the board.
+	 * Given a context having all required notifications, compile a voting data message and post it onto the board.
+	 *
 	 * @param context a context containing the required notifications
 	 */
 	private void runInternal(CreateVotingDataActionContext context) {
@@ -345,6 +343,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 
 	/**
 	 * Given a byte array, unmarshals the byte array and returns a JsonObject instance.
+	 *
 	 * @param message a JSON message as a byte array
 	 * @return a JsonObject instance
 	 */
@@ -356,6 +355,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 
 	/**
 	 * Marshals a JsonObject instance and returns a byte array.
+	 *
 	 * @param object a JsonObject instance
 	 * @return a marshalled JSON message as a byte array
 	 * @throws Exception if the marshalling cannot be done
@@ -373,6 +373,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 
 	/**
 	 * Given a context, tries to retrieve the election definition from the board.
+	 *
 	 * @param context a context
 	 * @return the election definition JsonObject instance
 	 */
@@ -397,6 +398,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 
 	/**
 	 * Given a context, tries to retrieve the election details from the board.
+	 *
 	 * @param context a context
 	 * @return the election details JsonObject instance
 	 */
@@ -421,6 +423,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 
 	/**
 	 * Given a context, tries to retrieve the crypto setting from the board.
+	 *
 	 * @param context a context
 	 * @return the crypto setting JsonObject instance
 	 */
@@ -445,6 +448,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 
 	/**
 	 * Given a context, tries to retrieve the encryption key from the board.
+	 *
 	 * @param context a context
 	 * @return the encryption key JsonObject instance
 	 */
@@ -469,6 +473,7 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 
 	/**
 	 * Given a context, tries to retrieve the signature generator from the board.
+	 *
 	 * @param context a context
 	 * @return the signature generator JsonObject instance
 	 */
@@ -497,9 +502,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @param context a context
 	 */
 	private void prepareForElectionDefinitionNotification(CreateVotingDataActionContext context) {
-			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-					QueryFactory.getQueryForElectionDefinition(context.getSection()), BoardsEnum.UNIVOTE.getValue());
-			context.getPreconditionQueries().add(bQuery);
+		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+				QueryFactory.getQueryForElectionDefinition(context.getSection()), BoardsEnum.UNIVOTE.getValue());
+		context.getPreconditionQueries().add(bQuery);
 	}
 
 	/**
@@ -508,9 +513,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @param context a context
 	 */
 	private void prepareForElectionDetailsNotification(CreateVotingDataActionContext context) {
-			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-					QueryFactory.getQueryForElectionDetails(context.getSection()), BoardsEnum.UNIVOTE.getValue());
-			context.getPreconditionQueries().add(bQuery);
+		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+				QueryFactory.getQueryForElectionDetails(context.getSection()), BoardsEnum.UNIVOTE.getValue());
+		context.getPreconditionQueries().add(bQuery);
 	}
 
 	/**
@@ -519,9 +524,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @param context a context
 	 */
 	private void prepareForCryptoSettingNotification(CreateVotingDataActionContext context) {
-			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-					QueryFactory.getQueryForCryptoSetting(context.getSection()), BoardsEnum.UNIVOTE.getValue());
-			context.getPreconditionQueries().add(bQuery);
+		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+				QueryFactory.getQueryForCryptoSetting(context.getSection()), BoardsEnum.UNIVOTE.getValue());
+		context.getPreconditionQueries().add(bQuery);
 	}
 
 	/**
@@ -530,9 +535,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @param context a context
 	 */
 	private void prepareForEncryptionKeyNotification(CreateVotingDataActionContext context) {
-			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-					QueryFactory.getQueryForEncryptionKey(context.getSection()), BoardsEnum.UNIVOTE.getValue());
-			context.getPreconditionQueries().add(bQuery);
+		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+				QueryFactory.getQueryForEncryptionKey(context.getSection()), BoardsEnum.UNIVOTE.getValue());
+		context.getPreconditionQueries().add(bQuery);
 	}
 
 	/**
@@ -541,8 +546,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	 * @param context a context
 	 */
 	private void prepareForSignatureGeneratorNotification(CreateVotingDataActionContext context) {
-			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-					QueryFactory.getQueryForSignatureGenerator(context.getSection()), BoardsEnum.UNIVOTE.getValue());
-			context.getPreconditionQueries().add(bQuery);
+		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+				QueryFactory.getQueryForSignatureGenerator(context.getSection()), BoardsEnum.UNIVOTE.getValue());
+		context.getPreconditionQueries().add(bQuery);
 	}
 }
