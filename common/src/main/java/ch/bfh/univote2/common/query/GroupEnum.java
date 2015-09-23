@@ -47,42 +47,42 @@ package ch.bfh.univote2.common.query;
  */
 public enum GroupEnum {
 
-    ADMIN_CERT("administrationCertificate"),
-    ACCESS_RIGHT("accessRight"),
-    BALLOT("ballot"),
-    ELECTION_DEFINITION("electionDefinition"),
-    ELECTION_DETAILS("electionDetails"),
-    TRUSTEES("trustees"),
-    TRUSTEE_CERTIFICATES("trusteeCertificates"),
-    ELECTORAL_ROLL("electoralRoll"),
-    SECURITY_LEVEL("securityLevel"),
-    CRYPTO_SETTING("cryptoSetting"),
-    ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
-    ENCRYPTION_KEY("encryptionKey"),
-    KEY_MIXING_REQUEST("keyMixingRequest"),
-    KEY_MIXING_RESULT("keyMixingResult"),
-    SINGLE_KEY_MIXING_REQUEST("singleKeyMixingRequest"),
-    SINGLE_KEY_MIXING_RESULT("SingleKeyMixingResult"),
-    MIXED_KEYS("mixedKeys"),
-    PARTIAL_DECRYPTION("partialDecryption"),
-    SIGNATURE_GENERATOR("signatureGenerator"),
-    VOTE_MIXING_REQUEST("voteMixingRequest"),
-    VOTE_MIXING_RESULT("voteMixingResult"),
-    MIXED_VOTES("mixedVotes"),
-    VOTING_DATA("votingData"),
-    NEW_VOTER_CERTIFICATE("newVoterCertificate"),
-    VOTER_CERTIFICATES("voterCertificates"),
-    ADDED_VOTER_CERTIFICATE("addedVoterCertificate"),
-    CANCELLED_VOTER_CERTIFICATE("cancelledVoterCertificate");
+	ADMIN_CERT("administrationCertificate"),
+	ACCESS_RIGHT("accessRight"),
+	BALLOT("ballot"),
+	ELECTION_DEFINITION("electionDefinition"),
+	ELECTION_DETAILS("electionDetails"),
+	TRUSTEES("trustees"),
+	TRUSTEE_CERTIFICATES("trusteeCertificates"),
+	ELECTORAL_ROLL("electoralRoll"),
+	SECURITY_LEVEL("securityLevel"),
+	CRYPTO_SETTING("cryptoSetting"),
+	ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
+	ENCRYPTION_KEY("encryptionKey"),
+	KEY_MIXING_REQUEST("keyMixingRequest"),
+	KEY_MIXING_RESULT("keyMixingResult"),
+	SINGLE_KEY_MIXING_REQUEST("singleKeyMixingRequest"),
+	SINGLE_KEY_MIXING_RESULT("singleKeyMixingResult"),
+	MIXED_KEYS("mixedKeys"),
+	PARTIAL_DECRYPTION("partialDecryption"),
+	SIGNATURE_GENERATOR("signatureGenerator"),
+	VOTE_MIXING_REQUEST("voteMixingRequest"),
+	VOTE_MIXING_RESULT("voteMixingResult"),
+	MIXED_VOTES("mixedVotes"),
+	VOTING_DATA("votingData"),
+	NEW_VOTER_CERTIFICATE("newVoterCertificate"),
+	VOTER_CERTIFICATES("voterCertificates"),
+	ADDED_VOTER_CERTIFICATE("addedVoterCertificate"),
+	CANCELLED_VOTER_CERTIFICATE("cancelledVoterCertificate");
 
-    private final String value;
+	private final String value;
 
-    GroupEnum(String value) {
-	this.value = value;
-    }
+	GroupEnum(String value) {
+		this.value = value;
+	}
 
-    public String getValue() {
-	return value;
-    }
+	public String getValue() {
+		return value;
+	}
 
 }

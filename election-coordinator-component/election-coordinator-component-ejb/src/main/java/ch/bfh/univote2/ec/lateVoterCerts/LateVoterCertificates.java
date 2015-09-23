@@ -43,18 +43,16 @@ package ch.bfh.univote2.ec.lateVoterCerts;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.unicrypt.helper.math.MathUtil;
-import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModPrime;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
-import ch.bfh.univote2.common.message.AccessRight;
 import ch.bfh.univote2.common.message.Certificate;
 import ch.bfh.univote2.common.message.CryptoSetting;
-import ch.bfh.univote2.common.message.DL;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.VoterCertificates;
 import ch.bfh.univote2.common.query.GroupEnum;
+import ch.bfh.univote2.common.query.MessageFactory;
 import ch.bfh.univote2.common.query.QueryFactory;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
@@ -69,13 +67,10 @@ import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -187,7 +182,7 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 		//TODO: Verify Z'_i.
 
 		CryptoSetting cryptoSetting = context.getCryptoSetting();
-		GStarModPrime signatureGroup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting());
+		CyclicGroup signatureGroup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting()).cryptoGroup;
 
 		ElectoralRoll roll = context.getElectoralRoll();
 		String commonName = voterCertificate.getCommonName();
@@ -263,30 +258,25 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 			//...
 			Certificate revokableCertificate = voterCertificateList.get(0);
 			PublicKey revokedPK = getPublicKeyFromCertificate(revokableCertificate);
-			String revokedVK = computePublicKeyString(revokedPK);
 
 			// TODO: Call Mixer for mixed vk_i and get the information out there
-			String revokedMixedVK = revokedVK;
-			String mixedKeyGenerator = signatureGroup.getDefaultGenerator().convertToString();
-
 			// Check if a ballot exists for revoked mixed vk_i if so... abort.
 			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-					QueryFactory.getQueryForBallot(context.getSection(), revokedMixedVK)).getResult();
+					QueryFactory.getQueryForBallot(context.getSection(), revokedPK)).getResult();
 			if (!result.getPost().isEmpty()) {
 				return;
 			}
 			// Revoke AccessRight for revokable mixed vk_i
 			{
-				AccessRight ar = new AccessRight();
-				ar.setCrypto(new DL(signatureGroup.getModulus().toString(), signatureGroup.getOrder().toString(), mixedKeyGenerator, revokedMixedVK));
-				ar.setAmount(0);
-				ar.setGroup(GroupEnum.BALLOT.getValue());
-				byte[] message = JSONConverter.marshal(ar).getBytes();
-				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(), GroupEnum.ACCESS_RIGHT.getValue(), message, revokedMixedVK);
+				byte[] message = MessageFactory.createAccessRight(GroupEnum.BALLOT, revokedPK, 0);
+				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+						GroupEnum.ACCESS_RIGHT.getValue(), message, context.getTenant());
 				this.informationService.informTenant(context.getActionContextKey(),
 						"AccessRight for voter revoked.");
 			}
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(), GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue(), JSONConverter.marshal(revokableCertificate).getBytes(), context.getTenant());
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue(),
+					JSONConverter.marshal(revokableCertificate).getBytes(), context.getTenant());
 
 		}
 
@@ -309,18 +299,4 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 			throw new UnivoteException("Invalid trustees certificates message. Could not load pem.", ex);
 		}
 	}
-
-	protected String computePublicKeyString(PublicKey publicKey) throws UnivoteException {
-		if (publicKey instanceof DSAPublicKey) {
-			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
-			return dsaPubKey.getY().toString(10);
-		} else if (publicKey instanceof RSAPublicKey) {
-			RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
-			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
-
-			return unicertRsaPubKey.toString(10);
-		}
-		throw new UnivoteException("Unssuport public key type");
-	}
-
 }
