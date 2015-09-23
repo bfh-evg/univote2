@@ -185,7 +185,6 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 		//			"incorrect voter signature.");
 		//  logger.log(Level.INFO,"Incorrect voter signature for context "+actionContext.getActionContextKey());
 		//
-		//	this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
 		//}
 
 		CryptoSetting cryptoSetting = context.getCryptoSetting();
