@@ -23,7 +23,26 @@ var elements = {};
  */
 $(document).ready(function () {
 
-	// 1. Check cookie support
+
+	// 1. Check browser version
+	// Mainly to detect IE < 9!
+	var myNav = navigator.userAgent.toLowerCase();
+	var ie = (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
+	if ((ie !== false && ie < 9) || Object.create == undefined) {
+		$('body').empty();
+		$.blockUI({
+			message: '<div id="browser-check">' +
+					'<h2>' + msg.browsercheck1 + '</h2>' +
+					'<p>' + msg.browsercheck4 + '</p><p>' + msg.browsercheck3 + '</p>' +
+					'</div>',
+			css: {width: '40%', left: '30%'},
+			overlayCSS: {opacity: '0.2'}
+		});
+	}
+
+
+
+	// 2. Check cookie support
 	if (!uvUtilCookie.areSupported()) {
 		$.blockUI({
 			message: '<div id="browser-check">' +
@@ -36,23 +55,6 @@ $(document).ready(function () {
 	}
 
 
-	// 2. Check browser version
-	// In the current version, the js file api is not needed. But for checking
-	// for an actual version of FF, Safari and Chrome the file api can be used.
-	// IE is checked by version as IE9 is fine but does not support the file api.
-	// TODO: implement a better and nicer solution!!
-	//if (($.browser.msie && $.browser.version < 9)) {
-	var myNav = navigator.userAgent.toLowerCase();
-	var ie = (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
-	if (ie !== false && ie < 9) {
-		$.blockUI({
-			message: '<div id="browser-check">' +
-					'<h2>' + msg.browsercheck1 + '</h2>' +
-					'<p>' + msg.browsercheck4 + '</p><p>' + msg.browsercheck3 + '</p>' +
-					'</div>',
-			overlayCSS: {opacity: '0.2'}
-		});
-	}
 
 	if ((ie === false && !(window.File && window.FileReader && window.FileList && window.Blob))) {
 		$.blockUI({
