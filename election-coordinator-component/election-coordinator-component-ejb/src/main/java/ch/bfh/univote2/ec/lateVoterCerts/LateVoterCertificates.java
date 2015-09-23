@@ -289,9 +289,11 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 					JSONConverter.marshal(voterCertificate).getBytes(), context.getTenant());
 
 			// Select vk'_i from Z'_i
+			PublicKey newPK = getPublicKeyFromCertificate(voterCertificate);
+
+			// TODO: Call Mixer for mixed vk'_i and get the information out there
+			// Add AccessRight for new mixed vk'_i
 			{
-				PublicKey newPK = getPublicKeyFromCertificate(voterCertificate);
-				// TODO: Call Mixer for mixed vk_i and get the information out there
 				byte[] message = MessageFactory.createAccessRight(GroupEnum.BALLOT, newPK, 1);
 				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
 						GroupEnum.ACCESS_RIGHT.getValue(), message, context.getTenant());
