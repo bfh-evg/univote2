@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "UniVote2: Schema of an encrytpion key",
+  "type": "object",
+  "properties": {
+	"encryptionKey": {
+		"description": "Encryption key",
+		"type": "string"
+	}
+},
+"required": ["encryptionKey"],
+"additionalProperties": false
+}

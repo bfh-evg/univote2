@@ -75,6 +75,7 @@ public class ActionManagerImplTest {
 				.addClass(RegistrationServiceMock.class)
 				.addClass(ConfigurationManagerMock.class)
 				.addClass(InitialisationServiceMock.class)
+				.addClass(InformationServiceMock.class)
 				.addClass(MockAction.class)
 				.addClass(SecondMockAction.class)
 				.addClass(MockInitAction.class)

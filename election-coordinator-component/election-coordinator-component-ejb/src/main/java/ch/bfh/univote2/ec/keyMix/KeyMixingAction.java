@@ -86,6 +86,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -171,6 +172,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	}
 
 	@Override
+	@Asynchronous
 	public void run(ActionContext actionContext) {
 		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
 		if (actionContext instanceof KeyMixingActionContext) {
@@ -222,6 +224,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	}
 
 	@Override
+	@Asynchronous
 	public void notifyAction(ActionContext actionContext, Object notification) {
 		if (actionContext instanceof KeyMixingActionContext) {
 			KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
@@ -309,7 +312,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			try {
 				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
 						QueryFactory.getQueryFormUniCertForVoterCert(voterId));
-				if (result.getResult().getPost().isEmpty()) {
+				if (!result.getResult().getPost().isEmpty()) {
 					PostDTO post = result.getResult().getPost().get(0);
 					Certificate certi = JSONConverter.unmarshal(Certificate.class, post.getMessage());
 					String pem = certi.getPem();
@@ -319,6 +322,8 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 					X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
 					PublicKey pk = cert.getPublicKey();
 					actionContext.getCurrentKeys().add(this.computePublicKeyString(pk));
+				} else {
+					logger.log(Level.FINE, "No certificate available for: {0}", voterId);
 				}
 			} catch (UnivoteException | CertificateException ex) {
 				this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -333,6 +338,9 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
+		if (result.getResult().getPost().isEmpty()) {
+			throw new UnivoteException("Crypto setting not published yet.");
+		}
 		byte[] message = result.getResult().getPost().get(0).getMessage();
 		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, message);
 		actionContext.setCryptoSetting(cryptoSetting);
@@ -364,6 +372,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 				X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
 				PublicKey pk = cert.getPublicKey();
 				actionContext.getMixerKeys().put(c.getCommonName(), pk);
+				actionContext.getMixerOrder().add(c.getCommonName());
 				if (first) {
 					actionContext.setCurrentMixer(c.getCommonName());
 					first = false;
@@ -383,7 +392,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			actionContext.setCurrentMixer(actionContext.getMixerOrder().get(0));
 			//Set generator
 			Element generator = CryptoProvider.getSignatureSetup(actionContext.getCryptoSetting()
-					.getSignatureSetting()).getDefaultGenerator();
+					.getSignatureSetting()).cryptoGenerator;
 			actionContext.setGenerator(generator.convertToString());
 			this.createMixingRequest(actionContext);
 		}
@@ -422,6 +431,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.ACCESS_RIGHT.getValue(), arMessage, actionContext.getTenant());
 			//post keyMixingRequest
+			logger.log(Level.INFO, JSONConverter.marshal(keyMixingRequest));
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 					GroupEnum.KEY_MIXING_REQUEST.getValue(),
 					JSONConverter.marshal(keyMixingRequest).getBytes(Charset.forName("UTF-8")),

@@ -19,13 +19,13 @@
 					</h:column>
 
 					<h:column>
-						<f:facet name="header">#{core.tasks_notification_code}</f:facet>
-							#{t.notificationCode}
+						<f:facet name="header">#{core.tasks_action_name}</f:facet>
+							#{t.actionName}
 					</h:column>
 
 					<h:column>
 						<f:facet name="header">#{core.tasks_run}</f:facet>
-						<h:link value="Run" outcome="#{tenantTasksBean.runTask(t.notificationCode)}"/>
+						<h:link value="Run" outcome="" onclick="#{tenantTasksBean.runTask(t.notificationCode)}"/>
 					</h:column>
 				</h:dataTable>
 				<h:dataTable value="#{tenantTasksBean.userInputTasks}" var="t">

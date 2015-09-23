@@ -61,6 +61,7 @@ import ch.bfh.univote2.component.core.data.UserInputPreconditionQuery;
 import ch.bfh.univote2.component.core.manager.ConfigurationManager;
 import ch.bfh.univote2.component.core.manager.TaskManager;
 import ch.bfh.univote2.component.core.manager.TenantManager;
+import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.RegistrationService;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -140,6 +141,9 @@ public class ActionManagerImpl implements ActionManager {
 	@EJB
 	private InitialisationService initialisationService;
 
+	@EJB
+	private InformationService informationService;
+
 	/**
 	 * TimerService used to create java-ee timers
 	 */
@@ -209,6 +213,7 @@ public class ActionManagerImpl implements ActionManager {
 				ActionContext ac = this.getAction(actionName).prepareContext(tenant, section);
 				this.actionContexts.put(ac.getActionContextKey(), ac);
 				if (ac.checkPostCondition()) {
+					this.informationService.informTenant(ac.getActionContextKey(), "Postcondition fullfilled.");
 					if (this.actionGraph.containsKey(ac.getActionContextKey().getAction())) {
 						for (String aName : this.actionGraph.get(ac.getActionContextKey().getAction())) {
 							this.checkActionState(aName, tenant, section);
@@ -308,6 +313,7 @@ public class ActionManagerImpl implements ActionManager {
 				this.log(ex, Level.WARNING);
 				return;
 			}
+			this.informationService.informTenant(actionContext.getActionContextKey(), "Received a notification.");
 			action.notifyAction(actionContext, notifciationObject);
 		}
 	}
@@ -317,6 +323,9 @@ public class ActionManagerImpl implements ActionManager {
 		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
 		if (this.actionContexts.containsKey(ack)) {
 			ActionContext actionContext = this.actionContexts.get(ack);
+			if (actionContext.checkPostCondition()) {
+				return;
+			}
 			if (actionContext.runsInParallel() || !actionContext.isInUse()) {
 				try {
 					NotifiableAction action = this.getAction(actionName);
@@ -340,6 +349,7 @@ public class ActionManagerImpl implements ActionManager {
 				if (!actionContext.runsInParallel()) {
 					actionContext.setInUse(false);
 				}
+				actionContext.setPostCondition(true);
 				//Remove existing notifications
 				this.unregisterAction(actionContext);
 				//Empty context
@@ -438,6 +448,8 @@ public class ActionManagerImpl implements ActionManager {
 			if (cond instanceof BoardPreconditionQuery) {
 				BoardPreconditionQuery qNC = (BoardPreconditionQuery) cond;
 				String newNotificationCode = this.registrationService.register(qNC.getBoard(), qNC.getQuery());
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Registred action on uniboard: " + qNC.getBoard());
 				this.notificationDataAccessor.addNotificationData(new BoardNotificationData(qNC.getBoard(),
 						newNotificationCode, actionContext.getActionContextKey()));
 			} else if (cond instanceof UserInputPreconditionQuery) {

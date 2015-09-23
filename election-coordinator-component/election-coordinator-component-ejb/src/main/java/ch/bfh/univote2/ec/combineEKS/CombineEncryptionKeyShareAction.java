@@ -47,8 +47,20 @@ import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
 import ch.bfh.unicrypt.crypto.schemes.encryption.classes.ElGamalEncryptionScheme;
+import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
+import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
+import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
+import ch.bfh.unicrypt.helper.hash.HashMethod;
+import ch.bfh.unicrypt.helper.math.Alphabet;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
 import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
@@ -60,6 +72,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.crypto.CryptoSetup;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
@@ -76,6 +89,7 @@ import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.common.query.MessageFactory;
 import ch.bfh.univote2.common.query.QueryFactory;
 import java.math.BigInteger;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
 import javax.ejb.Asynchronous;
@@ -99,6 +113,12 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 	private UniboardService uniboardService;
 	@EJB
 	private TenantManager tenantManager;
+
+	protected static final HashMethod HASH_METHOD = HashMethod.getInstance(HashAlgorithm.SHA256);
+	protected static final ConvertMethod CONVERT_METHOD = ConvertMethod.getInstance(
+			BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+			StringToByteArray.getInstance(Charset.forName("UTF-8")));
+	protected static final StringMonoid STRING_SPACE = StringMonoid.getInstance(Alphabet.UNICODE_BMP);
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -156,6 +176,8 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 			try {
 				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForEncryptionKeyShares(actionContext.getSection()));
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Amount of found keyShares: " + result.getResult().getPost().size());
 				for (PostDTO post : result.getResult().getPost()) {
 					//validate keyshare and if valid add
 					if (this.validateAndAddKeyShare(ceksac, post)) {
@@ -197,13 +219,16 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 						if (ceksac.getCryptoSetting() == null) {
 							this.retrieveCryptoSetting(ceksac);
 						}
+						this.informationService.informTenant(actionContext.getActionContextKey(),
+								"Keyshare added.");
 						if (ceksac.getAmount() == ceksac.getKeyShares().size()) {
 							this.computeAndPostKey(ceksac);
 						} else {
-							this.informationService.informTenant(actionContext.getActionContextKey(),
-									"Keyshare added.");
 							this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
 						}
+					} else {
+						this.informationService.informTenant(actionContext.getActionContextKey(),
+								"Rejected invalid keyshare.");
 					}
 				} catch (UnivoteException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -237,11 +262,16 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 			throw new UnivoteException("Invalid trustees certificates message. Can not be unmarshalled.", ex);
 		}
 		actionContext.setAmount(trusteeCertificates.getTallierCertificates().size());
+		this.informationService.informTenant(actionContext.getActionContextKey(),
+				"Amount: " + actionContext.getAmount());
 	}
 
 	protected void retrieveCryptoSetting(CombineEncryptionKeyShareActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
+		if (result.getResult().getPost().isEmpty()) {
+			throw new UnivoteException("Crypto setting not yet published.");
+		}
 		byte[] message = result.getResult().getPost().get(0).getMessage();
 		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, message);
 		actionContext.setCryptoSetting(cryptoSetting);
@@ -249,16 +279,31 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 
 	protected boolean validateAndAddKeyShare(CombineEncryptionKeyShareActionContext actionContext, PostDTO post)
 			throws UnivoteException {
+
+		AttributeDTO tallier = AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.PUBLICKEY.getValue());
+		if (tallier == null) {
+			throw new UnivoteException("Publickey is missing in alpha.");
+		}
+		String strTallier = ((StringValueDTO) tallier.getValue()).getValue();
+
 		EncryptionKeyShare encryptionKeyShare = JSONConverter.unmarshal(EncryptionKeyShare.class, post.getMessage());
 
-		CyclicGroup cyclicGroup
-				= CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
+		CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting()
+				.getEncryptionSetting());
 		//Validate Proof
-		ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(cyclicGroup);
+		ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(cSetup.cryptoGenerator);
 		KeyPairGenerator keyPairGen = elGamal.getKeyPairGenerator();
 		Element publicKey = keyPairGen.getPublicKeySpace().getElementFrom(encryptionKeyShare.getKeyShare());
 		Function proofFunction = keyPairGen.getPublicKeyGenerationFunction();
-		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(proofFunction);
+
+		StringElement otherInput = STRING_SPACE.getElement(strTallier);
+
+		Converter converter = ByteArrayToBigInteger.getInstance(HashAlgorithm.SHA256.getByteLength(), 1);
+
+		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+				cSetup.cryptoGroup.getZModOrder(), otherInput, CONVERT_METHOD, HASH_METHOD, converter);
+
+		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(challengeGenerator, proofFunction);
 		//Fill triple
 		Element commitment
 				= pg.getCommitmentSpace().getElementFrom(new BigInteger(encryptionKeyShare.getProof().getCommitment()));
@@ -269,25 +314,21 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 
 		Triple proofTriple = Triple.getInstance(commitment, challenge, response);
 
-		AttributeDTO tallier = AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.PUBLICKEY.getValue());
-		if (tallier == null) {
-			throw new UnivoteException("Publickey is missing in alpha.");
-		}
-		String strTallier = ((StringValueDTO) tallier.getValue()).getValue();
-
 		if (pg.verify(proofTriple, publicKey)) {
 
 			actionContext.getKeyShares().put(strTallier, publicKey);
 			return true;
 		}
 		//Remove tallier
-		actionContext.getKeyShares().put(strTallier, cyclicGroup.getIdentityElement());
+		actionContext.getKeyShares().put(strTallier, cSetup.cryptoGroup.getIdentityElement());
 		return false;
 	}
 
 	protected void computeAndPostKey(CombineEncryptionKeyShareActionContext actionContext) {
-		CyclicGroup cyclicGroup
-				= CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
+		this.informationService.informTenant(actionContext.getActionContextKey(),
+				"All keyshares received. Computing encryption key.");
+		CyclicGroup cyclicGroup = CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting()
+				.getEncryptionSetting()).cryptoGroup;
 
 		Element encKey = cyclicGroup.getIdentityElement();
 

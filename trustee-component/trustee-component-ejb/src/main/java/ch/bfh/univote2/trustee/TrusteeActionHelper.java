@@ -43,11 +43,6 @@ package ch.bfh.univote2.trustee;
 
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
-import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
-import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
-import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModPrime;
-import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
@@ -85,9 +80,8 @@ public class TrusteeActionHelper {
 			}
 
 		} catch (UnivoteException ex) {
-			logger.log(Level.WARNING, "Could not get cryptoSetting.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error retrieving cryptoSetting: " + ex.getMessage());
+			logger.log(Level.INFO, "Could not get cryptoSetting.", ex);
+			informationService.informTenant(actionContextKey, ex.getMessage());
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForCryptoSetting(section), BoardsEnum.UNIVOTE.getValue());
@@ -110,8 +104,7 @@ public class TrusteeActionHelper {
 
 		} catch (UnivoteException ex) {
 			logger.log(Level.INFO, "Could not retrive encryption key.", ex);
-			informationService.informTenant(actionContextKey,
-					"Could not retrive encryption key: " + ex.getMessage());
+			informationService.informTenant(actionContextKey, ex.getMessage());
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForEncryptionKey(section), BoardsEnum.UNIVOTE.getValue());
@@ -139,9 +132,8 @@ public class TrusteeActionHelper {
 				actionContext.setAccessRightGranted(true);
 			}
 		} catch (UnivoteException ex) {
-			logger.log(Level.WARNING, "Could not get access right.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error retrieving access rights: " + ex.getMessage());
+			logger.log(Level.INFO, "Could not get access right.", ex);
+			informationService.informTenant(actionContextKey, ex.getMessage());
 			actionContext.setAccessRightGranted(false);
 		}
 
@@ -173,56 +165,4 @@ public class TrusteeActionHelper {
 		return cryptoSetting;
 
 	}
-
-	public static UniCryptCryptoSetting getUnicryptCryptoSetting(CryptoSetting setting) throws UnivoteException {
-		CyclicGroup cyclicEncryptionGroup = null;
-		Element encryptionGenerator = null;
-		CyclicGroup cyclicSignatureGroup = null;
-		Element signatureGenerator = null;
-		HashAlgorithm hashAlgorithm = null;
-		switch (setting.getEncryptionSetting()) {
-			case "RC0e":
-				cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(8);
-				encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
-				break;
-			case "RC1e":
-				cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(8);
-				encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
-				break;
-			case "RC2e":
-				cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(1024);
-				encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
-				break;
-			case "RC3e":
-				cyclicEncryptionGroup = GStarModSafePrime.getFirstInstance(2048);
-				encryptionGenerator = cyclicEncryptionGroup.getDefaultGenerator();
-				break;
-			default:
-				throw new UnivoteException("Unknown RC_e level");
-		}
-		switch (setting.getSignatureSetting()) {
-			case "RC0s":
-				cyclicSignatureGroup = GStarModPrime.getFirstInstance(8, 6);
-				signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
-				break;
-			case "RC1s":
-				cyclicSignatureGroup = GStarModPrime.getFirstInstance(1024, 160);
-				signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
-				break;
-			case "RC2s":
-				cyclicSignatureGroup = GStarModPrime.getFirstInstance(2048, 224);
-				signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
-				break;
-			case "RC3s":
-				cyclicSignatureGroup = GStarModPrime.getFirstInstance(3072, 256);
-				signatureGenerator = cyclicSignatureGroup.getDefaultGenerator();
-				break;
-			default:
-				throw new UnivoteException("Unknown RC_s level");
-		}
-		return new UniCryptCryptoSetting(cyclicEncryptionGroup, encryptionGenerator, cyclicSignatureGroup,
-				signatureGenerator);
-
-	}
-
 }

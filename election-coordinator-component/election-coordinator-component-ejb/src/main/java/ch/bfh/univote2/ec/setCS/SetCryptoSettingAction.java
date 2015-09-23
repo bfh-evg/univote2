@@ -116,7 +116,7 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 		} catch (UnivoteException ex) {
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-					QueryFactory.getQueryForTrustees(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
+					QueryFactory.getQueryForSecurityLevel(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
 			logger.log(Level.WARNING, "Could not get securityLevel.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),

@@ -39,7 +39,7 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.trustee;
+package ch.bfh.univote2.common.crypto;
 
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
@@ -48,20 +48,14 @@ import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
  *
  * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
-public class UniCryptCryptoSetting {
+public class CryptoSetup {
 
-	public final CyclicGroup encryptionGroup;
-	public final Element encryptionGenerator;
+	public final CyclicGroup cryptoGroup;
+	public final Element cryptoGenerator;
 
-	public final CyclicGroup signatureGroup;
-	public final Element signatureGenerator;
-
-	public UniCryptCryptoSetting(CyclicGroup encryptionGroup, Element encryptionGenerator, CyclicGroup signatureGroup,
-			Element signatureGenerator) {
-		this.encryptionGroup = encryptionGroup;
-		this.encryptionGenerator = encryptionGenerator;
-		this.signatureGroup = signatureGroup;
-		this.signatureGenerator = signatureGenerator;;
+	public CryptoSetup(CyclicGroup cryptoGropu, Element cryptoGenerator) {
+		this.cryptoGroup = cryptoGropu;
+		this.cryptoGenerator = cryptoGenerator;
 	}
 
 }

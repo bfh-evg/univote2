@@ -71,6 +71,8 @@ import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.crypto.CryptoSetup;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -92,11 +94,9 @@ import ch.bfh.univote2.common.query.AlphaEnum;
 import ch.bfh.univote2.common.query.GroupEnum;
 import ch.bfh.univote2.common.query.QueryFactory;
 import ch.bfh.univote2.component.core.services.InformationService;
-import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
-import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import ch.bfh.univote2.trustee.mixer.keyMixing.KeyMixingAction;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -108,7 +108,6 @@ import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.json.JsonException;
 
 /**
  *
@@ -129,8 +128,6 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
-	@EJB
-	private SecurePersistenceService securePersistenceService;
 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
@@ -148,7 +145,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		try {
 			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-					QueryFactory.getQueryForVoteMixingResult(actionContext.getSection(), publicKey));
+					QueryFactory.getQueryForVoteMixingResultForMixer(actionContext.getSection(), publicKey));
 			if (!result.getResult().getPost().isEmpty()) {
 				return true;
 			}
@@ -163,10 +160,6 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
-		BoardPreconditionQuery bQuery = null;
-		ActionContextKey actionContextKey = actionContext.getActionContextKey();
-		String section = actionContext.getSection();
-		String tenant = actionContext.getTenant();
 		if (!(actionContext instanceof VoteMixingActionContext)) {
 			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 			return;
@@ -180,9 +173,9 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	}
 
 	protected VoteMixingRequest retrieveVoteMixingRequest(ActionContext actionContext) throws UnivoteException {
-		PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForKeyMixingRequest(actionContext.getSection(), publicKey)).getResult();
+				QueryFactory.getQueryForVoteMixingRequestForMixer(actionContext.getSection(),
+						actionContext.getTenant())).getResult();
 		if (result.getPost().isEmpty()) {
 			throw new UnivoteException("key mixing request not published yet.");
 
@@ -208,28 +201,20 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 
 		} catch (UnivoteException ex) {
 			logger.log(Level.WARNING, "Could not get vote mixing request.", ex);
-			informationService.informTenant(actionContextKey,
+			this.informationService.informTenant(actionContextKey,
 					"Error retrieving vote mixing request: " + ex.getMessage());
-		} catch (JsonException ex) {
-			logger.log(Level.WARNING, "Could not parse vote mixing request.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error reading vote mixing request.");
-		} catch (Exception ex) {
-			logger.log(Level.WARNING, "Could not parse vote mixing request.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error reading vote mixing request.");
 		}
 		try {
 			if (actionContext.getVoteMixingRequest() == null) {
 				//Add Notification
 				BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-						QueryFactory.getQueryForVoteMixingRequest(section, tenantManager.getPublicKey(tenant)),
+						QueryFactory.getQueryForVoteMixingRequestForMixer(section, tenant),
 						BoardsEnum.UNIVOTE.getValue());
 				actionContext.getPreconditionQueries().add(bQuery);
 			}
 		} catch (UnivoteException exception) {
 			logger.log(Level.WARNING, "Could not get tenant for vote mixing request.", exception);
-			informationService.informTenant(actionContextKey,
+			this.informationService.informTenant(actionContextKey,
 					"Error retrieving tenant for vote mixing request: " + exception.getMessage());
 		}
 
@@ -244,7 +229,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		}
 		VoteMixingActionContext skcac = (VoteMixingActionContext) actionContext;
 		if (!skcac.getAccessRightGranted()) {
-			TrusteeActionHelper.checkAndSetAccsessRight(skcac, GroupEnum.TRUSTEES, uniboardService,
+			TrusteeActionHelper.checkAndSetAccsessRight(skcac, GroupEnum.VOTE_MIXING_RESULT, uniboardService,
 					tenantManager, informationService, logger);
 			if (!skcac.getAccessRightGranted()) {
 				logger.log(Level.INFO, "Access right has not been granted yet.");
@@ -289,12 +274,9 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 
 		String tenant = actionContext.getTenant();
 		try {
-
-			UniCryptCryptoSetting uniCryptCryptoSetting
-					= TrusteeActionHelper.getUnicryptCryptoSetting(skcac.getCryptoSetting());
 			String encryptionKeyAsString = skcac.getEncryptionKey().getEncryptionKey();
 			VoteMixingResult voteMixingResult = createVoteMixingResult(tenant, skcac.getVoteMixingRequest(),
-					uniCryptCryptoSetting, encryptionKeyAsString);
+					skcac.getCryptoSetting(), encryptionKeyAsString);
 			String voteMixingResultString = JSONConverter.marshal(voteMixingResult);
 			byte[] voteMixingResultByteArray = voteMixingResultString.getBytes(Charset.forName("UTF-8"));
 
@@ -376,8 +358,11 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		}
 	}
 
-	private VoteMixingResult createVoteMixingResult(String tenant, VoteMixingRequest voteMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting, String encryptionKeyAsString) {
-		CyclicGroup cyclicGroup = uniCryptCryptoSetting.encryptionGroup;
+	private VoteMixingResult createVoteMixingResult(String tenant, VoteMixingRequest voteMixingRequest,
+			CryptoSetting cryptoSetting, String encryptionKeyAsString) {
+		CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(cryptoSetting.getEncryptionSetting());
+		CyclicGroup cyclicGroup = cSetup.cryptoGroup;
+		Element encryptionGenerator = cSetup.cryptoGenerator;
 		Element encryptionKey = cyclicGroup.getElementFrom(encryptionKeyAsString);
 		List<EncryptedVote> vString = voteMixingRequest.getVotesToMix();
 		Tuple vs = Tuple.getInstance();
@@ -385,7 +370,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 			vs = vs.add(Pair.getInstance(cyclicGroup.getElementFrom(vote.getFirstValue()), cyclicGroup.getElementFrom(vote.getSecondValue())));
 		}
 
-		ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(uniCryptCryptoSetting.encryptionGenerator);
+		ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(encryptionGenerator);
 		// Create mixer and shuffle
 		ReEncryptionMixer mixer = ReEncryptionMixer.getInstance(elGamal, encryptionKey, vs.getArity());
 
@@ -413,7 +398,8 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
 
 		// Create e-values challenge generator
-		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(cyclicGroup.getZModOrder(), vs.getArity());
+		ChallengeGenerator ecg = PermutationCommitmentProofSystem.createNonInteractiveEValuesGenerator(
+				cyclicGroup.getZModOrder(), vs.getArity());
 
 		// 1. Permutation Proof
 		//----------------------
@@ -423,7 +409,8 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		Tuple permutationCommitment = pcs.commit(psi, permutationCommitmentRandomizations);
 
 		// Create psi commitment proof system
-		PermutationCommitmentProofSystem pcps = PermutationCommitmentProofSystem.getInstance(challengeGenerator, ecg, cyclicGroup, vs.getArity());
+		PermutationCommitmentProofSystem pcps = PermutationCommitmentProofSystem.getInstance(challengeGenerator, ecg,
+				cyclicGroup, vs.getArity());
 
 		// Create psi commitment proof
 		Pair privateInputPermutation = Pair.getInstance(psi, permutationCommitmentRandomizations);

@@ -41,8 +41,11 @@
  */
 package ch.bfh.univote2.component.core.services;
 
+import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
 import ch.bfh.unicrypt.helper.array.classes.ByteArray;
+import ch.bfh.unicrypt.math.algebra.general.classes.FiniteByteArrayElement;
 import java.math.BigInteger;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -56,19 +59,26 @@ public class SecurePersistenceServiceImplTest {
 
 	@Test
 	public void testPersist() throws Exception {
-		String tenant = "";
-		String section = "";
-		String type = "";
-		ByteArray aesKey = ByteArray.getInstance("AA");
+		String tenant = "1";
+		String section = "12";
+		String type = "test";
+		AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
+		FiniteByteArrayElement secretKey = aes.getSecretKeyGenerator().generateSecretKey();
+		ByteArray aesKey = secretKey.getValue();
 		TenantManagerMock tenantManager = new TenantManagerMock();
 		tenantManager.setAesKey(aesKey);
-		BigInteger bigInteger = new BigInteger("10");
+		BigInteger bigInteger = new BigInteger("123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789");
 
 		NoEETestableSecurePersistenceServiceImpl securePersistenceServiceImpl
 				= new NoEETestableSecurePersistenceServiceImpl();
 		securePersistenceServiceImpl.setTenantManager(tenantManager);
 
-		//securePersistenceServiceImpl.persist(tenant, section, type, bigInteger);
+		securePersistenceServiceImpl.persist(tenant, section, type, bigInteger);
+		System.out.println(securePersistenceServiceImpl.getBigIntegerEntity().getBigInteger());
+
+		BigInteger result = securePersistenceServiceImpl.retrieve(tenant, section, type);
+		Assert.assertEquals(result, bigInteger);
+
 	}
 
 	@Test

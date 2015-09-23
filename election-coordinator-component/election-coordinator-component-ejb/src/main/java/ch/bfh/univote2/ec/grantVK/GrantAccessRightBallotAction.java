@@ -43,6 +43,7 @@ package ch.bfh.univote2.ec.grantVK;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.StringValue;
@@ -54,6 +55,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.crypto.CryptoSetup;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.manager.TenantManager;
@@ -115,8 +117,8 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 			return;
 		}
 		GrantAccessRightBallotActionContext skcac = (GrantAccessRightBallotActionContext) actionContext;
-		checkAndSetCryptoSetting(skcac, uniboardService, tenantManager, informationService, logger);
-		checkAndSetMixedKeys(skcac, uniboardService, tenantManager, informationService, logger);
+		this.checkAndSetCryptoSetting(skcac);
+		this.checkAndSetMixedKeys(skcac);
 	}
 
 	@Override
@@ -142,13 +144,16 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 		try {
 			CryptoSetting cryptoSetting = garbac.getCryptoSetting();
 			MixedKeys mixedKeys = garbac.getMixedKeys();
-			GStarModPrime signatureGroup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting());
+			CryptoSetup sSetup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting());
+			GStarModPrime signatureGroup = (GStarModPrime) sSetup.cryptoGroup;
 			for (String mixedKey : mixedKeys.getMixedKeys()) {
 				AccessRight ar = new AccessRight();
-				ar.setCrypto(new DL(signatureGroup.getModulus().toString(), signatureGroup.getOrder().toString(), mixedKeys.getGenerator(), mixedKey));
+				ar.setCrypto(new DL(signatureGroup.getModulus().toString(), signatureGroup.getOrder().
+						toString(), mixedKeys.getGenerator(), mixedKey));
 				ar.setGroup(GroupEnum.BALLOT.getValue());
 				byte[] message = JSONConverter.marshal(ar).getBytes();
-				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), garbac.getSection(), GroupEnum.ACCESS_RIGHT.getValue(), message, garbac.getTenant());
+				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), garbac.getSection(),
+						GroupEnum.ACCESS_RIGHT.getValue(), message, garbac.getTenant());
 				this.informationService.informTenant(actionContext.getActionContextKey(),
 						"Posted key share for encrcyption. Action finished.");
 				this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
@@ -158,7 +163,6 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 			//	this.informationService.informTenant(actionContext.getActionContextKey(),
 			//			"Unsupported public key type: " + actionContext.getPublicKey() + ".");
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-			return;
 		}
 
 	}
@@ -201,14 +205,14 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		} catch (Exception ex) {
+		} catch (TransformException ex) {
 			Logger.getLogger(GrantAccessRightBallotAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 	}
 
-	public static void checkAndSetCryptoSetting(GrantAccessRightBallotActionContext actionContext, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
+	public void checkAndSetCryptoSetting(GrantAccessRightBallotActionContext actionContext) {
 		ActionContextKey actionContextKey = actionContext.getActionContextKey();
 		String section = actionContext.getSection();
 		try {
@@ -216,7 +220,7 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 
 			//Add Notification
 			if (cryptoSetting == null) {
-				cryptoSetting = retrieveCryptoSetting(actionContext, uniboardService);
+				cryptoSetting = retrieveCryptoSetting(actionContext);
 				actionContext.setCryptoSetting(cryptoSetting);
 			}
 
@@ -242,19 +246,21 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 
 	}
 
-	public static CryptoSetting retrieveCryptoSetting(ActionContext actionContext, UniboardService uniboardService) throws UnivoteException, Exception {
-		ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+	public CryptoSetting retrieveCryptoSetting(ActionContext actionContext)
+			throws UnivoteException {
+		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("Cryptosetting not published yet.");
 
 		}
-		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
+		CryptoSetting cryptoSetting
+				= JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
 		return cryptoSetting;
 
 	}
 
-	public static void checkAndSetMixedKeys(GrantAccessRightBallotActionContext actionContext, UniboardService uniboardService, TenantManager tenantManager, InformationService informationService, Logger logger) {
+	public void checkAndSetMixedKeys(GrantAccessRightBallotActionContext actionContext) {
 		ActionContextKey actionContextKey = actionContext.getActionContextKey();
 		String section = actionContext.getSection();
 		try {
@@ -262,7 +268,7 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 
 			//Add Notification
 			if (mixedKeys == null) {
-				mixedKeys = retrieveMixedKeys(actionContext, uniboardService);
+				mixedKeys = this.retrieveMixedKeys(actionContext);
 				actionContext.setMixedKeys(mixedKeys);
 			}
 
@@ -288,14 +294,16 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 
 	}
 
-	public static MixedKeys retrieveMixedKeys(ActionContext actionContext, UniboardService uniboardService) throws UnivoteException, Exception {
+	public MixedKeys retrieveMixedKeys(ActionContext actionContext)
+			throws UnivoteException {
 		ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForMixedKeys(actionContext.getSection()));
 		if (result.getResult().getPost().isEmpty()) {
 			throw new UnivoteException("mixed keys not published yet.");
 
 		}
-		MixedKeys mixedKeys = JSONConverter.unmarshal(MixedKeys.class, result.getResult().getPost().get(0).getMessage());
+		MixedKeys mixedKeys
+				= JSONConverter.unmarshal(MixedKeys.class, result.getResult().getPost().get(0).getMessage());
 		return mixedKeys;
 
 	}

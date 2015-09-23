@@ -66,6 +66,8 @@ import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.unicrypt.math.function.classes.GeneratorFunction;
 import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.crypto.CryptoSetup;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -87,13 +89,11 @@ import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
-import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingAction;
 import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingActionContext;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -159,10 +159,6 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
-		BoardPreconditionQuery bQuery = null;
-		ActionContextKey actionContextKey = actionContext.getActionContextKey();
-		String section = actionContext.getSection();
-		String tenant = actionContext.getTenant();
 		if (!(actionContext instanceof SingleKeyMixingActionContext)) {
 			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 			return;
@@ -201,10 +197,9 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 		}
 		try {
 			if (actionContext.getSingleKeyMixingRequest() == null) {
-				PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 				//Add Notification
 				BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-						QueryFactory.getQueryForSingleKeyMixingRequest(section, publicKey),
+						QueryFactory.getQueryForSingleKeyMixingRequestsForMixer(section, actionContext.getTenant()),
 						BoardsEnum.UNIVOTE.getValue());
 				actionContext.getPreconditionQueries().add(bQuery);
 			}
@@ -244,7 +239,6 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 
 		try {
 
-			UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
 			BigInteger alpha = null;
 			BigInteger gMinus = null;
 
@@ -256,7 +250,7 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 				return;
 			}
 			SingleKeyMixingResult singleKeyMixingResult = createSingleKeyMixingResult(tenant, singleKeyMixingRequest,
-					uniCryptCryptoSetting, alpha, gMinus);
+					cryptoSetting, alpha, gMinus);
 			String singleKeyMixingResultString = JSONConverter.marshal(singleKeyMixingResult);
 			byte[] singleKeyMixingResultByteArray = singleKeyMixingResultString.getBytes(Charset.forName("UTF-8"));
 
@@ -334,9 +328,9 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 
 	protected SingleKeyMixingRequest retrieveSingleKeyMixingRequest(ActionContext actionContext)
 			throws UnivoteException {
-		PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForSingleKeyMixingRequest(actionContext.getSection(), publicKey)).getResult();
+				QueryFactory.getQueryForSingleKeyMixingRequestsForMixer(actionContext.getSection(),
+						actionContext.getTenant())).getResult();
 		if (result.getPost().isEmpty()) {
 			throw new UnivoteException("Key mixing request not published yet.");
 		}
@@ -347,9 +341,12 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 	}
 
 	private SingleKeyMixingResult createSingleKeyMixingResult(String tenant,
-			SingleKeyMixingRequest singleKeyMixingRequest, UniCryptCryptoSetting uniCryptCryptoSetting,
+			SingleKeyMixingRequest singleKeyMixingRequest, CryptoSetting cryptoSetting,
 			BigInteger alphaAsBigInt, BigInteger gMinusAsBigInt) {
-		CyclicGroup cyclicGroup = uniCryptCryptoSetting.signatureGroup;
+
+		CryptoSetup cSetup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting());
+		CyclicGroup cyclicGroup = cSetup.cryptoGroup;
+
 		HashAlgorithm hashAlgorithm = HashAlgorithm.SHA256;
 
 		Element alpha = cyclicGroup.getElementFrom(alphaAsBigInt);

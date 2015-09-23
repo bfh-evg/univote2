@@ -48,7 +48,7 @@ import javax.persistence.NonUniqueResultException;
 
 public class NoEETestableSecurePersistenceServiceImpl extends SecurePersistenceServiceImpl {
 
-	private EncryptedBigIntEntity bigIntegerEntity;
+	private EncryptedBigIntEntity bigIntegerEntity = new EncryptedBigIntEntity();
 	private boolean noResult = false;
 	private boolean nonUnique = false;
 

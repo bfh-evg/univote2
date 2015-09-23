@@ -71,6 +71,8 @@ import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.crypto.CryptoSetup;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -94,7 +96,6 @@ import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
-import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingAction;
 import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingActionContext;
 import java.math.BigInteger;
@@ -146,15 +147,10 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 	@Override
 	protected boolean checkPostCondition(ActionContext actionContext) {
-		if (!(actionContext instanceof KeyMixingActionContext)) {
-			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
-			return false;
-		}
-		KeyMixingActionContext vmac = (KeyMixingActionContext) actionContext;
 		try {
 			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-					QueryFactory.getQueryForKeyMixingResult(actionContext.getSection(), publicKey));
+					QueryFactory.getQueryForKeyMixingResultForMixer(actionContext.getSection(), publicKey));
 			if (!result.getResult().getPost().isEmpty()) {
 				return true;
 			}
@@ -169,14 +165,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
-		BoardPreconditionQuery bQuery = null;
-		ActionContextKey actionContextKey = actionContext.getActionContextKey();
-		String section = actionContext.getSection();
-		String tenant = actionContext.getTenant();
-		if (!(actionContext instanceof KeyMixingActionContext)) {
-			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
-			return;
-		}
 		KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
 		TrusteeActionHelper.checkAndSetCryptoSetting(kmac, uniboardService, tenantManager, informationService, logger);
 		TrusteeActionHelper.checkAndSetAccsessRight(kmac, GroupEnum.KEY_MIXING_RESULT, uniboardService,
@@ -198,22 +186,34 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 		} catch (UnivoteException ex) {
 			logger.log(Level.WARNING, "Could not get key mixing request.", ex);
-			informationService.informTenant(actionContextKey,
-					"Error retrieving key mixing request: " + ex.getMessage());
+			informationService.informTenant(actionContextKey, ex.getMessage());
 		}
 		try {
 			if (actionContext.getKeyMixingRequest() == null) {
-				PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 				//Add Notification
 				BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-						QueryFactory.getQueryForKeyMixingRequest(section, publicKey), BoardsEnum.UNIVOTE.getValue());
+						QueryFactory.getQueryForKeyMixingRequestForMixer(section, actionContext.getTenant()),
+						BoardsEnum.UNIVOTE.getValue());
 				actionContext.getPreconditionQueries().add(bQuery);
 			}
 		} catch (UnivoteException exception) {
 			logger.log(Level.WARNING, "Could not get tenant for key mixing request.", exception);
-			informationService.informTenant(actionContextKey,
-					"Error retrieving tenant for key mixing request: " + exception.getMessage());
+			informationService.informTenant(actionContextKey, exception.getMessage());
 		}
+
+	}
+
+	protected KeyMixingRequest retrieveKeyMixingRequest(ActionContext actionContext) throws UnivoteException {
+		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForKeyMixingRequestForMixer(actionContext.getSection(),
+						actionContext.getTenant())).getResult();
+		if (result.getPost().isEmpty()) {
+			throw new UnivoteException("Key mixing request not published yet.");
+
+		}
+		KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class,
+				result.getPost().get(0).getMessage());
+		return keyMixingRequest;
 
 	}
 
@@ -226,7 +226,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 		KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
 		if (!kmac.getAccessRightGranted()) {
-			TrusteeActionHelper.checkAndSetAccsessRight(kmac, GroupEnum.TRUSTEES, uniboardService,
+			TrusteeActionHelper.checkAndSetAccsessRight(kmac, GroupEnum.KEY_MIXING_RESULT, uniboardService,
 					tenantManager, informationService, logger);
 			if (!kmac.getAccessRightGranted()) {
 				logger.log(Level.INFO, "Access right has not been granted yet.");
@@ -240,8 +240,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 				kmac.setCryptoSetting(TrusteeActionHelper.retrieveCryptoSetting(actionContext, uniboardService));
 			} catch (UnivoteException ex) {
 				logger.log(Level.WARNING, "Crypto setting is not published yet.", ex);
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Crypto setting not published yet.");
+				this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 				return;
 			}
@@ -251,8 +250,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 				kmac.setKeyMixingRequest(this.retrieveKeyMixingRequest(actionContext));
 			} catch (UnivoteException ex) {
 				logger.log(Level.WARNING, "Key mixing request is not published yet.", ex);
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Key mixing request not published yet.");
+				this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 				return;
 			}
@@ -264,8 +262,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		CryptoSetting cryptoSetting = kmac.getCryptoSetting();
 
 		try {
-
-			UniCryptCryptoSetting uniCryptCryptoSetting = TrusteeActionHelper.getUnicryptCryptoSetting(cryptoSetting);
 			BigInteger alpha = null;
 			try {
 				alpha = securePersistenceService.retrieve(tenant, section, PERSISTENCE_NAME_FOR_ALPHA);
@@ -274,7 +270,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			}
 
 			EnhancedKeyMixingResult enhancedKeyMixingResult = createKeyMixingResult(tenant, keyMixingRequest,
-					uniCryptCryptoSetting, alpha);
+					cryptoSetting, alpha);
 			alpha = enhancedKeyMixingResult.alpha;
 			BigInteger gMinus = enhancedKeyMixingResult.gMinus;
 			KeyMixingResult keyMixingResult = enhancedKeyMixingResult.keyMixingResult;
@@ -355,30 +351,17 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 	}
 
-	protected KeyMixingRequest retrieveKeyMixingRequest(ActionContext actionContext) throws UnivoteException {
-		PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
-		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForKeyMixingRequest(actionContext.getSection(), publicKey)).getResult();
-		if (result.getPost().isEmpty()) {
-			throw new UnivoteException("key mixing request not published yet.");
-
-		}
-		KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class,
-				result.getPost().get(0).getMessage());
-		return keyMixingRequest;
-
-	}
-
 	private EnhancedKeyMixingResult createKeyMixingResult(String tenant, KeyMixingRequest keyMixingRequest,
-			UniCryptCryptoSetting uniCryptCryptoSetting, BigInteger alphaAsBigInt) {
-		CyclicGroup cyclicGroup = uniCryptCryptoSetting.signatureGroup;
+			CryptoSetting cryptoSetting, BigInteger alphaAsBigInt) {
+		CryptoSetup cSetup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting());
+		CyclicGroup cyclicGroup = cSetup.cryptoGroup;
 
 		// d)
 		Element alpha;
 		if (alphaAsBigInt != null) {
-			alpha = cyclicGroup.getElementFrom(alphaAsBigInt);
+			alpha = cyclicGroup.getZModOrder().getElementFrom(alphaAsBigInt);
 		} else {
-			alpha = cyclicGroup.getRandomElement();
+			alpha = cyclicGroup.getZModOrder().getRandomElement();
 		}
 
 		// e)

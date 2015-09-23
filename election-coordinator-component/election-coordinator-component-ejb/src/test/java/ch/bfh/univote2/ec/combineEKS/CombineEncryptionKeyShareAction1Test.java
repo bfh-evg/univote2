@@ -45,8 +45,14 @@ import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.classes.PlainPreimageProofSystem;
 import ch.bfh.unicrypt.crypto.schemes.encryption.classes.ElGamalEncryptionScheme;
+import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
+import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
@@ -65,6 +71,9 @@ import ch.bfh.univote2.ec.ActionManagerMock;
 import ch.bfh.univote2.ec.InformationServiceMock;
 import ch.bfh.univote2.ec.TenantManagerMock;
 import ch.bfh.univote2.ec.UniboardServiceMock;
+import static ch.bfh.univote2.ec.combineEKS.CombineEncryptionKeyShareAction.CONVERT_METHOD;
+import static ch.bfh.univote2.ec.combineEKS.CombineEncryptionKeyShareAction.HASH_METHOD;
+import static ch.bfh.univote2.ec.combineEKS.CombineEncryptionKeyShareAction.STRING_SPACE;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import javax.ejb.EJB;
@@ -132,8 +141,8 @@ public class CombineEncryptionKeyShareAction1Test {
 
 		CryptoSetting cs = CryptoProvider.getCryptoSetting(0);
 		actionContext.setCryptoSetting(cs);
-		CyclicGroup cyclicGroup
-				= CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
+		CyclicGroup cyclicGroup = CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting()
+				.getEncryptionSetting()).cryptoGroup;
 
 		actionContext.getKeyShares().put("tallier1", cyclicGroup.getElementFrom(new BigInteger("38")));
 		actionContext.getKeyShares().put("tallier2", cyclicGroup.getElementFrom(new BigInteger("11")));
@@ -172,12 +181,19 @@ public class CombineEncryptionKeyShareAction1Test {
 		CryptoSetting cs = CryptoProvider.getCryptoSetting(0);
 		actionContext.setCryptoSetting(cs);
 
-		CyclicGroup cyclicGroup
-				= CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
+		CyclicGroup cyclicGroup = CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting()
+				.getEncryptionSetting()).cryptoGroup;
 		ElGamalEncryptionScheme elGamal = ElGamalEncryptionScheme.getInstance(cyclicGroup);
 		KeyPairGenerator keyPairGen = elGamal.getKeyPairGenerator();
 		Function proofFunction = keyPairGen.getPublicKeyGenerationFunction();
-		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(proofFunction);
+		StringElement otherInput = STRING_SPACE.getElement(tenant);
+
+		Converter converter = ByteArrayToBigInteger.getInstance(HashAlgorithm.SHA256.getByteLength(), 1);
+
+		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+				cyclicGroup.getZModOrder(), otherInput, CONVERT_METHOD, HASH_METHOD, converter);
+
+		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(challengeGenerator, proofFunction);
 		Pair keypair = keyPairGen.generateKeyPair();
 		Triple proofTriple = pg.generate(keypair.getFirst(), keypair.getSecond());
 

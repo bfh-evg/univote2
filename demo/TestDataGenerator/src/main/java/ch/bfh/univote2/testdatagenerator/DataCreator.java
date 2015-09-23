@@ -17,7 +17,6 @@ import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.univote2.common.crypto.KeyUtil;
-import ch.bfh.univote2.common.query.GroupEnum;
 import ch.bfh.univote2.common.query.QueryFactory;
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,7 +67,7 @@ class DataCreator {
 
 		PrivateKey privKey = (DSAPrivateKey) ks.getKey("ec-demo", privKeyPass.toCharArray());
 //		DSAPublicKey pubKey = (DSAPublicKey) ks.getCertificate("ec-demo").getPublicKey();
-		DSAPublicKey pubKey = KeyUtil.getDSAPublicKey("../ea-certificate.pem");
+		DSAPublicKey pubKey = KeyUtil.getDSAPublicKey("../trustee-certificate.pem");
 		DSAPublicKey boardKey = (DSAPublicKey) ks.getCertificate("uniboardvote").getPublicKey();
 		String posterPublicKey = pubKey.getY().toString(10);//MathUtil.pair(pubKey.getPublicExponent(), pubKey.getModulus()).toString(10);
 		System.out.println(pubKey.getY().toString(10));
@@ -77,7 +76,7 @@ class DataCreator {
 				"uniboardvote").getPublicKey(), uniBoardWSDLurl, uniBoardUrl);
 
 		GetHelper gh = new GetHelper(boardKey, uniBoardWSDLurl, uniBoardUrl);
-		QueryDTO q = QueryFactory.getQueryForAccessRight("sub-2015", pubKey, GroupEnum.TRUSTEES);
+		QueryDTO q = QueryFactory.getQueryForKeyMixingRequestForMixer("sub-2015", "severin.hauser@bfh.ch");
 		System.out.println(Transformer.convertQueryDTOtoQuery(q));
 		System.out.println(q);
 		ResultContainerDTO result = gh.get(q);

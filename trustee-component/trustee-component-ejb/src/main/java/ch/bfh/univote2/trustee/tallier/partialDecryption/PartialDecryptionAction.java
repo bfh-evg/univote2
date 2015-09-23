@@ -73,6 +73,8 @@ import ch.bfh.unicrypt.math.function.classes.MultiIdentityFunction;
 import ch.bfh.unicrypt.math.function.classes.ProductFunction;
 import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.common.UnivoteException;
+import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.crypto.CryptoSetup;
 import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
@@ -95,7 +97,6 @@ import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
-import ch.bfh.univote2.trustee.UniCryptCryptoSetting;
 import ch.bfh.univote2.trustee.tallier.sharedKeyCreation.SharedKeyCreationAction;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
@@ -147,7 +148,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 		try {
 			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-					QueryFactory.getQueryForPartialDecryption(actionContext.getSection(), publicKey));
+					QueryFactory.getQueryForPartialDecryptionForTallier(actionContext.getSection(), publicKey));
 			if (!result.getResult().getPost().isEmpty()) {
 				return true;
 			}
@@ -205,7 +206,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 		}
 		PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
 		if (!pdac.getAccessRightGranted()) {
-			TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.TRUSTEES, uniboardService,
+			TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.PARTIAL_DECRYPTION, uniboardService,
 					tenantManager, informationService, logger);
 			if (!pdac.getAccessRightGranted()) {
 				logger.log(Level.INFO, "Access right has not been granted yet.");
@@ -240,54 +241,46 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 			}
 		}
 
+		CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(pdac.getCryptoSetting().getEncryptionSetting());
+
 		try {
-			UniCryptCryptoSetting uniCryptCryptoSetting
-					= TrusteeActionHelper.getUnicryptCryptoSetting(pdac.getCryptoSetting());
+			BigInteger privateKey = securePersistenceService.retrieve(tenant, section,
+					SharedKeyCreationAction.PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE);
+			CyclicGroup cyclicGroup = cSetup.cryptoGroup;
+			Element encryptionGenerator = cSetup.cryptoGenerator;
 
-			try {
-				BigInteger privateKey = securePersistenceService.retrieve(tenant, section,
-						SharedKeyCreationAction.PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE);
-				CyclicGroup cyclicGroup = uniCryptCryptoSetting.encryptionGroup;
-				Element encryptionGenerator = uniCryptCryptoSetting.encryptionGenerator;
+			Element secretKey = cyclicGroup.getElementFrom(privateKey);
+			Element decryptionKey = secretKey.invert();
+			Element publicKey = encryptionGenerator.selfApply(secretKey);
 
-				Element secretKey = cyclicGroup.getElementFrom(privateKey);
-				Element decryptionKey = secretKey.invert();
-				Element publicKey = encryptionGenerator.selfApply(secretKey);
-
-				List<Element> partialDecryptions = new ArrayList<>();
-				List<String> partialDecryptionsAsStrings = new ArrayList<>();
-				List<Function> generatorFunctions = new ArrayList<>();
-				for (Vote v : pdac.getMixedVotes().getMixedVotes()) {
-					Element element = cyclicGroup.getElementFrom(v.getFirstValue());
-					GeneratorFunction function = GeneratorFunction.getInstance(element);
-					generatorFunctions.add(function);
-					Element partialDecryption = function.apply(decryptionKey);
-					partialDecryptions.add(partialDecryption);
-					partialDecryptionsAsStrings.add(partialDecryption.convertToString());
-				}
-				SigmaProof proofDTO = createProof(tenant, uniCryptCryptoSetting, secretKey, publicKey,
-						partialDecryptions.toArray(new Element[0]), generatorFunctions.toArray(new Function[0]));
-				PartialDecryption partialDecryptionDTO = new PartialDecryption(partialDecryptionsAsStrings, proofDTO);
-
-				String partialDecryptionsString = JSONConverter.marshal(partialDecryptionDTO);
-				byte[] partialDecryptionsByteArray = partialDecryptionsString.getBytes(Charset.forName("UTF-8"));
-
-				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section,
-						GroupEnum.PARTIAL_DECRYPTION.getValue(), partialDecryptionsByteArray, tenant);
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Posted key share for encrcyption. Action finished.");
-				this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-
-			} catch (UnivoteException ex) {
-				//No key available. Unsolvable problem encountered.
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Could not access private key for decryption. Action failed.");
-				Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
-				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			List<Element> partialDecryptions = new ArrayList<>();
+			List<String> partialDecryptionsAsStrings = new ArrayList<>();
+			List<Function> generatorFunctions = new ArrayList<>();
+			for (Vote v : pdac.getMixedVotes().getMixedVotes()) {
+				Element element = cyclicGroup.getElementFrom(v.getFirstValue());
+				GeneratorFunction function = GeneratorFunction.getInstance(element);
+				generatorFunctions.add(function);
+				Element partialDecryption = function.apply(decryptionKey);
+				partialDecryptions.add(partialDecryption);
+				partialDecryptionsAsStrings.add(partialDecryption.convertToString());
 			}
-		} catch (UnivoteException ex) {
+			SigmaProof proofDTO = createProof(tenant, pdac.getCryptoSetting(), secretKey, publicKey,
+					partialDecryptions.toArray(new Element[0]), generatorFunctions.toArray(new Function[0]));
+			PartialDecryption partialDecryptionDTO = new PartialDecryption(partialDecryptionsAsStrings, proofDTO);
+
+			String partialDecryptionsString = JSONConverter.marshal(partialDecryptionDTO);
+			byte[] partialDecryptionsByteArray = partialDecryptionsString.getBytes(Charset.forName("UTF-8"));
+
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section,
+					GroupEnum.PARTIAL_DECRYPTION.getValue(), partialDecryptionsByteArray, tenant);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not post partial decryptions. Action failed.");
+					"Posted key share for encrcyption. Action finished.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+
+		} catch (UnivoteException ex) {
+			//No key available. Unsolvable problem encountered.
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not access private key for decryption. Action failed.");
 			Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
@@ -369,10 +362,11 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	 * @param generatorFunctions
 	 * @return
 	 */
-	protected SigmaProof createProof(String tenant, UniCryptCryptoSetting cryptoSetting, Element secretKey,
+	protected SigmaProof createProof(String tenant, CryptoSetting cryptoSetting, Element secretKey,
 			Element publicKey, Element[] partialDecryptions, Function[] generatorFunctions) {
-		CyclicGroup cyclicGroup = cryptoSetting.encryptionGroup;
-		Element encryptionGenerator = cryptoSetting.encryptionGenerator;
+		CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(cryptoSetting.getEncryptionSetting());
+		CyclicGroup cyclicGroup = cSetup.cryptoGroup;
+		Element encryptionGenerator = cSetup.cryptoGenerator;
 		HashAlgorithm hashAlgorithm = HashAlgorithm.SHA256;
 
 		// Create proof functions
