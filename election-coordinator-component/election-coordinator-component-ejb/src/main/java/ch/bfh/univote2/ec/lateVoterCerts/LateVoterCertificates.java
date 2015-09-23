@@ -180,6 +180,13 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 
 	private void internalRun(LateVoterCertificatesContext context, Certificate voterCertificate) throws UnivoteException {
 		//TODO: Verify Z'_i.
+		//if(!verify(voterCertificate)){
+		//  this.informationService.informTenant(actionContext.getActionContextKey(),
+		//			"incorrect voter signature.");
+		//  logger.log(Level.INFO,"Incorrect voter signature for context "+actionContext.getActionContextKey());
+		//
+		//	this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+		//}
 
 		CryptoSetting cryptoSetting = context.getCryptoSetting();
 		CyclicGroup signatureGroup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting()).cryptoGroup;
@@ -254,7 +261,7 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 			//if Z_i is present: Check if there is a vote for according v^k_i  yes... abort
 			//if Z_i is present: Remove accessRight for v^k_i
 			//if Z_i is present: Add Z_i to Z_C on UBV
-			// get vk'_i from Z'_i
+			// get vk_i from Z_i
 			//...
 			Certificate revokableCertificate = voterCertificateList.get(0);
 			PublicKey revokedPK = getPublicKeyFromCertificate(revokableCertificate);
@@ -277,6 +284,21 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
 					GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue(),
 					JSONConverter.marshal(revokableCertificate).getBytes(), context.getTenant());
+
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.ADDED_VOTER_CERTIFICATE.getValue(),
+					JSONConverter.marshal(voterCertificate).getBytes(), context.getTenant());
+
+			// Select vk'_i from Z'_i
+			{
+				PublicKey newPK = getPublicKeyFromCertificate(voterCertificate);
+				// TODO: Call Mixer for mixed vk_i and get the information out there
+				byte[] message = MessageFactory.createAccessRight(GroupEnum.BALLOT, newPK, 1);
+				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+						GroupEnum.ACCESS_RIGHT.getValue(), message, context.getTenant());
+				this.informationService.informTenant(context.getActionContextKey(),
+						"new AccessRight for voter granted.");
+			}
 
 		}
 
