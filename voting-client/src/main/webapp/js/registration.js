@@ -119,6 +119,7 @@ $(function () {
 		elements.identity_function.remove(4);
 		elements.identity_function.remove(3);
 	} else if (requester.idp.value == "Google") {
+		elements.identity_function.remove(5);
 		elements.identity_function.remove(2);
 		elements.identity_function.remove(1);
 		elements.identity_function.remove(0);

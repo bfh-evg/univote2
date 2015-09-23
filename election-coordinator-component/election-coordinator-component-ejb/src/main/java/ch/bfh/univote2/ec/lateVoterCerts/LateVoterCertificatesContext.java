@@ -39,50 +39,50 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.common.query;
+package ch.bfh.univote2.ec.lateVoterCerts;
+
+import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.ElectoralRoll;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import java.util.ArrayList;
 
 /**
  *
- * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
-public enum GroupEnum {
+public class LateVoterCertificatesContext extends ActionContext {
 
-    ADMIN_CERT("administrationCertificate"),
-    ACCESS_RIGHT("accessRight"),
-    BALLOT("ballot"),
-    ELECTION_DEFINITION("electionDefinition"),
-    ELECTION_DETAILS("electionDetails"),
-    TRUSTEES("trustees"),
-    TRUSTEE_CERTIFICATES("trusteeCertificates"),
-    ELECTORAL_ROLL("electoralRoll"),
-    SECURITY_LEVEL("securityLevel"),
-    CRYPTO_SETTING("cryptoSetting"),
-    ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
-    ENCRYPTION_KEY("encryptionKey"),
-    KEY_MIXING_REQUEST("keyMixingRequest"),
-    KEY_MIXING_RESULT("keyMixingResult"),
-    SINGLE_KEY_MIXING_REQUEST("singleKeyMixingRequest"),
-    SINGLE_KEY_MIXING_RESULT("SingleKeyMixingResult"),
-    MIXED_KEYS("mixedKeys"),
-    PARTIAL_DECRYPTION("partialDecryption"),
-    SIGNATURE_GENERATOR("signatureGenerator"),
-    VOTE_MIXING_REQUEST("voteMixingRequest"),
-    VOTE_MIXING_RESULT("voteMixingResult"),
-    MIXED_VOTES("mixedVotes"),
-    VOTING_DATA("votingData"),
-    NEW_VOTER_CERTIFICATE("newVoterCertificate"),
-    VOTER_CERTIFICATES("voterCertificates"),
-    ADDED_VOTER_CERTIFICATE("addedVoterCertificate"),
-    CANCELLED_VOTER_CERTIFICATE("cancelledVoterCertificate");
+	private ElectoralRoll electoralRoll;
+	private CryptoSetting cryptoSetting;
 
-    private final String value;
+	public LateVoterCertificatesContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, new ArrayList<>(), false); //TODO: Parallelize this action by setting the flag to true
+	}
 
-    GroupEnum(String value) {
-	this.value = value;
-    }
+	@Override
+	protected void purgeData() {
+		this.electoralRoll = null;
+		this.cryptoSetting = null;
+	}
 
-    public String getValue() {
-	return value;
-    }
+	public ElectoralRoll getElectoralRoll() {
+		return electoralRoll;
+	}
 
+	public void setElectoralRoll(ElectoralRoll electoralRoll) {
+		this.electoralRoll = electoralRoll;
+	}
+
+	public CryptoSetting getCryptoSetting() {
+		return cryptoSetting;
+	}
+
+	public void setCryptoSetting(CryptoSetting cryptoSetting) {
+		this.cryptoSetting = cryptoSetting;
+	}
+
+	public boolean gotAllNotifications() {
+		return this.electoralRoll != null && this.cryptoSetting != null;
+	}
 }
