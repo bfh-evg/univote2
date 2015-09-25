@@ -415,4 +415,11 @@ footer {
 body .ui-widget { font-family: MuseoSlab-300; font-size: 1em; }
 body .ui-widget button { font-family: MuseoSlab-300; }
 
+body .ui-widget-header { @include gradient; color: $white; font-family: MuseoSlab-700; font-size: rem-calc(18); font-weight: normal;}
+body .ui-dialog .ui-dialog-buttonpane { border: none; }
+body .ui-dialog .ui-dialog-titlebar-close {border-radius: 10px; right: 0.6em;
+										   -ms-transform: scale(1.2); /* IE 9 */
+										   -webkit-transform: scale(1.2); /* Safari */
+										   transform: scale(1.2);
+}
 
