@@ -39,10 +39,12 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec.lateVoterCerts;
+package ch.bfh.univote2.ec.finalizingEP;
 
 import ch.bfh.univote2.common.message.CryptoSetting;
-import ch.bfh.univote2.common.message.ElectoralRoll;
+import ch.bfh.univote2.common.message.ElectionDefinition;
+import ch.bfh.univote2.common.message.ElectionDetails;
+import ch.bfh.univote2.common.message.MixedKeys;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import java.util.ArrayList;
@@ -51,27 +53,47 @@ import java.util.ArrayList;
  *
  * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
-public class LateVoterCertificatesContext extends ActionContext {
+public class FinalizingElectionPreparationContext extends ActionContext {
 
-	private ElectoralRoll electoralRoll;
+	private MixedKeys mixedKeys;
 	private CryptoSetting cryptoSetting;
+	private ElectionDefinition electionDefinition;
+	private ElectionDetails electionDetails;
 
-	public LateVoterCertificatesContext(ActionContextKey actionContextKey) {
-		super(actionContextKey, new ArrayList<>(), true);
+	public FinalizingElectionPreparationContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, new ArrayList<>(), false);
 	}
 
 	@Override
 	protected void purgeData() {
-		this.electoralRoll = null;
+		this.mixedKeys = null;
 		this.cryptoSetting = null;
+		this.electionDefinition = null;
+		this.electionDetails = null;
 	}
 
-	public ElectoralRoll getElectoralRoll() {
-		return electoralRoll;
+	public ElectionDefinition getElectionDefinition() {
+		return electionDefinition;
 	}
 
-	public void setElectoralRoll(ElectoralRoll electoralRoll) {
-		this.electoralRoll = electoralRoll;
+	public void setElectionDefinition(ElectionDefinition electionDefinition) {
+		this.electionDefinition = electionDefinition;
+	}
+
+	public ElectionDetails getElectionDetails() {
+		return electionDetails;
+	}
+
+	public void setElectionDetails(ElectionDetails electionDetails) {
+		this.electionDetails = electionDetails;
+	}
+
+	public MixedKeys getMixedKeys() {
+		return mixedKeys;
+	}
+
+	public void setMixedKeys(MixedKeys mixedKeys) {
+		this.mixedKeys = mixedKeys;
 	}
 
 	public CryptoSetting getCryptoSetting() {
@@ -83,6 +105,6 @@ public class LateVoterCertificatesContext extends ActionContext {
 	}
 
 	public boolean gotAllNotifications() {
-		return this.electoralRoll != null && this.cryptoSetting != null;
+		return this.mixedKeys != null && this.cryptoSetting != null && this.electionDefinition != null && this.electionDetails != null;
 	}
 }

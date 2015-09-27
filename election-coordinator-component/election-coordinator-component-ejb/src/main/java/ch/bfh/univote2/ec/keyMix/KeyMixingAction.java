@@ -278,7 +278,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 						KeyMixingResult keyMixingResult
 								= JSONConverter.unmarshal(KeyMixingResult.class, post.getMessage());
 
-						this.validteMixingResult(kmac, keyMixingResult);
+						this.validateMixingResult(kmac, keyMixingResult);
 					} catch (UnivoteException ex) {
 						this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 						this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -412,7 +412,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		//Validate mixing result and continue
 		KeyMixingResult keyMixingResult = JSONConverter.unmarshal(KeyMixingResult.class,
 				result2.getResult().getPost().get(0).getMessage());
-		this.validteMixingResult(actionContext, keyMixingResult);
+		this.validateMixingResult(actionContext, keyMixingResult);
 	}
 
 	protected void createMixingRequest(KeyMixingActionContext actionContext) {
@@ -447,7 +447,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 	}
 
-	protected void validteMixingResult(KeyMixingActionContext actionContext, KeyMixingResult mixingResult)
+	protected void validateMixingResult(KeyMixingActionContext actionContext, KeyMixingResult mixingResult)
 			throws UnivoteException {
 		//TODO Verify proof
 //		CyclicGroup cyclicGroup
