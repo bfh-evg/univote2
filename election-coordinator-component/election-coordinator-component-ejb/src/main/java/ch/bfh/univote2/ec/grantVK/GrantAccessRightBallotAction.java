@@ -72,7 +72,6 @@ import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.common.query.QueryFactory;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -156,7 +155,7 @@ public class GrantAccessRightBallotAction extends AbstractAction implements Noti
 
 			return;
 		}
-		if (Objects.equals(garbac.isPreconditionReached(), Boolean.FALSE)) {
+		if (!garbac.isPreconditionReached()) {
 			logger.log(Level.WARNING, "Run was called but preCondition is not yet reached.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			return;
@@ -317,7 +316,7 @@ public class GrantAccessRightBallotAction extends AbstractAction implements Noti
 			informationService.informTenant(actionContextKey,
 					"Error reading mixed keys.");
 		}
-		if (actionContext.getCryptoSetting() == null) {
+		if (actionContext.getMixedKeys() == null) {
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForMixedKeys(section), BoardsEnum.UNIVOTE.getValue());

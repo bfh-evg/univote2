@@ -68,14 +68,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-@Stateless
+@Singleton
 public class TenantManagerImpl implements TenantManager {
 
 	@PersistenceContext(unitName = "ComponentPU")

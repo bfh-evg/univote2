@@ -39,44 +39,36 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.common.message;
+package ch.bfh.univote2.ec.pubVC;
 
+import ch.bfh.univote2.common.message.ElectoralRoll;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlType;
 
 /**
- * <pre>
- * {
- *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of voter certificates",
- *	"type": "array",
- *	"items": {
- *		"$ref": "certificateSchema.json"
- *	}
- * }
- * </pre>
  *
- * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
+ * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
-@XmlType(propOrder = {"voterCertificates"})
-public class VoterCertificates {
+public class PublishVoterCertsActionContext extends ActionContext {
 
-	private List<Certificate> voterCertificates;
+	private ElectoralRoll electoralRoll;
 
-	public VoterCertificates() {
-		this.voterCertificates = new ArrayList<>();
+	public PublishVoterCertsActionContext(ActionContextKey actionContextKey) {
+		super(actionContextKey, new ArrayList<>(), false);
 	}
 
-	public VoterCertificates(List<Certificate> voterCertificates) {
-		this.voterCertificates = voterCertificates;
+	@Override
+	protected void purgeData() {
+		this.electoralRoll = null;
 	}
 
-	public List<Certificate> getVoterCertificates() {
-		return voterCertificates;
+	public ElectoralRoll getElectoralRoll() {
+		return electoralRoll;
 	}
 
-	public void setVoterCertificates(List<Certificate> voterCertificates) {
-		this.voterCertificates = voterCertificates;
+	public void setElectoralRoll(ElectoralRoll electoralRoll) {
+		this.electoralRoll = electoralRoll;
 	}
+
 }

@@ -63,7 +63,6 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
-import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
@@ -81,16 +80,18 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.management.timer.TimerNotification;
 
 /**
  *
  * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
-public class LateVoterCertificates extends AbstractAction implements NotifiableAction {
+@Stateless
+public class LateVoterCertificatesAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "LateVoterCertificates";
-	private static final Logger logger = Logger.getLogger(LateVoterCertificates.class.getName());
+	private static final String ACTION_NAME = LateVoterCertificatesAction.class.getSimpleName();
+	private static final Logger logger = Logger.getLogger(LateVoterCertificatesAction.class.getName());
 
 	@EJB
 	private ActionManager actionManager;
@@ -99,14 +100,9 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 	@EJB
 	private UniboardService uniboardService;
 
-	@EJB
-	private TenantManager tenantManager;
-
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		this.informationService.informTenant(ack, "Created new context for " + ACTION_NAME);
-		logger.log(Level.INFO, "Created new context for" + ACTION_NAME);
 		return new LateVoterCertificatesContext(ack);
 	}
 
@@ -156,16 +152,12 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryFormUniCertForVoterCert(), BoardsEnum.UNICERT.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
 		} catch (UnivoteException ex) {
-			Logger.getLogger(LateVoterCertificates.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(LateVoterCertificatesAction.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
 
 	@Override
 	public void run(ActionContext actionContext) {
-		logger.log(Level.INFO, "run method not needed in " + actionContext.getActionContextKey());
-		this.informationService.informTenant(actionContext.getActionContextKey(),
-				"run method not needed in " + actionContext.getActionContextKey());
-
 	}
 
 	@Override
@@ -178,22 +170,19 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 		// The following notification indicates the end of the voting period.
 		if (notification instanceof TimerNotification) {
 			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-
+			return;
 		}
 		if (!(notification instanceof PostDTO)) {
 			return;
 		}
 		PostDTO post = (PostDTO) notification;
-		logger.log(Level.INFO, "Message received for " + ACTION_NAME);
-		this.informationService.informTenant(actionContext.getActionContextKey(),
-				"Message received for " + ACTION_NAME);
 		try {
 			Certificate voterCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
 			internalRun(context, voterCertificate);
 		} catch (UnivoteException ex) {
 			logger.log(Level.SEVERE, "Do not understand message.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Do not understand message.");
+					ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 	}
@@ -221,16 +210,14 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 		//Post new VoterCertificate to UBV
 		this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
 				GroupEnum.NEW_VOTER_CERTIFICATE.getValue(), JSONConverter.marshal(voterCertificate).getBytes(), context.getTenant());
-
+		this.informationService.informTenant(context.getActionContextKey(), "New Certificate for: " + commonName);
 		//Get cancelledVoterCertifiecate Z_C from UBV
 		List<Certificate> cancelledVoterCertificateList = new ArrayList<>();
 		ResultDTO cancelledVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCancelledVoterCertificate(context.getSection(), commonName)).getResult();
 		for (PostDTO post : cancelledVoterCertificateResult.getPost()) {
 			Certificate certificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
-			if (certificate.getCommonName().equals(commonName)) {
-				cancelledVoterCertificateList.add(certificate);
-			}
+			cancelledVoterCertificateList.add(certificate);
 		}
 
 		//Get List Z_V into Z_AV if entry in Z_C do not put it in, remove it from Z_C

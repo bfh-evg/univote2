@@ -58,15 +58,17 @@ import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 
 /**
  *
  * @author Reto E. Koenig <reto.koenig@bfh.ch>
  */
-public class GrantAccessRightsToEC extends AbstractAction implements NotifiableAction {
+@Stateless
+public class GrantAccessRightsToECAction extends AbstractAction implements NotifiableAction {
 
-	private static final String ACTION_NAME = "GrantAccessRightsToEC";
-	private static final Logger logger = Logger.getLogger(GrantAccessRightsToEC.class.getName());
+	private static final String ACTION_NAME = GrantAccessRightsToECAction.class.getSimpleName();
+	private static final Logger logger = Logger.getLogger(GrantAccessRightsToECAction.class.getName());
 
 	@EJB
 	private ActionManager actionManager;
@@ -104,7 +106,7 @@ public class GrantAccessRightsToEC extends AbstractAction implements NotifiableA
 		try {
 			internalRun(context);
 		} catch (UnivoteException ex) {
-			Logger.getLogger(GrantAccessRightsToEC.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(GrantAccessRightsToECAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
@@ -118,14 +120,6 @@ public class GrantAccessRightsToEC extends AbstractAction implements NotifiableA
 	private void internalRun(GrantAccessRightsToECContext context) throws UnivoteException {
 
 		PublicKey publicKey = tenantManager.getPublicKey(context.getTenant());
-		// Add infinite AccessRight for EC to election definition
-		{
-			byte[] message = MessageFactory.createAccessRight(GroupEnum.ELECTION_DEFINITION, publicKey);
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
-					GroupEnum.ACCESS_RIGHT.getValue(), message, context.getTenant());
-			this.informationService.informTenant(context.getActionContextKey(),
-					"new AccessRight for election definition granted.");
-		}
 		// Add infinite AccessRight for EC to cancelled voter certificates
 		{
 			byte[] message = MessageFactory.createAccessRight(GroupEnum.CANCELLED_VOTER_CERTIFICATE, publicKey);
@@ -151,5 +145,6 @@ public class GrantAccessRightsToEC extends AbstractAction implements NotifiableA
 			this.informationService.informTenant(context.getActionContextKey(),
 					"new AccessRight for 'new voter certificate' granted.");
 		}
+		this.actionManager.runFinished(context, ResultStatus.FINISHED);
 	}
 }

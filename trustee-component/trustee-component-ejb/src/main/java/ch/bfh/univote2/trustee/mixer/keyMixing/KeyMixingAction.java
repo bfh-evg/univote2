@@ -97,7 +97,6 @@ import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
 import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingAction;
-import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingActionContext;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -291,18 +290,13 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 					"Could not post key mixing result. Action failed.");
 			Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		} catch (Exception ex) {
-			Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not marshal key mixing result. Action failed.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
 	}
 
 	@Override
 	@Asynchronous
 	public void notifyAction(ActionContext actionContext, Object notification) {
-		if (!(actionContext instanceof VoteMixingActionContext)) {
+		if (!(actionContext instanceof KeyMixingActionContext)) {
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			return;
 		}
@@ -323,16 +317,14 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
 					&& GroupEnum.ACCESS_RIGHT.getValue()
 					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
-				kmac.setAccessRightGranted(Boolean.TRUE);
-			}
-			if (kmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+				kmac.setAccessRightGranted(true);
+			} else if (kmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
 					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
 					&& GroupEnum.CRYPTO_SETTING.getValue()
 					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
 				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 				kmac.setCryptoSetting(cryptoSetting);
-			}
-			if (kmac.getKeyMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+			} else if (kmac.getKeyMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
 					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
 					&& GroupEnum.KEY_MIXING_REQUEST.getValue()
 					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
