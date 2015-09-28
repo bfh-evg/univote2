@@ -48,6 +48,7 @@ import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
 import ch.bfh.univote2.common.message.Certificate;
 import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.VoterCertificates;
@@ -61,6 +62,7 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -72,12 +74,14 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.management.timer.TimerNotification;
 
 /**
  *
@@ -137,6 +141,17 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
 				context.setCryptoSetting(cryptoSetting);
 			}
+			{
+				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+						QueryFactory.getQueryForElectionDefinition(actionContext.getSection())).getResult();
+				if (result.getPost().isEmpty()) {
+					throw new UnivoteException("Election definition not yet published.");
+				}
+				ElectionDefinition electionDefinition = JSONConverter.unmarshal(ElectionDefinition.class, result.getPost().get(0).getMessage());
+				Date votingPeriodEnd = electionDefinition.getVotingPeriodEnd();
+				TimerPreconditionQuery bQuery = new TimerPreconditionQuery(votingPeriodEnd);
+				actionContext.getPreconditionQueries().add(bQuery);
+			}
 
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryFormUniCertForVoterCert(), BoardsEnum.UNICERT.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
@@ -160,6 +175,11 @@ public class LateVoterCertificates extends AbstractAction implements NotifiableA
 		}
 		LateVoterCertificatesContext context = (LateVoterCertificatesContext) actionContext;
 
+		// The following notification indicates the end of the voting period.
+		if (notification instanceof TimerNotification) {
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+
+		}
 		if (!(notification instanceof PostDTO)) {
 			return;
 		}
