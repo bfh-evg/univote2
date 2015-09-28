@@ -95,7 +95,6 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
 		List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
-		this.informationService.informTenant(ack, "Created new context.");
 		return new PublishTrusteeCertsActionContext(ack, preconditionsQuerys);
 	}
 

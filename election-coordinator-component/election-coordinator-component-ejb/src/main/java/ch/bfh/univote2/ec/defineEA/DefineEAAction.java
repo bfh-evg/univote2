@@ -88,7 +88,6 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		this.informationService.informTenant(ack, "Created new context for " + ACTION_NAME);
 		return new DefineEAActionContext(ack);
 	}
 

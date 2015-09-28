@@ -90,7 +90,6 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		this.informationService.informTenant(ack, "Created new context.");
 		return new SetCryptoSettingActionContext(ack);
 	}
 

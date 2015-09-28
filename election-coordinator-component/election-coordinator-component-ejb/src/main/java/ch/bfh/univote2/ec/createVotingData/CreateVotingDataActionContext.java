@@ -47,17 +47,18 @@ import java.util.ArrayList;
 import javax.json.JsonObject;
 
 /**
- * Context for the create voting data action. Stores the messages of the relevant messages
- * until the related action can fully be processed.
+ * Context for the create voting data action. Stores the messages of the relevant messages until the related action can
+ * fully be processed.
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
 public class CreateVotingDataActionContext extends ActionContext {
+
 	private JsonObject electionDefinition;
 	private JsonObject electionDetails;
 	private JsonObject cryptoSetting;
-	private JsonObject encryptionKey;
-	private JsonObject signatureGenerator;
+	private String encryptionKey;
+	private String signatureGenerator;
 
 	public CreateVotingDataActionContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), false);
@@ -96,31 +97,32 @@ public class CreateVotingDataActionContext extends ActionContext {
 		this.cryptoSetting = cryptoSetting;
 	}
 
-	public JsonObject getEncryptionKey() {
+	public String getEncryptionKey() {
 		return encryptionKey;
 	}
 
-	public void setEncryptionKey(JsonObject encryptionKey) {
+	public void setEncryptionKey(String encryptionKey) {
 		this.encryptionKey = encryptionKey;
 	}
 
-	public JsonObject getSignatureGenerator() {
+	public String getSignatureGenerator() {
 		return signatureGenerator;
 	}
 
-	public void setSignatureGenerator(JsonObject signatureGenerator) {
+	public void setSignatureGenerator(String signatureGenerator) {
 		this.signatureGenerator = signatureGenerator;
 	}
 
 	/**
 	 * A boolean predicate returning true iff all notification messages habe been given to this context.
+	 *
 	 * @return true iff all notification messages have been set
 	 */
 	public boolean gotAllNotifications() {
-		return electionDefinition != null &&
-				electionDetails != null &&
-				cryptoSetting != null &&
-				encryptionKey != null &&
-				signatureGenerator != null;
+		return electionDefinition != null
+				&& electionDetails != null
+				&& cryptoSetting != null
+				&& encryptionKey != null
+				&& signatureGenerator != null;
 	}
 }

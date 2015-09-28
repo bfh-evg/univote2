@@ -76,6 +76,7 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.ejb.Asynchronous;
 import javax.ejb.DependsOn;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
@@ -211,6 +212,7 @@ public class ActionManagerImpl implements ActionManager {
 		if (!this.actionContexts.containsKey(new ActionContextKey(actionName, tenant, section))) {
 			try {
 				ActionContext ac = this.getAction(actionName).prepareContext(tenant, section);
+				this.informationService.informTenant(ac.getActionContextKey(), "Created context.");
 				this.actionContexts.put(ac.getActionContextKey(), ac);
 				if (ac.checkPostCondition()) {
 					this.informationService.informTenant(ac.getActionContextKey(), "Postcondition fullfilled.");
@@ -319,6 +321,7 @@ public class ActionManagerImpl implements ActionManager {
 	}
 
 	@Override
+	@Asynchronous
 	public void runAction(String actionName, String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
 		if (this.actionContexts.containsKey(ack)) {

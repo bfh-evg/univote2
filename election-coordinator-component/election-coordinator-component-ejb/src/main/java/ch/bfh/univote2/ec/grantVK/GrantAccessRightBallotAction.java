@@ -43,6 +43,7 @@ package ch.bfh.univote2.ec.grantVK;
 
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
+import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
 import ch.bfh.uniboard.service.Attributes;
@@ -62,6 +63,7 @@ import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.common.message.AccessRight;
 import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.common.message.DL;
+import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.MixedKeys;
 import ch.bfh.univote2.common.query.AlphaEnum;
@@ -75,13 +77,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.json.JsonException;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public abstract class GrantAccessRightBallotAction extends AbstractAction implements NotifiableAction {
+@Stateless
+public class GrantAccessRightBallotAction extends AbstractAction implements NotifiableAction {
 
 	private static final String ACTION_NAME = GrantAccessRightBallotAction.class.getSimpleName();
 
@@ -110,8 +114,6 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 
 	@Override
 	protected void definePreconditions(ActionContext actionContext) {
-		ActionContextKey actionContextKey = actionContext.getActionContextKey();
-		String section = actionContext.getSection();
 		if (!(actionContext instanceof GrantAccessRightBallotActionContext)) {
 			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 			return;
@@ -119,6 +121,24 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 		GrantAccessRightBallotActionContext skcac = (GrantAccessRightBallotActionContext) actionContext;
 		this.checkAndSetCryptoSetting(skcac);
 		this.checkAndSetMixedKeys(skcac);
+
+		try {
+			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+					QueryFactory.getQueryForElectionDefinition(actionContext.getSection())).getResult();
+			if (result.getPost().isEmpty()) {
+				throw new UnivoteException("Election definition not yet published.");
+			}
+			ElectionDefinition electionDefinition = JSONConverter.unmarshal(ElectionDefinition.class,
+					result.getPost().get(0).getMessage());
+			skcac.setElectionDefinition(electionDefinition);
+		} catch (UnivoteException ex) {
+			//Add Notification
+			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+					QueryFactory.getQueryForElectionDefinition(actionContext.getSection()),
+					BoardsEnum.UNIVOTE.getValue());
+			actionContext.getPreconditionQueries().add(bQuery);
+		}
+
 	}
 
 	@Override
@@ -151,13 +171,17 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 				ar.setCrypto(new DL(signatureGroup.getModulus().toString(), signatureGroup.getOrder().
 						toString(), mixedKeys.getGenerator(), mixedKey));
 				ar.setGroup(GroupEnum.BALLOT.getValue());
+				ar.setAmount(1);
+				ar.setStartTime(garbac.getElectionDefinition().getVotingPeriodBegin());
+				ar.setEndTime(garbac.getElectionDefinition().getVotingPeriodEnd());
 				byte[] message = JSONConverter.marshal(ar).getBytes();
 				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), garbac.getSection(),
 						GroupEnum.ACCESS_RIGHT.getValue(), message, garbac.getTenant());
-				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Posted key share for encrcyption. Action finished.");
-				this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+
 			}
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Granted access right for all registred voters. Action finished.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
 		} catch (UnivoteException ex) {
 			logger.log(Level.WARNING, "Unsupported public key type: {0}", ex.getMessage());
 			//	this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -200,6 +224,14 @@ public abstract class GrantAccessRightBallotAction extends AbstractAction implem
 					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
 				MixedKeys mixedKeysDTO = JSONConverter.unmarshal(MixedKeys.class, post.getMessage());
 				skcac.setMixedKeys(mixedKeysDTO);
+			}
+			if (skcac.getElectionDefinition() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+					&& GroupEnum.ELECTION_DEFINITION.getValue()
+					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+				ElectionDefinition electionDefinition
+						= JSONConverter.unmarshal(ElectionDefinition.class, post.getMessage());
+				skcac.setElectionDefinition(electionDefinition);
 			}
 			run(actionContext);
 		} catch (UnivoteException ex) {

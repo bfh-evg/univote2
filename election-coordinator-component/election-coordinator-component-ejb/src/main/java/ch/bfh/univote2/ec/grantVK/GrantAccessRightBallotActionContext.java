@@ -44,6 +44,7 @@ package ch.bfh.univote2.ec.grantVK;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.MixedKeys;
 import java.util.ArrayList;
 
@@ -55,6 +56,7 @@ public class GrantAccessRightBallotActionContext extends ActionContext {
 
 	private CryptoSetting cryptoSetting;
 	private MixedKeys mixedKeys;
+	private ElectionDefinition electionDefinition;
 
 	public GrantAccessRightBallotActionContext(ActionContextKey actionContextKey) {
 		this(actionContextKey, false);
@@ -68,6 +70,7 @@ public class GrantAccessRightBallotActionContext extends ActionContext {
 	protected void purgeData() {
 		this.cryptoSetting = null;
 		this.mixedKeys = null;
+		this.electionDefinition = null;
 
 	}
 
@@ -87,8 +90,16 @@ public class GrantAccessRightBallotActionContext extends ActionContext {
 		this.mixedKeys = publicKeys;
 	}
 
+	public ElectionDefinition getElectionDefinition() {
+		return electionDefinition;
+	}
+
+	public void setElectionDefinition(ElectionDefinition electionDefinition) {
+		this.electionDefinition = electionDefinition;
+	}
+
 	public Boolean isPreconditionReached() {
-		return this.cryptoSetting != null && this.mixedKeys != null;
+		return this.cryptoSetting != null && this.mixedKeys != null && this.electionDefinition != null;
 	}
 
 }

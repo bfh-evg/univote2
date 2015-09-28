@@ -27,6 +27,7 @@ import ch.bfh.uniboard.service.Attributes;
 import ch.bfh.uniboard.service.DateValue;
 import ch.bfh.uniboard.service.IntegerValue;
 import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.univote2.common.crypto.KeyUtil;
 
 /**
  *
@@ -40,13 +41,11 @@ public class UBInitialRight {
 	public static void main(String[] args) throws Exception {
 
 		String keyStorePath = "../UniVote.jks";
+		String ecCertPath = "../ec-certificate.pem";
 		String keyStorePass = "12345678";
 		String boardAlias = "uniboardvote";
 		String boardPKPass = "12345678";
-		String ecAlias = "ec-demo";
-		String ecPKPass = "12345678";
-		String eaAlias = "ea-demo";
-		String section = "qqqqqqq";
+		String section = "test-2015";
 
 		KeyStore caKs = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType", "jks"));
 
@@ -65,17 +64,9 @@ public class UBInitialRight {
 		BigInteger uniboardPublicKey = boardPubKey.getY();
 
 		//Load keypair from ec
-		Key ecKey = caKs.getKey(ecAlias, ecPKPass.toCharArray());
-		DSAPrivateKey ecPrivKey = (DSAPrivateKey) ecKey;
-
-		Certificate ecCert = caKs.getCertificate(ecAlias);
-		DSAPublicKey ecPubKey = (DSAPublicKey) ecCert.getPublicKey();
+		DSAPublicKey ecPubKey = KeyUtil.getDSAPublicKey(ecCertPath);
 		BigInteger electionCoordinatorPublicKey = ecPubKey.getY();
 
-//		//Load publickey of ea
-//		Certificate eaCert = caKs.getCertificate(eaAlias);
-//		DSAPublicKey eaPubKey = (DSAPublicKey) eaCert.getPublicKey();
-//		BigInteger electionAdministrationPublicKey = eaPubKey.getY();
 		//Create correct json message
 		byte[] message1 = ("{\"group\":\"accessRight\",\"crypto\":{\"type\":\"DL\", \"p\":\""
 				+ ecPubKey.getParams().getP().toString(10)

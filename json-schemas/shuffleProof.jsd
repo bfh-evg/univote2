@@ -32,7 +32,7 @@
 			"additionalProperties": false
 		 }	
 	},
-	"required": ["permuationProof", "mixProof"],
+	"required": ["permutationProof", "mixProof"],
 	"additionalProperties": false
 
 }

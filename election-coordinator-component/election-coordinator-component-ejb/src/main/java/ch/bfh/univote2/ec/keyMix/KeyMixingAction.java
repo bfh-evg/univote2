@@ -112,7 +112,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		this.informationService.informTenant(ack, "Created new context.");
 		KeyMixingActionContext actionContext = new KeyMixingActionContext(ack);
 		return actionContext;
 	}
@@ -140,9 +139,9 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForElectoralRoll(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
-			logger.log(Level.WARNING, "Could not get electoral roll.", ex);
+			logger.log(Level.INFO, "Could not get electoral roll.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error retrieving electoral roll: " + ex.getMessage());
+					"Electoral roll not yet published.");
 		}
 		try {
 			this.retrieveMixers(ceksac);
@@ -151,9 +150,9 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
-			logger.log(Level.WARNING, "Could not get trustee certs.", ex);
+			logger.log(Level.INFO, "Could not get trustee certs.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error retrieving trustee certs: " + ex.getMessage());
+					"Trustee certs not yet published.");
 		}
 		try {
 			this.retrieveCryptoSetting(ceksac);
@@ -162,9 +161,9 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForCryptoSetting(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
-			logger.log(Level.WARNING, "Could not get crypto setting.", ex);
+			logger.log(Level.INFO, "Could not get crypto setting.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Error retrieving electoral roll: " + ex.getMessage());
+					"Crypto setting not yet published.");
 		}
 		BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryForKeyMixingResults(
 				actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
@@ -181,7 +180,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			if (kmac.getCurrentKeys().isEmpty()) {
 				try {
 					this.retrieveElectoralRoll(kmac);
-
 				} catch (UnivoteException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -192,7 +190,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			if (kmac.getMixerKeys().isEmpty()) {
 				try {
 					this.retrieveMixers(kmac);
-
 				} catch (UnivoteException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -203,7 +200,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			if (kmac.getCryptoSetting() == null) {
 				try {
 					this.retrieveCryptoSetting(kmac);
-
 				} catch (UnivoteException ex) {
 					this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
@@ -238,6 +234,8 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 					try {
 						//TC: save mixers in context
 						this.parseMixers(kmac, post);
+						//Set intial mixer
+						kmac.setCurrentMixer(kmac.getMixerOrder().get(0));
 						//Check if we can start
 						if (!kmac.getCurrentKeys().isEmpty() && kmac.getCryptoSetting() != null) {
 							this.createMixingRequest(kmac);
@@ -261,9 +259,13 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 					}
 				} else if (groupStr.equals(GroupEnum.CRYPTO_SETTING.getValue())) {
 					try {
-						//ER: save ER
+						//CS: save CS
 						CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 						kmac.setCryptoSetting(cryptoSetting);
+						//Set generator
+						Element generator = CryptoProvider.getSignatureSetup(kmac.getCryptoSetting()
+								.getSignatureSetting()).cryptoGenerator;
+						kmac.setGenerator(generator.convertToString());
 						//Check if we can start
 						if (!kmac.getMixerKeys().isEmpty() && !kmac.getMixerKeys().isEmpty()) {
 							this.createMixingRequest(kmac);

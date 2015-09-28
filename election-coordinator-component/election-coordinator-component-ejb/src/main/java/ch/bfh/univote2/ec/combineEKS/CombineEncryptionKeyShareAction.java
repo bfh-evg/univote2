@@ -123,7 +123,6 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		this.informationService.informTenant(ack, "Created new context.");
 		CombineEncryptionKeyShareActionContext actionContext = new CombineEncryptionKeyShareActionContext(ack);
 		return actionContext;
 	}

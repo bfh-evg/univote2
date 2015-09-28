@@ -89,8 +89,6 @@ import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
-import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingAction;
-import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingActionContext;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -276,7 +274,7 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 	@Override
 	@Asynchronous
 	public void notifyAction(ActionContext actionContext, Object notification) {
-		if (!(actionContext instanceof VoteMixingActionContext)) {
+		if (!(actionContext instanceof SingleKeyMixingActionContext)) {
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			return;
 		}
@@ -320,7 +318,7 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		} catch (Exception ex) {
-			Logger.getLogger(VoteMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(SingleKeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}

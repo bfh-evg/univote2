@@ -65,7 +65,6 @@ public enum GroupEnum {
 	SINGLE_KEY_MIXING_RESULT("singleKeyMixingResult"),
 	MIXED_KEYS("mixedKeys"),
 	PARTIAL_DECRYPTION("partialDecryption"),
-	SIGNATURE_GENERATOR("signatureGenerator"),
 	VOTE_MIXING_REQUEST("voteMixingRequest"),
 	VOTE_MIXING_RESULT("voteMixingResult"),
 	MIXED_VOTES("mixedVotes"),

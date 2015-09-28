@@ -201,8 +201,7 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 				//No key available so a new one will be built
 				enhancedEncryptionKeyShare = createEncryptionKeyShare(tenant, cryptoSetting);
 				privateKey = enhancedEncryptionKeyShare.privateKey;
-				String publicKey = ((DSAPublicKey) this.tenantManager.getPublicKey(tenant)).getY().toString(10);
-				securePersistenceService.persist(publicKey, section, PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE, privateKey);
+				securePersistenceService.persist(tenant, section, PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE, privateKey);
 			}
 
 			EncryptionKeyShare encryptionKeyShare = enhancedEncryptionKeyShare.encryptionKeyShare;

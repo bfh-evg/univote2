@@ -25,7 +25,7 @@
 
 					<h:column>
 						<f:facet name="header">#{core.tasks_run}</f:facet>
-						<h:link value="Run" outcome="" onclick="#{tenantTasksBean.runTask(t.notificationCode)}"/>
+						<h:link value="Run" outcome="tasks" onclick="#{tenantTasksBean.runTask(t.notificationCode)}"/>
 					</h:column>
 				</h:dataTable>
 				<h:dataTable value="#{tenantTasksBean.userInputTasks}" var="t">

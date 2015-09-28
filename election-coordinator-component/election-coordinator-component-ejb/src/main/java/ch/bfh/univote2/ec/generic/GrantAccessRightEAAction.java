@@ -91,7 +91,6 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 	@Override
 	public ActionContext prepareContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(this.getActionName(), tenant, section);
-		this.informationService.informTenant(ack, "Created new context.");
 		GrantAccessRightEAActionContext actionContext = new GrantAccessRightEAActionContext(ack);
 		boolean precondition = false;
 		try {

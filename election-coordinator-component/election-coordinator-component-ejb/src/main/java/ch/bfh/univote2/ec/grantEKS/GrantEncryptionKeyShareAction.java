@@ -92,7 +92,6 @@ public class GrantEncryptionKeyShareAction implements NotifiableAction {
 	@Override
 	public ActionContext prepareContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		this.informationService.informTenant(ack, "Created new context.");
 		GrantEncryptionKeyShareActionContext actionContext = new GrantEncryptionKeyShareActionContext(ack);
 		boolean precondition = false;
 		try {
