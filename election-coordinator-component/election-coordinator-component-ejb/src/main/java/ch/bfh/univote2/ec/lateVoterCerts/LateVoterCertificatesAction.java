@@ -212,18 +212,22 @@ public class LateVoterCertificatesAction extends AbstractAction implements Notif
 				GroupEnum.NEW_VOTER_CERTIFICATE.getValue(), JSONConverter.marshal(voterCertificate).getBytes(), context.getTenant());
 		this.informationService.informTenant(context.getActionContextKey(), "New Certificate for: " + commonName);
 		//Get cancelledVoterCertifiecate Z_C from UBV
-		List<Certificate> cancelledVoterCertificateList = new ArrayList<>();
+		List<Certificate> zcList = new ArrayList<>();
 		ResultDTO cancelledVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCancelledVoterCertificate(context.getSection(), commonName)).getResult();
 		for (PostDTO post : cancelledVoterCertificateResult.getPost()) {
 			Certificate certificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
-			cancelledVoterCertificateList.add(certificate);
+			zcList.add(certificate);
 		}
 
-		//Get List Z_V into Z_AV if entry in Z_C do not put it in, remove it from Z_C
+		//Get List Z_V and put all items (z_v) into Z_AV with the following constraint:
+		//If Z_C contains the item (z_v) then skip it and remove it from Z_C
 		//Get VoterCertificates (list of all)
-		//TODO: Expecting exactly one result which represents a list... the voterCertificates. Is that correct? Or should it be a list of certificates?
-		List<Certificate> voterCertificateList = new ArrayList<>();
+		//Go through the voter certificates and check for each:
+		// If commonName of item is equal to commonName of the new certificate then
+		// Check if this item has already been cancelled (is also part of Z_C).
+		// If no, add the item to Z_VA
+		List<Certificate> zvaList = new ArrayList<>();
 		ResultDTO voterCertificatesResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForVoterCertificates(context.getSection())).getResult();
 		if (!(voterCertificatesResult.getPost().isEmpty())) {
@@ -231,12 +235,12 @@ public class LateVoterCertificatesAction extends AbstractAction implements Notif
 					voterCertificatesResult.getPost().get(0).getMessage());
 			for (Certificate certificate : voterCertificates.getVoterCertificates()) {
 				if (certificate.getCommonName().equals(commonName)) {
-					for (Iterator<Certificate> iterator = cancelledVoterCertificateList.iterator(); iterator.hasNext();) {
+					for (Iterator<Certificate> iterator = zcList.iterator(); iterator.hasNext();) {
 						Certificate cancelledCertificate = iterator.next();
 						if (Objects.deepEquals(certificate, cancelledCertificate)) {
 							iterator.remove();
 						} else {
-							voterCertificateList.add(certificate);
+							zvaList.add(certificate);
 						}
 					}
 
@@ -244,7 +248,8 @@ public class LateVoterCertificatesAction extends AbstractAction implements Notif
 			}
 		}
 
-		//Get List Z_A into Z_AV if entry in Z_C do not put it in, remove it from Z_C
+		//Get List Z_A and put all items (z_v) into with the following constraint:
+		//if Z_C contains the item (z_v) then skip it and remove it from Z_C
 		//Get addedVoterCertificate Z_A from UVB
 		ResultDTO addedVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForAddedVoterCertificate(context.getSection(), commonName)).getResult();
@@ -252,24 +257,24 @@ public class LateVoterCertificatesAction extends AbstractAction implements Notif
 			Certificate certificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
 			if (certificate.getCommonName().equals(commonName)) {
 
-				for (Iterator<Certificate> iterator = cancelledVoterCertificateList.iterator(); iterator.hasNext();) {
+				for (Iterator<Certificate> iterator = zcList.iterator(); iterator.hasNext();) {
 					Certificate cancelledCertificate = iterator.next();
 					if (Objects.deepEquals(certificate, cancelledCertificate)) {
 						iterator.remove();
 					} else {
-						voterCertificateList.add(certificate);
+						zvaList.add(certificate);
 					}
 				}
 			}
 		}
-		//Check if Z_AV is empty if not... it should contain exactliy one Element -> Z_i
-		if (!(voterCertificateList.isEmpty())) {
+		//Check if Z_VA is empty if not... it should contain exactliy one Element -> Z_i
+		if (!(zvaList.isEmpty())) {
 			//if Z_i is present: Check if there is a vote for according v^k_i  yes... abort
 			//if Z_i is present: Remove accessRight for v^k_i
 			//if Z_i is present: Add Z_i to Z_C on UBV
 			// get vk_i from Z_i
 			//...
-			Certificate revokableCertificate = voterCertificateList.get(0);
+			Certificate revokableCertificate = zvaList.get(0);
 			PublicKey revokedPK = getPublicKeyFromCertificate(revokableCertificate);
 
 			// TODO: Call Mixer for mixed vk_i and get the information out there
