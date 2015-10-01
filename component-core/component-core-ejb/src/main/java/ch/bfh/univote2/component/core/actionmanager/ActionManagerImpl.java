@@ -326,16 +326,10 @@ public class ActionManagerImpl implements ActionManager {
 		ActionContextKey ack = new ActionContextKey(actionName, tenant, section);
 		if (this.actionContexts.containsKey(ack)) {
 			ActionContext actionContext = this.actionContexts.get(ack);
-			if (actionContext.checkPostCondition()) {
-				return;
-			}
-			if (actionContext.runsInParallel() || !actionContext.isInUse()) {
-				try {
-					NotifiableAction action = this.getAction(actionName);
-					action.run(actionContext);
-				} catch (UnivoteException ex) {
-					this.log("Could not run action" + actionName, Level.WARNING);
-				}
+			try {
+				this.runAction(actionContext);
+			} catch (UnivoteException ex) {
+				this.log(ex, Level.INFO);
 			}
 		}
 	}
@@ -367,7 +361,7 @@ public class ActionManagerImpl implements ActionManager {
 				break;
 			case RUN_FINISHED:
 				//Check notificationQueue
-				if (!actionContext.getQueuedNotifications().isEmpty()) {
+				if (!actionContext.checkPostCondition() && !actionContext.getQueuedNotifications().isEmpty()) {
 					NotifiableAction action;
 					try {
 						action = this.getAction(actionContext.getActionContextKey().getAction());
@@ -384,7 +378,19 @@ public class ActionManagerImpl implements ActionManager {
 				}
 				break;
 			case FAILURE:
-				if (!actionContext.runsInParallel()) {
+				//Check notificationQueue
+				if (!actionContext.checkPostCondition() && !actionContext.getQueuedNotifications().isEmpty()) {
+					NotifiableAction action;
+					try {
+						action = this.getAction(actionContext.getActionContextKey().getAction());
+						action.notifyAction(actionContext, actionContext.getQueuedNotifications().poll());
+					} catch (UnivoteException ex) {
+						this.log(ex, Level.SEVERE);
+						if (!actionContext.runsInParallel()) {
+							actionContext.setInUse(false);
+						}
+					}
+				} else if (!actionContext.runsInParallel()) {
 					actionContext.setInUse(false);
 				}//Register a RunActionTask
 				this.userTaskManager.addRunActionTask(new RunActionTask(actionContext.getActionContextKey()));
@@ -435,11 +441,16 @@ public class ActionManagerImpl implements ActionManager {
 	}
 
 	protected void runAction(ActionContext actionContext) throws UnivoteException {
+		if (actionContext.checkPostCondition()) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), "Action already finished.");
+			return;
+		}
 		if (actionContext.runsInParallel() || !actionContext.isInUse()) {
 			NotifiableAction action = this.getAction(actionContext.getActionContextKey().getAction());
 			if (!actionContext.runsInParallel()) {
 				actionContext.setInUse(true);
 			}
+			this.informationService.informTenant(actionContext.getActionContextKey(), "Running");
 			action.run(actionContext);
 		}
 	}

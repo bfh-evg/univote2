@@ -500,7 +500,7 @@ public class QueryFactory {
 		return query;
 	}
 
-	private static String computePublicKeyString(PublicKey publicKey) throws UnivoteException {
+	public static String computePublicKeyString(PublicKey publicKey) throws UnivoteException {
 		if (publicKey instanceof DSAPublicKey) {
 			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
 			return dsaPubKey.getY().toString(10);

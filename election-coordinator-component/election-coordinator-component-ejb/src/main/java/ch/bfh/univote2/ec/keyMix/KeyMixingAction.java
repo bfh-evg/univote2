@@ -139,9 +139,9 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
 					QueryFactory.getQueryForVoterCertificates(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
-			logger.log(Level.INFO, "Could not get electoral roll.", ex);
+			logger.log(Level.INFO, "Could not get voter certificates.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Electoral roll not yet published.");
+					"Voter certificates not yet published.");
 		}
 		try {
 			this.retrieveMixers(ceksac);
@@ -173,7 +173,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	@Override
 	@Asynchronous
 	public void run(ActionContext actionContext) {
-		this.informationService.informTenant(actionContext.getActionContextKey(), "Running.");
+
 		if (actionContext instanceof KeyMixingActionContext) {
 			KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
 			//Check ER
@@ -268,7 +268,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 								.getSignatureSetting()).cryptoGenerator;
 						kmac.setGenerator(generator.convertToString());
 						//Check if we can start
-						if (!kmac.getMixerKeys().isEmpty() && !kmac.getMixerKeys().isEmpty()) {
+						if (!kmac.getMixerKeys().isEmpty() && !kmac.getCurrentKeys().isEmpty()) {
 							this.createMixingRequest(kmac);
 						}
 					} catch (UnivoteException ex) {

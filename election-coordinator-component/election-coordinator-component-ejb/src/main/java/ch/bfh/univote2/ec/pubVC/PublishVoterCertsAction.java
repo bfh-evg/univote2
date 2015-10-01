@@ -133,6 +133,9 @@ public class PublishVoterCertsAction extends AbstractAction implements Notifiabl
 		}
 		PublishVoterCertsActionContext context = (PublishVoterCertsActionContext) actionContext;
 		try {
+			if (context.getElectoralRoll() == null) {
+				this.retrieveElectoralRoll(context);
+			}
 			internalRun(context);
 		} catch (UnivoteException ex) {
 			Logger.getLogger(PublishVoterCertsAction.class.getName()).log(Level.SEVERE, null, ex);

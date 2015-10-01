@@ -210,14 +210,14 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
 				try {
+					if (ceksac.getAmount() == -1) {
+						//Retrieve talliers
+						this.retrieveAmountOfTalliers(ceksac);
+					}
+					if (ceksac.getCryptoSetting() == null) {
+						this.retrieveCryptoSetting(ceksac);
+					}
 					if (this.validateAndAddKeyShare(ceksac, post)) {
-						if (ceksac.getAmount() == -1) {
-							//Retrieve talliers
-							this.retrieveAmountOfTalliers(ceksac);
-						}
-						if (ceksac.getCryptoSetting() == null) {
-							this.retrieveCryptoSetting(ceksac);
-						}
 						this.informationService.informTenant(actionContext.getActionContextKey(),
 								"Keyshare added.");
 						if (ceksac.getAmount() == ceksac.getKeyShares().size()) {

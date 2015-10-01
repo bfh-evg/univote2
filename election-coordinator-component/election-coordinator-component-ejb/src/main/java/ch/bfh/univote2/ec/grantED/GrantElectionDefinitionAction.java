@@ -43,8 +43,10 @@ package ch.bfh.univote2.ec.grantED;
 
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.common.query.GroupEnum;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.ec.generic.GrantAccessRightEAAction;
 import java.util.logging.Logger;
+import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
 
 /**
@@ -70,6 +72,18 @@ public class GrantElectionDefinitionAction extends GrantAccessRightEAAction impl
 	@Override
 	protected Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	@Asynchronous
+	public void notifyAction(ActionContext actionContext, Object notification) {
+		super.notifyAction(actionContext, notification);
+	}
+
+	@Override
+	@Asynchronous
+	public void run(ActionContext actionContext) {
+		super.run(actionContext);
 	}
 
 }

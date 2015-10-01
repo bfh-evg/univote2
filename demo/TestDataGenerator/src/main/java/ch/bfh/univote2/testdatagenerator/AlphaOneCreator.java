@@ -41,29 +41,39 @@
  */
 package ch.bfh.univote2.testdatagenerator;
 
-import ch.bfh.unicrypt.crypto.schemes.hashing.classes.FixedByteArrayHashingScheme;
-import ch.bfh.unicrypt.helper.math.Alphabet;
-import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
-import ch.bfh.unicrypt.math.algebra.dualistic.classes.Z;
-import ch.bfh.unicrypt.math.algebra.dualistic.classes.ZMod;
-import ch.bfh.unicrypt.math.algebra.general.classes.ProductSet;
-import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
+import ch.bfh.unicrypt.crypto.schemes.encryption.classes.AESEncryptionScheme;
+import ch.bfh.unicrypt.crypto.schemes.padding.classes.PKCSPaddingScheme;
+import ch.bfh.unicrypt.crypto.schemes.padding.interfaces.ReversiblePaddingScheme;
+import ch.bfh.unicrypt.helper.array.classes.ByteArray;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.ByteArrayMonoid;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.common.crypto.KeyUtil;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.interfaces.DSAPublicKey;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public class TenantEntityCreator {
+public class AlphaOneCreator {
 
 	private static final String TENANT_CERTIFICATE = "../trustee-certificate.pem";
 	private static final String TENANT_ENCRYPTED_PRIVATE_KEY = "../trustee-encrypted-private-key.pem";
 	private static final String TENANT_PRIVATE_KEY_PASSWORD = "12345678";
 	private static final String TENANT_NAME = "severin.hauser@bfh.ch";
+
+	private static final String ENC_PRIVATE_KEY_PREFIX = "-----BEGIN ENCRYPTED UNICERT KEY-----";
+	private static final String ENC_PRIVATE_KEY_POSTFIX = "-----END ENCRYPTED UNICERT KEY-----";
+
+	private static final String SECRET_KEY_ALGORITHM = "PBKDF2WithHmacSHA1";
+	private static final int KEY_SIZE = 128;
+	private static final int ITERATIONS = 1000;
 
 	/**
 	 * @param args the command line arguments
@@ -74,34 +84,30 @@ public class TenantEntityCreator {
 		KeyUtil.getDSAPrivateKey(
 				TENANT_ENCRYPTED_PRIVATE_KEY, TENANT_PRIVATE_KEY_PASSWORD, posterPublicKey.getParams());
 		String encryptedKey = new String(Files.readAllBytes(Paths.get(TENANT_ENCRYPTED_PRIVATE_KEY)));
-		//Choose salt and do hash
-		StringMonoid stringSet = StringMonoid.getInstance(Alphabet.PRINTABLE_ASCII);
-		Element password = stringSet.getElement(TENANT_PRIVATE_KEY_PASSWORD);
+		byte[] aesKeyByte = AlphaOneCreator.getAESKey(encryptedKey, TENANT_PRIVATE_KEY_PASSWORD);
 
-		ZMod saltSet = ZMod.getRandomInstance(256);
-		Element salt = saltSet.getRandomElement();
-		Element bigIntegerElement = Z.getInstance().getElement(salt.convertToBigInteger());
+		AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
+		Element aesKey = aes.getEncryptionKeySpace().getElementFrom(ByteArray.getInstance(aesKeyByte));
+		Element message = ByteArrayMonoid.getInstance().getElementFrom(BigInteger.ONE);
+		ReversiblePaddingScheme pkcs = PKCSPaddingScheme.getInstance(16);
+		Element paddedMessage = pkcs.pad(message);
+		Element encBigIntElement = aes.encrypt(aesKey, paddedMessage);
+		System.out.println(encBigIntElement.convertToBigInteger());
 
-		ProductSet messageSpace = ProductSet.getInstance(stringSet, Z.getInstance());
-		Tuple message = messageSpace.getElement(password, bigIntegerElement);
+	}
 
-		FixedByteArrayHashingScheme scheme = FixedByteArrayHashingScheme.getInstance(messageSpace);
+	public static byte[] getAESKey(String privateKey, String password) throws Exception {
+		String toDecrypt = privateKey.replace(ENC_PRIVATE_KEY_PREFIX, "");
+		toDecrypt = toDecrypt.replace(ENC_PRIVATE_KEY_POSTFIX, "");
+		toDecrypt = toDecrypt.replaceAll("\n", "");
+		toDecrypt = toDecrypt.trim();
 
-		Element hash = scheme.hash(message);
-		// TODO Print sql statement
-		String sql = "INSERT INTO `TENANTENTITY` (`ID`, `ENCPRIVATEKEY`, `GENERATOR`, `HASHVALUE`, `MODULUS`,"
-				+ " `NAME`, `ORDERFACTOR`, `PUBLICKEY`, `SALT`) VALUES ("
-				+ "1, "
-				+ "'" + encryptedKey + "', "
-				+ "'" + posterPublicKey.getParams().getG() + "', "
-				+ "'" + hash.convertToBigInteger().toString(10) + "', "
-				+ "'" + posterPublicKey.getParams().getP() + "', "
-				+ "'" + TENANT_NAME + "', "
-				+ "'" + posterPublicKey.getParams().getQ() + "', "
-				+ "'" + posterPublicKey.getY() + "', "
-				+ "'" + salt.convertToBigInteger().toString(10) + "'"
-				+ ");";
-		System.out.println(sql);
+		byte[] salt = DatatypeConverter.parseBase64Binary(toDecrypt.substring(0, 24));
+		PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_SIZE);
+		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(SECRET_KEY_ALGORITHM);
+		SecretKey secretKey = keyFactory.generateSecret(keySpec);
+
+		return secretKey.getEncoded();
 	}
 
 }

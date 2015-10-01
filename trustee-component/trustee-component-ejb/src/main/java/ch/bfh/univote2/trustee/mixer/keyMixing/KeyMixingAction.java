@@ -96,7 +96,6 @@ import ch.bfh.univote2.component.core.services.SecurePersistenceService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.trustee.BoardsEnum;
 import ch.bfh.univote2.trustee.TrusteeActionHelper;
-import ch.bfh.univote2.trustee.mixer.voteMixing.VoteMixingAction;
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -220,6 +219,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	@Asynchronous
 	public void run(ActionContext actionContext) {
 		if (!(actionContext instanceof KeyMixingActionContext)) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), "Invalid context.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			return;
 		}
@@ -254,6 +254,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 				return;
 			}
 		}
+		this.informationService.informTenant(actionContext.getActionContextKey(), "Preconditions fullfilled.");
 		String tenant = actionContext.getTenant();
 		String section = actionContext.getSection();
 
@@ -287,7 +288,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Could not post key mixing result. Action failed.");
+					"Could not post key mixing result. " + ex.getMessage());
 			Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}
@@ -297,6 +298,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	@Asynchronous
 	public void notifyAction(ActionContext actionContext, Object notification) {
 		if (!(actionContext instanceof KeyMixingActionContext)) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), "Invalid context.");
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			return;
 		}
@@ -337,7 +339,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		} catch (TransformException ex) {
-			Logger.getLogger(VoteMixingAction.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(KeyMixingAction.class.getName()).log(Level.SEVERE, null, ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 		}

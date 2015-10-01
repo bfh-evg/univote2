@@ -684,8 +684,8 @@ public class ActionManagerImplTest {
 
 		//Run finished
 		this.actionManager.runFinished(ac, ResultStatus.FAILURE);
-		assertFalse(this.mockAction.containsNotify(ack));
-		assertFalse(ac.isInUse());
+		assertTrue(this.mockAction.containsNotify(ack));
+		assertTrue(ac.isInUse());
 	}
 
 	/**
@@ -705,7 +705,7 @@ public class ActionManagerImplTest {
 
 		//Run finished
 		this.actionManager.runFinished(ac, ResultStatus.FAILURE);
-		assertFalse(this.mockAction.containsNotify(ack));
+		assertTrue(this.mockAction.containsNotify(ack));
 		assertTrue(ac.isInUse());
 	}
 
