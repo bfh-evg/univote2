@@ -43,7 +43,8 @@ package ch.bfh.univote2.common.message;
 
 import ch.bfh.univote2.common.UnivoteException;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -85,7 +86,7 @@ public class JSONConverter {
 	}
 
 	/**
-	 * Converst a JSON 'ResultDTO' byte array into the corresponding domain class.
+	 * Convert a JSON 'ResultDTO' byte array into the corresponding domain class.
 	 *
 	 * @param <T> the Java type of the domain class the conversion takes place
 	 * @param type the actual type object
@@ -97,8 +98,8 @@ public class JSONConverter {
 		try {
 			JAXBContext jaxbContext = JSONConverter.initJAXBContext(type);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			InputStream stream = new ByteArrayInputStream(message);
-			return unmarshaller.unmarshal(new StreamSource(stream), type).getValue();
+			Reader reader = new InputStreamReader(new ByteArrayInputStream(message), "UTF-8");
+			return unmarshaller.unmarshal(new StreamSource(reader), type).getValue();
 		} catch (Exception ex) {
 			throw new UnivoteException(ex.getMessage(), ex);
 		}
