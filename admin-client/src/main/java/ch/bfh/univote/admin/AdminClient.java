@@ -13,10 +13,13 @@ package ch.bfh.univote.admin;
 
 import ch.bfh.uniboard.clientlib.PostHelper;
 import ch.bfh.univote2.common.crypto.KeyUtil;
+import java.io.FileReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
+import java.util.Properties;
 import java.util.Scanner;
 
 /**
@@ -26,31 +29,31 @@ import java.util.Scanner;
  */
 public class AdminClient {
 
-	private static final String UNIBOARD_ADDRESS = "http://urd.bfh.ch:10080/UniBoardService/UniBoardServiceImpl";
-	private static final String UNIBOARD_SECTION = "sub-2015";
-
-	private static final String BOARD_CERTIFICATE = "board-certificate.pem";
-	private static final String POSTER_CERTIFICATE = "ea-certificate.pem";
-	private static final String POSTER_ENCRYPTED_PRIVATE_KEY = "ea-encrypted-private-key.pem";
-	private static final String POSTER_PRIVATE_KEY_PASSWORD = "12345678";
-
-	private static final String MESSAGES_PATH = "json-examples";
-	private static final String MESSAGES_ENCODING = "UTF-8";
-
+	private static final String CONFIG_FILE = "config.properties";
+	private static Properties props;
 	private static PostHelper postHelper;
 
 	public static void main(String[] args) throws Exception {
+		readConfiguration();
 		createPostHelper();
 		runMenu();
 	}
 
+	private static void readConfiguration() throws Exception {
+		props = new Properties();
+		props.load(new FileReader(CONFIG_FILE));
+	}
+
 	private static void createPostHelper() throws Exception {
-		DSAPublicKey boardPublicKey = KeyUtil.getDSAPublicKey(BOARD_CERTIFICATE);
-		DSAPublicKey posterPublicKey = KeyUtil.getDSAPublicKey(POSTER_CERTIFICATE);
+		DSAPublicKey boardPublicKey = KeyUtil.getDSAPublicKey(props.getProperty("uniboard.certificate.path"));
+		DSAPublicKey posterPublicKey = KeyUtil.getDSAPublicKey(props.getProperty("admin.certificate.path"));
+		System.out.print("Private key password: ");
+		String privateKeyPassword = new Scanner(System.in).nextLine();
 		DSAPrivateKey posterPrivateKey = KeyUtil.getDSAPrivateKey(
-				POSTER_ENCRYPTED_PRIVATE_KEY, POSTER_PRIVATE_KEY_PASSWORD, posterPublicKey.getParams());
+				props.getProperty("admin.encrypted.private.key.path"), privateKeyPassword, posterPublicKey.getParams());
 		postHelper = new PostHelper(
-				posterPublicKey, posterPrivateKey, boardPublicKey, UNIBOARD_ADDRESS + "?wsdl", UNIBOARD_ADDRESS);
+				posterPublicKey, posterPrivateKey, boardPublicKey,
+				props.getProperty("uniboard.wsdl.url"), props.getProperty("uniboard.endpoint.address"));
 	}
 
 	private static void runMenu() throws Exception {
@@ -91,10 +94,10 @@ public class AdminClient {
 	}
 
 	private static void postMessage(String group) throws Exception {
-		String path = MESSAGES_PATH + "/" + UNIBOARD_SECTION + "/" + group + ".json";
-		String message = new String(Files.readAllBytes(Paths.get(path)), MESSAGES_ENCODING);
+		Path path = Paths.get(props.getProperty("message.directory"), group + ".json");
+		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
 		System.out.println("Message:\n" + message);
-		postHelper.post(message, UNIBOARD_SECTION, group);
-		System.out.println("Post successful");
+//		postHelper.post(message, UNIBOARD_SECTION, group);
+//		System.out.println("Post successful");
 	}
 }
