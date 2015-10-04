@@ -12,13 +12,31 @@
 package ch.bfh.univote.admin;
 
 import ch.bfh.uniboard.clientlib.PostHelper;
+import ch.bfh.unicrypt.helper.array.classes.ByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.string.ByteArrayToString;
+import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
+import ch.bfh.univote.admin.message.CandidateElection;
+import ch.bfh.univote.admin.message.ElectionDetails;
+import ch.bfh.univote.admin.message.ElectionIssue;
+import ch.bfh.univote.admin.message.ListElection;
+import ch.bfh.univote.admin.message.Vote;
 import ch.bfh.univote2.common.crypto.KeyUtil;
+import ch.bfh.univote2.common.message.ElectionDefinition;
+import ch.bfh.univote2.common.message.ElectoralRoll;
+import ch.bfh.univote2.common.message.I18nText;
+import ch.bfh.univote2.common.message.SecurityLevel;
+import ch.bfh.univote2.common.message.Trustees;
 import java.io.FileReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -30,6 +48,13 @@ import java.util.Scanner;
 public class AdminClient {
 
 	private static final String CONFIG_FILE = "config.properties";
+	private static final String INDENT = "    ";
+
+	private static final Scanner CONSOLE = new Scanner(System.in);
+	private static final HashAlgorithm HASH_ALGORITHM = HashAlgorithm.SHA256;
+	private static final Converter<String, ByteArray> STRING_TO_BYTEARRAY = StringToByteArray.getInstance(Charset.forName("UTF-8"));
+	private static final Converter<ByteArray, String> BYREARRAY_TO_STRING = ByteArrayToString.getInstance(ByteArrayToString.Radix.HEX);
+
 	private static Properties props;
 	private static PostHelper postHelper;
 
@@ -48,7 +73,7 @@ public class AdminClient {
 		DSAPublicKey boardPublicKey = KeyUtil.getDSAPublicKey(props.getProperty("uniboard.certificate.path"));
 		DSAPublicKey posterPublicKey = KeyUtil.getDSAPublicKey(props.getProperty("admin.certificate.path"));
 		System.out.print("Private key password: ");
-		String privateKeyPassword = new Scanner(System.in).nextLine();
+		String privateKeyPassword = CONSOLE.nextLine();
 		DSAPrivateKey posterPrivateKey = KeyUtil.getDSAPrivateKey(
 				props.getProperty("admin.encrypted.private.key.path"), privateKeyPassword, posterPublicKey.getParams());
 		postHelper = new PostHelper(
@@ -57,7 +82,6 @@ public class AdminClient {
 	}
 
 	private static void runMenu() throws Exception {
-		Scanner scanner = new Scanner(System.in);
 		while (true) {
 			System.out.println();
 			System.out.println("1 - Post Election Definition");
@@ -67,8 +91,8 @@ public class AdminClient {
 			System.out.println("5 - Post Electoral Roll");
 			System.out.println("6 - Exit");
 			System.out.println();
-			System.out.print("Your choice: ");
-			String line = scanner.nextLine().trim();
+			System.out.print("Choice: ");
+			String line = CONSOLE.nextLine().trim();
 			int choice = 0;
 			try {
 				choice = Integer.parseInt(line);
@@ -76,15 +100,15 @@ public class AdminClient {
 			}
 			System.out.println();
 			if (choice == 1) {
-				postMessage("electionDefinition");
+				postElectionDefinition();
 			} else if (choice == 2) {
-				postMessage("trustees");
+				postTrustees();
 			} else if (choice == 3) {
-				postMessage("securityLevel");
+				postSecurityLevel();
 			} else if (choice == 4) {
-				postMessage("electionDetails");
+				postElectionDetails();
 			} else if (choice == 5) {
-				postMessage("electoralRoll");
+				postElectoralRoll();
 			} else if (choice == 6) {
 				System.exit(0);
 			} else {
@@ -93,11 +117,103 @@ public class AdminClient {
 		}
 	}
 
-	private static void postMessage(String group) throws Exception {
-		Path path = Paths.get(props.getProperty("message.directory"), group + ".json");
+	private static void postElectionDefinition() throws Exception {
+		Path path = Paths.get(props.getProperty("message.directory"), "electionDefinition.json");
 		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
-		System.out.println("Message:\n" + message);
-//		postHelper.post(message, UNIBOARD_SECTION, group);
-//		System.out.println("Post successful");
+		ElectionDefinition electionDefinition = JsonConverter.unmarshal(ElectionDefinition.class, message);
+		printI18nText("Election Title", electionDefinition.getTitle());
+		printI18nText("Election Administration", electionDefinition.getAdministration());
+		printValue("Voting Period Begin", electionDefinition.getVotingPeriodBegin());
+		printValue("Voting Period End", electionDefinition.getVotingPeriodEnd());
+		postMessage("electionDefinition", message);
+	}
+
+	private static void postTrustees() throws Exception {
+		Path path = Paths.get(props.getProperty("message.directory"), "trustees.json");
+		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
+		Trustees trustees = JsonConverter.unmarshal(Trustees.class, message);
+		printValues("Mixers", trustees.getMixerIds());
+		printValues("Talliers", trustees.getMixerIds());
+		postMessage("trustees", message);
+	}
+
+	private static void postSecurityLevel() throws Exception {
+		Path path = Paths.get(props.getProperty("message.directory"), "securityLevel.json");
+		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
+		SecurityLevel securityLevel = JsonConverter.unmarshal(SecurityLevel.class, message);
+		printValue("Security Level", securityLevel.getSecurityLevel());
+		postMessage("securityLevel", message);
+	}
+
+	private static void postElectionDetails() throws Exception {
+		Path path = Paths.get(props.getProperty("message.directory"), "electionDetails.json");
+		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
+		ElectionDetails electionDetails = JsonConverter.unmarshal(ElectionDetails.class, message);
+		for (ElectionIssue electionIssue : electionDetails.getIssues()) {
+			String issueType = null;
+			if (electionIssue instanceof CandidateElection) {
+				issueType = "Candidate Election";
+			} else if (electionIssue instanceof ListElection) {
+				issueType = "List Election";
+			} else if (electionIssue instanceof Vote) {
+				issueType = "Vote";
+			}
+			printI18nText(issueType, electionIssue.getTitle());
+			if (electionIssue instanceof Vote) {
+				printI18nText("Question", electionIssue.getQuestion());
+			}
+		}
+		postMessage("electionDetails", message);
+	}
+
+	private static void postElectoralRoll() throws Exception {
+		ElectoralRoll electoralRoll = new ElectoralRoll();
+		electoralRoll.setVoterIds(new ArrayList<>());
+		List<String> voterIds = Files.readAllLines(Paths.get(props.getProperty("electoral.roll.path")));
+		for (String voterId : voterIds) {
+			electoralRoll.getVoterIds().add(hashVoterId(voterId));
+		}
+		String message = JsonConverter.marshal(electoralRoll);
+		printValues("Electoral Roll", voterIds);
+		postMessage("electoralRoll", message);
+	}
+
+	private static String hashVoterId(String voterId) {
+		return BYREARRAY_TO_STRING.convert(HASH_ALGORITHM.getHashValue(STRING_TO_BYTEARRAY.convert(voterId)));
+	}
+
+	private static void postMessage(String group, String message) throws Exception {
+		System.out.print("Is this correct (yes/no)? ");
+		String answer = CONSOLE.nextLine();
+		if (answer.equals("yes")) {
+			postHelper.post(message, props.getProperty("election.id"), group);
+			System.out.println("Message successfully posted");
+		}
+	}
+
+	private static void printI18nText(String title, I18nText text) {
+		System.out.println(title);
+		System.out.println(INDENT + "default: " + text.getDefault());
+		if (text.getDe() != null) {
+			System.out.println(INDENT + "de: " + text.getDe());
+		}
+		if (text.getFr() != null) {
+			System.out.println(INDENT + "fr: " + text.getFr());
+		}
+		if (text.getIt() != null) {
+			System.out.println(INDENT + "it: " + text.getIt());
+		}
+	}
+
+	private static void printValues(String title, List values) {
+		System.out.println(title);
+		for (Object value : values) {
+			System.out.println(INDENT + value);
+		}
+	}
+
+	private static void printValue(String title, Object value) {
+		System.out.println(title);
+		System.out.println(INDENT + value);
 	}
 }
