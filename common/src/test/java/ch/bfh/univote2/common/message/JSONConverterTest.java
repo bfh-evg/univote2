@@ -156,7 +156,7 @@ public class JSONConverterTest {
 		I18nText title = ed.getTitle();
 		assertNotNull(title);
 		assertEquals("Universität Bern: Wahlen des SUB-StudentInnenrates", title.getDefault());
-		assertNull(title.getGe());
+		assertNull(title.getDe());
 		assertEquals("Université de Berne: Élection du conseil des étudiant-e-s SUB", title.getFr());
 		assertNull(title.getIt());
 		assertEquals("University of Bern: SUB Elections", title.getEn());
@@ -164,7 +164,7 @@ public class JSONConverterTest {
 		I18nText administration = ed.getAdministration();
 		assertNotNull(administration);
 		assertEquals("StudentInnenschaft der Universität Bern (SUB)", administration.getDefault());
-		assertNull(administration.getGe());
+		assertNull(administration.getDe());
 		assertEquals("Ensemble des étudiants de l'Université de Berne (SUB)", administration.getFr());
 		assertNull(administration.getIt());
 		assertEquals("Student Body of the University of Bern (SUB)", administration.getEn());

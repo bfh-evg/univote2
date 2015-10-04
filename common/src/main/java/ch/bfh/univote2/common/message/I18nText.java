@@ -52,7 +52,7 @@ import javax.xml.bind.annotation.XmlType;
  *	"type": "object",
  *	"properties": {
  *		"default": { "type": "string" },
- *		"ge": { "type": "string" },
+ *		"de": { "type": "string" },
  *		"fr": { "type": "string" },
  *		"it": { "type": "string" },
  *		"en": { "type": "string" }
@@ -63,11 +63,11 @@ import javax.xml.bind.annotation.XmlType;
  * </pre>
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"default", "defaultText", "ge" , "fr", "it", "en"})
+@XmlType(propOrder = {"default", "defaultText", "de", "fr", "it", "en"})
 public class I18nText {
 	@XmlElement(name = "default")
 	private String defaultText;
-	private String ge;
+	private String de;
 	private String fr;
 	private String it;
 	private String en;
@@ -75,9 +75,9 @@ public class I18nText {
 	public I18nText() {
 	}
 
-	public I18nText(String defaultValue, String ge, String fr, String it, String en) {
+	public I18nText(String defaultValue, String de, String fr, String it, String en) {
 		this.defaultText = defaultValue;
-		this.ge = ge;
+		this.de = de;
 		this.fr = fr;
 		this.it = it;
 		this.en = en;
@@ -92,12 +92,12 @@ public class I18nText {
 		this.defaultText = defaultText;
 	}
 
-	public String getGe() {
-		return ge;
+	public String getDe() {
+		return de;
 	}
 
-	public void setGe(String ge) {
-		this.ge = ge;
+	public void setDe(String de) {
+		this.de = de;
 	}
 
 	public String getFr() {
