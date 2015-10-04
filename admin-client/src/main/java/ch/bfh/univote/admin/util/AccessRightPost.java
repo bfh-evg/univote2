@@ -11,12 +11,12 @@
  */
 package ch.bfh.univote.admin.util;
 
-import ch.bfh.univote.admin.JsonConverter;
 import ch.bfh.uniboard.clientlib.PostHelper;
-import ch.bfh.univote.admin.data.AccessRight;
-import ch.bfh.univote.admin.data.Crypto;
-import ch.bfh.univote.admin.data.DL;
+import ch.bfh.univote.admin.JsonConverter;
 import ch.bfh.univote2.common.crypto.KeyUtil;
+import ch.bfh.univote2.common.message.AccessRight;
+import ch.bfh.univote2.common.message.Crypto;
+import ch.bfh.univote2.common.message.DL;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
@@ -59,7 +59,9 @@ public class AccessRightPost {
 		DSAParams params = authorizedPublicKey.getParams();
 		Crypto crypto = new DL(params.getP().toString(), params.getQ().toString(), params.getG().toString(),
 				authorizedPublicKey.getY().toString());
-		AccessRight accessRight = new AccessRight(group, crypto);
+		AccessRight accessRight = new AccessRight();
+		accessRight.setGroup(group);
+		accessRight.setCrypto(crypto);
 		String message = JsonConverter.marshal(accessRight);
 		System.out.println("Message: " + message);
 		postHelper.post(message, UNIBOARD_SECTION, UNIBOARD_GROUP);
