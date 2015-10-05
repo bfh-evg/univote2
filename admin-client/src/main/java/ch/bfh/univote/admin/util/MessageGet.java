@@ -29,40 +29,40 @@ import java.util.List;
 
 public class MessageGet {
 
-	private static final String BOARD_CERTIFICATE_PATH = "board-certificate.pem";
-	private static final String CERTIFICATE_PATH = "ea-certificate.pem";
+    private static final String BOARD_CERTIFICATE_PATH = "board-certificate.pem";
+    private static final String CERTIFICATE_PATH = "ea-certificate.pem";
 
-	private static final String UNIBOARD_ADDRESS = "http://urd.bfh.ch:10080/UniBoardService/UniBoardServiceImpl";
-	private static final String UNIBOARD_SECTION = "sub-2015";
-	private static final String UNIBOARD_GROUP = "electionDefinition";
+    private static final String UNIBOARD_ADDRESS = "http://urd.bfh.ch:10080/UniBoardService/UniBoardServiceImpl";
+    private static final String UNIBOARD_SECTION = "sub-2015";
+    private static final String UNIBOARD_GROUP = "electionDefinition";
 
-	public static void main(String[] args) throws Exception {
-		DSAPublicKey boardPublicKey = KeyUtil.getDSAPublicKey(BOARD_CERTIFICATE_PATH);
-		DSAPublicKey posterPublicKey = KeyUtil.getDSAPublicKey(CERTIFICATE_PATH);
-		GetHelper getHelper = new GetHelper(boardPublicKey, UNIBOARD_ADDRESS + "?wsdl", UNIBOARD_ADDRESS);
-		QueryDTO query = createQuery(UNIBOARD_SECTION, UNIBOARD_GROUP);
+    public static void main(String[] args) throws Exception {
+	DSAPublicKey boardPublicKey = KeyUtil.getDSAPublicKey(BOARD_CERTIFICATE_PATH);
+	DSAPublicKey posterPublicKey = KeyUtil.getDSAPublicKey(CERTIFICATE_PATH);
+	GetHelper getHelper = new GetHelper(boardPublicKey, UNIBOARD_ADDRESS + "?wsdl", UNIBOARD_ADDRESS);
+	QueryDTO query = createQuery(UNIBOARD_SECTION, UNIBOARD_GROUP);
 
-		ResultContainerDTO resultContainer = getHelper.get(query);
-		System.out.println("Get successful");
-		for (PostDTO post : resultContainer.getResult().getPost()) {
-			if (getHelper.verifyPosterSignature(post, posterPublicKey)) {
-				System.out.println(new String(post.getMessage(), "UTF-8"));
-			} else {
-				System.out.println("Invalid signature of post " + post);
-			}
-		}
+	ResultContainerDTO resultContainer = getHelper.get(query);
+	System.out.println("Get successful");
+	for (PostDTO post : resultContainer.getResult().getPost()) {
+	    if (getHelper.verifyPosterSignature(post, posterPublicKey)) {
+		System.out.println(new String(post.getMessage(), "UTF-8"));
+	    } else {
+		System.out.println("Invalid signature of post " + post);
+	    }
 	}
+    }
 
-	private static QueryDTO createQuery(String section, String group) {
-		AlphaIdentifierDTO sectionIdentifier
-				= new AlphaIdentifierDTO(Collections.singletonList(UniBoardAttributesName.SECTION.getName()));
-		AlphaIdentifierDTO groupIdentifier
-				= new AlphaIdentifierDTO(Collections.singletonList(UniBoardAttributesName.GROUP.getName()));
-		List<ConstraintDTO> contraints = new ArrayList<>();
-		contraints.add(new EqualDTO(sectionIdentifier, new StringValueDTO(section)));
-		contraints.add(new EqualDTO(groupIdentifier, new StringValueDTO(group)));
-		List<OrderDTO> orders = new ArrayList<>();
-		orders.add(new OrderDTO(groupIdentifier, true));
-		return new QueryDTO(contraints, orders, 0);
-	}
+    public static QueryDTO createQuery(String section, String group) {
+	AlphaIdentifierDTO sectionIdentifier
+		= new AlphaIdentifierDTO(Collections.singletonList(UniBoardAttributesName.SECTION.getName()));
+	AlphaIdentifierDTO groupIdentifier
+		= new AlphaIdentifierDTO(Collections.singletonList(UniBoardAttributesName.GROUP.getName()));
+	List<ConstraintDTO> contraints = new ArrayList<>();
+	contraints.add(new EqualDTO(sectionIdentifier, new StringValueDTO(section)));
+	contraints.add(new EqualDTO(groupIdentifier, new StringValueDTO(group)));
+	List<OrderDTO> orders = new ArrayList<>();
+	orders.add(new OrderDTO(groupIdentifier, true));
+	return new QueryDTO(contraints, orders, 0);
+    }
 }
