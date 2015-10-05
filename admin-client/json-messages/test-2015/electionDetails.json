@@ -1,0 +1,47 @@
+{
+	"options": [
+		{
+			"id": 1,
+			"type": "votingOption",
+			"answer": { "default": "Ja", "fr": "Oui"}
+		},
+		{
+			"id": 2,
+			"type": "votingOption",
+			"answer": { "default": "Nein", "fr": "Non"}
+		}
+	],
+	"rules": [
+		{
+			"id": 1,
+			"type": "summationRule",
+			"optionIds": [1, 2],
+			"lowerBound": 0,
+			"upperBound": 1
+		},
+		{
+			"id": 2,
+			"type": "cumulationRule",
+			"optionIds": [1, 2],
+			"lowerBound": 0,
+			"upperBound": 1
+		}
+	],
+	"issues": [
+		{
+			"id": 1,
+			"type": "vote",
+			"title": {
+				"default": "Hamstersteuer",
+				"fr": "Impôt sur les hamsters"
+			},
+			"question": {
+				"default": "Wollen Sie die neue Hamstersteuer annehmen?",
+				"fr": "Voulez-vous accepter le nouveau impôt sur les hamsters?"
+			},
+			"optionIds": [1, 2],
+			"ruleIds": [1, 2]
+		}
+	],
+	"ballotEncoding": "E1"
+}

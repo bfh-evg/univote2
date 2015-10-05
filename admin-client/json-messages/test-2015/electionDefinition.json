@@ -1,0 +1,12 @@
+{
+	"title": {
+		"default": "Testabstimmung",
+		"fr": "Vote de test"
+	},
+	"administration": {
+		"default": "Berner Fachhochschule",
+		"fr": "Haute école spécialisée bernoise"
+	},
+	"votingPeriodBegin": "2015-09-05T13:00:00Z",
+	"votingPeriodEnd": "2015-09-05T14:00:00Z"
+}
