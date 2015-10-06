@@ -64,54 +64,58 @@ import javax.ejb.Stateless;
 @Stateless
 public class InitAction extends AbstractAction implements NotifiableAction {
 
-    private static final String ACTION_NAME = "InitAction";
-    private static final String INPUT_NAME = "InitInput";
+	private static final String ACTION_NAME = "InitAction";
+	private static final String INPUT_NAME = "InitInput";
 
-    @EJB
-    ActionManager actionManager;
+	@EJB
+	ActionManager actionManager;
 
-    @EJB
-    InformationService informationService;
+	@EJB
+	InformationService informationService;
 
-    @Override
-    @Asynchronous
-    public void notifyAction(ActionContext actionContext, Object notification) {
-	if (!(notification instanceof InitUserInput)) {
-	    //TODO error
+	@Override
+	@Asynchronous
+	public void notifyAction(ActionContext actionContext, Object notification) {
+		if (!(notification instanceof InitUserInput)) {
+			//TODO error
+		}
+		InitUserInput userInput = (InitUserInput) notification;
+		ActionContextKey ack = new ActionContextKey(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
+				userInput.getSection());
+		ActionContext newContext = new InitActionContext(ack, null);
+		this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
+				userInput.getSection(), "New section.");
+		UserInputPreconditionQuery query = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
+				actionContext.getActionContextKey().getTenant(),
+				actionContext.getActionContextKey().getSection()));
+		this.actionManager.reRequireUserInput(actionContext, query);
+		this.actionManager.runFinished(newContext, ResultStatus.FINISHED);
 	}
-	InitUserInput userInput = (InitUserInput) notification;
-	ActionContextKey ack = new ActionContextKey(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-						    userInput.getSection());
-	ActionContext newContext = new InitActionContext(ack, null);
-	this.informationService.informTenant(ACTION_NAME, actionContext.getActionContextKey().getTenant(),
-					     userInput.getSection(), "New Section created.");
-	this.actionManager.runFinished(newContext, ResultStatus.FINISHED);
-    }
 
-    @Override
-    @Asynchronous
-    public void run(ActionContext actionContext) {
-	this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-    }
+	@Override
+	@Asynchronous
+	public void run(ActionContext actionContext) {
+		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	}
 
-    @Override
-    protected ActionContext createContext(String tenant, String section) {
-	ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-	List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
-	return new InitActionContext(ack, preconditionsQuerys);
-    }
+	@Override
+	protected ActionContext createContext(String tenant, String section) {
+		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
+		List<PreconditionQuery> preconditionsQuerys = new ArrayList<>();
+		return new InitActionContext(ack, preconditionsQuerys);
+	}
 
-    @Override
-    protected boolean checkPostCondition(ActionContext actionContext) {
-	return false;
-    }
+	@Override
+	protected boolean checkPostCondition(ActionContext actionContext) {
+		return false;
+	}
 
-    @Override
-    protected void definePreconditions(ActionContext actionContext) {
-	UserInputPreconditionQuery query = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
-											    actionContext.getActionContextKey().getTenant(),
-											    actionContext.getActionContextKey().getSection()));
-	actionContext.getPreconditionQueries().add(query);
-    }
+	@Override
+	protected void definePreconditions(ActionContext actionContext) {
+		UserInputPreconditionQuery query = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
+				actionContext.getActionContextKey().getTenant(),
+				actionContext.getActionContextKey().getSection()));
+		actionContext.getPreconditionQueries().add(query);
+	}
 
 }
