@@ -156,9 +156,6 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 		try {
 			this.retrieveCryptoSetting(ceksac);
-			Element generator = CryptoProvider.getSignatureSetup(ceksac.getCryptoSetting()
-					.getSignatureSetting()).cryptoGenerator;
-			ceksac.setGenerator(generator.convertToString());
 		} catch (UnivoteException ex) {
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
@@ -392,24 +389,25 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 					.getSignatureSetting()).cryptoGenerator;
 			actionContext.setGenerator(generator.convertToString());
 			this.createMixingRequest(actionContext);
+		} else {
+			//Try to retrieve a corresponding mixing result
+			KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class,
+					result.getResult().getPost().get(0).getMessage());
+			PublicKey pk = actionContext.getMixerKeys().get(keyMixingRequest.getMixerId());
+			ResultContainerDTO result2 = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+					QueryFactory.getQueryForKeyMixingResultForMixer(actionContext.getSection(), pk));
+			if (result2.getResult().getPost().isEmpty()) {
+				//Current Mixer has not published his/her result yet
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Waiting for mixing result of " + actionContext.getCurrentMixer());
+				this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+			} else {
+				//Validate mixing result and continue
+				KeyMixingResult keyMixingResult = JSONConverter.unmarshal(KeyMixingResult.class,
+						result2.getResult().getPost().get(0).getMessage());
+				this.validateMixingResult(actionContext, keyMixingResult);
+			}
 		}
-		//Try to retrieve a corresponding mixing result
-		KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class,
-				result.getResult().getPost().get(0).getMessage());
-		PublicKey pk = actionContext.getMixerKeys().get(keyMixingRequest.getMixerId());
-		ResultContainerDTO result2 = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForKeyMixingResultForMixer(actionContext.getSection(), pk));
-		if (result2.getResult().getPost().isEmpty()) {
-			//Current Mixer has not published his/her result yet
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					"Waiting for mixing result of " + actionContext.getCurrentMixer());
-			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
-			return;
-		}
-		//Validate mixing result and continue
-		KeyMixingResult keyMixingResult = JSONConverter.unmarshal(KeyMixingResult.class,
-				result2.getResult().getPost().get(0).getMessage());
-		this.validateMixingResult(actionContext, keyMixingResult);
 	}
 
 	protected void createMixingRequest(KeyMixingActionContext actionContext) {
