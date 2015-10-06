@@ -156,6 +156,9 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 		try {
 			this.retrieveCryptoSetting(ceksac);
+			Element generator = CryptoProvider.getSignatureSetup(ceksac.getCryptoSetting()
+					.getSignatureSetting()).cryptoGenerator;
+			ceksac.setGenerator(generator.convertToString());
 		} catch (UnivoteException ex) {
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
