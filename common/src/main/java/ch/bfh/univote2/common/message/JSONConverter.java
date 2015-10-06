@@ -45,9 +45,11 @@ import ch.bfh.univote2.common.UnivoteException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.JAXBContext;
@@ -71,9 +73,9 @@ import javax.xml.transform.stream.StreamSource;
 public class JSONConverter {
 
 	/**
-	 * Initilizes the JAXB context.
+	 * Initializes the JAXB context.
 	 *
-	 * @param <T> the Java type of the domain class the converstion takes place
+	 * @param <T> the Java type of the domain class the conversion takes place
 	 * @param type the actual type object
 	 * @return the JAXB context
 	 * @throws Exception if the context cannot be established
@@ -86,7 +88,27 @@ public class JSONConverter {
 	}
 
 	/**
-	 * Convert a JSON 'ResultDTO' byte array into the corresponding domain class.
+	 * Converts a JSON string into the corresponding domain class.
+	 *
+	 * @param <T> the Java type of the domain class the conversion takes place
+	 * @param type the actual type object
+	 * @param message a JSON string
+	 * @return the Java instance of the domain class
+	 * @throws UnivoteException if the conversion cannot be made
+	 */
+	public static <T> T unmarshal(Class<T> type, String message) throws UnivoteException {
+		try {
+			JAXBContext jaxbContext = JSONConverter.initJAXBContext(type);
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			Reader reader = new StringReader(message);
+			return unmarshaller.unmarshal(new StreamSource(reader), type).getValue();
+		} catch (Exception ex) {
+			throw new UnivoteException(ex.getMessage(), ex);
+		}
+	}
+
+	/**
+	 * Converts a JSON 'ResultDTO' byte array into the corresponding domain class.
 	 *
 	 * @param <T> the Java type of the domain class the conversion takes place
 	 * @param type the actual type object
@@ -98,7 +120,7 @@ public class JSONConverter {
 		try {
 			JAXBContext jaxbContext = JSONConverter.initJAXBContext(type);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Reader reader = new InputStreamReader(new ByteArrayInputStream(message), "UTF-8");
+			Reader reader = new InputStreamReader(new ByteArrayInputStream(message), StandardCharsets.UTF_8);
 			return unmarshaller.unmarshal(new StreamSource(reader), type).getValue();
 		} catch (Exception ex) {
 			throw new UnivoteException(ex.getMessage(), ex);
@@ -132,7 +154,7 @@ public class JSONConverter {
 
 	/**
 	 * Determines if a given JSON message is of given domain type by trying to parse it. If it succeeds then the parsed
-	 * message is stored in the local cache and true is returned. If it does not succed then the cache is cleared and
+	 * message is stored in the local cache and true is returned. If it does not succeed then the cache is cleared and
 	 * false is returned.
 	 *
 	 * @param <T> the expected type
@@ -156,10 +178,10 @@ public class JSONConverter {
 	}
 
 	/**
-	 * Returns the message sucessfully given to a prior {@link #isOfType(java.lang.Class, byte[])} call, or
+	 * Returns the message successfully given to a prior {@link #isOfType(java.lang.Class, byte[])} call, or
 	 * <code>null</code> otherwise.
 	 *
-	 * @param <T> the tyoe of the returned domain object.
+	 * @param <T> the type of the returned domain object.
 	 * @return the domain object
 	 */
 	@SuppressWarnings("unchecked")
