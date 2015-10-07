@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote.admin.message;
+package ch.bfh.univote2.admin.message;
 
 import ch.bfh.univote2.common.message.I18nText;
 import java.util.List;

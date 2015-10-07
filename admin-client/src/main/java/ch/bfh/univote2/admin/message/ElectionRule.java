@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote.admin.message;
+package ch.bfh.univote2.admin.message;
 
 import java.util.List;
 import javax.xml.bind.annotation.XmlSeeAlso;

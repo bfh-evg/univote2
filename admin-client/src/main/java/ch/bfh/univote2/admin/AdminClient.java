@@ -9,7 +9,7 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote.admin;
+package ch.bfh.univote2.admin;
 
 import ch.bfh.uniboard.clientlib.PostHelper;
 import ch.bfh.unicrypt.helper.array.classes.ByteArray;
@@ -17,15 +17,16 @@ import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
 import ch.bfh.unicrypt.helper.converter.classes.string.ByteArrayToString;
 import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
 import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
-import ch.bfh.univote.admin.message.CandidateElection;
-import ch.bfh.univote.admin.message.ElectionDetails;
-import ch.bfh.univote.admin.message.ElectionIssue;
-import ch.bfh.univote.admin.message.ListElection;
-import ch.bfh.univote.admin.message.Vote;
+import ch.bfh.univote2.admin.message.CandidateElection;
+import ch.bfh.univote2.admin.message.ElectionDetails;
+import ch.bfh.univote2.admin.message.ElectionIssue;
+import ch.bfh.univote2.admin.message.ListElection;
+import ch.bfh.univote2.admin.message.Vote;
 import ch.bfh.univote2.common.crypto.KeyUtil;
 import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.common.message.I18nText;
+import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.SecurityLevel;
 import ch.bfh.univote2.common.message.Trustees;
 import java.io.FileReader;
@@ -119,8 +120,8 @@ public class AdminClient {
 
 	private static void postElectionDefinition() throws Exception {
 		Path path = Paths.get(props.getProperty("message.directory"), "electionDefinition.json");
-		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
-		ElectionDefinition electionDefinition = JsonConverter.unmarshal(ElectionDefinition.class, message);
+		String message = new String(Files.readAllBytes(path), "UTF-8");
+		ElectionDefinition electionDefinition = JSONConverter.unmarshal(ElectionDefinition.class, message);
 		printI18nText("Election Title", electionDefinition.getTitle());
 		printI18nText("Election Administration", electionDefinition.getAdministration());
 		printValue("Voting Period Begin", electionDefinition.getVotingPeriodBegin());
@@ -130,8 +131,8 @@ public class AdminClient {
 
 	private static void postTrustees() throws Exception {
 		Path path = Paths.get(props.getProperty("message.directory"), "trustees.json");
-		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
-		Trustees trustees = JsonConverter.unmarshal(Trustees.class, message);
+		String message = new String(Files.readAllBytes(path), "UTF-8");
+		Trustees trustees = JSONConverter.unmarshal(Trustees.class, message);
 		printValues("Mixers", trustees.getMixerIds());
 		printValues("Talliers", trustees.getMixerIds());
 		postMessage("trustees", message);
@@ -139,16 +140,16 @@ public class AdminClient {
 
 	private static void postSecurityLevel() throws Exception {
 		Path path = Paths.get(props.getProperty("message.directory"), "securityLevel.json");
-		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
-		SecurityLevel securityLevel = JsonConverter.unmarshal(SecurityLevel.class, message);
+		String message = new String(Files.readAllBytes(path), "UTF-8");
+		SecurityLevel securityLevel = JSONConverter.unmarshal(SecurityLevel.class, message);
 		printValue("Security Level", securityLevel.getSecurityLevel());
 		postMessage("securityLevel", message);
 	}
 
 	private static void postElectionDetails() throws Exception {
 		Path path = Paths.get(props.getProperty("message.directory"), "electionDetails.json");
-		String message = new String(Files.readAllBytes(path), props.getProperty("message.encoding"));
-		ElectionDetails electionDetails = JsonConverter.unmarshal(ElectionDetails.class, message);
+		String message = new String(Files.readAllBytes(path), "UTF-8");
+		ElectionDetails electionDetails = JSONConverter.unmarshal(ElectionDetails.class, message);
 		for (ElectionIssue electionIssue : electionDetails.getIssues()) {
 			String issueType = null;
 			if (electionIssue instanceof CandidateElection) {
@@ -171,9 +172,13 @@ public class AdminClient {
 		electoralRoll.setVoterIds(new ArrayList<>());
 		List<String> voterIds = Files.readAllLines(Paths.get(props.getProperty("electoral.roll.path")));
 		for (String voterId : voterIds) {
+			voterId = voterId.toLowerCase().trim();
+			if (voterId.isEmpty()) {
+				continue;
+			}
 			electoralRoll.getVoterIds().add(hashVoterId(voterId));
 		}
-		String message = JsonConverter.marshal(electoralRoll);
+		String message = JSONConverter.marshal(electoralRoll);
 		printValues("Electoral Roll", voterIds);
 		postMessage("electoralRoll", message);
 	}

@@ -9,16 +9,16 @@
  * Distributable under GPL license.
  * See terms of license at gnu.org.
  */
-package ch.bfh.univote.admin.message;
+package ch.bfh.univote2.admin.message;
 
 import java.util.List;
 
-public class SummationRule extends ElectionRule {
+public class CumulationRule extends ElectionRule {
 
-	public SummationRule() {
+	public CumulationRule() {
 	}
 
-	public SummationRule(Integer id, List<Integer> optionIds, Integer lowerBound, Integer upperBound) {
+	public CumulationRule(Integer id, List<Integer> optionIds, Integer lowerBound, Integer upperBound) {
 		super(id, optionIds, lowerBound, upperBound);
 	}
 }
