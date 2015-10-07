@@ -179,7 +179,7 @@ public class AdminClient {
 			electoralRoll.getVoterIds().add(hashVoterId(voterId));
 		}
 		String message = JSONConverter.marshal(electoralRoll);
-		printValues("Electoral Roll", voterIds);
+		printValue("Electoral Roll", electoralRoll.getVoterIds().size() + " entries");
 		postMessage("electoralRoll", message);
 	}
 
@@ -207,6 +207,9 @@ public class AdminClient {
 		}
 		if (text.getIt() != null) {
 			System.out.println(INDENT + "it: " + text.getIt());
+		}
+		if (text.getEn() != null) {
+			System.out.println(INDENT + "en: " + text.getEn());
 		}
 	}
 

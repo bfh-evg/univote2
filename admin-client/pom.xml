@@ -57,7 +57,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>ch.bfh.univote.admin.AdminCient</mainClass>
+							<mainClass>ch.bfh.univote2.admin.AdminCient</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
