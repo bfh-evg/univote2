@@ -79,7 +79,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 				logger.log(Level.SEVERE, "Own endpoint URL is not configured. Cant register.");
 				return;
 			}
-			this.ownEndPointURL = (String) this.configurationManager.getConfiguration(CONFIG_NAME).remove(OWN_ENDPOINT_URL);
+			this.ownEndPointURL
+					= (String) this.configurationManager.getConfiguration(CONFIG_NAME).getProperty(OWN_ENDPOINT_URL);
 		} catch (UnivoteException ex) {
 			logger.log(Level.SEVERE, "Cant load configuration.", ex);
 		}
