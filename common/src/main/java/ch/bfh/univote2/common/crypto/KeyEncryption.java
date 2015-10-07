@@ -132,4 +132,24 @@ public class KeyEncryption {
 		}
 		return DatatypeConverter.parseHexBinary(decrypted);
 	}
+
+	/**
+	 * Derives a key from a salt and a password.
+	 *
+	 * @param cipher the cipher that contains the salt
+	 * @param password the password used to derive the key
+	 * @return the decrypted private key
+	 */
+	public static byte[] getDerivedKey(String cipher, String password) throws Exception {
+		cipher = cipher.replace(ENC_PRIVATE_KEY_PREFIX, "");
+		cipher = cipher.replace(ENC_PRIVATE_KEY_POSTFIX, "");
+		cipher = cipher.replaceAll("\n", "");
+		cipher = cipher.trim();
+		byte[] salt = DatatypeConverter.parseBase64Binary(cipher.substring(0, 24));
+
+		PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_SIZE);
+		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(SECRET_KEY_ALGORITHM);
+		SecretKey secretKey = keyFactory.generateSecret(keySpec);
+		return secretKey.getEncoded();
+	}
 }
