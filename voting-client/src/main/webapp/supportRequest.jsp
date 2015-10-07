@@ -14,7 +14,6 @@
 --%>
 <%@page import="java.util.*"%>
 <%@page import="ch.bfh.univote.voteclient.beans.LanguageDetails"%>
-<%@page import="ch.bfh.univote.voteclient.beans.UserData"%>
 <%@page import="javax.mail.*"%>
 <%@page import="javax.mail.internet.*"%>
 <%@page import="javax.activation.*"%>
@@ -52,12 +51,10 @@
 	//mail-smtp.password - *******
 	//mail-smtp.auth - true
 	//mail-smtp.starttls.enable - true
-
-
 	// Get the default mail session object.
 	//Session mailSession = Session.getDefaultInstance(properties);
 	InitialContext ctx = new InitialContext();
-	Session mailSession = (Session)ctx.lookup("mail/MailSession");
+	Session mailSession = (Session) ctx.lookup("mail/MailSession");
 
 	try {
 		// Put mail body together
@@ -70,9 +67,9 @@
 		// Create message
 		MimeMessage message = new MimeMessage(mailSession);
 		message.setRecipient(Message.RecipientType.TO, new InternetAddress(mailTo));
-        message.setSentDate(new Date());
+		message.setSentDate(new Date());
 		message.setSubject(subject, "UTF-8");
-		message.setText(body.toString(),"UTF-8");
+		message.setText(body.toString(), "UTF-8");
 
 		// Send message
 		Transport.send(message);
