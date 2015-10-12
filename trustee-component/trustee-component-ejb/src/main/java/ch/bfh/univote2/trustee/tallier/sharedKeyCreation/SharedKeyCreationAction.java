@@ -312,7 +312,9 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 	if (!success) {
 	    throw new UnivoteException("Math for proof system broken.");
 	} else {
-	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.INFO, "ZKP for shared key: " + proof + " public Key:" + publicKey);
+	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.INFO, "Commitment: " + pg.getChallenge(proof) + " challenge:" + pg.getCommitment(proof) + " response: " + pg.getResponse(proof));
+	    Logger.getLogger(SharedKeyCreationAction.class.getName()).log(Level.INFO, "ZKP for shared key: Challenge-Space: " + pg.getChallengeSpace() + "Commitment-Space: " + pg.getCommitmentSpace() + "public Key:" + publicKey);
+
 	}
 	SigmaProof proofDTO = new SigmaProof(pg.getCommitment(proof).convertToString(),
 					     pg.getChallenge(proof).convertToString(), pg.getResponse(proof).convertToString());
