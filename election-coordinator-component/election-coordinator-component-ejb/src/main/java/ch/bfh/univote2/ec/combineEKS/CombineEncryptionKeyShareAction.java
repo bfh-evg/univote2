@@ -304,7 +304,6 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 				cSetup.cryptoGroup.getZModOrder(), otherInput, CONVERT_METHOD, HASH_METHOD, converter);
 
 		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(challengeGenerator, proofFunction);
-		Logger.getLogger(CombineEncryptionKeyShareAction.class.getName()).log(Level.INFO, "ZKP for shared key: " + pg + " public Key:" + publicKey);
 
 		//Fill triple
 		Element commitment
@@ -315,7 +314,8 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 				= pg.getResponseSpace().getElementFrom(encryptionKeyShare.getProof().getResponse());
 
 		Triple proofTriple = Triple.getInstance(commitment, challenge, response);
-
+		Logger.getLogger(CombineEncryptionKeyShareAction.class.getName()).log(Level.INFO, "Commitment: " + commitment + " challenge:" + challenge + " response: " + response);
+		Logger.getLogger(CombineEncryptionKeyShareAction.class.getName()).log(Level.INFO, "ZKP for shared key: Challenge-Space: " + pg.getChallengeSpace() + "Commitment-Space: " + pg.getCommitmentSpace() + "public Key:" + publicKey);
 		if (pg.verify(proofTriple, publicKey)) {
 
 			actionContext.getKeyShares().put(strTallier, publicKey);
