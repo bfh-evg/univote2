@@ -66,16 +66,8 @@ import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.common.UnivoteException;
-import ch.bfh.univote2.component.core.action.AbstractAction;
-import ch.bfh.univote2.component.core.action.NotifiableAction;
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
 import ch.bfh.univote2.common.crypto.CryptoSetup;
-import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
-import ch.bfh.univote2.component.core.data.ResultStatus;
-import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.common.message.EncryptionKey;
 import ch.bfh.univote2.common.message.EncryptionKeyShare;
@@ -83,14 +75,24 @@ import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.TrusteeCertificates;
 import ch.bfh.univote2.common.query.AlphaEnum;
 import ch.bfh.univote2.common.query.GroupEnum;
+import ch.bfh.univote2.common.query.MessageFactory;
+import ch.bfh.univote2.common.query.QueryFactory;
+import ch.bfh.univote2.component.core.action.AbstractAction;
+import ch.bfh.univote2.component.core.action.NotifiableAction;
+import ch.bfh.univote2.component.core.actionmanager.ActionContext;
+import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import ch.bfh.univote2.component.core.actionmanager.ActionManager;
+import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
+import ch.bfh.univote2.component.core.data.ResultStatus;
+import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
-import ch.bfh.univote2.common.query.MessageFactory;
-import ch.bfh.univote2.common.query.QueryFactory;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -302,6 +304,8 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 				cSetup.cryptoGroup.getZModOrder(), otherInput, CONVERT_METHOD, HASH_METHOD, converter);
 
 		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(challengeGenerator, proofFunction);
+		Logger.getLogger(CombineEncryptionKeyShareAction.class.getName()).log(Level.INFO, "ZKP for shared key: " + pg + " public Key:" + publicKey);
+
 		//Fill triple
 		Element commitment
 				= pg.getCommitmentSpace().getElementFrom(encryptionKeyShare.getProof().getCommitment());
