@@ -88,7 +88,6 @@ import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.common.query.MessageFactory;
 import ch.bfh.univote2.common.query.QueryFactory;
-import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
@@ -305,11 +304,11 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		PlainPreimageProofSystem pg = PlainPreimageProofSystem.getInstance(challengeGenerator, proofFunction);
 		//Fill triple
 		Element commitment
-				= pg.getCommitmentSpace().getElementFrom(new BigInteger(encryptionKeyShare.getProof().getCommitment()));
+				= pg.getCommitmentSpace().getElementFrom(encryptionKeyShare.getProof().getCommitment());
 		Element challenge
-				= pg.getChallengeSpace().getElementFrom(new BigInteger(encryptionKeyShare.getProof().getChallenge()));
+				= pg.getChallengeSpace().getElementFrom(encryptionKeyShare.getProof().getChallenge());
 		Element response
-				= pg.getResponseSpace().getElementFrom(new BigInteger(encryptionKeyShare.getProof().getResponse()));
+				= pg.getResponseSpace().getElementFrom(encryptionKeyShare.getProof().getResponse());
 
 		Triple proofTriple = Triple.getInstance(commitment, challenge, response);
 
