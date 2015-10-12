@@ -60,6 +60,7 @@
 		this.REGISTRATION_SETTINGS = {
 			'uv-vsbfh': 'BFH',
 			'uniBasel': 'Uni Basel',
+			'uniLuzern': 'Uni Luzern',
 			'Administrator': 'Administrator'
 		};
 

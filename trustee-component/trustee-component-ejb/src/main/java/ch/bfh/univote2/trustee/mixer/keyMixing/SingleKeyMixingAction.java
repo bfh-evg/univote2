@@ -125,7 +125,7 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 	@Override
 	protected ActionContext createContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		return new KeyMixingActionContext(ack);
+		return new SingleKeyMixingActionContext(ack);
 	}
 
 	@Override

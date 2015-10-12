@@ -219,6 +219,7 @@ public class PublishVoterCertsAction extends AbstractAction implements Notifiabl
 			this.actionManager.runFinished(context, ResultStatus.FINISHED);
 		} catch (UnivoteException | UnsupportedEncodingException ex) {
 			this.informationService.informTenant(context.getActionContextKey(), ex.getMessage());
+			logger.log(Level.INFO, ex.getMessage());
 			this.actionManager.runFinished(context, ResultStatus.FAILURE);
 		}
 	}
