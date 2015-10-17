@@ -11,6 +11,7 @@
  */
 package ch.bfh.univote2.admin.message;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -27,9 +28,8 @@ public abstract class ElectionRule {
 	public ElectionRule() {
 	}
 
-	public ElectionRule(Integer id, List<Integer> optionIds, Integer lowerBound, Integer upperBound) {
+	public ElectionRule(Integer id, Integer lowerBound, Integer upperBound) {
 		this.id = id;
-		this.optionIds = optionIds;
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
 	}
@@ -43,6 +43,9 @@ public abstract class ElectionRule {
 	}
 
 	public List<Integer> getOptionIds() {
+		if (optionIds == null) {
+			optionIds = new ArrayList<>();
+		}
 		return optionIds;
 	}
 

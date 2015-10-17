@@ -38,11 +38,15 @@ import ch.bfh.univote2.common.message.Ballot;
 import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.common.message.JSONConverter;
 import java.io.FileReader;
+import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -66,12 +70,12 @@ public class CountingClient {
 		readConfiguration();
 		createGetHelper();
 
-		List<Ballot> ballots = getBallots();
 		CryptoSetting cryptoSetting = getCryptoSetting();
 		BigInteger decryptionKey = getDecryptionKey();
-
+		List<Ballot> ballots = getBallots();
 		List<BigInteger> decryptedVotes = decryptVotes(ballots, cryptoSetting, decryptionKey);
-		decryptedVotes.forEach(System.out::println);
+
+		printVotes(decryptedVotes);
 	}
 
 	private static void readConfiguration() throws Exception {
@@ -114,8 +118,8 @@ public class CountingClient {
 		// use derived key to decrypt the private key share
 		AESEncryptionScheme aes = AESEncryptionScheme.getInstance();
 		Element derivedKeyElement = aes.getEncryptionKeySpace().getElement(ByteArray.getInstance(derivedKey));
-		System.out.print("Encrypted private key share: ");
-		String privateKeyShare = CONSOLE.nextLine();
+		Path path = Paths.get(props.getProperty("trustee.private.key.share.path"));
+		String privateKeyShare = new String(Files.readAllBytes(path));
 		Element encBigInt = aes.getMessageSpace().getElementFrom(new BigInteger(privateKeyShare));
 		Element decrypted = aes.decrypt(derivedKeyElement, encBigInt);
 		return PKCSPaddingScheme.getInstance(AES_BLOCK_LENGTH).unpad(decrypted).convertToBigInteger();
@@ -146,6 +150,32 @@ public class CountingClient {
 			votes.add(converter.decode(decryptedVote).getValue());
 		}
 		return votes;
+	}
+
+	private static void printVotes(List<BigInteger> votes) throws Exception {
+		int[] totals = new int[3];
+		Path path = Paths.get(props.getProperty("election.results.path"));
+		try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, Charset.forName("UTF-8")), true)) {
+			writer.println("Stimmzettel;Enthaltung;Ja;Nein");
+			for (int i = 0; i < votes.size(); i++) {
+				int vote = votes.get(i).intValue();
+				totals[vote]++;
+				writer.print(i + 1);
+				for (int option = 0; option < 3; option++) {
+					writer.print(";");
+					if (vote == option) {
+						writer.print("1");
+					}
+				}
+				writer.println();
+			}
+			writer.print("Total");
+			for (int option = 0; option < 3; option++) {
+				writer.print(";" + totals[option]);
+			}
+			writer.println();
+		}
+		assert Arrays.stream(totals).sum() == votes.size();
 	}
 
 	private static QueryDTO createQuery(String section, String group) {

@@ -27,7 +27,6 @@ public class CandidateOption extends ElectionOption {
 		OLD, NEW
 	};
 
-	private Integer id;
 	private String number;
 	private String lastName;
 	private String firstName;
@@ -42,7 +41,7 @@ public class CandidateOption extends ElectionOption {
 	}
 
 	public CandidateOption(Integer id, String number, String lastName, String firstName, Sex sex, Integer yearOfBirth, I18nText studyBranch, I18nText studyDegree, Integer studySemester, Status status) {
-		this.id = id;
+		super(id);
 		this.number = number;
 		this.lastName = lastName;
 		this.firstName = firstName;
@@ -52,14 +51,6 @@ public class CandidateOption extends ElectionOption {
 		this.studyDegree = studyDegree;
 		this.studySemester = studySemester;
 		this.status = status;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getNumber() {

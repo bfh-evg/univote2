@@ -11,14 +11,12 @@
  */
 package ch.bfh.univote2.admin.message;
 
-import java.util.List;
-
 public class SummationRule extends ElectionRule {
 
 	public SummationRule() {
 	}
 
-	public SummationRule(Integer id, List<Integer> optionIds, Integer lowerBound, Integer upperBound) {
-		super(id, optionIds, lowerBound, upperBound);
+	public SummationRule(Integer id, Integer lowerBound, Integer upperBound) {
+		super(id, lowerBound, upperBound);
 	}
 }

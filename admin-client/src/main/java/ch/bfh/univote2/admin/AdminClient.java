@@ -18,14 +18,16 @@ import ch.bfh.unicrypt.helper.converter.classes.string.ByteArrayToString;
 import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
 import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
 import ch.bfh.univote2.admin.message.CandidateElection;
+import ch.bfh.univote2.admin.message.CandidateOption;
 import ch.bfh.univote2.admin.message.ElectionDetails;
 import ch.bfh.univote2.admin.message.ElectionIssue;
+import ch.bfh.univote2.admin.message.ElectionOption;
 import ch.bfh.univote2.admin.message.ListElection;
+import ch.bfh.univote2.admin.message.ListOption;
 import ch.bfh.univote2.admin.message.Vote;
 import ch.bfh.univote2.common.crypto.KeyUtil;
 import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
-import ch.bfh.univote2.common.message.I18nText;
 import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.SecurityLevel;
 import ch.bfh.univote2.common.message.Trustees;
@@ -40,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  * User interface class for the UniVote Administration.
@@ -122,10 +125,10 @@ public class AdminClient {
 		Path path = Paths.get(props.getProperty("message.directory"), "electionDefinition.json");
 		String message = new String(Files.readAllBytes(path), "UTF-8");
 		ElectionDefinition electionDefinition = JSONConverter.unmarshal(ElectionDefinition.class, message);
-		printI18nText("Election Title", electionDefinition.getTitle());
-		printI18nText("Election Administration", electionDefinition.getAdministration());
-		printValue("Voting Period Begin", electionDefinition.getVotingPeriodBegin());
-		printValue("Voting Period End", electionDefinition.getVotingPeriodEnd());
+		System.out.println("Election Title: " + electionDefinition.getTitle().getDefault());
+		System.out.println("Election Administration: " + electionDefinition.getAdministration().getDefault());
+		System.out.println("Voting Period Begin: " + electionDefinition.getVotingPeriodBegin());
+		System.out.println("Voting Period End: " + electionDefinition.getVotingPeriodEnd());
 		postMessage("electionDefinition", message);
 	}
 
@@ -133,8 +136,8 @@ public class AdminClient {
 		Path path = Paths.get(props.getProperty("message.directory"), "trustees.json");
 		String message = new String(Files.readAllBytes(path), "UTF-8");
 		Trustees trustees = JSONConverter.unmarshal(Trustees.class, message);
-		printValues("Mixers", trustees.getMixerIds());
-		printValues("Talliers", trustees.getMixerIds());
+		System.out.println("Mixers: " + trustees.getMixerIds().stream().collect(Collectors.joining(" ")));
+		System.out.println("Talliers: " + trustees.getTallierIds().stream().collect(Collectors.joining(" ")));
 		postMessage("trustees", message);
 	}
 
@@ -142,7 +145,7 @@ public class AdminClient {
 		Path path = Paths.get(props.getProperty("message.directory"), "securityLevel.json");
 		String message = new String(Files.readAllBytes(path), "UTF-8");
 		SecurityLevel securityLevel = JSONConverter.unmarshal(SecurityLevel.class, message);
-		printValue("Security Level", securityLevel.getSecurityLevel());
+		System.out.println("Security Level: " + securityLevel.getSecurityLevel());
 		postMessage("securityLevel", message);
 	}
 
@@ -151,18 +154,7 @@ public class AdminClient {
 		String message = new String(Files.readAllBytes(path), "UTF-8");
 		ElectionDetails electionDetails = JSONConverter.unmarshal(ElectionDetails.class, message);
 		for (ElectionIssue electionIssue : electionDetails.getIssues()) {
-			String issueType = null;
-			if (electionIssue instanceof CandidateElection) {
-				issueType = "Candidate Election";
-			} else if (electionIssue instanceof ListElection) {
-				issueType = "List Election";
-			} else if (electionIssue instanceof Vote) {
-				issueType = "Vote";
-			}
-			printI18nText(issueType, electionIssue.getTitle());
-			if (electionIssue instanceof Vote) {
-				printI18nText("Question", electionIssue.getQuestion());
-			}
+			printElectionIssue(electionIssue, electionDetails.getOptions());
 		}
 		postMessage("electionDetails", message);
 	}
@@ -179,12 +171,8 @@ public class AdminClient {
 			electoralRoll.getVoterIds().add(hashVoterId(voterId));
 		}
 		String message = JSONConverter.marshal(electoralRoll);
-		printValue("Electoral Roll", electoralRoll.getVoterIds().size() + " entries");
+		System.out.println("Electoral Roll: " + electoralRoll.getVoterIds().size() + " entries");
 		postMessage("electoralRoll", message);
-	}
-
-	private static String hashVoterId(String voterId) {
-		return BYREARRAY_TO_STRING.convert(HASH_ALGORITHM.getHashValue(STRING_TO_BYTEARRAY.convert(voterId)));
 	}
 
 	private static void postMessage(String group, String message) throws Exception {
@@ -196,32 +184,59 @@ public class AdminClient {
 		}
 	}
 
-	private static void printI18nText(String title, I18nText text) {
-		System.out.println(title);
-		System.out.println(INDENT + "default: " + text.getDefault());
-		if (text.getDe() != null) {
-			System.out.println(INDENT + "de: " + text.getDe());
-		}
-		if (text.getFr() != null) {
-			System.out.println(INDENT + "fr: " + text.getFr());
-		}
-		if (text.getIt() != null) {
-			System.out.println(INDENT + "it: " + text.getIt());
-		}
-		if (text.getEn() != null) {
-			System.out.println(INDENT + "en: " + text.getEn());
+	private static String hashVoterId(String voterId) {
+		return BYREARRAY_TO_STRING.convert(HASH_ALGORITHM.getHashValue(STRING_TO_BYTEARRAY.convert(voterId)));
+	}
+
+	private static void printElectionIssue(ElectionIssue issue, List<ElectionOption> options) {
+		if (issue instanceof ListElection) {
+			printListElection((ListElection) issue, options);
+		} else if (issue instanceof CandidateElection) {
+			printCandidateElection((CandidateElection) issue, options);
+		} else if (issue instanceof Vote) {
+			printVote((Vote) issue, options);
 		}
 	}
 
-	private static void printValues(String title, List values) {
-		System.out.println(title);
-		for (Object value : values) {
-			System.out.println(INDENT + value);
+	private static void printListElection(ListElection election, List<ElectionOption> options) {
+		System.out.println("List Election: " + election.getTitle().getDefault());
+		for (Integer optionId : election.getOptionIds()) {
+			for (ElectionOption option : options) {
+				if (option.getId().equals(optionId) && option instanceof ListOption) {
+					printListOption((ListOption) option, options);
+				}
+			}
 		}
 	}
 
-	private static void printValue(String title, Object value) {
-		System.out.println(title);
-		System.out.println(INDENT + value);
+	private static void printCandidateElection(CandidateElection election, List<ElectionOption> options) {
+		System.out.println("Candidate Election: " + election.getTitle().getDefault());
+		for (Integer optionId : election.getOptionIds()) {
+			for (ElectionOption option : options) {
+				if (option.getId().equals(optionId)) {
+					printCandidateOption((CandidateOption) option);
+				}
+			}
+		}
+	}
+
+	private static void printVote(Vote vote, List<ElectionOption> options) {
+		System.out.println("Vote: " + vote.getTitle().getDefault());
+		System.out.println("Question: " + vote.getQuestion().getDefault());
+	}
+
+	private static void printListOption(ListOption listOption, List<ElectionOption> options) {
+		System.out.println("List " + listOption.getNumber() + ": " + listOption.getListName().getDefault());
+		for (Integer optionId : listOption.getCandidateIds()) {
+			for (ElectionOption option : options) {
+				if (option.getId().equals(optionId)) {
+					printCandidateOption((CandidateOption) option);
+				}
+			}
+		}
+	}
+
+	private static void printCandidateOption(CandidateOption candidateOption) {
+		System.out.println(INDENT + "Candidate: " + candidateOption.getLastName() + " " + candidateOption.getFirstName());
 	}
 }

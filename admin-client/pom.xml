@@ -48,6 +48,11 @@
 			<artifactId>unicrypt</artifactId>
 			<version>2.2-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.13</version>
+		</dependency>
 	</dependencies>
 
 	<build>

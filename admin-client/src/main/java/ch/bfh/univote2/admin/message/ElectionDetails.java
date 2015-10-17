@@ -11,6 +11,7 @@
  */
 package ch.bfh.univote2.admin.message;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlType;
 
@@ -33,6 +34,9 @@ public class ElectionDetails {
 	}
 
 	public List<ElectionOption> getOptions() {
+		if (options == null) {
+			options = new ArrayList<>();
+		}
 		return options;
 	}
 
@@ -41,6 +45,9 @@ public class ElectionDetails {
 	}
 
 	public List<ElectionRule> getRules() {
+		if (rules == null) {
+			rules = new ArrayList<>();
+		}
 		return rules;
 	}
 
@@ -49,6 +56,9 @@ public class ElectionDetails {
 	}
 
 	public List<ElectionIssue> getIssues() {
+		if (issues == null) {
+			issues = new ArrayList<>();
+		}
 		return issues;
 	}
 

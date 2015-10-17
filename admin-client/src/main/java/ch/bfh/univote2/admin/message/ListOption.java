@@ -12,13 +12,13 @@
 package ch.bfh.univote2.admin.message;
 
 import ch.bfh.univote2.common.message.I18nText;
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(propOrder = {"id", "number", "listName", "partyName", "candidateIds"})
 public class ListOption extends ElectionOption {
 
-	private Integer id;
 	private String number;
 	private I18nText listName;
 	private I18nText partyName;
@@ -28,19 +28,11 @@ public class ListOption extends ElectionOption {
 	}
 
 	public ListOption(Integer id, String number, I18nText listName, I18nText partyName, List<Integer> candidateIds) {
-		this.id = id;
+		super(id);
 		this.number = number;
 		this.listName = listName;
 		this.partyName = partyName;
 		this.candidateIds = candidateIds;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getNumber() {
@@ -68,6 +60,9 @@ public class ListOption extends ElectionOption {
 	}
 
 	public List<Integer> getCandidateIds() {
+		if (candidateIds == null) {
+			candidateIds = new ArrayList<>();
+		}
 		return candidateIds;
 	}
 

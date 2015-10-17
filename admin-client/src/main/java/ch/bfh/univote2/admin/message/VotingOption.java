@@ -17,23 +17,14 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {"id", "answer"})
 public class VotingOption extends ElectionOption {
 
-	private Integer id;
 	private I18nText answer;
 
 	public VotingOption() {
 	}
 
 	public VotingOption(Integer id, I18nText answer) {
-		this.id = id;
+		super(id);
 		this.answer = answer;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public I18nText getAnswer() {

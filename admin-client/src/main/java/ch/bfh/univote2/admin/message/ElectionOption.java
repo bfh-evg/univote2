@@ -15,4 +15,21 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlSeeAlso({CandidateOption.class, ListOption.class, VotingOption.class})
 public class ElectionOption {
+
+	private Integer id;
+
+	public ElectionOption() {
+	}
+
+	public ElectionOption(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 }

@@ -12,6 +12,7 @@
 package ch.bfh.univote2.admin.message;
 
 import ch.bfh.univote2.common.message.I18nText;
+import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -72,6 +73,9 @@ public abstract class ElectionIssue {
 	}
 
 	public List<Integer> getOptionIds() {
+		if (optionIds == null) {
+			optionIds = new ArrayList<>();
+		}
 		return optionIds;
 	}
 
@@ -80,6 +84,9 @@ public abstract class ElectionIssue {
 	}
 
 	public List<Integer> getRuleIds() {
+		if (ruleIds == null) {
+			ruleIds = new ArrayList<>();
+		}
 		return ruleIds;
 	}
 

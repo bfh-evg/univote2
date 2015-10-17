@@ -11,14 +11,12 @@
  */
 package ch.bfh.univote2.admin.message;
 
-import java.util.List;
-
 public class CumulationRule extends ElectionRule {
 
 	public CumulationRule() {
 	}
 
-	public CumulationRule(Integer id, List<Integer> optionIds, Integer lowerBound, Integer upperBound) {
-		super(id, optionIds, lowerBound, upperBound);
+	public CumulationRule(Integer id, Integer lowerBound, Integer upperBound) {
+		super(id, lowerBound, upperBound);
 	}
 }
