@@ -545,9 +545,13 @@
 					throw new Error("Encoding error: No upper bound for option " + id + ".");
 				}
 				// Compute the number of bits needed to encode the option
-				var nbrBits = Math.floor((Math.log(upperBound)) / (Math.log(2))) + 1;
+				var nbrBits = upperBound == 0 ? 0 : Math.floor((Math.log(upperBound)) / (Math.log(2))) + 1;
 				// Get the occurences of actual id in vote
 				var votes = electionDetails.getChoice(id);
+				// Don't encode zero-options
+				if (upperBound == 0 && votes == 0) {
+					continue;
+				}
 
 				// Represent the number in binary number
 				var votesBin = votes.toString(2);
