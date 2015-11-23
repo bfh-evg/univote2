@@ -361,7 +361,7 @@ function createListElectionContent(issue) {
 			tp += '<i>(' + msg.previous + ')</i><br/>';
 		}
 		tp += cand.getStudyBranch() + (cand.getStudyDegree() ? (cand.getStudyBranch() ? ' / ' : '') + cand.getStudyDegree() : '') + '<br/>';
-		tp += msg.semester + ': ' + cand.getStudySemester() + '<br/>';
+		tp += cand.getStudySemester() > 0 ? msg.semester + ': ' + cand.getStudySemester() + '<br/>' : '';
 		tp += (cand.getYearOfBirth() > 0 ? cand.getYearOfBirth() : '') + (cand.getSex() ? (cand.getYearOfBirth() ? ' / ' : '') + cand.getSexSymbol() : '');
 
 		return tp;
@@ -483,9 +483,9 @@ function createListElectionContent(issue) {
 
 
 	// Tabs
-	$('#list_labels a').click(function (event) {
+	$('#list_labels li').click(function (event) {
 		event.preventDefault();
-		var $parent = $(this).parent();
+		var $parent = $(this);
 		$('#list_labels li').removeClass('active');
 		$parent.addClass('active');
 		$('#lists .list').hide().eq($parent.index()).show();
@@ -570,7 +570,7 @@ function createListElectionContent(issue) {
 		});
 	} else {
 		$("#choice-list").hide();
-		$("#list_labels li").css('cursor', 'default');
+		$("#list_labels li").css('cursor', 'pointer');
 	}
 
 	// Register events (tools)
