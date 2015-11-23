@@ -30,6 +30,11 @@ import ch.bfh.unicrypt.math.algebra.dualistic.classes.ZModElement;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
+import ch.bfh.univote2.admin.message.CandidateOption;
+import ch.bfh.univote2.admin.message.ElectionDetails;
+import ch.bfh.univote2.admin.message.ElectionOption;
+import ch.bfh.univote2.admin.message.ElectionRule;
+import ch.bfh.univote2.admin.message.ListOption;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
 import ch.bfh.univote2.common.crypto.CryptoSetup;
 import ch.bfh.univote2.common.crypto.KeyEncryption;
@@ -46,9 +51,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -69,13 +75,14 @@ public class CountingClient {
 	public static void main(String[] args) throws Exception {
 		readConfiguration();
 		createGetHelper();
-
 		CryptoSetting cryptoSetting = getCryptoSetting();
 		BigInteger decryptionKey = getDecryptionKey();
 		List<Ballot> ballots = getBallots();
-		List<BigInteger> decryptedVotes = decryptVotes(ballots, cryptoSetting, decryptionKey);
 
-		printVotes(decryptedVotes);
+		ElectionDetails electionDetails = readElectionDetails();
+		List<BigInteger> decryptedVotes = decryptVotes(ballots, cryptoSetting, decryptionKey);
+		List<Map<ElectionOption, Integer>> decodedVotes = decodeVotes(decryptedVotes, electionDetails);
+		printVotes(decodedVotes, electionDetails);
 	}
 
 	private static void readConfiguration() throws Exception {
@@ -140,7 +147,7 @@ public class CountingClient {
 
 		List<BigInteger> votes = new ArrayList<>();
 		for (Ballot ballot : ballots) {
-			// convert encrypted vote to a pair of group element
+			// convert encrypted vote to a pair of group elements
 			Pair encryptedVote = Pair.getInstance(
 					cryptoSetup.cryptoGroup.getElementFrom(new BigInteger(ballot.getEncryptedVote().getFirstValue())),
 					cryptoSetup.cryptoGroup.getElementFrom(new BigInteger(ballot.getEncryptedVote().getSecondValue())));
@@ -152,30 +159,87 @@ public class CountingClient {
 		return votes;
 	}
 
-	private static void printVotes(List<BigInteger> votes) throws Exception {
-		int[] totals = new int[3];
+	private static ElectionDetails readElectionDetails() throws Exception {
+		Path path = Paths.get(props.getProperty("message.directory"), "electionDetails.json");
+		String message = new String(Files.readAllBytes(path), "UTF-8");
+		ElectionDetails electionDetails = JSONConverter.unmarshal(ElectionDetails.class, message);
+		electionDetails.getOptions().sort((o1, o2) -> o1.getId() - o2.getId());
+		return electionDetails;
+	}
+
+	private static List<Map<ElectionOption, Integer>> decodeVotes(
+			List<BigInteger> decryptedVotes, ElectionDetails electionDetails) throws Exception {
+
+		// compute number of bits used to encode an option based on the rules' upper bounds
+		Map<ElectionOption, Integer> numerOfBitsPerOption = new HashMap();
+		for (ElectionOption option : electionDetails.getOptions()) {
+			int upperBound = -1;
+			for (ElectionRule rule : electionDetails.getRules()) {
+				if (rule.getOptionIds().contains(option.getId())) {
+					if (upperBound == -1 || upperBound > rule.getUpperBound()) {
+						upperBound = rule.getUpperBound();
+					}
+				}
+			}
+			if (upperBound == -1) {
+				throw new Exception("Invalid election details: No upper bound for option " + option.getId());
+			}
+			int nbits = upperBound == 0 ? 0 : (int) (Math.floor((Math.log(upperBound)) / (Math.log(2))) + 1);
+			numerOfBitsPerOption.put(option, nbits);
+		}
+
+		// decode decrypted votes
+		List<Map<ElectionOption, Integer>> decodedVotes = new ArrayList<>();
+		for (BigInteger vote : decryptedVotes) {
+			Map<ElectionOption, Integer> decodedVote = new HashMap();
+			for (ElectionOption option : electionDetails.getOptions()) {
+				int nbits = numerOfBitsPerOption.get(option);
+				int count = (vote.mod(BigInteger.valueOf((int) Math.pow(2, nbits)))).intValue();
+				decodedVote.put(option, count);
+				vote = vote.shiftRight(nbits);
+			}
+			decodedVotes.add(decodedVote);
+		}
+		return decodedVotes;
+	}
+
+	private static void printVotes(List<Map<ElectionOption, Integer>> decodedVotes, ElectionDetails electionDetails)
+			throws Exception {
 		Path path = Paths.get(props.getProperty("election.results.path"));
 		try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, Charset.forName("UTF-8")), true)) {
-			writer.println("Stimmzettel;Enthaltung;Ja;Nein");
-			for (int i = 0; i < votes.size(); i++) {
-				int vote = votes.get(i).intValue();
-				totals[vote]++;
-				writer.print(i + 1);
-				for (int option = 0; option < 3; option++) {
-					writer.print(";");
-					if (vote == option) {
-						writer.print("1");
-					}
+
+			// print list and candidate names
+			for (ElectionOption option : electionDetails.getOptions()) {
+				if (option instanceof ListOption) {
+					writer.print(";" + ((ListOption) option).getListName().getDefault());
+				} else {
+					writer.print(";" + ((CandidateOption) option).getLastName()
+							+ " " + ((CandidateOption) option).getFirstName());
+				}
+			}
+			writer.println();
+
+			// print decoded votes and totals
+			Map<ElectionOption, Integer> totals = new HashMap<>();
+			for (ElectionOption option : electionDetails.getOptions()) {
+				totals.put(option, 0);
+			}
+			int nr = 1;
+			for (Map<ElectionOption, Integer> decodedVote : decodedVotes) {
+				writer.write("Vote " + nr++);
+				for (ElectionOption option : electionDetails.getOptions()) {
+					writer.print(";" + decodedVote.get(option));
+					totals.put(option, totals.get(option) + decodedVote.get(option));
 				}
 				writer.println();
 			}
-			writer.print("Total");
-			for (int option = 0; option < 3; option++) {
-				writer.print(";" + totals[option]);
+			writer.write("Total");
+			for (ElectionOption option : electionDetails.getOptions()) {
+				writer.print(";" + totals.get(option));
+				totals.put(option, totals.get(option) + 1);
 			}
 			writer.println();
 		}
-		assert Arrays.stream(totals).sum() == votes.size();
 	}
 
 	private static QueryDTO createQuery(String section, String group) {
