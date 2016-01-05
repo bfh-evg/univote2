@@ -56,14 +56,8 @@ import javax.xml.bind.annotation.XmlType;
  *		"votesToMix": {
  *			"type": "array",
  *			"items": {
- *				"type": "object",
- *				"properties": {
- *					"firstValue":  { "type": "string" },
- *					"secondValue": { "type": "string" }
- *				},
- *				"required": ["firstValue", "secondValue"],
- *				"additionalProperties": false
- *			}
+ *		              "$ref": "encryptedVote.jsd"
+ *	                }
  *		}
  *	},
  *	"required": ["mixerId", "votesToMix"],
@@ -73,34 +67,35 @@ import javax.xml.bind.annotation.XmlType;
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"mixerId", "votesToMix"})
+@XmlType(propOrder = {"mixerId", "votesToMix"})
 public class VoteMixingRequest {
-	private String mixerId;
-	private List<EncryptedVote> votesToMix;
 
-	public VoteMixingRequest() {
-	}
+    private String mixerId;
+    private List<EncryptedVote> votesToMix;
 
-	public VoteMixingRequest(String mixerId, List<EncryptedVote> votesToMix) {
-		this.mixerId = mixerId;
-		this.votesToMix = votesToMix;
-	}
+    public VoteMixingRequest() {
+    }
 
-	@XmlElement(required=true)
-	public String getMixerId() {
-		return mixerId;
-	}
+    public VoteMixingRequest(String mixerId, List<EncryptedVote> votesToMix) {
+	this.mixerId = mixerId;
+	this.votesToMix = votesToMix;
+    }
 
-	public void setMixerId(String mixerId) {
-		this.mixerId = mixerId;
-	}
+    @XmlElement(required = true)
+    public String getMixerId() {
+	return mixerId;
+    }
 
-	@XmlElement(required=true)
-	public List<EncryptedVote> getVotesToMix() {
-		return votesToMix;
-	}
+    public void setMixerId(String mixerId) {
+	this.mixerId = mixerId;
+    }
 
-	public void setVotesToMix(List<EncryptedVote> votesToMix) {
-		this.votesToMix = votesToMix;
-	}
+    @XmlElement(required = true)
+    public List<EncryptedVote> getVotesToMix() {
+	return votesToMix;
+    }
+
+    public void setVotesToMix(List<EncryptedVote> votesToMix) {
+	this.votesToMix = votesToMix;
+    }
 }

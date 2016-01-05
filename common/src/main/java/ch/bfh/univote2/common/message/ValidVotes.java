@@ -41,49 +41,51 @@
  */
 package ch.bfh.univote2.common.message;
 
+import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
  * {
+ *
  *	"$schema": "http://json-schema.org/draft-04/schema",
- *	"title": "UniVote2: Schema of mixed encrypted votes",
+ *	"title": "UniVote2: Schema of valid votes",
  *	"type": "object",
  *	"properties": {
- *		"mixedVotes": {
+ *		"validVotes": {
  *			"type": "array",
  *			"items": {
  *				"$ref": "encryptedVote.jsd"
  *			}
  *		}
  *	},
- *	"required": ["mixedVotes"],
+ *	"required": ["validVotes"],
  *	"additionalProperties": false
+ *
  * }
  * </pre>
  *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder = {"mixedVotes"})
-public class MixedVotes {
+@XmlType(propOrder = {"validVotes"})
+public class ValidVotes {
 
-    private List<EncryptedVote> mixedVotes;
+    private List<EncryptedVote> encryptedVotes;
 
-    public MixedVotes() {
+    public ValidVotes() {
+	this.encryptedVotes = new ArrayList<>();
     }
 
-    public MixedVotes(List<EncryptedVote> mixedVotes) {
-	this.mixedVotes = mixedVotes;
+    public ValidVotes(List<EncryptedVote> encryptedVotes) {
+	this.encryptedVotes = encryptedVotes;
     }
 
-    @XmlElement(required = true)
-    public List<EncryptedVote> getMixedVotes() {
-	return mixedVotes;
+    public List<EncryptedVote> getValidVotes() {
+	return encryptedVotes;
     }
 
-    public void setMixedVotes(List<EncryptedVote> mixedVotes) {
-	this.mixedVotes = mixedVotes;
+    public void setValidVotes(List<EncryptedVote> encryptedVotes) {
+	this.encryptedVotes = encryptedVotes;
     }
 }

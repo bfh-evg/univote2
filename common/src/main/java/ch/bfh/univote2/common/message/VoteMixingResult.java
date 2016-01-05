@@ -55,14 +55,8 @@ import javax.xml.bind.annotation.XmlType;
  *		"mixedVotes": {
  *			"type": "array",
  *			"items": {
- *				"type": "object",
- *				"properties": {
- *					"firstValue":  { "type": "string" },
- *					"secondValue": { "type": "string" }
- *				},
- *				"required": ["firstValue", "secondValue"],
- *				"additionalProperties": false
- *			}
+ *		              "$ref": "encryptedVote.jsd"
+ *	                }
  *		},
  *		"shuffleProof": { "$ref": "shuffleProof.jsd" }
  *	},
@@ -76,33 +70,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {"mixedVotes", "shuffleProof"})
 public class VoteMixingResult {
 
-	private List<EncryptedVote> mixedVotes;
-	private ShuffleProof shuffleProof;
+    private List<EncryptedVote> mixedVotes;
+    private ShuffleProof shuffleProof;
 
-	public VoteMixingResult() {
-	}
+    public VoteMixingResult() {
+    }
 
-	public VoteMixingResult(List<EncryptedVote> mixedVotes, ShuffleProof shuffleProof) {
-		this.mixedVotes = mixedVotes;
-		this.shuffleProof = shuffleProof;
-	}
+    public VoteMixingResult(List<EncryptedVote> mixedVotes, ShuffleProof shuffleProof) {
+	this.mixedVotes = mixedVotes;
+	this.shuffleProof = shuffleProof;
+    }
 
-	@XmlElement(required = true)
-	public List<EncryptedVote> getMixedVotes() {
-		return mixedVotes;
-	}
+    @XmlElement(required = true)
+    public List<EncryptedVote> getMixedVotes() {
+	return mixedVotes;
+    }
 
-	public void setMixedVotes(List<EncryptedVote> mixedVotes) {
-		this.mixedVotes = mixedVotes;
-	}
+    public void setMixedVotes(List<EncryptedVote> mixedVotes) {
+	this.mixedVotes = mixedVotes;
+    }
 
-	@XmlElement(required = true)
-	public ShuffleProof getShuffleProof() {
-		return shuffleProof;
-	}
+    @XmlElement(required = true)
+    public ShuffleProof getShuffleProof() {
+	return shuffleProof;
+    }
 
-	public void setShuffleProof(ShuffleProof shuffleProof) {
-		this.shuffleProof = shuffleProof;
-	}
+    public void setShuffleProof(ShuffleProof shuffleProof) {
+	this.shuffleProof = shuffleProof;
+    }
 
 }

@@ -46,48 +46,51 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <pre>
- * ...
- * 		"encryptedVote": {
- *			"description": "ElGamal encryption of a vote",
- *			"type": "object",
- *			"properties": {
- *				"firstValue":  { "type": "string" },
- *				"secondValue": { "type": "string" }
- *			},
- *			"required": ["firstValue", "secondValue"]
- *		}
- * ...
+ * {
+ *	"$schema": "http://json-schema.org/draft-04/schema",
+ *	"title": "UniVote2: Schema of an encrypted vote",
+ *	"description": "ElGamal encryption of a vote",
+ *	"type": "object",
+ *	"properties": {
+ *	    "firstValue":  { "type": "string" },
+ *	    "secondValue": { "type": "string" }
+ *	},
+ *	"required": ["firstValue", "secondValue"],
+ *	"additionalProperties": false
+ *  }
  * </pre>
+ *
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-@XmlType(propOrder={"firstValue", "secondValue"})
+@XmlType(propOrder = {"firstValue", "secondValue"})
 public class EncryptedVote {
-	private String firstValue;
-	private String secondValue;
 
-	public EncryptedVote() {
-	}
+    private String firstValue;
+    private String secondValue;
 
-	public EncryptedVote(String firstValue, String secondValue) {
-		this.firstValue = firstValue;
-		this.secondValue = secondValue;
-	}
+    public EncryptedVote() {
+    }
 
-	@XmlElement(required=true)
-	public String getFirstValue() {
-		return firstValue;
-	}
+    public EncryptedVote(String firstValue, String secondValue) {
+	this.firstValue = firstValue;
+	this.secondValue = secondValue;
+    }
 
-	public void setFirstValue(String firstValue) {
-		this.firstValue = firstValue;
-	}
+    @XmlElement(required = true)
+    public String getFirstValue() {
+	return firstValue;
+    }
 
-	@XmlElement(required=true)
-	public String getSecondValue() {
-		return secondValue;
-	}
+    public void setFirstValue(String firstValue) {
+	this.firstValue = firstValue;
+    }
 
-	public void setSecondValue(String secondValue) {
-		this.secondValue = secondValue;
-	}
+    @XmlElement(required = true)
+    public String getSecondValue() {
+	return secondValue;
+    }
+
+    public void setSecondValue(String secondValue) {
+	this.secondValue = secondValue;
+    }
 }
