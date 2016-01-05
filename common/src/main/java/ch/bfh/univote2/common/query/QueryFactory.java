@@ -63,835 +63,874 @@ import java.security.interfaces.RSAPublicKey;
  */
 public class QueryFactory {
 
-    public static QueryDTO getQueryFormUniCertForEACert(String name) {
-	QueryDTO query = new QueryDTO();
-	//from unicert
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
-	query.getConstraint().add(constraint);
-	//from certificates
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
-	query.getConstraint().add(constraint2);
-	//Where common name is equal to ea name
-	IdentifierDTO identifier3 = new MessageIdentifierDTO();
-	identifier3.getPart().add("commonName");
-	ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(name));
-	query.getConstraint().add(constraint3);
-	//Where cert type is trustee
-	IdentifierDTO identifier4 = new MessageIdentifierDTO();
-	identifier4.getPart().add("roles");
-	EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("ElectionAdministrator"));
-	query.getConstraint().add(constraint4);
-	//Order by timestamp desc
-	IdentifierDTO identifier5 = new BetaIdentifierDTO();
-	identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier5, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryFormUniCertForTrusteeCert(String name) {
-	QueryDTO query = new QueryDTO();
-	//from unicert
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
-	query.getConstraint().add(constraint);
-	//from certificates
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
-	query.getConstraint().add(constraint2);
-	//Where common name is equal to trustee name
-	IdentifierDTO identifier3 = new MessageIdentifierDTO();
-	identifier3.getPart().add("commonName");
-	ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(name));
-	query.getConstraint().add(constraint3);
-	//Where cert type is trustee
-	IdentifierDTO identifier4 = new MessageIdentifierDTO();
-	identifier4.getPart().add("roles");
-	EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("Trustee"));
-	query.getConstraint().add(constraint4);
-	//Order by timestamp desc
-	IdentifierDTO identifier5 = new BetaIdentifierDTO();
-	identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier5, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryFormUniCertForVoterCert(String name) {
-	QueryDTO query = new QueryDTO();
-	//from unicert
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
-	query.getConstraint().add(constraint);
-	//from certificates
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
-	query.getConstraint().add(constraint2);
-	//Where common name is equal to ea name
-	IdentifierDTO identifier3 = new MessageIdentifierDTO();
-	identifier3.getPart().add("commonName");
-	ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(name));
-	query.getConstraint().add(constraint3);
-	//Where cert type is trustee
-	IdentifierDTO identifier4 = new MessageIdentifierDTO();
-	identifier4.getPart().add("roles");
-	EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("Voter"));
-	query.getConstraint().add(constraint4);
-	//Order by timestamp desc
-	IdentifierDTO identifier5 = new BetaIdentifierDTO();
-	identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier5, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryFormUniCertForVoterCert() {
-	QueryDTO query = new QueryDTO();
-	//from unicert
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
-	query.getConstraint().add(constraint);
-	//from certificates
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
-	query.getConstraint().add(constraint2);
-	//Where cert type is trustee
-	IdentifierDTO identifier4 = new MessageIdentifierDTO();
-	identifier4.getPart().add("roles");
-	EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("Voter"));
-	query.getConstraint().add(constraint4);
-	//Order by timestamp desc
-	IdentifierDTO identifier5 = new BetaIdentifierDTO();
-	identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier5, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForEACert(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ADMIN_CERT.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForTrusteeCerts(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.TRUSTEE_CERTIFICATES.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForTrustees(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.TRUSTEES.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForElectionDefinition(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.ELECTION_DEFINITION.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForCryptoSetting(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.CRYPTO_SETTING.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForSecurityLevel(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.SECURITY_LEVEL.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForEncryptionKey(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ENCRYPTION_KEY.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForEncryptionKeyShares(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.ENCRYPTION_KEY_SHARE.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	return query;
-    }
-
-    public static QueryDTO getQueryForValidVotes(String section) {
-	// Not yet implemented... If this causes the error and you have seeked for it for too long... Sorry.
-	return null;
-    }
-
-    public static QueryDTO getQueryForMixedKeys(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.MIXED_KEYS.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForKeyMixingResults(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.KEY_MIXING_RESULT.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	return query;
-    }
-
-    public static QueryDTO getQueryForElectoralRoll(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ELECTORAL_ROLL.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForVotingData(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.VOTING_DATA.getValue()));
-	query.getConstraint().add(constraint2);
-
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-
-	return query;
-    }
-
-    public static QueryDTO getQueryForElectionDetails(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ELECTION_DETAILS.getValue()));
-	query.getConstraint().add(constraint2);
-
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-
-	return query;
-    }
-
-    public static QueryDTO getQueryForLastKeyMixingRequest(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.KEY_MIXING_REQUEST.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForKeyMixingResultForMixer(String section, PublicKey publicKey)
-	    throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.KEY_MIXING_RESULT.getValue()));
-	query.getConstraint().add(constraint2);
-
-	IdentifierDTO identifier3 = new AlphaIdentifierDTO();
-	identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
-	ConstraintDTO constraint3 = new EqualDTO(identifier3,
-						 new StringValueDTO(computePublicKeyString(publicKey)));
-	query.getConstraint().add(constraint3);
-
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static String computePublicKeyString(PublicKey publicKey) throws UnivoteException {
-	if (publicKey instanceof DSAPublicKey) {
-	    DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
-	    return dsaPubKey.getY().toString(10);
-	} else if (publicKey instanceof RSAPublicKey) {
-	    RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
-	    BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
-
-	    return unicertRsaPubKey.toString(10);
+	public static QueryDTO getQueryFormUniCertForEACert(String name) {
+		QueryDTO query = new QueryDTO();
+		//from unicert
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
+		query.getConstraint().add(constraint);
+		//from certificates
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
+		query.getConstraint().add(constraint2);
+		//Where common name is equal to ea name
+		IdentifierDTO identifier3 = new MessageIdentifierDTO();
+		identifier3.getPart().add("commonName");
+		ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(name));
+		query.getConstraint().add(constraint3);
+		//Where cert type is trustee
+		IdentifierDTO identifier4 = new MessageIdentifierDTO();
+		identifier4.getPart().add("roles");
+		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("ElectionAdministrator"));
+		query.getConstraint().add(constraint4);
+		//Order by timestamp desc
+		IdentifierDTO identifier5 = new BetaIdentifierDTO();
+		identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier5, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
 	}
-	throw new UnivoteException("Unssuport public key type");
-    }
 
-    public static QueryDTO getQueryForAccessRight(String section, PublicKey publicKey, GroupEnum group)
-	    throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.ACCESS_RIGHT.getValue()));
-	query.getConstraint().add(constraint2);
-
-	IdentifierDTO identifier3 = new MessageIdentifierDTO();
-	identifier3.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint3 = new EqualDTO(identifier3,
-						 new StringValueDTO(group.getValue()));
-	query.getConstraint().add(constraint3);
-
-	addConstraint(query, publicKey);
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForPartialDecryptionForTallier(String section, PublicKey publicKey)
-	    throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.PARTIAL_DECRYPTION.getValue()));
-	query.getConstraint().add(constraint2);
-
-	IdentifierDTO identifier3 = new AlphaIdentifierDTO();
-	identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
-	ConstraintDTO constraint3
-		= new EqualDTO(identifier3, new StringValueDTO(computePublicKeyString(publicKey)));
-	query.getConstraint().add(constraint3);
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForVoteMixingResultForMixer(String section, PublicKey publicKey)
-	    throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.VOTE_MIXING_RESULT.getValue()));
-	query.getConstraint().add(constraint2);
-
-	IdentifierDTO identifier3 = new AlphaIdentifierDTO();
-	identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
-	ConstraintDTO constraint3
-		= new EqualDTO(identifier3, new StringValueDTO(computePublicKeyString(publicKey)));
-	query.getConstraint().add(constraint3);
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForVoteMixingRequestForMixer(String section, String tenant)
-	    throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.VOTE_MIXING_REQUEST.getValue()));
-	query.getConstraint().add(constraint2);
-
-	IdentifierDTO identifier3 = new MessageIdentifierDTO();
-	identifier3.getPart().add("mixerId");
-	ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(tenant));
-	query.getConstraint().add(constraint3);
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	query.setLimit(1);
-	return query;
-    }
-
-    public static QueryDTO getQueryForVoteMixingResults(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.VOTE_MIXING_RESULT.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	return query;
-    }
-
-    public static QueryDTO getQueryForMixedVotes(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
-
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier,
-						 new StringValueDTO(GroupEnum.MIXED_VOTES.getValue()));
-	query.getConstraint().add(constraint2);
-	//Order by timestamp desc
-	IdentifierDTO identifier3 = new BetaIdentifierDTO();
-	identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier3, false));
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
-
-    private static void addConstraint(QueryDTO query, PublicKey publicKey) throws UnivoteException {
-	if (publicKey instanceof RSAPublicKey) {
-	    RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
-	    BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
-	    IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
-	    keyIdent1.getPart().add("crypto");
-	    keyIdent1.getPart().add("publickey");
-	    ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(unicertRsaPubKey.toString(10)));
-	    query.getConstraint().add(keyConstraint1);
-	} else if (publicKey instanceof DSAPublicKey) {
-	    DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
-	    IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
-	    keyIdent1.getPart().add("crypto");
-	    keyIdent1.getPart().add("publickey");
-	    ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(dsaPubKey.getY().toString(10)));
-	    query.getConstraint().add(keyConstraint1);
-	    IdentifierDTO keyIdent2 = new MessageIdentifierDTO();
-	    keyIdent2.getPart().add("crypto");
-	    keyIdent2.getPart().add("p");
-	    ConstraintDTO keyConstraint2 = new EqualDTO(keyIdent2,
-							new StringValueDTO(dsaPubKey.getParams().getP().toString(10)));
-	    query.getConstraint().add(keyConstraint2);
-	    IdentifierDTO keyIdent3 = new MessageIdentifierDTO();
-	    keyIdent3.getPart().add("crypto");
-	    keyIdent3.getPart().add("q");
-	    ConstraintDTO keyConstraint3 = new EqualDTO(keyIdent3,
-							new StringValueDTO(dsaPubKey.getParams().getQ().toString(10)));
-	    query.getConstraint().add(keyConstraint3);
-	    IdentifierDTO keyIdent4 = new MessageIdentifierDTO();
-	    keyIdent4.getPart().add("crypto");
-	    keyIdent4.getPart().add("g");
-	    ConstraintDTO keyConstraint4 = new EqualDTO(keyIdent4,
-							new StringValueDTO(dsaPubKey.getParams().getG().toString(10)));
-	    query.getConstraint().add(keyConstraint4);
-
-	} else {
-	    throw new UnivoteException("Unsupported public key: " + publicKey.getClass());
+	public static QueryDTO getQueryFormUniCertForTrusteeCert(String name) {
+		QueryDTO query = new QueryDTO();
+		//from unicert
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
+		query.getConstraint().add(constraint);
+		//from certificates
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
+		query.getConstraint().add(constraint2);
+		//Where common name is equal to trustee name
+		IdentifierDTO identifier3 = new MessageIdentifierDTO();
+		identifier3.getPart().add("commonName");
+		ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(name));
+		query.getConstraint().add(constraint3);
+		//Where cert type is trustee
+		IdentifierDTO identifier4 = new MessageIdentifierDTO();
+		identifier4.getPart().add("roles");
+		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("Trustee"));
+		query.getConstraint().add(constraint4);
+		//Order by timestamp desc
+		IdentifierDTO identifier5 = new BetaIdentifierDTO();
+		identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier5, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
 	}
-    }
 
-    public static QueryDTO getQueryForEncryptionKeyShareForTallier(String section, PublicKey publicKey)
-	    throws UnivoteException {
+	public static QueryDTO getQueryFormUniCertForVoterCert(String name) {
+		QueryDTO query = new QueryDTO();
+		//from unicert
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
+		query.getConstraint().add(constraint);
+		//from certificates
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
+		query.getConstraint().add(constraint2);
+		//Where common name is equal to ea name
+		IdentifierDTO identifier3 = new MessageIdentifierDTO();
+		identifier3.getPart().add("commonName");
+		ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(name));
+		query.getConstraint().add(constraint3);
+		//Where cert type is trustee
+		IdentifierDTO identifier4 = new MessageIdentifierDTO();
+		identifier4.getPart().add("roles");
+		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("Voter"));
+		query.getConstraint().add(constraint4);
+		//Order by timestamp desc
+		IdentifierDTO identifier5 = new BetaIdentifierDTO();
+		identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier5, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
+	public static QueryDTO getQueryFormUniCertForVoterCert() {
+		QueryDTO query = new QueryDTO();
+		//from unicert
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO("unicert"));
+		query.getConstraint().add(constraint);
+		//from certificates
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO("certificate"));
+		query.getConstraint().add(constraint2);
+		//Where cert type is trustee
+		IdentifierDTO identifier4 = new MessageIdentifierDTO();
+		identifier4.getPart().add("roles");
+		EqualDTO constraint4 = new EqualDTO(identifier4, new StringValueDTO("Voter"));
+		query.getConstraint().add(constraint4);
+		//Order by timestamp desc
+		IdentifierDTO identifier5 = new BetaIdentifierDTO();
+		identifier5.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier5, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ENCRYPTION_KEY_SHARE.getValue()));
-	query.getConstraint().add(constraint2);
+	public static QueryDTO getQueryForEACert(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-	IdentifierDTO identifier3 = new AlphaIdentifierDTO();
-	identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
-	ConstraintDTO constraint3
-		= new EqualDTO(identifier3, new StringValueDTO(computePublicKeyString(publicKey)));
-	query.getConstraint().add(constraint3);
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	query.setLimit(1);
-	return query;
-    }
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ADMIN_CERT.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-    public static QueryDTO getQueryForSingleKeyMixingResultsForMixer(String section, PublicKey publicKey)
-	    throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
+	public static QueryDTO getQueryForTrusteeCerts(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.SINGLE_KEY_MIXING_RESULT.getValue()));
-	query.getConstraint().add(constraint2);
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.TRUSTEE_CERTIFICATES.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-	IdentifierDTO identifier3 = new AlphaIdentifierDTO();
-	identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
-	ConstraintDTO constraint3
-		= new EqualDTO(identifier3, new StringValueDTO(computePublicKeyString(publicKey)));
-	query.getConstraint().add(constraint3);
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	return query;
-    }
+	public static QueryDTO getQueryForTrustees(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-    public static QueryDTO getQueryForKeyMixingRequestForMixer(String section, String tenant)
-	    throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.TRUSTEES.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.KEY_MIXING_REQUEST.getValue()));
-	query.getConstraint().add(constraint2);
+	public static QueryDTO getQueryForElectionDefinition(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-	IdentifierDTO identifier3 = new MessageIdentifierDTO();
-	identifier3.getPart().add("mixerId");
-	ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(tenant));
-	query.getConstraint().add(constraint3);
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	query.setLimit(1);
-	return query;
-    }
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.ELECTION_DEFINITION.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-    public static QueryDTO getQueryForSingleKeyMixingRequestsForMixer(String section, String tenant)
-	    throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
+	public static QueryDTO getQueryForCryptoSetting(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2
-		= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.SINGLE_KEY_MIXING_REQUEST.getValue()));
-	query.getConstraint().add(constraint2);
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.CRYPTO_SETTING.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-	IdentifierDTO identifier3 = new MessageIdentifierDTO();
-	identifier3.getPart().add("mixerId");
-	ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(tenant));
-	query.getConstraint().add(constraint3);
-	//Order by timestamp desc
-	IdentifierDTO identifier4 = new BetaIdentifierDTO();
-	identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
-	query.getOrder().add(new OrderDTO(identifier4, false));
-	return query;
-    }
+	public static QueryDTO getQueryForSecurityLevel(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-    public static QueryDTO getQueryForBallot(String section, PublicKey mixedVK) throws UnivoteException {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.SECURITY_LEVEL.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.BALLOT.getValue()));
-	query.getConstraint().add(constraint2);
+	public static QueryDTO getQueryForEncryptionKey(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-	IdentifierDTO identifier3 = new AlphaIdentifierDTO();
-	identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
-	ConstraintDTO constraint3 = new EqualDTO(identifier3,
-						 new StringValueDTO(computePublicKeyString(mixedVK)));
-	query.getConstraint().add(constraint3);
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ENCRYPTION_KEY.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-	//Return only first post
-	query.setLimit(1);
-	return query;
-    }
+	public static QueryDTO getQueryForDecryptedVotes(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-    public static QueryDTO getQueryForAddedVoterCertificate(String section, String commonName) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.DECRYPTED_VOTES.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.ADDED_VOTER_CERTIFICATE.getValue()));
-	query.getConstraint().add(constraint2);
+	public static QueryDTO getQueryForEncryptionKeyShares(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-	IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
-	keyIdent1.getPart().add("commonName");
-	ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(commonName));
-	query.getConstraint().add(keyConstraint1);
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.ENCRYPTION_KEY_SHARE.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		return query;
+	}
 
-	return query;
-    }
+	public static QueryDTO getQueryForPartialDecryptions(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-    public static QueryDTO getQueryForCancelledVoterCertificate(String section, String commonName) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.PARTIAL_DECRYPTION.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		return query;
+	}
 
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue()));
-	query.getConstraint().add(constraint2);
+	public static QueryDTO getQueryForValidVotes(String section) {
+		// Not yet implemented... If this causes the error and you have seeked for it for too long... Sorry.
+		return null;
+	}
 
-	IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
-	keyIdent1.getPart().add("commonName");
-	ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(commonName));
-	query.getConstraint().add(keyConstraint1);
+	public static QueryDTO getQueryForMixedKeys(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-	return query;
-    }
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.MIXED_KEYS.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
 
-    public static QueryDTO getQueryForVoterCertificates(String section) {
-	QueryDTO query = new QueryDTO();
-	IdentifierDTO identifier = new AlphaIdentifierDTO();
-	identifier.getPart().add(AlphaEnum.SECTION.getValue());
-	ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
-	query.getConstraint().add(constraint);
+	public static QueryDTO getQueryForKeyMixingResults(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
 
-	IdentifierDTO identifier2 = new AlphaIdentifierDTO();
-	identifier2.getPart().add(AlphaEnum.GROUP.getValue());
-	ConstraintDTO constraint2 = new EqualDTO(identifier2,
-						 new StringValueDTO(GroupEnum.VOTER_CERTIFICATES.getValue()));
-	query.getConstraint().add(constraint2);
-	//TODO: How many VoterCertificates will come back? One List of VoterCertificates or multiple VoterCertificates?
-	return query;
-    }
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.KEY_MIXING_RESULT.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		return query;
+	}
+
+	public static QueryDTO getQueryForElectoralRoll(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ELECTORAL_ROLL.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForVotingData(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.VOTING_DATA.getValue()));
+		query.getConstraint().add(constraint2);
+
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+
+		return query;
+	}
+
+	public static QueryDTO getQueryForElectionDetails(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ELECTION_DETAILS.getValue()));
+		query.getConstraint().add(constraint2);
+
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+
+		return query;
+	}
+
+	public static QueryDTO getQueryForLastKeyMixingRequest(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.KEY_MIXING_REQUEST.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForKeyMixingResultForMixer(String section, PublicKey publicKey)
+			throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.KEY_MIXING_RESULT.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new AlphaIdentifierDTO();
+		identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
+		ConstraintDTO constraint3 = new EqualDTO(identifier3,
+				new StringValueDTO(computePublicKeyString(publicKey)));
+		query.getConstraint().add(constraint3);
+
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
+
+	public static String computePublicKeyString(PublicKey publicKey) throws UnivoteException {
+		if (publicKey instanceof DSAPublicKey) {
+			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
+			return dsaPubKey.getY().toString(10);
+		} else if (publicKey instanceof RSAPublicKey) {
+			RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
+			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
+
+			return unicertRsaPubKey.toString(10);
+		}
+		throw new UnivoteException("Unssuport public key type");
+	}
+
+	public static QueryDTO getQueryForAccessRight(String section, PublicKey publicKey, GroupEnum group)
+			throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.ACCESS_RIGHT.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new MessageIdentifierDTO();
+		identifier3.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint3 = new EqualDTO(identifier3,
+				new StringValueDTO(group.getValue()));
+		query.getConstraint().add(constraint3);
+
+		addConstraint(query, publicKey);
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForPartialDecryptionForTallier(String section, PublicKey publicKey)
+			throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.PARTIAL_DECRYPTION.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new AlphaIdentifierDTO();
+		identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
+		ConstraintDTO constraint3
+				= new EqualDTO(identifier3, new StringValueDTO(computePublicKeyString(publicKey)));
+		query.getConstraint().add(constraint3);
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForVoteMixingResultForMixer(String section, PublicKey publicKey)
+			throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.VOTE_MIXING_RESULT.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new AlphaIdentifierDTO();
+		identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
+		ConstraintDTO constraint3
+				= new EqualDTO(identifier3, new StringValueDTO(computePublicKeyString(publicKey)));
+		query.getConstraint().add(constraint3);
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForVoteMixingRequestForMixer(String section, String tenant)
+			throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.VOTE_MIXING_REQUEST.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new MessageIdentifierDTO();
+		identifier3.getPart().add("mixerId");
+		ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(tenant));
+		query.getConstraint().add(constraint3);
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForVoteMixingResults(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.VOTE_MIXING_RESULT.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		return query;
+	}
+
+	public static QueryDTO getQueryForMixedVotes(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier,
+				new StringValueDTO(GroupEnum.MIXED_VOTES.getValue()));
+		query.getConstraint().add(constraint2);
+		//Order by timestamp desc
+		IdentifierDTO identifier3 = new BetaIdentifierDTO();
+		identifier3.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier3, false));
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
+
+	private static void addConstraint(QueryDTO query, PublicKey publicKey) throws UnivoteException {
+		if (publicKey instanceof RSAPublicKey) {
+			RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
+			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
+			IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
+			keyIdent1.getPart().add("crypto");
+			keyIdent1.getPart().add("publickey");
+			ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(unicertRsaPubKey.toString(10)));
+			query.getConstraint().add(keyConstraint1);
+		} else if (publicKey instanceof DSAPublicKey) {
+			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
+			IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
+			keyIdent1.getPart().add("crypto");
+			keyIdent1.getPart().add("publickey");
+			ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(dsaPubKey.getY().toString(10)));
+			query.getConstraint().add(keyConstraint1);
+			IdentifierDTO keyIdent2 = new MessageIdentifierDTO();
+			keyIdent2.getPart().add("crypto");
+			keyIdent2.getPart().add("p");
+			ConstraintDTO keyConstraint2 = new EqualDTO(keyIdent2,
+					new StringValueDTO(dsaPubKey.getParams().getP().toString(10)));
+			query.getConstraint().add(keyConstraint2);
+			IdentifierDTO keyIdent3 = new MessageIdentifierDTO();
+			keyIdent3.getPart().add("crypto");
+			keyIdent3.getPart().add("q");
+			ConstraintDTO keyConstraint3 = new EqualDTO(keyIdent3,
+					new StringValueDTO(dsaPubKey.getParams().getQ().toString(10)));
+			query.getConstraint().add(keyConstraint3);
+			IdentifierDTO keyIdent4 = new MessageIdentifierDTO();
+			keyIdent4.getPart().add("crypto");
+			keyIdent4.getPart().add("g");
+			ConstraintDTO keyConstraint4 = new EqualDTO(keyIdent4,
+					new StringValueDTO(dsaPubKey.getParams().getG().toString(10)));
+			query.getConstraint().add(keyConstraint4);
+
+		} else {
+			throw new UnivoteException("Unsupported public key: " + publicKey.getClass());
+		}
+	}
+
+	public static QueryDTO getQueryForEncryptionKeyShareForTallier(String section, PublicKey publicKey)
+			throws UnivoteException {
+
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.ENCRYPTION_KEY_SHARE.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new AlphaIdentifierDTO();
+		identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
+		ConstraintDTO constraint3
+				= new EqualDTO(identifier3, new StringValueDTO(computePublicKeyString(publicKey)));
+		query.getConstraint().add(constraint3);
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForSingleKeyMixingResultsForMixer(String section, PublicKey publicKey)
+			throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.SINGLE_KEY_MIXING_RESULT.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new AlphaIdentifierDTO();
+		identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
+		ConstraintDTO constraint3
+				= new EqualDTO(identifier3, new StringValueDTO(computePublicKeyString(publicKey)));
+		query.getConstraint().add(constraint3);
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		return query;
+	}
+
+	public static QueryDTO getQueryForKeyMixingRequestForMixer(String section, String tenant)
+			throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.KEY_MIXING_REQUEST.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new MessageIdentifierDTO();
+		identifier3.getPart().add("mixerId");
+		ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(tenant));
+		query.getConstraint().add(constraint3);
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForSingleKeyMixingRequestsForMixer(String section, String tenant)
+			throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2
+				= new EqualDTO(identifier2, new StringValueDTO(GroupEnum.SINGLE_KEY_MIXING_REQUEST.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new MessageIdentifierDTO();
+		identifier3.getPart().add("mixerId");
+		ConstraintDTO constraint3 = new EqualDTO(identifier3, new StringValueDTO(tenant));
+		query.getConstraint().add(constraint3);
+		//Order by timestamp desc
+		IdentifierDTO identifier4 = new BetaIdentifierDTO();
+		identifier4.getPart().add(BetaEnum.TIMESTAMP.getValue());
+		query.getOrder().add(new OrderDTO(identifier4, false));
+		return query;
+	}
+
+	public static QueryDTO getQueryForBallot(String section, PublicKey mixedVK) throws UnivoteException {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2, new StringValueDTO(GroupEnum.BALLOT.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO identifier3 = new AlphaIdentifierDTO();
+		identifier3.getPart().add(AlphaEnum.PUBLICKEY.getValue());
+		ConstraintDTO constraint3 = new EqualDTO(identifier3,
+				new StringValueDTO(computePublicKeyString(mixedVK)));
+		query.getConstraint().add(constraint3);
+
+		//Return only first post
+		query.setLimit(1);
+		return query;
+	}
+
+	public static QueryDTO getQueryForAddedVoterCertificate(String section, String commonName) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.ADDED_VOTER_CERTIFICATE.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
+		keyIdent1.getPart().add("commonName");
+		ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(commonName));
+		query.getConstraint().add(keyConstraint1);
+
+		return query;
+	}
+
+	public static QueryDTO getQueryForCancelledVoterCertificate(String section, String commonName) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue()));
+		query.getConstraint().add(constraint2);
+
+		IdentifierDTO keyIdent1 = new MessageIdentifierDTO();
+		keyIdent1.getPart().add("commonName");
+		ConstraintDTO keyConstraint1 = new EqualDTO(keyIdent1, new StringValueDTO(commonName));
+		query.getConstraint().add(keyConstraint1);
+
+		return query;
+	}
+
+	public static QueryDTO getQueryForVoterCertificates(String section) {
+		QueryDTO query = new QueryDTO();
+		IdentifierDTO identifier = new AlphaIdentifierDTO();
+		identifier.getPart().add(AlphaEnum.SECTION.getValue());
+		ConstraintDTO constraint = new EqualDTO(identifier, new StringValueDTO(section));
+		query.getConstraint().add(constraint);
+
+		IdentifierDTO identifier2 = new AlphaIdentifierDTO();
+		identifier2.getPart().add(AlphaEnum.GROUP.getValue());
+		ConstraintDTO constraint2 = new EqualDTO(identifier2,
+				new StringValueDTO(GroupEnum.VOTER_CERTIFICATES.getValue()));
+		query.getConstraint().add(constraint2);
+		//TODO: How many VoterCertificates will come back? One List of VoterCertificates or multiple VoterCertificates?
+		return query;
+	}
 
 }

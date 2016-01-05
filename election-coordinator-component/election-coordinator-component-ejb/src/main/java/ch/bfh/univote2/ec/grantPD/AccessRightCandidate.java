@@ -39,51 +39,34 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.common.query;
+package ch.bfh.univote2.ec.grantPD;
+
+import ch.bfh.univote2.ec.grantEKS.*;
+import java.security.PublicKey;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public class AccessRightCandidate {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	BALLOT("ballot"),
-	ELECTION_DEFINITION("electionDefinition"),
-	ELECTION_DETAILS("electionDetails"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
-	ENCRYPTION_KEY("encryptionKey"),
-	KEY_MIXING_REQUEST("keyMixingRequest"),
-	KEY_MIXING_RESULT("keyMixingResult"),
-	SINGLE_KEY_MIXING_REQUEST("singleKeyMixingRequest"),
-	SINGLE_KEY_MIXING_RESULT("singleKeyMixingResult"),
-	MIXED_KEYS("mixedKeys"),
-	PARTIAL_DECRYPTION("partialDecryption"),
-	VOTE_MIXING_REQUEST("voteMixingRequest"),
-	VOTE_MIXING_RESULT("voteMixingResult"),
-	VALID_VOTES("validVotes"),
-	MIXED_VOTES("mixedVotes"),
-	VOTING_DATA("votingData"),
-	NEW_VOTER_CERTIFICATE("newVoterCertificate"),
-	VOTER_CERTIFICATES("voterCertificates"),
-	ADDED_VOTER_CERTIFICATE("addedVoterCertificate"),
-	CANCELLED_VOTER_CERTIFICATE("cancelledVoterCertificate"),
-	DECRYPTED_VOTES("decryptedVotes");
+	private final PublicKey publicKey;
+	private AccessRightStatus granted = AccessRightStatus.UNKOWN;
 
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	public AccessRightCandidate(PublicKey publicKey) {
+		this.publicKey = publicKey;
 	}
 
-	public String getValue() {
-		return value;
+	public PublicKey getPublicKey() {
+		return publicKey;
+	}
+
+	public void setGranted(AccessRightStatus granted) {
+		this.granted = granted;
+	}
+
+	public AccessRightStatus getGranted() {
+		return granted;
 	}
 
 }

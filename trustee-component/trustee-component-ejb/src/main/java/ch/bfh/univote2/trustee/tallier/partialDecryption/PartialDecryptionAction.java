@@ -117,285 +117,285 @@ import javax.ejb.Stateless;
 @Stateless
 public class PartialDecryptionAction extends AbstractAction implements NotifiableAction {
 
-    private static final String ACTION_NAME = PartialDecryptionAction.class.getSimpleName();
+	private static final String ACTION_NAME = PartialDecryptionAction.class.getSimpleName();
 
-    private static final Logger logger = Logger.getLogger(PartialDecryptionAction.class.getName());
+	private static final Logger logger = Logger.getLogger(PartialDecryptionAction.class.getName());
 
-    @EJB
-    ActionManager actionManager;
-    @EJB
-    TenantManager tenantManager;
-    @EJB
-    InformationService informationService;
-    @EJB
-    private UniboardService uniboardService;
-    @EJB
-    private SecurePersistenceService securePersistenceService;
+	@EJB
+	ActionManager actionManager;
+	@EJB
+	TenantManager tenantManager;
+	@EJB
+	InformationService informationService;
+	@EJB
+	private UniboardService uniboardService;
+	@EJB
+	private SecurePersistenceService securePersistenceService;
 
-    @Override
-    protected ActionContext createContext(String tenant, String section) {
-	ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-	return new PartialDecryptionActionContext(ack);
-    }
-
-    @Override
-    protected boolean checkPostCondition(ActionContext actionContext) {
-	if (!(actionContext instanceof PartialDecryptionActionContext)) {
-	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
-	    return false;
-	}
-	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
-	try {
-	    PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
-	    ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-								 QueryFactory.getQueryForPartialDecryptionForTallier(actionContext.getSection(), publicKey));
-	    if (!result.getResult().getPost().isEmpty()) {
-		return true;
-	    }
-	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not request encryption key share.", ex);
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Could not check post condition.");
-	    return false;
-	}
-	return false;
-    }
-
-    @Override
-    protected void definePreconditions(ActionContext actionContext) {
-	if (!(actionContext instanceof PartialDecryptionActionContext)) {
-	    logger.log(Level.SEVERE, "The actionContext was not the expected one.");
-	    return;
-	}
-	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
-	TrusteeActionHelper.checkAndSetCryptoSetting(pdac, uniboardService, tenantManager, informationService, logger);
-	TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.PARTIAL_DECRYPTION, uniboardService, tenantManager,
-						    informationService, logger);
-	this.checkAndSetMixedVotes(pdac);
-    }
-
-    protected void checkAndSetMixedVotes(PartialDecryptionActionContext actionContext) {
-	ActionContextKey actionContextKey = actionContext.getActionContextKey();
-	String section = actionContext.getSection();
-	try {
-	    MixedVotes mixedVotes = actionContext.getMixedVotes();
-
-	    //Add Notification
-	    if (mixedVotes == null) {
-		mixedVotes = retrieveMixedVotes(actionContext);
-		actionContext.setMixedVotes(mixedVotes);
-	    }
-
-	} catch (UnivoteException ex) {
-	    logger.log(Level.WARNING, "Could not get mixedVotes.", ex);
-	    informationService.informTenant(actionContextKey,
-					    "Could not retrive mixed votes.");
-	    //Add Notification
-	    BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-		    QueryFactory.getQueryForMixedVotes(section), BoardsEnum.UNIVOTE.getValue());
-	    actionContext.getPreconditionQueries().add(bQuery);
-	}
-    }
-
-    @Override
-    @Asynchronous
-    public void run(ActionContext actionContext) {
-	if (!(actionContext instanceof PartialDecryptionActionContext)) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
-	}
-	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
-	if (!pdac.getAccessRightGranted()) {
-	    TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.PARTIAL_DECRYPTION, uniboardService,
-							tenantManager, informationService, logger);
-	    if (!pdac.getAccessRightGranted()) {
-		logger.log(Level.INFO, "Access right has not been granted yet.");
-		this.informationService.informTenant(pdac.getActionContextKey(), "Access right not yet granted.");
-		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		return;
-	    }
-	}
-	String tenant = actionContext.getTenant();
-	String section = actionContext.getSection();
-
-	if (pdac.getCryptoSetting() == null) {
-	    try {
-		pdac.setCryptoSetting(TrusteeActionHelper.retrieveCryptoSetting(actionContext, uniboardService));
-	    } catch (UnivoteException ex) {
-		logger.log(Level.WARNING, "Crypto setting is not published yet.", ex);
-		this.informationService.informTenant(actionContext.getActionContextKey(),
-						     "Crypto setting not published yet.");
-		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		return;
-	    }
-	}
-	if (pdac.getMixedVotes() == null) {
-	    try {
-		pdac.setMixedVotes(this.retrieveMixedVotes(actionContext));
-	    } catch (UnivoteException ex) {
-		logger.log(Level.WARNING, "Mixed votes are not published yet.", ex);
-		this.informationService.informTenant(actionContext.getActionContextKey(),
-						     "Mixed votes are not published yet.");
-		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		return;
-	    }
+	@Override
+	protected ActionContext createContext(String tenant, String section) {
+		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
+		return new PartialDecryptionActionContext(ack);
 	}
 
-	CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(pdac.getCryptoSetting().getEncryptionSetting());
-
-	try {
-	    BigInteger privateKey = securePersistenceService.retrieve(tenant, section,
-								      SharedKeyCreationAction.PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE);
-	    CyclicGroup cyclicGroup = cSetup.cryptoGroup;
-	    Element encryptionGenerator = cSetup.cryptoGenerator;
-
-	    Element secretKey = cyclicGroup.getElementFrom(privateKey);
-	    Element decryptionKey = secretKey.invert();
-	    Element publicKey = encryptionGenerator.selfApply(secretKey);
-
-	    List<Element> partialDecryptions = new ArrayList<>();
-	    List<String> partialDecryptionsAsStrings = new ArrayList<>();
-	    List<Function> generatorFunctions = new ArrayList<>();
-	    for (EncryptedVote v : pdac.getMixedVotes().getMixedVotes()) {
-		Element element = cyclicGroup.getElementFrom(v.getFirstValue());
-		GeneratorFunction function = GeneratorFunction.getInstance(element);
-		generatorFunctions.add(function);
-		Element partialDecryption = function.apply(decryptionKey);
-		partialDecryptions.add(partialDecryption);
-		partialDecryptionsAsStrings.add(partialDecryption.convertToString());
-	    }
-	    SigmaProof proofDTO = createProof(tenant, pdac.getCryptoSetting(), secretKey, publicKey,
-					      partialDecryptions.toArray(new Element[0]), generatorFunctions.toArray(new Function[0]));
-	    PartialDecryption partialDecryptionDTO = new PartialDecryption(partialDecryptionsAsStrings, proofDTO);
-
-	    String partialDecryptionsString = JSONConverter.marshal(partialDecryptionDTO);
-	    byte[] partialDecryptionsByteArray = partialDecryptionsString.getBytes(Charset.forName("UTF-8"));
-
-	    this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section,
-				      GroupEnum.PARTIAL_DECRYPTION.getValue(), partialDecryptionsByteArray, tenant);
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Posted key share for encrcyption. Action finished.");
-	    this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-
-	} catch (UnivoteException ex) {
-	    //No key available. Unsolvable problem encountered.
-	    this.informationService.informTenant(actionContext.getActionContextKey(),
-						 "Could not access private key for decryption. Action failed.");
-	    Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+	@Override
+	protected boolean checkPostCondition(ActionContext actionContext) {
+		if (!(actionContext instanceof PartialDecryptionActionContext)) {
+			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
+			return false;
+		}
+		PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
+		try {
+			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
+			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+					QueryFactory.getQueryForPartialDecryptionForTallier(actionContext.getSection(), publicKey));
+			if (!result.getResult().getPost().isEmpty()) {
+				return true;
+			}
+		} catch (UnivoteException ex) {
+			logger.log(Level.WARNING, "Could not request encryption key share.", ex);
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not check post condition.");
+			return false;
+		}
+		return false;
 	}
-    }
 
-    @Override
-    @Asynchronous
-    public void notifyAction(ActionContext actionContext, Object notification) {
-	if (!(actionContext instanceof PartialDecryptionActionContext)) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
+	@Override
+	protected void definePreconditions(ActionContext actionContext) {
+		if (!(actionContext instanceof PartialDecryptionActionContext)) {
+			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
+			return;
+		}
+		PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
+		TrusteeActionHelper.checkAndSetCryptoSetting(pdac, uniboardService, tenantManager, informationService, logger);
+		TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.PARTIAL_DECRYPTION, uniboardService, tenantManager,
+				informationService, logger);
+		this.checkAndSetMixedVotes(pdac);
 	}
-	PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
 
-	this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
+	protected void checkAndSetMixedVotes(PartialDecryptionActionContext actionContext) {
+		ActionContextKey actionContextKey = actionContext.getActionContextKey();
+		String section = actionContext.getSection();
+		try {
+			MixedVotes mixedVotes = actionContext.getMixedVotes();
 
-	if (!(notification instanceof PostDTO)) {
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	    return;
+			//Add Notification
+			if (mixedVotes == null) {
+				mixedVotes = retrieveMixedVotes(actionContext);
+				actionContext.setMixedVotes(mixedVotes);
+			}
+
+		} catch (UnivoteException ex) {
+			logger.log(Level.WARNING, "Could not get mixedVotes.", ex);
+			informationService.informTenant(actionContextKey,
+					"Could not retrive mixed votes.");
+			//Add Notification
+			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
+					QueryFactory.getQueryForMixedVotes(section), BoardsEnum.UNIVOTE.getValue());
+			actionContext.getPreconditionQueries().add(bQuery);
+		}
 	}
-	PostDTO post = (PostDTO) notification;
-	try {
-	    Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
-	    attr.containsKey(AlphaEnum.GROUP.getValue());
 
-	    if (attr.containsKey(AlphaEnum.GROUP.getValue())
-		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-		    && GroupEnum.ACCESS_RIGHT.getValue()
-		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
-		pdac.setAccessRightGranted(Boolean.TRUE);
-	    }
+	@Override
+	@Asynchronous
+	public void run(ActionContext actionContext) {
+		if (!(actionContext instanceof PartialDecryptionActionContext)) {
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
+		if (!pdac.getAccessRightGranted()) {
+			TrusteeActionHelper.checkAndSetAccsessRight(pdac, GroupEnum.PARTIAL_DECRYPTION, uniboardService,
+					tenantManager, informationService, logger);
+			if (!pdac.getAccessRightGranted()) {
+				logger.log(Level.INFO, "Access right has not been granted yet.");
+				this.informationService.informTenant(pdac.getActionContextKey(), "Access right not yet granted.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+		}
+		String tenant = actionContext.getTenant();
+		String section = actionContext.getSection();
 
-	    if (pdac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-		    && GroupEnum.CRYPTO_SETTING.getValue()
-		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
-		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
-		pdac.setCryptoSetting(cryptoSetting);
-	    }
-	    if (pdac.getMixedVotes() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-		    && attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-		    && GroupEnum.MIXED_VOTES.getValue()
-		    .equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
-		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, post.getMessage());
-		pdac.setMixedVotes(mixedVotes);
-	    }
+		if (pdac.getCryptoSetting() == null) {
+			try {
+				pdac.setCryptoSetting(TrusteeActionHelper.retrieveCryptoSetting(actionContext, uniboardService));
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, "Crypto setting is not published yet.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Crypto setting not published yet.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+		}
+		if (pdac.getMixedVotes() == null) {
+			try {
+				pdac.setMixedVotes(this.retrieveMixedVotes(actionContext));
+			} catch (UnivoteException ex) {
+				logger.log(Level.WARNING, "Mixed votes are not published yet.", ex);
+				this.informationService.informTenant(actionContext.getActionContextKey(),
+						"Mixed votes are not published yet.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				return;
+			}
+		}
 
-	    run(actionContext);
-	} catch (UnivoteException ex) {
-	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-	} catch (TransformException ex) {
-	    Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
-	    this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
-	    this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(pdac.getCryptoSetting().getEncryptionSetting());
+
+		try {
+			BigInteger privateKey = securePersistenceService.retrieve(tenant, section,
+					SharedKeyCreationAction.PERSISTENCE_NAME_FOR_SECRET_KEY_SHARE);
+			CyclicGroup cyclicGroup = cSetup.cryptoGroup;
+			Element encryptionGenerator = cSetup.cryptoGenerator;
+
+			Element secretKey = cyclicGroup.getElementFrom(privateKey);
+			Element decryptionKey = secretKey.invert();
+			Element publicKey = encryptionGenerator.selfApply(secretKey);
+
+			List<Element> partialDecryptions = new ArrayList<>();
+			List<String> partialDecryptionsAsStrings = new ArrayList<>();
+			List<Function> generatorFunctions = new ArrayList<>();
+			for (EncryptedVote v : pdac.getMixedVotes().getMixedVotes()) {
+				Element element = cyclicGroup.getElementFrom(v.getFirstValue());
+				GeneratorFunction function = GeneratorFunction.getInstance(element);
+				generatorFunctions.add(function);
+				Element partialDecryption = function.apply(decryptionKey);
+				partialDecryptions.add(partialDecryption);
+				partialDecryptionsAsStrings.add(partialDecryption.convertToString());
+			}
+			SigmaProof proofDTO = createProof(tenant, pdac.getCryptoSetting(), secretKey, publicKey,
+					partialDecryptions.toArray(new Element[0]), generatorFunctions.toArray(new Function[0]));
+			PartialDecryption partialDecryptionDTO = new PartialDecryption(partialDecryptionsAsStrings, proofDTO);
+
+			String partialDecryptionsString = JSONConverter.marshal(partialDecryptionDTO);
+			byte[] partialDecryptionsByteArray = partialDecryptionsString.getBytes(Charset.forName("UTF-8"));
+
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), section,
+					GroupEnum.PARTIAL_DECRYPTION.getValue(), partialDecryptionsByteArray, tenant);
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Posted key share for encrcyption. Action finished.");
+			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+
+		} catch (UnivoteException ex) {
+			//No key available. Unsolvable problem encountered.
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not access private key for decryption. Action failed.");
+			Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
 	}
-    }
 
-    protected MixedVotes retrieveMixedVotes(ActionContext actionContext) throws UnivoteException {
-	ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-						    QueryFactory.getQueryForMixedVotes(actionContext.getSection())).getResult();
-	if (result.getPost().isEmpty()) {
-	    throw new UnivoteException("Mixed votes not published yet.");
+	@Override
+	@Asynchronous
+	public void notifyAction(ActionContext actionContext, Object notification) {
+		if (!(actionContext instanceof PartialDecryptionActionContext)) {
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
+
+		this.informationService.informTenant(actionContext.getActionContextKey(), "Notified.");
+
+		if (!(notification instanceof PostDTO)) {
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			return;
+		}
+		PostDTO post = (PostDTO) notification;
+		try {
+			Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
+			attr.containsKey(AlphaEnum.GROUP.getValue());
+
+			if (attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+					&& GroupEnum.ACCESS_RIGHT.getValue()
+					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
+				pdac.setAccessRightGranted(Boolean.TRUE);
+			}
+
+			if (pdac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+					&& GroupEnum.CRYPTO_SETTING.getValue()
+					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
+				pdac.setCryptoSetting(cryptoSetting);
+			}
+			if (pdac.getMixedVotes() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
+					&& GroupEnum.MIXED_VOTES.getValue()
+					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+				MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, post.getMessage());
+				pdac.setMixedVotes(mixedVotes);
+			}
+
+			run(actionContext);
+		} catch (UnivoteException ex) {
+			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		} catch (TransformException ex) {
+			Logger.getLogger(PartialDecryptionAction.class.getName()).log(Level.SEVERE, null, ex);
+			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		}
+	}
+
+	protected MixedVotes retrieveMixedVotes(ActionContext actionContext) throws UnivoteException {
+		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForMixedVotes(actionContext.getSection())).getResult();
+		if (result.getPost().isEmpty()) {
+			throw new UnivoteException("Mixed votes not published yet.");
+
+		}
+		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
+		return mixedVotes;
 
 	}
-	MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
-	return mixedVotes;
 
-    }
+	/**
+	 * pi = NIZKP{(x) : y = g^x ∧ (∧_i b_i = a_i^{−x} )}.
+	 *
+	 * @param tenantPublicKey
+	 * @param cryptoSetting
+	 * @param secretKey
+	 * @param publicKey
+	 * @param partialDecryptions
+	 * @param generatorFunctions
+	 * @return
+	 */
+	protected SigmaProof createProof(String tenantPublicKey, CryptoSetting cryptoSetting, Element secretKey,
+			Element publicKey, Element[] partialDecryptions, Function[] generatorFunctions) {
+		CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(cryptoSetting.getEncryptionSetting());
+		CyclicGroup cyclicGroup = cSetup.cryptoGroup;
+		Element encryptionGenerator = cSetup.cryptoGenerator;
+		HashAlgorithm hashAlgorithm = HashAlgorithm.SHA256;
 
-    /**
-     * pi = NIZKP{(x) : y = g^x ∧ (∧_i b_i = a_i^{−x} )}.
-     *
-     * @param tenant
-     * @param cryptoSetting
-     * @param secretKey
-     * @param publicKey
-     * @param partialDecryptions
-     * @param generatorFunctions
-     * @return
-     */
-    protected SigmaProof createProof(String tenant, CryptoSetting cryptoSetting, Element secretKey,
-	    Element publicKey, Element[] partialDecryptions, Function[] generatorFunctions) {
-	CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(cryptoSetting.getEncryptionSetting());
-	CyclicGroup cyclicGroup = cSetup.cryptoGroup;
-	Element encryptionGenerator = cSetup.cryptoGenerator;
-	HashAlgorithm hashAlgorithm = HashAlgorithm.SHA256;
+		// Create proof functions
+		Function f1 = GeneratorFunction.getInstance(encryptionGenerator);
+		Function f2 = CompositeFunction.getInstance(
+				InvertFunction.getInstance(cyclicGroup.getZModOrder()),
+				MultiIdentityFunction.getInstance(cyclicGroup.getZModOrder(), generatorFunctions.length),
+				ProductFunction.getInstance(generatorFunctions));
+		// Private and public input and prover id
+		Element privateInput = secretKey;
+		Pair publicInput = Pair.getInstance(publicKey, Tuple.getInstance(partialDecryptions));
+		StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenantPublicKey);
+		HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
+		ConvertMethod convertMethod = ConvertMethod.getInstance(
+				BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+				StringToByteArray.getInstance(Charset.forName("UTF-8")));
 
-	// Create proof functions
-	Function f1 = GeneratorFunction.getInstance(encryptionGenerator);
-	Function f2 = CompositeFunction.getInstance(
-		InvertFunction.getInstance(cyclicGroup.getZModOrder()),
-		MultiIdentityFunction.getInstance(cyclicGroup.getZModOrder(), generatorFunctions.length),
-		ProductFunction.getInstance(generatorFunctions));
-	// Private and public input and prover id
-	Element privateInput = secretKey;
-	Pair publicInput = Pair.getInstance(publicKey, Tuple.getInstance(partialDecryptions));
-	StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(tenant);
-	HashMethod hashMethod = HashMethod.getInstance(hashAlgorithm);
-	ConvertMethod convertMethod = ConvertMethod.getInstance(
-		BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
-		StringToByteArray.getInstance(Charset.forName("UTF-8")));
+		Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
 
-	Converter converter = ByteArrayToBigInteger.getInstance(hashAlgorithm.getByteLength(), 1);
+		SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+				cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
+		EqualityPreimageProofSystem proofSystem = EqualityPreimageProofSystem.getInstance(challengeGenerator, f1, f2);
+		// Generate and verify proof
+		Triple proof = proofSystem.generate(privateInput, publicInput);
+		boolean result = proofSystem.verify(proof, publicInput);
 
-	SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
-		cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
-	EqualityPreimageProofSystem proofSystem = EqualityPreimageProofSystem.getInstance(challengeGenerator, f1, f2);
-	// Generate and verify proof
-	Triple proof = proofSystem.generate(privateInput, publicInput);
-	boolean result = proofSystem.verify(proof, publicInput);
-
-	SigmaProof proofDTO = new SigmaProof(proofSystem.getCommitment(proof).convertToString(),
-					     proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
-	return proofDTO;
-    }
+		SigmaProof proofDTO = new SigmaProof(proofSystem.getCommitment(proof).convertToString(),
+				proofSystem.getChallenge(proof).convertToString(), proofSystem.getResponse(proof).convertToString());
+		return proofDTO;
+	}
 
 }

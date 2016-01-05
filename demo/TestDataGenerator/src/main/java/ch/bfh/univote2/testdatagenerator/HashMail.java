@@ -39,51 +39,36 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.common.query;
+package ch.bfh.univote2.testdatagenerator;
+
+import ch.bfh.unicrypt.helper.array.classes.ByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.string.ByteArrayToString;
+import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
+import java.nio.charset.Charset;
 
 /**
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-public enum GroupEnum {
+public class HashMail {
 
-	ADMIN_CERT("administrationCertificate"),
-	ACCESS_RIGHT("accessRight"),
-	BALLOT("ballot"),
-	ELECTION_DEFINITION("electionDefinition"),
-	ELECTION_DETAILS("electionDetails"),
-	TRUSTEES("trustees"),
-	TRUSTEE_CERTIFICATES("trusteeCertificates"),
-	ELECTORAL_ROLL("electoralRoll"),
-	SECURITY_LEVEL("securityLevel"),
-	CRYPTO_SETTING("cryptoSetting"),
-	ENCRYPTION_KEY_SHARE("encryptionKeyShare"),
-	ENCRYPTION_KEY("encryptionKey"),
-	KEY_MIXING_REQUEST("keyMixingRequest"),
-	KEY_MIXING_RESULT("keyMixingResult"),
-	SINGLE_KEY_MIXING_REQUEST("singleKeyMixingRequest"),
-	SINGLE_KEY_MIXING_RESULT("singleKeyMixingResult"),
-	MIXED_KEYS("mixedKeys"),
-	PARTIAL_DECRYPTION("partialDecryption"),
-	VOTE_MIXING_REQUEST("voteMixingRequest"),
-	VOTE_MIXING_RESULT("voteMixingResult"),
-	VALID_VOTES("validVotes"),
-	MIXED_VOTES("mixedVotes"),
-	VOTING_DATA("votingData"),
-	NEW_VOTER_CERTIFICATE("newVoterCertificate"),
-	VOTER_CERTIFICATES("voterCertificates"),
-	ADDED_VOTER_CERTIFICATE("addedVoterCertificate"),
-	CANCELLED_VOTER_CERTIFICATE("cancelledVoterCertificate"),
-	DECRYPTED_VOTES("decryptedVotes");
+	private static final HashAlgorithm HASH_ALGORITHM = HashAlgorithm.SHA256;
+	private static final Converter<String, ByteArray> STRING_TO_BYTEARRAY = StringToByteArray.getInstance(Charset.forName("UTF-8"));
+	private static final Converter<ByteArray, String> BYREARRAY_TO_STRING = ByteArrayToString.getInstance(ByteArrayToString.Radix.HEX);
 
-	private final String value;
-
-	GroupEnum(String value) {
-		this.value = value;
+	/**
+	 * @param args the command line arguments
+	 */
+	public static void main(String[] args) {
+		String mail = "aaa@bbbb.ccc";
+		String hash = HashMail.hashVoterId(mail);
+		System.out.println(hash);
 	}
 
-	public String getValue() {
-		return value;
+	private static String hashVoterId(String voterId) {
+		return BYREARRAY_TO_STRING.convert(HASH_ALGORITHM.getHashValue(STRING_TO_BYTEARRAY.convert(voterId)));
 	}
 
 }
