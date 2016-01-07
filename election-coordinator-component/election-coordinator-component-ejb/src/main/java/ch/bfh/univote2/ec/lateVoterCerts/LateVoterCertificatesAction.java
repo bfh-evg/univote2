@@ -41,8 +41,12 @@
  */
 package ch.bfh.univote2.ec.lateVoterCerts;
 
+import ch.bfh.uniboard.clientlib.AttributeHelper;
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
+import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
+import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
@@ -51,11 +55,12 @@ import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.common.message.JSONConverter;
+import ch.bfh.univote2.common.message.TrusteeCertificates;
 import ch.bfh.univote2.common.message.VoterCertificates;
+import ch.bfh.univote2.common.query.AlphaEnum;
 import ch.bfh.univote2.common.query.GroupEnum;
 import ch.bfh.univote2.common.query.MessageFactory;
 import ch.bfh.univote2.common.query.QueryFactory;
-import ch.bfh.univote2.component.core.action.AbstractAction;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
@@ -84,11 +89,14 @@ import javax.ejb.Stateless;
 import javax.management.timer.TimerNotification;
 
 /**
+ * Action handling the Late Voter Certificates (see section 6.3).
  *
  * @author Reto E. Koenig <reto.koenig@bfh.ch>
+ * @author Severin Hauser <severin.hauser@bfh.ch>
+ * @author Eric Dubuis <eric.dubuis@bfh.ch>
  */
 @Stateless
-public class LateVoterCertificatesAction extends AbstractAction implements NotifiableAction {
+public class LateVoterCertificatesAction implements NotifiableAction {
 
 	private static final String ACTION_NAME = LateVoterCertificatesAction.class.getSimpleName();
 	private static final Logger logger = Logger.getLogger(LateVoterCertificatesAction.class.getName());
@@ -100,33 +108,21 @@ public class LateVoterCertificatesAction extends AbstractAction implements Notif
 	@EJB
 	private UniboardService uniboardService;
 
+
 	@Override
-	protected ActionContext createContext(String tenant, String section) {
+	public ActionContext prepareContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
-		return new LateVoterCertificatesContext(ack);
-	}
-
-	@Override
-	protected boolean checkPostCondition(ActionContext actionContext) {
-		return false; //You can always do that!  (?)
-	}
-
-	@Override
-	protected void definePreconditions(ActionContext actionContext) {
-		if (!(actionContext instanceof LateVoterCertificatesContext)) {
-			return;
-		}
-		LateVoterCertificatesContext context = (LateVoterCertificatesContext) actionContext;
+		LateVoterCertificatesContext actionContext = new LateVoterCertificatesContext(ack);
 		try {
 			{
 				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForElectoralRoll(actionContext.getSection())).getResult();
 				if (result.getPost().isEmpty()) {
 					throw new UnivoteException("Electoral Roll not yet published.");
-
 				}
-				ElectoralRoll electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, result.getPost().get(0).getMessage());
-				context.setElectoralRoll(electoralRoll);
+				ElectoralRoll electoralRoll =
+						JSONConverter.unmarshal(ElectoralRoll.class, result.getPost().get(0).getMessage());
+				actionContext.setElectoralRoll(electoralRoll);
 			}
 			{
 				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
@@ -134,8 +130,17 @@ public class LateVoterCertificatesAction extends AbstractAction implements Notif
 				if (result.getPost().isEmpty()) {
 					throw new UnivoteException("Crypto setting not yet published.");
 				}
-				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
-				context.setCryptoSetting(cryptoSetting);
+				CryptoSetting cryptoSetting =
+						JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
+				actionContext.setCryptoSetting(cryptoSetting);
+			}
+			{
+				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+						QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
+				if (result.getResult().getPost().isEmpty()) {
+					throw new UnivoteException("Trustees certificates not published yet.");
+				}
+				this.parseMixers(actionContext, result.getResult().getPost().get(0));
 			}
 			{
 				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
@@ -143,22 +148,61 @@ public class LateVoterCertificatesAction extends AbstractAction implements Notif
 				if (result.getPost().isEmpty()) {
 					throw new UnivoteException("Election definition not yet published.");
 				}
-				ElectionDefinition electionDefinition = JSONConverter.unmarshal(ElectionDefinition.class, result.getPost().get(0).getMessage());
+				ElectionDefinition electionDefinition =
+						JSONConverter.unmarshal(ElectionDefinition.class, result.getPost().get(0).getMessage());
 				Date votingPeriodEnd = electionDefinition.getVotingPeriodEnd();
+				// end of voting period notification
 				TimerPreconditionQuery bQuery = new TimerPreconditionQuery(votingPeriodEnd);
 				actionContext.getPreconditionQueries().add(bQuery);
+				// Check if end date reached. If true => post condition is also true
+				Date now = new Date();
+				if (now.after(votingPeriodEnd)) {
+					actionContext.setPostCondition(true);
+				}
 			}
-
-			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(QueryFactory.getQueryFormUniCertForVoterCert(), BoardsEnum.UNICERT.getValue());
+			// new voter certificate notification
+			BoardPreconditionQuery bQuery =
+					new BoardPreconditionQuery(QueryFactory.getQueryFormUniCertForVoterCert(),
+							BoardsEnum.UNICERT.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
+			// single key mixing result notification
+			BoardPreconditionQuery bQuery2 =
+					new BoardPreconditionQuery(QueryFactory.getQueryForSingleKeyMixingResults(section),
+							BoardsEnum.UNICERT.getValue());
+			actionContext.getPreconditionQueries().add(bQuery2);
 		} catch (UnivoteException ex) {
 			Logger.getLogger(LateVoterCertificatesAction.class.getName()).log(Level.SEVERE, null, ex);
+			// TODO: Failure reporting to, and appropriate handling by the action manager to be provided
+		}
+		return actionContext;
+	}
+
+	private void parseMixers(LateVoterCertificatesContext actionContext, PostDTO post) throws UnivoteException {
+		byte[] message = post.getMessage();
+		TrusteeCertificates trusteeCertificates;
+		trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
+		List<Certificate> mixers = trusteeCertificates.getMixerCertificates();
+		if (mixers == null || mixers.isEmpty()) {
+			throw new UnivoteException("Invalid trustees certificates message. mixerCertificates is missing.");
+		}
+		for (Certificate c
+				: trusteeCertificates.getMixerCertificates()) {
+			try {
+				CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+				InputStream in = new ByteArrayInputStream(c.getPem().getBytes());
+				X509Certificate cert = (X509Certificate) certFactory.generateCertificate(in);
+				PublicKey pk = cert.getPublicKey();
+				actionContext.getMixerKeys().add(pk);
+			} catch (CertificateException ex) {
+				throw new UnivoteException("Invalid trustees certificates message. Could not load pem.", ex);
+			}
 		}
 	}
 
 	@Override
 	@Asynchronous
 	public void run(ActionContext actionContext) {
+		// Intentially left empty.
 	}
 
 	@Override
@@ -174,21 +218,31 @@ public class LateVoterCertificatesAction extends AbstractAction implements Notif
 			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
 			return;
 		}
-		if (!(notification instanceof PostDTO)) {
-			return;
+
+		if ((notification instanceof PostDTO)) {
+			PostDTO post = (PostDTO) notification;
+			AttributesDTO.AttributeDTO group =
+					AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
+			if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.SINGLE_KEY_MIXING_RESULT.getValue())) {
+				// TODO ...
+			} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.CERTIFICATE.getValue())) {
+				try {
+					Certificate voterCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
+				} catch (UnivoteException ex) {
+					logger.log(Level.SEVERE, "Cannot unmarshal message.", ex);
+					this.informationService.informTenant(actionContext.getActionContextKey(),
+							ex.getMessage());
+					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				}
+			} else {
+				// Unexpected post...
+				logger.log(Level.SEVERE, "Unexpected post!", notification);
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			}
 		}
-		PostDTO post = (PostDTO) notification;
-		try {
-			Certificate voterCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
-			//TODO Check preconditions fullfilled
-			internalRun(context, voterCertificate);
-		} catch (UnivoteException ex) {
-			logger.log(Level.SEVERE, "Do not understand message.", ex);
-			this.informationService.informTenant(actionContext.getActionContextKey(),
-					ex.getMessage());
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
-		}
-		//TODO Process other notifications
+		// Unexpected notification...
+		logger.log(Level.SEVERE, "Unexpected notification!", notification);
+		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	}
 
 	private void internalRun(LateVoterCertificatesContext context, Certificate voterCertificate) throws UnivoteException {

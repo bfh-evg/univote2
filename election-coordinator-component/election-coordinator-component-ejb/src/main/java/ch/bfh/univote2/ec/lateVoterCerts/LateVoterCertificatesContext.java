@@ -45,7 +45,9 @@ import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -55,6 +57,7 @@ public class LateVoterCertificatesContext extends ActionContext {
 
 	private ElectoralRoll electoralRoll;
 	private CryptoSetting cryptoSetting;
+	private final List<PublicKey> mixerKeys = new ArrayList<>();
 
 	public LateVoterCertificatesContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), true);
@@ -64,6 +67,7 @@ public class LateVoterCertificatesContext extends ActionContext {
 	protected void purgeData() {
 		this.electoralRoll = null;
 		this.cryptoSetting = null;
+		this.mixerKeys.clear();
 	}
 
 	public ElectoralRoll getElectoralRoll() {
@@ -84,5 +88,9 @@ public class LateVoterCertificatesContext extends ActionContext {
 
 	public boolean gotAllNotifications() {
 		return this.electoralRoll != null && this.cryptoSetting != null;
+	}
+
+	public List<PublicKey> getMixerKeys() {
+		return this.mixerKeys;
 	}
 }
