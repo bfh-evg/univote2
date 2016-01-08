@@ -48,15 +48,20 @@ import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.helper.math.MathUtil;
-import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
+import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModPrime;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.crypto.CryptoSetup;
+import ch.bfh.univote2.common.message.AccessRight;
 import ch.bfh.univote2.common.message.Certificate;
 import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.DL;
 import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.common.message.JSONConverter;
+import ch.bfh.univote2.common.message.MixedKeys;
 import ch.bfh.univote2.common.message.SingleKeyMixingRequest;
+import ch.bfh.univote2.common.message.SingleKeyMixingResult;
 import ch.bfh.univote2.common.message.TrusteeCertificates;
 import ch.bfh.univote2.common.message.VoterCertificates;
 import ch.bfh.univote2.common.query.AlphaEnum;
@@ -117,7 +122,6 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 	@EJB
 	private TenantManager tenantManager;
 
-
 	@Override
 	public ActionContext prepareContext(String tenant, String section) {
 		ActionContextKey ack = new ActionContextKey(ACTION_NAME, tenant, section);
@@ -129,8 +133,8 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 				if (result.getPost().isEmpty()) {
 					throw new UnivoteException("Electoral Roll not yet published.");
 				}
-				ElectoralRoll electoralRoll =
-						JSONConverter.unmarshal(ElectoralRoll.class, result.getPost().get(0).getMessage());
+				ElectoralRoll electoralRoll
+						= JSONConverter.unmarshal(ElectoralRoll.class, result.getPost().get(0).getMessage());
 				actionContext.setElectoralRoll(electoralRoll);
 			}
 			{
@@ -139,9 +143,19 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 				if (result.getPost().isEmpty()) {
 					throw new UnivoteException("Crypto setting not yet published.");
 				}
-				CryptoSetting cryptoSetting =
-						JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
+				CryptoSetting cryptoSetting
+						= JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
 				actionContext.setCryptoSetting(cryptoSetting);
+			}
+			{
+				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+						QueryFactory.getQueryForMixedKeys(actionContext.getSection())).getResult();
+				if (result.getPost().isEmpty()) {
+					throw new UnivoteException("Mixed keys not yet published.");
+				}
+				MixedKeys mixedKeys
+						= JSONConverter.unmarshal(MixedKeys.class, result.getPost().get(0).getMessage());
+				actionContext.setSignatureGenerator(mixedKeys.getGenerator());
 			}
 			{
 				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
@@ -157,8 +171,9 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 				if (result.getPost().isEmpty()) {
 					throw new UnivoteException("Election definition not yet published.");
 				}
-				ElectionDefinition electionDefinition =
-						JSONConverter.unmarshal(ElectionDefinition.class, result.getPost().get(0).getMessage());
+				ElectionDefinition electionDefinition
+						= JSONConverter.unmarshal(ElectionDefinition.class, result.getPost().get(0).getMessage());
+				actionContext.setElectionDefinition(electionDefinition);
 				Date votingPeriodEnd = electionDefinition.getVotingPeriodEnd();
 				// end of voting period notification
 				TimerPreconditionQuery bQuery = new TimerPreconditionQuery(votingPeriodEnd);
@@ -170,13 +185,13 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 				}
 			}
 			// new voter certificate notification
-			BoardPreconditionQuery bQuery =
-					new BoardPreconditionQuery(QueryFactory.getQueryFormUniCertForVoterCert(),
+			BoardPreconditionQuery bQuery
+					= new BoardPreconditionQuery(QueryFactory.getQueryFormUniCertForVoterCert(),
 							BoardsEnum.UNICERT.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
 			// single key mixing result notification
-			BoardPreconditionQuery bQuery2 =
-					new BoardPreconditionQuery(QueryFactory.getQueryForSingleKeyMixingResults(section),
+			BoardPreconditionQuery bQuery2
+					= new BoardPreconditionQuery(QueryFactory.getQueryForSingleKeyMixingResults(section),
 							BoardsEnum.UNICERT.getValue());
 			actionContext.getPreconditionQueries().add(bQuery2);
 		} catch (UnivoteException ex) {
@@ -235,10 +250,41 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 
 		if ((notification instanceof PostDTO)) {
 			PostDTO post = (PostDTO) notification;
-			AttributesDTO.AttributeDTO group =
-					AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
+			AttributesDTO.AttributeDTO group
+					= AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
 			if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.SINGLE_KEY_MIXING_RESULT.getValue())) {
-				// TODO ...
+				try {
+					SingleKeyMixingResult skmr
+							= JSONConverter.unmarshal(SingleKeyMixingResult.class, post.getMessage());
+					if (!verifySingleKeyMixingResult(skmr)) {
+						logger.log(Level.SEVERE, "Invalid proof for single key mixing result: {0}", skmr.getMixerId());
+						this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+						return;
+					}
+					CertificateProcessingRecord cpr = context.findRecordByCurrentVK(skmr.getPublicKey());
+					if (moreMoreMixersToEngage(cpr)) {
+						cpr.incrementK();
+						this.createMixingRequest(context, cpr.getK(), skmr.getPublicKey(), skmr.getMixedKey());
+					} else {
+						switch (cpr.getProcessingState()) {
+							case MIXING_OLD_VK:
+								this.revokeOldCertificate(context, cpr, skmr.getMixedKey());
+								break;
+							case MIXING_NEW_VK:
+								this.activateNewCertificate(context, cpr, skmr.getMixedKey());
+								break;
+							default:
+							// ERROR !! Should not happen!
+							// TODO: Add logger statement
+							// TODO: Write more tests!
+						}
+					}
+				} catch (UnivoteException ex) {
+					logger.log(Level.SEVERE, "Cannot unmarshal message.", ex);
+					this.informationService.informTenant(actionContext.getActionContextKey(),
+							ex.getMessage());
+					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+				}
 			} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.CERTIFICATE.getValue())) {
 				try {
 					Certificate voterCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
@@ -267,28 +313,6 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 					// - create certificate processing record ==> see above
 					//   Label 1:
 					postNewCertificateAndCheckOldOne(context, cpr);
-					// - post new voter certificate Zi'
-					// - if old certificate Zi exists
-					//   - set current VKi = Zi.pem.pk
-					//   - old mixed VKi = mix(current VKi)
-					//   - post old certificate Zi to set of cancelled set of certificates
-					//   - remove access right for old mixed VKi
-					//   - if exists ballot (old mixed VKi)
-					//     - remove certificate processing record
-					//     - abort
-					//     endif
-					//   endif
-					// - set current VKi = Zi'.pem.pk
-					// - new mixed VKi = mix(current VKi)
-					// - post Zi' to set of added voter certificates
-					// - set access right for new mixed VKi
-					// - if queue of pending certificate is not empty:
-					//   - get next Zi'
-					//   - got Label 1
-					//   else
-					//   - remove certificate processing record
-					//   endif
-					// endif
 				} catch (UnivoteException ex) {
 					logger.log(Level.SEVERE, "Cannot unmarshal message.", ex);
 					this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -306,133 +330,9 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 		this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 	}
 
-	private void internalRun(LateVoterCertificatesContext context, Certificate voterCertificate) throws UnivoteException {
-		//TODO: Verify Z'_i.
-		//if(!verify(voterCertificate)){
-		//  this.informationService.informTenant(actionContext.getActionContextKey(),
-		//			"incorrect voter signature.");
-		//  logger.log(Level.INFO,"Incorrect voter signature for context "+actionContext.getActionContextKey());
-		//
-		//}
-
-		CryptoSetting cryptoSetting = context.getCryptoSetting();
-		CyclicGroup signatureGroup = CryptoProvider.getSignatureSetup(cryptoSetting.getSignatureSetting()).cryptoGroup;
-
-		ElectoralRoll roll = context.getElectoralRoll();
-		String commonName = voterCertificate.getCommonName();
-
-		// Check if V_i \in V
-		if (!(roll.getVoterIds().contains(commonName))) {
-			this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
-			return;
-		}
-
-		//Post new VoterCertificate to UBV
-		this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
-				GroupEnum.NEW_VOTER_CERTIFICATE.getValue(), JSONConverter.marshal(voterCertificate).getBytes(), context.getTenant());
-		this.informationService.informTenant(context.getActionContextKey(), "New Certificate for: " + commonName);
-
-		//Get List Z_V and put all items (z_v) into Z_AV with the following constraint:
-		//If Z_C contains the item (z_v) then skip it and remove it from Z_C
-		//Get VoterCertificates (list of all)
-		//Go through the voter certificates and check for each:
-		// If commonName of item is equal to commonName of the new certificate then
-		// Check if this item has already been cancelled (is also part of Z_C).
-		// If no, add the item to Z_VA
-		List<Certificate> zvaList = new ArrayList<>();
-		ResultDTO voterCertificatesResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForVoterCertificates(context.getSection())).getResult();
-
-		VoterCertificates voterCertificates = JSONConverter.unmarshal(VoterCertificates.class,
-				voterCertificatesResult.getPost().get(0).getMessage());
-		for (Certificate certificate : voterCertificates.getVoterCertificates()) {
-			if (certificate.getCommonName().equals(commonName)) {
-				zvaList.add(certificate);
-				break;
-			}
-		}
-
-		//Get List Z_A and put all items (z_v) into with the following constraint:
-		//if Z_C contains the item (z_v) then skip it and remove it from Z_C
-		//Get addedVoterCertificate Z_A from UVB
-		ResultDTO addedVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForAddedVoterCertificate(context.getSection(), commonName)).getResult();
-		for (PostDTO post : addedVoterCertificateResult.getPost()) {
-			Certificate certificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
-			zvaList.add(certificate);
-		}
-
-		//Get cancelledVoterCertifiecate Z_C from UBV
-		ResultDTO cancelledVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForCancelledVoterCertificate(context.getSection(), commonName)).getResult();
-		for (PostDTO post : cancelledVoterCertificateResult.getPost()) {
-			Certificate cancelledCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
-			for (Iterator<Certificate> iterator = zvaList.iterator(); iterator.hasNext();) {
-				Certificate avCertificate = iterator.next();
-				if (cancelledCertificate.getPem().equals(avCertificate.getPem())) {
-					iterator.remove();
-					break;
-				}
-			}
-		}
-
-		//Check if Z_VA is empty if not... it should contain exactliy one Element -> Z_i
-		if (!(zvaList.isEmpty())) {
-			logger.log(Level.FINE, "{0} has an active certificate .", commonName);
-			//if Z_i is present: Check if there is a vote for according v^k_i  yes... abort
-			//if Z_i is present: Remove accessRight for v^k_i
-			//if Z_i is present: Add Z_i to Z_C on UBV
-			// get vk_i from Z_i
-			//...
-			Certificate revokableCertificate = zvaList.get(0);
-			PublicKey revokedPK = getPublicKeyFromCertificate(revokableCertificate);
-
-			// TODO: Call Mixer for mixed vk_i and get the information out there
-			// Check if a ballot exists for revoked mixed vk_i if so... abort.
-			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-					QueryFactory.getQueryForBallot(context.getSection(), revokedPK)).getResult();
-			if (!result.getPost().isEmpty()) {
-				logger.log(Level.FINE, "{0} has already voted.", commonName);
-				this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
-				return;
-			}
-			// Revoke AccessRight for revokable mixed vk_i
-			logger.log(Level.FINE, "{0} has not voted yet.", commonName);
-			{
-				byte[] message = MessageFactory.createAccessRight(GroupEnum.BALLOT, revokedPK, 0);
-				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
-						GroupEnum.ACCESS_RIGHT.getValue(), message, context.getTenant());
-				this.informationService.informTenant(context.getActionContextKey(),
-						"AccessRight for voter revoked.");
-				logger.log(Level.FINE, "pk revoked {0}.", QueryFactory.computePublicKeyString(revokedPK));
-			}
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
-					GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue(),
-					JSONConverter.marshal(revokableCertificate).getBytes(), context.getTenant());
-
-		}
-		// Select vk'_i from Z'_i
-		PublicKey newPK = getPublicKeyFromCertificate(voterCertificate);
-		// Add to Z_a
-		this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
-				GroupEnum.ADDED_VOTER_CERTIFICATE.getValue(),
-				JSONConverter.marshal(voterCertificate).getBytes(), context.getTenant());
-		// TODO: Call Mixer for mixed vk'_i and get the information out there
-		// Add AccessRight for new mixed vk'_i
-		{
-			byte[] message = MessageFactory.createAccessRight(GroupEnum.BALLOT, newPK, 1);
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
-					GroupEnum.ACCESS_RIGHT.getValue(), message, context.getTenant());
-			this.informationService.informTenant(context.getActionContextKey(),
-					"new AccessRight for voter granted.");
-			logger.log(Level.FINE, "Granted access right for: {0}.", QueryFactory.computePublicKeyString(newPK));
-		}
-		this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
-	}
-
 	//The following is copied from KeyMixingAction... Might be 'out-sourced'
-	protected PublicKey getPublicKeyFromCertificate(Certificate certificate) throws UnivoteException {
-		PublicKey pk = null;
+	private PublicKey getPublicKeyFromCertificate(Certificate certificate) throws UnivoteException {
+		PublicKey pk;
 		String pem = certificate.getPem();
 		if (pem == null) {
 			throw new UnivoteException("Invalid certificate message. pem is missing.");
@@ -449,29 +349,55 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 	}
 
 	private boolean checkIfEligible(LateVoterCertificatesContext context, Certificate voterCertificate) {
+		// TODO ...
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	private boolean verifyCertificate(Certificate voterCertificate) {
+		// TODO ...
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	private void queueCertificate(LateVoterCertificatesContext context, Certificate voterCertificate) {
+		// TODO ...
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	private boolean testAndSetCertificateProcessingRecord(LateVoterCertificatesContext context, Certificate voterCertificate) {
+	private boolean testAndSetCertificateProcessingRecord(LateVoterCertificatesContext context,
+			Certificate voterCertificate) {
+		// TODO ...
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	private void postNewCertificateAndCheckOldOne(LateVoterCertificatesContext context, CertificateProcessingRecord cpr) {
-					// - post new voter certificate Zi'
-					// - if old certificate Zi exists
-					//   - set current VKi = Zi.pem.pk
-					//   - start mixing: old mixed VKi = mix(current VKi)
-					//   endif
-					// - set current VKi = Zi'.pem.pk
-		throw new UnsupportedOperationException("Not supported yet.");
+	private void postNewCertificateAndCheckOldOne(LateVoterCertificatesContext context,
+			CertificateProcessingRecord cpr) {
+		try {
+			// post new voter certificate Zi'
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.NEW_VOTER_CERTIFICATE.getValue(), JSONConverter.marshal(cpr.getCertificate()).getBytes(),
+					context.getTenant());
+			this.informationService.informTenant(context.getActionContextKey(), "New Certificate for: "
+					+ cpr.getCertificate().getCommonName());
+			Certificate cert = checkIfOldCertifcateExists(context, cpr.getCertificate().getCommonName());
+			if (cert != null) {
+				// old certificate Zi exists:
+				//   - set current VKi = Zi.pem.pk
+				//   - set processingState = MIXING_OLD_VK
+				cpr.setOldCertificate(cert);
+				cpr.setProcessingState(CertificateProcessingRecord.ProcessingState.MIXING_OLD_VK);
+				cpr.setCurrentVK(this.getVKFromCertificate(cert));
+			} else {
+				// - set current VKi = Zi'.pem.pk
+				// - set processingState = MIXING_NEW_VK (?)
+				cpr.setProcessingState(CertificateProcessingRecord.ProcessingState.MIXING_NEW_VK);
+				cpr.setCurrentVK(this.getVKFromCertificate(cpr.getCertificate()));
+			}
+			//   - start mixing
+			cpr.resetK();
+			this.createMixingRequest(context, cpr.getK(), cpr.getCurrentVK(), cpr.getCurrentVK());
+		} catch (UnivoteException ex) {
+			Logger.getLogger(LateVoterCertificatesAction.class.getName()).log(Level.SEVERE, null, ex);
+		}
 	}
 
 	private void createMixingRequest(LateVoterCertificatesContext context, int k, String currentVK,
@@ -543,16 +469,172 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 		throw new UnivoteException("Unssuport public key type");
 	}
 
+	private String getVKFromCertificate(Certificate certificate) throws UnivoteException {
+		PublicKey pk = this.getPublicKeyFromCertificate(certificate);
+		if (pk instanceof DSAPublicKey) {
+			DSAPublicKey dsaPubKey = (DSAPublicKey) pk;
+			return dsaPubKey.getY().toString(10);
+		} else {
+			throw new UnivoteException("Unsupported key type.");
+		}
+	}
+
 	private void revokeOldCertificate(LateVoterCertificatesContext context, CertificateProcessingRecord cpr,
 			String oldMixedVK) {
-					//   - post old certificate Zi to set of cancelled set of certificates
-					//   - remove access right for old mixed VKi
-					//   - if exists ballot (old mixed VKi)
-					//     - remove certificate processing record
-					//     - abort
-					//     endif
-					//   endif
-					// - set current VKi = Zi'.pem.pk
-					// - new mixed VKi = mix(current VKi)
+		try {
+			//   - post old certificate Zi to the set of cancelled certificates
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue(),
+					JSONConverter.marshal(cpr.getOldCertificate()).getBytes(), context.getTenant());
+			//   - remove access right for old mixed VKi
+
+			CryptoSetup sSetup = CryptoProvider.getSignatureSetup(context.getCryptoSetting().getSignatureSetting());
+			GStarModPrime signatureGroup = (GStarModPrime) sSetup.cryptoGroup;
+
+			AccessRight ar = new AccessRight();
+			ar.setCrypto(new DL(signatureGroup.getModulus().toString(), signatureGroup.getOrder().
+					toString(), context.getSignatureGenerator(), oldMixedVK));
+			ar.setGroup(GroupEnum.BALLOT.getValue());
+			ar.setAmount(0);
+			ar.setStartTime(context.getElectionDefinition().getVotingPeriodBegin()); // could be omitted
+			ar.setEndTime(context.getElectionDefinition().getVotingPeriodEnd()); // could be omitted
+			byte[] message = JSONConverter.marshal(ar).getBytes();
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.ACCESS_RIGHT.getValue(), message, context.getTenant());
+			this.informationService.informTenant(context.getActionContextKey(),
+					"AccessRight for voter revoked.");
+			logger.log(Level.INFO, "pk revoked {0}.", oldMixedVK);
+			//   - if exists ballot (old mixed VKi)
+			// Check if a ballot exists for revoked mixed vk_i if so... abort.
+			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+					QueryFactory.getQueryForBallot(context.getSection(), oldMixedVK)).getResult();
+			if (!result.getPost().isEmpty()) {
+				//  - remove certificate processing record
+				context.removeCertificateProcessingRecord(cpr);
+				logger.log(Level.INFO, "{0} has already voted.", cpr.getCertificate().getCommonName());
+				//  - abort
+				this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
+				return;
+			}
+			logger.log(Level.INFO, "{0} has not voted yet.", cpr.getCertificate().getCommonName());
+			// - set current VKi = Zi'.pem.pk
+			cpr.setCurrentVK(this.getVKFromCertificate(cpr.getCertificate()));
+			// - new mixed VKi = mix(current VKi)
+			cpr.setProcessingState(CertificateProcessingRecord.ProcessingState.MIXING_NEW_VK);
+			cpr.resetK();
+			this.createMixingRequest(context, cpr.getK(), cpr.getCurrentVK(), cpr.getCurrentVK());
+		} catch (UnivoteException ex) {
+			logger.log(Level.SEVERE, ex.getMessage());
+			this.informationService.informTenant(context.getActionContextKey(), ex.getMessage());
+		}
+	}
+
+	private void activateNewCertificate(LateVoterCertificatesContext context, CertificateProcessingRecord cpr,
+			String newMixedVK) {
+		try {
+			// - post Zi' to set of added voter certificates
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.ADDED_VOTER_CERTIFICATE.getValue(),
+					JSONConverter.marshal(cpr.getCertificate()).getBytes(), context.getTenant());
+
+			// - set access right for new mixed VKi
+			CryptoSetup sSetup = CryptoProvider.getSignatureSetup(context.getCryptoSetting().getSignatureSetting());
+			GStarModPrime signatureGroup = (GStarModPrime) sSetup.cryptoGroup;
+
+			AccessRight ar = new AccessRight();
+			ar.setCrypto(new DL(signatureGroup.getModulus().toString(), signatureGroup.getOrder().
+					toString(), context.getSignatureGenerator(), newMixedVK));
+			ar.setGroup(GroupEnum.BALLOT.getValue());
+			ar.setAmount(1);
+			ar.setStartTime(context.getElectionDefinition().getVotingPeriodBegin());
+			ar.setEndTime(context.getElectionDefinition().getVotingPeriodEnd());
+			byte[] message = JSONConverter.marshal(ar).getBytes();
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.ACCESS_RIGHT.getValue(), message, context.getTenant());
+			this.informationService.informTenant(context.getActionContextKey(),
+					"AccessRight for voter granted.");
+			logger.log(Level.INFO, "pk granted {0}.", newMixedVK);
+			// - if queue of certificate to be processed is not empty:
+			if (!cpr.getQueuedNotifications().isEmpty()) {
+				// - get next Zi'
+				cpr.setCertificate(cpr.getQueuedNotifications().remove());
+				// - goto
+				postNewCertificateAndCheckOldOne(context, cpr);
+			} else {
+				// - remove certificate processing record
+				context.removeCertificateProcessingRecord(cpr);
+				this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
+				logger.log(Level.INFO, "Finished late voter certificate processing for {0}",
+						cpr.getCertificate().getCommonName());
+			}
+		} catch (UnivoteException ex) {
+			logger.log(Level.SEVERE, ex.getMessage());
+			this.informationService.informTenant(context.getActionContextKey(), ex.getMessage());
+		}
+	}
+
+	private boolean verifySingleKeyMixingResult(SingleKeyMixingResult skmr) {
+		// TODO: Implement...
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	private boolean moreMoreMixersToEngage(CertificateProcessingRecord cpr) {
+		// TODO: Implement...
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	private Certificate checkIfOldCertifcateExists(ActionContext context, String commonName) throws UnivoteException {
+		//Get List Z_V and put all items (z_v) into Z_AV with the following constraint:
+		//If Z_C contains the item (z_v) then skip it and remove it from Z_C
+		//Get VoterCertificates (list of all)
+		//Go through the voter certificates and check for each:
+		// If commonName of item is equal to commonName of the new certificate then
+		// Check if this item has already been cancelled (is also part of Z_C).
+		// If no, add the item to Z_VA
+		List<Certificate> zvaList = new ArrayList<>();
+		// TODO: Minimal optimization possible if no certificate available for the common name in the
+		// votercertificates post.
+		ResultDTO voterCertificatesResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForVoterCertificates(context.getSection())).getResult();
+
+		VoterCertificates voterCertificates = JSONConverter.unmarshal(VoterCertificates.class,
+				voterCertificatesResult.getPost().get(0).getMessage());
+		for (Certificate certificate : voterCertificates.getVoterCertificates()) {
+			if (certificate.getCommonName().equals(commonName)) {
+				zvaList.add(certificate);
+				break;
+			}
+		}
+
+		//Get List Z_A and put all items (z_v) into with the following constraint:
+		//if Z_C contains the item (z_v) then skip it and remove it from Z_C
+		//Get addedVoterCertificate Z_A from UVB
+		ResultDTO addedVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForAddedVoterCertificate(context.getSection(), commonName)).getResult();
+		for (PostDTO post : addedVoterCertificateResult.getPost()) {
+			Certificate certificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
+			zvaList.add(certificate);
+		}
+
+		//Get cancelledVoterCertifiecate Z_C from UBV
+		ResultDTO cancelledVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForCancelledVoterCertificate(context.getSection(), commonName)).getResult();
+		for (PostDTO post : cancelledVoterCertificateResult.getPost()) {
+			Certificate cancelledCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
+			for (Iterator<Certificate> iterator = zvaList.iterator(); iterator.hasNext();) {
+				Certificate avCertificate = iterator.next();
+				if (cancelledCertificate.getPem().equals(avCertificate.getPem())) {
+					iterator.remove();
+					break;
+				}
+			}
+		}
+
+		//Check if Z_VA is empty if not... it should contain exactliy one Element -> Z_i
+		if (!zvaList.isEmpty()) {
+			return zvaList.get(0);
+		} else {
+			return null;
+		}
 	}
 }

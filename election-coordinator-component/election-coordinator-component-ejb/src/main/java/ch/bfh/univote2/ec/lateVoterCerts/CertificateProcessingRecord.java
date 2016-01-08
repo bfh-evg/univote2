@@ -52,13 +52,67 @@ public class CertificateProcessingRecord {
 	private Certificate certificate;
 	private Certificate oldCertificate; // can be null
 	private String currentVK;
-	private final LinkedBlockingQueue<Object> queuedNotifications = new LinkedBlockingQueue<>();
+	private final LinkedBlockingQueue<Certificate> queuedNotifications = new LinkedBlockingQueue<>();
 	private ProcessingState processingState;
-	private int k; // 0 <= k <= m-1 where m is the amount of mixers
+	private int k; // 0 <= k <= m-1 where m is the number of mixers as given in the surrounding context
 
 	public enum ProcessingState {
 		BEGIN,
-		WAITING_FOR_MIXER,
+		MIXING_OLD_VK,
+		MIXING_NEW_VK,
 		END;
+	}
+
+	public CertificateProcessingRecord() {
+		this.processingState = ProcessingState.BEGIN;
+		this.k = 0;
+	}
+
+	public ProcessingState getProcessingState() {
+		return processingState;
+	}
+
+	public void setProcessingState(ProcessingState processingState) {
+		this.processingState = processingState;
+	}
+
+	public int getK() {
+		return k;
+	}
+
+	public void incrementK() {
+		this.k++;
+	}
+
+	public void resetK() {
+		this.k = 0;
+	}
+
+	public String getCurrentVK() {
+		return currentVK;
+	}
+
+	public void setCurrentVK(String currentVK) {
+		this.currentVK = currentVK;
+	}
+
+	public Certificate getCertificate() {
+		return certificate;
+	}
+
+	public void setCertificate(Certificate certificate) {
+		this.certificate = certificate;
+	}
+
+	public Certificate getOldCertificate() {
+		return oldCertificate;
+	}
+
+	public void setOldCertificate(Certificate oldCertificate) {
+		this.oldCertificate = oldCertificate;
+	}
+
+	public LinkedBlockingQueue<Certificate> getQueuedNotifications() {
+		return queuedNotifications;
 	}
 }

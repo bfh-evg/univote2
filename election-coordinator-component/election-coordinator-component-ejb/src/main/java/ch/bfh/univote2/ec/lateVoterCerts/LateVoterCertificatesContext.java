@@ -42,6 +42,7 @@
 package ch.bfh.univote2.ec.lateVoterCerts;
 
 import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
@@ -59,6 +60,8 @@ public class LateVoterCertificatesContext extends ActionContext {
 
 	private ElectoralRoll electoralRoll;
 	private CryptoSetting cryptoSetting;
+	private ElectionDefinition electionDefinition;
+	private String signatureGenerator;
 	private final List<PublicKey> mixerKeys = new ArrayList<>();
 	private final Set<CertificateProcessingRecord> certificateProcessingRecords = new ConcurrentSkipListSet<>();
 
@@ -114,5 +117,25 @@ public class LateVoterCertificatesContext extends ActionContext {
 	 */
 	public CertificateProcessingRecord findRecordByCurrentVK(String currentVK) {
 		return null;
+	}
+
+	public void removeCertificateProcessingRecord(CertificateProcessingRecord cpr) {
+		this.certificateProcessingRecords.remove(cpr);
+	}
+
+	public ElectionDefinition getElectionDefinition() {
+		return electionDefinition;
+	}
+
+	public void setElectionDefinition(ElectionDefinition electionDefinition) {
+		this.electionDefinition = electionDefinition;
+	}
+
+	public String getSignatureGenerator() {
+		return signatureGenerator;
+	}
+
+	public void setSignatureGenerator(String signatureGenerator) {
+		this.signatureGenerator = signatureGenerator;
 	}
 }
