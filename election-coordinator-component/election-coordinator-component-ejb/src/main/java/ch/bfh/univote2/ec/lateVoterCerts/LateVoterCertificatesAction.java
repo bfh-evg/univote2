@@ -47,6 +47,7 @@ import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
+import ch.bfh.unicrypt.helper.math.MathUtil;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
@@ -55,6 +56,7 @@ import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.common.message.JSONConverter;
+import ch.bfh.univote2.common.message.SingleKeyMixingRequest;
 import ch.bfh.univote2.common.message.TrusteeCertificates;
 import ch.bfh.univote2.common.message.VoterCertificates;
 import ch.bfh.univote2.common.query.AlphaEnum;
@@ -68,15 +70,20 @@ import ch.bfh.univote2.component.core.actionmanager.ActionManager;
 import ch.bfh.univote2.component.core.data.BoardPreconditionQuery;
 import ch.bfh.univote2.component.core.data.ResultStatus;
 import ch.bfh.univote2.component.core.data.TimerPreconditionQuery;
+import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -91,9 +98,9 @@ import javax.management.timer.TimerNotification;
 /**
  * Action handling the Late Voter Certificates (see section 6.3).
  *
- * @author Reto E. Koenig <reto.koenig@bfh.ch>
- * @author Severin Hauser <severin.hauser@bfh.ch>
- * @author Eric Dubuis <eric.dubuis@bfh.ch>
+ * @author Reto E. Koenig &lt;reto.koenig@bfh.ch&gt;
+ * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
 @Stateless
 public class LateVoterCertificatesAction implements NotifiableAction {
@@ -107,6 +114,8 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 	private InformationService informationService;
 	@EJB
 	private UniboardService uniboardService;
+	@EJB
+	private TenantManager tenantManager;
 
 
 	@Override
@@ -202,7 +211,12 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 	@Override
 	@Asynchronous
 	public void run(ActionContext actionContext) {
-		// Intentially left empty.
+		// Called as a side effect from the action manager. Nothing to do here except:
+
+		// Ensure that the following access rights are set correctly:
+		// - ours
+		// - those of the mixers
+		createAccessRights((LateVoterCertificatesContext) actionContext);
 	}
 
 	@Override
@@ -228,6 +242,53 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 			} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.CERTIFICATE.getValue())) {
 				try {
 					Certificate voterCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
+					if (!verifyCertificate(voterCertificate)) {
+						// Is certificate valid? If not, then terminate this action.
+						this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+						return;
+					}
+					if (!checkIfEligible(context, voterCertificate)) {
+						// Is voter eligible? If not, then terminate this action.
+						this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+						return;
+					}
+					// Given Zi'. Then:
+					// if record exists
+					// - queue certificate Zi' and return
+					if (testAndSetCertificateProcessingRecord(context, voterCertificate)) {
+						// There is another certificate for this voter being processed; queue this one for
+						// later processing.
+						queueCertificate(context, voterCertificate);
+						this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
+						return;
+					}
+					CertificateProcessingRecord cpr = context.findRecordByCommonName(voterCertificate.getCommonName());
+					// else
+					// - create certificate processing record ==> see above
+					//   Label 1:
+					postNewCertificateAndCheckOldOne(context, cpr);
+					// - post new voter certificate Zi'
+					// - if old certificate Zi exists
+					//   - set current VKi = Zi.pem.pk
+					//   - old mixed VKi = mix(current VKi)
+					//   - post old certificate Zi to set of cancelled set of certificates
+					//   - remove access right for old mixed VKi
+					//   - if exists ballot (old mixed VKi)
+					//     - remove certificate processing record
+					//     - abort
+					//     endif
+					//   endif
+					// - set current VKi = Zi'.pem.pk
+					// - new mixed VKi = mix(current VKi)
+					// - post Zi' to set of added voter certificates
+					// - set access right for new mixed VKi
+					// - if queue of pending certificate is not empty:
+					//   - get next Zi'
+					//   - got Label 1
+					//   else
+					//   - remove certificate processing record
+					//   endif
+					// endif
 				} catch (UnivoteException ex) {
 					logger.log(Level.SEVERE, "Cannot unmarshal message.", ex);
 					this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -385,5 +446,113 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 		} catch (CertificateException ex) {
 			throw new UnivoteException("Invalid voter certificates message. Could not load pem.", ex);
 		}
+	}
+
+	private boolean checkIfEligible(LateVoterCertificatesContext context, Certificate voterCertificate) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	private boolean verifyCertificate(Certificate voterCertificate) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	private void queueCertificate(LateVoterCertificatesContext context, Certificate voterCertificate) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	private boolean testAndSetCertificateProcessingRecord(LateVoterCertificatesContext context, Certificate voterCertificate) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	private void postNewCertificateAndCheckOldOne(LateVoterCertificatesContext context, CertificateProcessingRecord cpr) {
+					// - post new voter certificate Zi'
+					// - if old certificate Zi exists
+					//   - set current VKi = Zi.pem.pk
+					//   - start mixing: old mixed VKi = mix(current VKi)
+					//   endif
+					// - set current VKi = Zi'.pem.pk
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	private void createMixingRequest(LateVoterCertificatesContext context, int k, String currentVK,
+			String vkToBeMixed) {
+		try {
+			String mixerId = getMixerId(context, k);
+			// - post request
+			SingleKeyMixingRequest smr = new SingleKeyMixingRequest(mixerId, currentVK, vkToBeMixed);
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.MIXED_KEYS.getValue(),
+					JSONConverter.marshal(smr).getBytes(Charset.forName("UTF-8")),
+					context.getTenant());
+			//inform tenant
+			this.informationService.informTenant(context.getActionContextKey(),
+					"Posted single key mixing request to " + mixerId + " for VK: " + currentVK);
+			logger.log(Level.INFO, "Posted single key mixing request to {0} for VK: {1}",
+					new Object[]{mixerId, currentVK});
+		} catch (UnivoteException ex) {
+			logger.log(Level.SEVERE, ex.getMessage(), ex);
+		} finally {
+			this.actionManager.runFinished(context, ResultStatus.RUN_FINISHED);
+		}
+	}
+
+	private void createAccessRights(LateVoterCertificatesContext context) {
+		try {
+			PublicKey ownPK = this.tenantManager.getPublicKey(context.getTenant());
+			grantAccessRight(context, ownPK, GroupEnum.NEW_VOTER_CERTIFICATE);
+			grantAccessRight(context, ownPK, GroupEnum.ADDED_VOTER_CERTIFICATE);
+			grantAccessRight(context, ownPK, GroupEnum.CANCELLED_VOTER_CERTIFICATE);
+			grantAccessRight(context, ownPK, GroupEnum.SINGLE_KEY_MIXING_REQUEST);
+		} catch (UnivoteException ex) {
+			logger.log(Level.SEVERE, ex.getMessage());
+			this.informationService.informTenant(context.getActionContextKey(),
+					"Could not get public key");
+		}
+		for (PublicKey pk : context.getMixerKeys()) {
+			grantAccessRight(context, pk, GroupEnum.SINGLE_KEY_MIXING_RESULT);
+		}
+	}
+
+	private void grantAccessRight(ActionContext actionContext, PublicKey publickey, GroupEnum group) {
+		try {
+			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+					QueryFactory.getQueryForAccessRight(actionContext.getSection(),
+							publickey, group));
+			if (result.getResult().getPost().isEmpty()) {
+				byte[] message = MessageFactory.createAccessRight(group, publickey);
+				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+						GroupEnum.ACCESS_RIGHT.getValue(), message, actionContext.getTenant());
+			}
+		} catch (UnivoteException ex) {
+			logger.log(Level.SEVERE, ex.getMessage());
+			this.informationService.informTenant(actionContext.getActionContextKey(),
+					"Could not post access right for " + group.getValue());
+		}
+	}
+
+	private String getMixerId(LateVoterCertificatesContext context, int k) throws UnivoteException {
+		PublicKey publicKey = context.getMixerKeys().get(k);
+		if (publicKey instanceof DSAPublicKey) {
+			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
+			return dsaPubKey.getY().toString(10);
+		} else if (publicKey instanceof RSAPublicKey) {
+			RSAPublicKey rsaPubKey = (RSAPublicKey) publicKey;
+			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
+			return unicertRsaPubKey.toString(10);
+		}
+		throw new UnivoteException("Unssuport public key type");
+	}
+
+	private void revokeOldCertificate(LateVoterCertificatesContext context, CertificateProcessingRecord cpr,
+			String oldMixedVK) {
+					//   - post old certificate Zi to set of cancelled set of certificates
+					//   - remove access right for old mixed VKi
+					//   - if exists ballot (old mixed VKi)
+					//     - remove certificate processing record
+					//     - abort
+					//     endif
+					//   endif
+					// - set current VKi = Zi'.pem.pk
+					// - new mixed VKi = mix(current VKi)
 	}
 }

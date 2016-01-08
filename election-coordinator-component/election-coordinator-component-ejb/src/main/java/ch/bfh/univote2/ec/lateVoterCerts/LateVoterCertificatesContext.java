@@ -48,6 +48,8 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  *
@@ -58,6 +60,7 @@ public class LateVoterCertificatesContext extends ActionContext {
 	private ElectoralRoll electoralRoll;
 	private CryptoSetting cryptoSetting;
 	private final List<PublicKey> mixerKeys = new ArrayList<>();
+	private final Set<CertificateProcessingRecord> certificateProcessingRecords = new ConcurrentSkipListSet<>();
 
 	public LateVoterCertificatesContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), true);
@@ -68,6 +71,7 @@ public class LateVoterCertificatesContext extends ActionContext {
 		this.electoralRoll = null;
 		this.cryptoSetting = null;
 		this.mixerKeys.clear();
+		this.certificateProcessingRecords.clear();
 	}
 
 	public ElectoralRoll getElectoralRoll() {
@@ -92,5 +96,23 @@ public class LateVoterCertificatesContext extends ActionContext {
 
 	public List<PublicKey> getMixerKeys() {
 		return this.mixerKeys;
+	}
+
+	/**
+	 * Returns the certificate processing record, if any, for a voter identified by his/her common name.
+	 * @param commonName
+	 * @return
+	 */
+	public CertificateProcessingRecord findRecordByCommonName(String commonName) {
+		return null;
+	}
+
+	/**
+	 * Returns the certificate processing record, if any, for the given verification key.
+	 * @param currentVK
+	 * @return
+	 */
+	public CertificateProcessingRecord findRecordByCurrentVK(String currentVK) {
+		return null;
 	}
 }

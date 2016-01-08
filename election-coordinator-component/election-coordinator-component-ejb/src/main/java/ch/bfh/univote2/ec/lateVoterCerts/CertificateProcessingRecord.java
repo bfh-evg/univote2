@@ -39,24 +39,26 @@
  *
  * Redistributions of files must retain the above copyright notice.
  */
-package ch.bfh.univote2.ec.grantARS;
+package ch.bfh.univote2.ec.lateVoterCerts;
 
-import ch.bfh.univote2.component.core.actionmanager.ActionContext;
-import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import java.util.ArrayList;
+import ch.bfh.univote2.common.message.Certificate;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  *
- * @author Reto E. Koenig <reto.koenig@bfh.ch>
+ * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
-public class GrantAccessRightsToECContext extends ActionContext {
+public class CertificateProcessingRecord {
+	private Certificate certificate;
+	private Certificate oldCertificate; // can be null
+	private String currentVK;
+	private final LinkedBlockingQueue<Object> queuedNotifications = new LinkedBlockingQueue<>();
+	private ProcessingState processingState;
+	private int k; // 0 <= k <= m-1 where m is the amount of mixers
 
-	public GrantAccessRightsToECContext(ActionContextKey actionContextKey) {
-		super(actionContextKey, new ArrayList<>(), false);
-	}
-
-	@Override
-	protected void purgeData() {
-
+	public enum ProcessingState {
+		BEGIN,
+		WAITING_FOR_MIXER,
+		END;
 	}
 }

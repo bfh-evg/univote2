@@ -54,7 +54,7 @@ public abstract class ActionContext {
 	private final ActionContextKey actionContextKey;
 	private final List<PreconditionQuery> preconditionQueries;
 	private final LinkedBlockingQueue<Object> queuedNotifications;
-	private boolean postCondition;
+	private boolean postCondition = false;
 	private boolean inUse = false;
 	private final boolean runsInParallel;
 

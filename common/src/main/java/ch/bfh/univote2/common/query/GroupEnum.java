@@ -74,7 +74,8 @@ public enum GroupEnum {
 	VOTER_CERTIFICATES("voterCertificates"),
 	ADDED_VOTER_CERTIFICATE("addedVoterCertificate"),
 	CANCELLED_VOTER_CERTIFICATE("cancelledVoterCertificate"),
-	DECRYPTED_VOTES("decryptedVotes");
+	DECRYPTED_VOTES("decryptedVotes"),
+    CERTIFICATE("certificate");
 
 	private final String value;
 
