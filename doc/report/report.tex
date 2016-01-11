@@ -1447,9 +1447,9 @@ Upon notification of a newly issued voter certificate $Z'_i$ for $\Voter{i}$, \E
 	\begin{enumerate}
 	 \item Select $\vk{i}$ from $Z_i$.
 	 \item Get $\vkhat{i}$ from calling the sub-routine described in \Cref{singlekey} for $\vk{i}$.
+	 \item Post $(\mathsf{accessRight}:\vkhat{i}, \mathsf{ballot}, 0)$.
 	 \item Get $(\mathsf{ballot}:\vkhat{i})$. Abort if a ballot exists for $\vkhat{i}$.
 	 \item Post $(\mathsf{cancelledVoterCertificate}:Z_i)$ to \UBV.
-	 \item Post $(\mathsf{accessRight}:\vkhat{i}, \mathsf{ballot}, 0)$.
 	\end{enumerate}
 	\item Select $\vkprime{i}$ from $Z'_i$.
 	\item Get $\vkhatprime{i}$ from calling the sub-routine described in \Cref{singlekey} for $\vkprime{i}$.
@@ -1465,13 +1465,13 @@ Let $\vk{i}=\vk{i,0}$ be a single key to be ``mixed'' in essentially the same wa
 \begin{enumerate}[]
 	\item \EC performs the following steps:
 	\begin{enumerate}
-		\item Post $(\mathsf{singleKeyMixingRequest}:\Mixer{k}, \vk{i},\vk{i,k-1})$ to \UBV.\footnote{We include the original input key $\vk{i}$ for convenience reasons.}
+		\item Post $(\mathsf{singleKeyMixingRequest}:\Mixer{k}, \vk{i},\vk{i,k-1},g_{k-1},g_k)$ to \UBV.\footnote{We include the original input key $\vk{i}$ for convenience reasons.}
 		\item Select $\vk{k}$ from $Z_{k}\in \mathcal{Z}_{M}$.
-		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{singleKeyMixingRequest},+1)$ to \UBV.
+		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{singleKeyMixingResult},+1)$ to \UBV.
 	\end{enumerate}
 	\item $\Mixer{k}$ performs the following steps:
 	\begin{enumerate}
-		\item Get $(\mathsf{singleKeyMixingRequest}: \Mixer{k}, \vk{i},\vk{i,k-1})$ from \UBV.
+		\item Get $(\mathsf{singleKeyMixingRequest}: \Mixer{k}, \vk{i},\vk{i,k-1},g_{k-1},g_k)$ from \UBV.
 		\item Compute $\vk{i,k} = \vk{i,k-1}^{\alpha_k}$
 		\item Generate $\pi_{i,k}=\mathit{NIZKP}\{(\alpha_k): \vk{i,k} = \vk{i,k-1}^{\alpha_k}\wedge g_k=g_{k-1}^{\alpha_k}\}$.
 		\item Post $(\mathsf{singleKeyMixingResult}:\vk{i},\vk{i,k-1},\vk{i,k}, \pi_{i,k})$ to \UBV.
