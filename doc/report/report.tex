@@ -1269,21 +1269,52 @@ The following tasks are performed shortly before the beginning of the election.
 	\item Post $(\mathsf{voterCertificates}:\mathcal{Z}_V)$ on \UBV.
 \end{enumerate}
 
+%\subsubsection{Mixing the Public Keys}
+%\EC performs the following steps:
+%\begin{enumerate}
+%	\item Select $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n'}\}$ from $\mathcal{Z}_V$.
+%	\item Let $g_0=g$.
+%\end{enumerate}
+%The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):
+%\begin{enumerate}[resume]
+%	\item \EC performs the following steps:
+%	\begin{enumerate}
+%		\item Post $(\mathsf{keyMixingRequest}:\Mixer{k}, \mathit{VK}_{k-1},g_{k-1})$ to \UBV.
+%		\item Select $\vk{k}$ from $Z_{k}\in \mathcal{Z}_{M}$.
+%		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{keyMixingResult},1)$ to \UBV.
+%	\end{enumerate}
+%	\item $\Mixer{k}$ performs the following steps:
+%	\begin{enumerate}
+%		\item Get $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting}$ from \UBV.
+%		\item Select $G_q$ and $g$ from $\mathit{signSetting}$.
+%		\item Get $(\mathsf{keyMixingRequest}:\Mixer{k}, \mathit{VK}_{k-1}, g_{k-1})$ from \UBV.
+%		\item Choose $\alpha_k\in_R\mathbb{Z}_q$.
+%		\item Compute $g_k = g_{k-1}^{\alpha_k}$.
+%		\item Choose $\psi_k:[1,n]\rightarrow[1,n]\in_R\Psi_n$.
+%		\item Compute $\mathit{VK}_k=\mathit{shuffle}_{\psi_k}(\mathit{VK}_{k-1},\alpha_k)$.
+%		\item Generate $\pi_{k}=\mathit{NIZKP}\{(\psi_k,\alpha_k): \mathit{VK}_{k}=\mathit{shuffle}_{\psi_k}(\mathit{VK}_{k-1},\alpha_k)\wedge g_k=g_{k-1}^{\alpha_k}\}$.
+%		\item Post $(\mathsf{keyMixingResult}:\mathit{VK}_k,g_k,\pi_{k})$ to \UBV.
+%	\end{enumerate}
+%	\item \EC performs the following steps:
+%	\begin{enumerate}
+%		\item Get $(\mathsf{keyMixingResult}:\mathit{VK}_k,g_k,\pi_{k})$ from \UBV.
+%		\item Verify $\pi_{k}$.
+%	\end{enumerate}
+%\end{enumerate}
+%
+%Let $\hat{\mathit{VK}}=\mathit{VK}_m$ denote the set of mixed public keys and $\hat{g}=g_m$ the \emph{signature generator} for this election.
 
 \subsubsection{Mixing the Public Keys}
 \EC performs the following steps:
 \begin{enumerate}
-	\item Select $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n'}\}$ from $\mathcal{Z}_V$.
+	\item Select $\vk{1}$ from $Z_{1}\in \mathcal{Z}_{M}$.
+	\item Post $(\mathsf{accessRight}:\vk{1},\mathsf{keyMixingResult},1)$ to \UBV.
 	\item Let $g_0=g$.
+	\item Select $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n'}\}$ from $\mathcal{Z}_V$.
+	\item Post $(\mathsf{keyMixingRequest}:\Mixer{1}, \mathit{VK}_0,g_0)$ to \UBV.
 \end{enumerate}
 The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):
 \begin{enumerate}[resume]
-	\item \EC performs the following steps:
-	\begin{enumerate}
-		\item Post $(\mathsf{keyMixingRequest}:\Mixer{k}, \mathit{VK}_{k-1},g_{k-1})$ to \UBV.
-		\item Select $\vk{k}$ from $Z_{k}\in \mathcal{Z}_{M}$.
-		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{keyMixingResult},1)$ to \UBV.
-	\end{enumerate}
 	\item $\Mixer{k}$ performs the following steps:
 	\begin{enumerate}
 		\item Get $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting}$ from \UBV.
@@ -1300,16 +1331,26 @@ The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order 
 	\begin{enumerate}
 		\item Get $(\mathsf{keyMixingResult}:\mathit{VK}_k,g_k,\pi_{k})$ from \UBV.
 		\item Verify $\pi_{k}$.
+		\item If $k<m$, perform the following steps:
+		\begin{enumerate}
+			\item Select $\vk{k+1}$ from $Z_{k+1}\in \mathcal{Z}_{M}$.
+			\item Post $(\mathsf{accessRight}:\vk{k+1},\mathsf{keyMixingResult},1)$ to \UBV.
+			\item Post $(\mathsf{keyMixingRequest}:\Mixer{k+1}, \mathit{VK}_{k},g_{k})$ to \UBV.
+		\end{enumerate}
+		\item If $k=m$, perform the following steps:
+		\begin{enumerate}
+			\item Let $\hat{\mathit{VK}}=\mathit{VK}_m$ denote the set of mixed public keys and $\hat{g}=g_m$ the \emph{signature generator} for this election.
+			\item Post $(\mathsf{mixedKeys}:\hat{\mathit{VK}},\hat{g})$ to \UBV.
+		\end{enumerate}
 	\end{enumerate}
 \end{enumerate}
 
-Let $\hat{\mathit{VK}}=\mathit{VK}_m$ denote the set of mixed public keys and $\hat{g}=g_m$ the \emph{signature generator} for this election.
 
 \subsubsection{Finalizing Election Preparation}
 
 \EC performs the following steps:
 \begin{enumerate}
-	\item Post $(\mathsf{mixedKeys}:\hat{\mathit{VK}},\hat{g})$ to \UBV.
+	\item Get $(\mathsf{mixedKeys}:\hat{\mathit{VK}},\hat{g})$ from \UBV.
 	\item For every $\vkhat{i}\in \hat{\mathit{VK}}$, post $(\mathsf{accessRight}:\vkhat{i}, \mathsf{ballot}, 1,\electionPeriod)$.
 	\item Get $(\mathsf{electionDefinition}: \electionTitle,\electionPeriod)$ from \UBV.
 	\item Get $(\mathsf{electionDetails}:\mathcal{Q},\mathcal{R},\electionIssues,\encode)$ from \UBV.
@@ -1339,7 +1380,48 @@ $\Voter{i}\in V$ performs the following steps:
 \subsection{Mixing and Tallying}
 %-----------------------------------------------------------------------------------------------
 
-\subsubsection{Ballot Validation}
+%\subsubsection{Ballot Validation}
+%
+%\EC performs the following steps:
+%\begin{enumerate}
+%	\item Get $(\mathsf{ballot}:\mathcal{B})$ from \UBV.\footnote{Using an extensive check.}
+%	\item For every $B_i=(E_i,\pi_{i})\in\mathcal{B}$:
+%	\begin{enumerate}
+%		\item Verify $\pi_{i}$.
+%		\item If $\pi_{i}$ is valid, collect $E_{i}$.
+%	\end{enumerate}
+%\end{enumerate}
+%Let $\mathcal{E}_0=\{E_1,\ldots,E_N\}\in(\mathcal{G}_Q\times\mathcal{G}_Q)^N$ be list of valid encrypted votes for $N\leq n'$.
+%
+%\subsubsection{Mixing the Encrypted Votes}
+%
+%The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):
+%\begin{enumerate}
+%	\item \EC performs the following steps:
+%	\begin{enumerate}
+%		\item Select $\vk{k}$ from $Z_{k}\in \mathcal{Z}_{M}$.
+%		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{voteMixingResult},1)$ to \UBV.
+%		\item Post $(\mathsf{voteMixingRequest}:\Mixer{k},\mathcal{E}_{k-1})$ to \UBV.
+%	\end{enumerate}
+%	\item $\Mixer{k}$ performs the following steps:
+%	\begin{enumerate}
+%		\item Get $(\mathsf{encryptionSetting}:\mathcal{G}_Q,G)$ from \UBV.
+%		\item Get $(\mathsf{voteMixingRequest}:\Mixer{k}, \mathcal{E}_{k-1})$ from \UBV.
+%		\item Choose $R_k=(r_{k,1},\ldots,r_{k,N})\in_R\mathbb{Z}_Q^N$.
+%		\item Choose $\tau_k:[1,N]\rightarrow[1,N]\in_R\Psi_N$.
+%		\item Compute $\mathcal{E}_k=\mathit{shuffle}_{\tau_k}(\mathcal{E}_{k-1},R_k)$.
+%		\item Generate $\pi'_{k}=\mathit{NIZKP}\{(\tau_k,R_k): \mathcal{E}_k=\mathit{shuffle}_{\tau_k}(\mathcal{E}_{k-1},R_k)\}$.
+%		\item Post $(\mathsf{voteMixingResult}:\mathcal{E}_k,\pi'_{k})$ to \UBV.
+%	\end{enumerate}
+%	\item \EC performs the following steps:
+%	\begin{enumerate}
+%		\item Get $(\mathsf{voteMixingResult}:\mathcal{E}_k,\pi'_{k})$ from \UBV.
+%		\item Verify $\pi'_{k}$.
+%	\end{enumerate}
+%\end{enumerate}
+%Let $\hat{\mathcal{E}}=\mathcal{E}_m$ the set of mixed encrypted votes. 
+
+\subsubsection{Ballot Validation and Vote Mixing}
 
 \EC performs the following steps:
 \begin{enumerate}
@@ -1347,21 +1429,16 @@ $\Voter{i}\in V$ performs the following steps:
 	\item For every $B_i=(E_i,\pi_{i})\in\mathcal{B}$:
 	\begin{enumerate}
 		\item Verify $\pi_{i}$.
-		\item If $\pi_{i}$ is valid, collect $E_{i}$.
+		\item If $\pi_{i}$ is valid, collect $E_{i}$ into $\mathcal{E}_0$.
 	\end{enumerate}
+	\item Select $\vk{1}$ from $Z_{1}\in \mathcal{Z}_{M}$.
+	\item Post $(\mathsf{accessRight}:\vk{1},\mathsf{voteMixingResult},1)$ to \UBV.
+	\item Post $(\mathsf{voteMixingRequest}:\Mixer{1},\mathcal{E}_{0})$ to \UBV.
 \end{enumerate}
-Let $\mathcal{E}_0=\{E_1,\ldots,E_N\}\in(\mathcal{G}_Q\times\mathcal{G}_Q)^N$ be list of valid encrypted votes for $N\leq n'$.
 
-\subsubsection{Mixing the Encrypted Votes}
 
 The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):
-\begin{enumerate}
-	\item \EC performs the following steps:
-	\begin{enumerate}
-		\item Select $\vk{k}$ from $Z_{k}\in \mathcal{Z}_{M}$.
-		\item Post $(\mathsf{accessRight}:\vk{k},\mathsf{voteMixingResult},1)$ to \UBV.
-		\item Post $(\mathsf{voteMixingRequest}:\Mixer{k},\mathcal{E}_{k-1})$ to \UBV.
-	\end{enumerate}
+\begin{enumerate}[resume]
 	\item $\Mixer{k}$ performs the following steps:
 	\begin{enumerate}
 		\item Get $(\mathsf{encryptionSetting}:\mathcal{G}_Q,G)$ from \UBV.
@@ -1376,15 +1453,24 @@ The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order 
 	\begin{enumerate}
 		\item Get $(\mathsf{voteMixingResult}:\mathcal{E}_k,\pi'_{k})$ from \UBV.
 		\item Verify $\pi'_{k}$.
+		\item If $k<m$, perform the following steps: 
+		\begin{enumerate}
+			\item Select $\vk{k+1}$ from $Z_{k+1}\in \mathcal{Z}_{M}$.
+			\item Post $(\mathsf{accessRight}:\vk{k+1},\mathsf{voteMixingResult},1)$ to \UBV.
+			\item Post $(\mathsf{voteMixingRequest}:\Mixer{k+1},\mathcal{E}_{k})$ to \UBV.
+		\end{enumerate}
+		\item If $k=m$, perform the following steps: 
+		\begin{enumerate}
+			\item Let $\hat{\mathcal{E}}=\mathcal{E}_m$ be the set of mixed encrypted votes. 
+			\item Post $(\mathsf{mixedVotes}:\hat{\mathcal{E}})$ to \UBV.
+		\end{enumerate}
 	\end{enumerate}
 \end{enumerate}
-Let $\hat{\mathcal{E}}=\mathcal{E}_m$ the set of mixed encrypted votes. 
 
 \subsubsection{Decrypting and Tallying the Votes}
 
 \EC performs the following steps:
 \begin{enumerate}	
-	\item Post $(\mathsf{mixedVotes}:\hat{\mathcal{E}})$ to \UBV.
 	\item For each $Z_{j}\in \mathcal{Z}_{T}$:
 	\begin{enumerate}
 		\item Select $\vk{j}$ from $Z_{j}$.
@@ -1393,7 +1479,7 @@ Let $\hat{\mathcal{E}}=\mathcal{E}_m$ the set of mixed encrypted votes.
 \end{enumerate}
 
 Each $\Tallier{j}\in T$ performs the following steps:
-\begin{enumerate}
+\begin{enumerate}[resume]
 	\item Get $(\mathsf{mixedVotes}:\hat{\mathcal{E}})$ from \UBV.
 	\item Select $A=(a_1,\ldots,a_N)\in\mathcal{G}_Q^N$ from $\hat{\mathcal{E}}=\{(a_i,b_i):1\leq i\leq N\}$. 		
 	\item Compute $A_j = (a_{1,j},\ldots,a_{N,j})$ for $a_{i,j} = a_i^{-x_j}\in\mathcal{G}_Q$.
