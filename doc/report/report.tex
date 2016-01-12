@@ -153,6 +153,7 @@
 		\vhEntry{0.6.9}{27.08.2015}{Haenni Rolf}{Password-based key derivation.}	
 		\vhEntry{0.6.10}{01.09.2015}{Dubuis Eric}{Reformatted tables for actions and other matters.}
 		\vhEntry{0.6.11}{10.01.2016}{Haenni Rolf}{Updated mixing.}
+		\vhEntry{0.6.12}{12.01.2016}{Haenni Rolf}{Get statements added for completeness}
 	\end{versionhistory}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1155,6 +1156,7 @@ The following tasks can be performed in advance, possibly long before the electi
 \subsubsection{Election Definition}
 \EC performs the following steps: 
 \begin{enumerate}
+	\item Get $(\mathsf{administrationCertificate}: Z_{\EA})$ from \UBV.
 	\item Select $\vk{\EA}$ from $Z_{\EA}$.
 	\item Post $(\mathsf{accessRight}: \vk{\EA}, \mathsf{electionDefinition}, 1)$ to \UBV.
 	\item Post $(\mathsf{accessRight}: \vk{\EA}, \mathsf{trustees}, 1)$ to \UBV.
@@ -1201,17 +1203,20 @@ The following tasks can be performed in advance, possibly long before the electi
 		\item $\mathit{hashSetting}\in \Sigma_\mathsf{HASH}$ 
 	\end{itemize}
 	according to $\securityLevel$, where $\Sigma_\mathsf{ENCRYPT}$, $\Sigma_\mathsf{SIGN}$, $\Sigma_\mathsf{HASH}$ are corresponding sets of predefined cryptographic settings for ElGamal encryptions, Schnorr signatures, and hash functions (see \Cref{settings}).
-	\item Post $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting})$ to \UBV.	
+	\item Post $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting})$ to \UBV.
 \end{enumerate}
 
 \subsubsection{Shared Encryption Key}
 
-For each $Z_{j}\in \mathcal{Z}_{T}$, \EC performs the following steps:
-\begin{enumerate}	
-	\item Select $\vk{j}$ from $Z_{j}$.
-	\item Post $(\mathsf{accessRight}:\vk{j},\mathsf{encryptionKeyShare},1)$ to \UBV.
+\EC performs the following steps:
+\begin{enumerate}
+	\item Get $(\mathsf{trusteeCertificates}: \mathcal{Z}_{T},\mathcal{Z}_{M})$ from \UBV.
+	\item For each $Z_{j}\in \mathcal{Z}_{T}$:
+	 \begin{enumerate}	
+	 	\item Select $\vk{j}$ from $Z_{j}$.
+	 	\item Post $(\mathsf{accessRight}:\vk{j},\mathsf{encryptionKeyShare},1)$ to \UBV.
+	 \end{enumerate}
 \end{enumerate}
-
 Each $\Tallier{j}\in T$ performs the following steps:
 \begin{enumerate}[resume]
 	\item Get $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting})$ from \UBV.
@@ -1224,6 +1229,7 @@ Each $\Tallier{j}\in T$ performs the following steps:
 
 \EC performs the following steps:
 \begin{enumerate}[resume]
+	\item $(\mathsf{trustees}: T, M)$ from \UBV.
 	\item For each $\Tallier{j}\in T$:
 	\begin{enumerate}
 		\item Get $(\mathsf{encryptionKeyShare}:y_j,\pi_{j})$ from \UBV.
@@ -1244,6 +1250,8 @@ The following tasks are performed shortly before the beginning of the election.
 
 \EC performs the following step:
 \begin{enumerate}
+	\item Get $(\mathsf{administrationCertificate}: Z_{\EA})$ from \UBV.
+	\item Select $\vk{\EA}$ from $Z_{\EA}$.
 	\item Post $(\mathsf{accessRight}: \vk{\EA}, \mathsf{electionDetails}, 1)$ to \UBV.
 	\item Post $(\mathsf{accessRight}: \vk{\EA}, \mathsf{electoralRoll}, 1)$ to \UBV.
 \end{enumerate}
@@ -1308,10 +1316,11 @@ The following tasks are performed shortly before the beginning of the election.
 \subsubsection{Mixing the Public Keys}
 \EC performs the following steps:
 \begin{enumerate}
-	\item Select $\vk{1}$ from $Z_{1}\in \mathcal{Z}_{M}$.
+	\item Get $(\mathsf{trusteeCertificates}: \mathcal{Z}_{T},\mathcal{Z}_{M})$ from \UBV.
+	\item Select $(\Mixer{1},\vk{1})$ from $Z_{1}\in \mathcal{Z}_{M}$.
 	\item Post $(\mathsf{accessRight}:\vk{1},\mathsf{keyMixingResult},1)$ to \UBV.
-	\item Let $g_0=g$.
 	\item Select $\mathit{VK}_0=\{\vk{1},\ldots,\vk{n'}\}$ from $\mathcal{Z}_V$.
+	\item Let $g_0=g$.
 	\item Post $(\mathsf{keyMixingRequest}:\Mixer{1}, \mathit{VK}_0,g_0)$ to \UBV.
 \end{enumerate}
 The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order for $1\leq k\leq m$):
@@ -1332,9 +1341,10 @@ The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order 
 	\begin{enumerate}
 		\item Get $(\mathsf{keyMixingResult}:\mathit{VK}_k,g_k,\pi_{k})$ from \UBV.
 		\item Verify $\pi_{k}$.
+		\item Get $(\mathsf{trusteeCertificates}: \mathcal{Z}_{T},\mathcal{Z}_{M})$ from \UBV.
 		\item If $k<m$, perform the following steps:
 		\begin{enumerate}
-			\item Select $\vk{k+1}$ from $Z_{k+1}\in \mathcal{Z}_{M}$.
+			\item Select $(\Mixer{k+1},\vk{k+1})$ from $Z_{k+1}\in \mathcal{Z}_{M}$.
 			\item Post $(\mathsf{accessRight}:\vk{k+1},\mathsf{keyMixingResult},1)$ to \UBV.
 			\item Post $(\mathsf{keyMixingRequest}:\Mixer{k+1}, \mathit{VK}_{k},g_{k})$ to \UBV.
 		\end{enumerate}
@@ -1355,6 +1365,8 @@ The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order 
 	\item For every $\vkhat{i}\in \hat{\mathit{VK}}$, post $(\mathsf{accessRight}:\vkhat{i}, \mathsf{ballot}, 1,\electionPeriod)$.
 	\item Get $(\mathsf{electionDefinition}: \electionTitle,\electionPeriod)$ from \UBV.
 	\item Get $(\mathsf{electionDetails}:\mathcal{Q},\mathcal{R},\electionIssues,\encode)$ from \UBV.
+	\item Get $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting})$ from \UBV.
+	\item Get $(\mathsf{encryptionKey}:y)$ from \UBV.	
 	\item Post $(\mathsf{votingData}:\electionTitle, \electionPeriod, \mathcal{Q},\mathcal{R}, \electionIssues, \encode, \mathit{encryptSetting}, \mathit{signSetting}, \mathit{hashSetting},$ $y, \hat{g})$ to \UBV.\footnote{This post is only for improved convenience. It contains all the relevant information for casting a vote. Retrieving this information in a single step is the purpose of this post.}
 \end{enumerate}
 
@@ -1432,7 +1444,8 @@ $\Voter{i}\in V$ performs the following steps:
 		\item Verify $\pi_{i}$.
 		\item If $\pi_{i}$ is valid, collect $E_{i}$ into $\mathcal{E}_0$.
 	\end{enumerate}
-	\item Select $\vk{1}$ from $Z_{1}\in \mathcal{Z}_{M}$.
+	\item Get $(\mathsf{trusteeCertificates}: \mathcal{Z}_{T},\mathcal{Z}_{M})$ from \UBV.
+	\item Select $(\Mixer{1},\vk{1})$ from $Z_{1}\in \mathcal{Z}_{M}$.
 	\item Post $(\mathsf{accessRight}:\vk{1},\mathsf{voteMixingResult},1)$ to \UBV.
 	\item Post $(\mathsf{voteMixingRequest}:\Mixer{1},\mathcal{E}_{0})$ to \UBV.
 \end{enumerate}
@@ -1442,7 +1455,8 @@ The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order 
 \begin{enumerate}[resume]
 	\item $\Mixer{k}$ performs the following steps:
 	\begin{enumerate}
-		\item Get $(\mathsf{encryptionSetting}:\mathcal{G}_Q,G)$ from \UBV.
+		\item Get $(\mathsf{cryptoSetting}:\mathit{encryptSetting},\mathit{signSetting},\mathit{hashSetting}$ from \UBV.
+		\item Select $\mathcal{G}_Q$ and $G$ from $\mathit{encryptSetting}$.
 		\item Get $(\mathsf{voteMixingRequest}:\Mixer{k}, \mathcal{E}_{k-1})$ from \UBV.
 		\item Choose $R_k=(r_{k,1},\ldots,r_{k,N})\in_R\mathbb{Z}_Q^N$.
 		\item Choose $\tau_k:[1,N]\rightarrow[1,N]\in_R\Psi_N$.
@@ -1454,9 +1468,10 @@ The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order 
 	\begin{enumerate}
 		\item Get $(\mathsf{voteMixingResult}:\mathcal{E}_k,\pi'_{k})$ from \UBV.
 		\item Verify $\pi'_{k}$.
+		\item Get $(\mathsf{trusteeCertificates}: \mathcal{Z}_{T},\mathcal{Z}_{M})$ from \UBV.
 		\item If $k<m$, perform the following steps: 
 		\begin{enumerate}
-			\item Select $\vk{k+1}$ from $Z_{k+1}\in \mathcal{Z}_{M}$.
+			\item Select $(\Mixer{k+1},\vk{k+1})$ from $Z_{k+1}\in \mathcal{Z}_{M}$.
 			\item Post $(\mathsf{accessRight}:\vk{k+1},\mathsf{voteMixingResult},1)$ to \UBV.
 			\item Post $(\mathsf{voteMixingRequest}:\Mixer{k+1},\mathcal{E}_{k})$ to \UBV.
 		\end{enumerate}
@@ -1472,6 +1487,7 @@ The following steps are repeated for every $\Mixer{k}\in M$ (in ascending order 
 
 \EC performs the following steps:
 \begin{enumerate}	
+	\item Get $(\mathsf{trusteeCertificates}: \mathcal{Z}_{T},\mathcal{Z}_{M})$ from \UBV.
 	\item For each $Z_{j}\in \mathcal{Z}_{T}$:
 	\begin{enumerate}
 		\item Select $\vk{j}$ from $Z_{j}$.
@@ -1490,6 +1506,7 @@ Each $\Tallier{j}\in T$ performs the following steps:
 
 \EC performs the following steps:
 \begin{enumerate}[resume]
+	\item Get $(\mathsf{trustees}: T, M)$ from \UBV.
 	\item For each $\Tallier{j}\in T$:
 	\begin{enumerate}
 		\item Get $(\mathsf{partialDecryption}:A_j,\pi_{j}')$ from \UBV.
@@ -1526,6 +1543,8 @@ The previously described protocol requires that all UniVote voter certificates e
 Upon notification of a newly issued voter certificate $Z'_i$ for $\Voter{i}$, \EC performs the following steps:
 \begin{enumerate}
 	\item Verify $Z'_i$.
+	\item Get  $(\mathit{electoralRoll}:V)$ from \UBV.
+	\item Select $(\Voter{i},\vkprime{i})$ from $Z'_i$.
 	\item Check if $\Voter{i}\in V$.
 	\item Post $(\mathsf{newVoterCertificate}:Z'_i)$ to \UBV. 
 	\item Get $(\mathsf{addedVoterCertificate}: \mathcal{Z}_A)$ from \UBV.
@@ -1538,7 +1557,6 @@ Upon notification of a newly issued voter certificate $Z'_i$ for $\Voter{i}$, \E
 	 \item Get $(\mathsf{ballot}:\vkhat{i})$. Abort if a ballot exists for $\vkhat{i}$.
 	 \item Post $(\mathsf{cancelledVoterCertificate}:Z_i)$ to \UBV.
 	\end{enumerate}
-	\item Select $\vkprime{i}$ from $Z'_i$.
 	\item Get $\vkhatprime{i}$ from calling the sub-routine described in \Cref{singlekey} for $\vkprime{i}$.
 	\item Post $(\mathsf{addedVoterCertificate}:Z'_i)$ to \UBV.
 	\item Post $(\mathsf{accessRight}:\vkhatprime{i}, \mathsf{ballot}, 1,\electionPeriod)$ to \UBV.
