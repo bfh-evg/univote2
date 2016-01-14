@@ -54,28 +54,35 @@ import javax.xml.bind.annotation.XmlType;
  *		"mixerId": { "type": "string" },
  *		"publicKey": { "type": "string" },
  *		"key": { "type": "string" }
- *	},
- *	"required": ["mixerId", "publickey", "key"],
+ *		"intputGenerator": { "type": "string" },
+ *		"outputGenerator": { "type": "string" }
+ * 	},
+ *	"required": ["mixerId", "publickey", "key", "intputGenerator", "outputGenerator"],
  *	"additionalProperties": false
  *}
  * </pre>
  *
  * @author Severin Hauser &lt;severin.hauser@bfh.ch&gt;
  */
-@XmlType(propOrder = {"mixerId", "publicKey", "key"})
+@XmlType(propOrder = {"mixerId", "publicKey", "key", "inputGenerator", "outputGenerator"})
 public class SingleKeyMixingRequest {
 
 	private String mixerId;
 	private String publicKey;
 	private String key;
+	private String inputGenerator;
+	private String outputGenerator;
 
 	public SingleKeyMixingRequest() {
 	}
 
-	public SingleKeyMixingRequest(String mixerId, String publicKey, String key) {
+	public SingleKeyMixingRequest(String mixerId, String publicKey, String key, String inputGenerator,
+			String outputGenerator) {
 		this.mixerId = mixerId;
 		this.publicKey = publicKey;
 		this.key = key;
+		this.inputGenerator = inputGenerator;
+		this.outputGenerator = outputGenerator;
 	}
 
 	@XmlElement(required = true)
@@ -103,6 +110,24 @@ public class SingleKeyMixingRequest {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	@XmlElement(required = true)
+	public String getInputGenerator() {
+		return inputGenerator;
+	}
+
+	public void setInputGenerator(String inputGenerator) {
+		this.inputGenerator = inputGenerator;
+	}
+
+	@XmlElement(required = true)
+	public String getOutputGenerator() {
+		return outputGenerator;
+	}
+
+	public void setOutputGenerator(String outputGenerator) {
+		this.outputGenerator = outputGenerator;
 	}
 
 }

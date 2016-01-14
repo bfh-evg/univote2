@@ -5,8 +5,10 @@
 	"properties": {
 		"mixerId": { "type": "string" },
 		"publicKey": { "type": "string" },
-		"key": { "type": "string" }
+		"key": { "type": "string" },
+		"intputGenerator": { "type": "string" },
+		"outputGenerator": { "type": "string" }
 	},
-	"required": ["mixerId", "publickey", "key"],
+	"required": ["mixerId", "publickey", "key", "intputGenerator", "outputGenerator"],
 	"additionalProperties": false
 }

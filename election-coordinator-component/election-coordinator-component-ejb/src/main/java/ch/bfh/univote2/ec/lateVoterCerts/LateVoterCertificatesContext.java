@@ -41,6 +41,7 @@
  */
 package ch.bfh.univote2.ec.lateVoterCerts;
 
+import ch.bfh.univote2.common.message.Certificate;
 import ch.bfh.univote2.common.message.CryptoSetting;
 import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
@@ -48,7 +49,9 @@ import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -64,6 +67,7 @@ public class LateVoterCertificatesContext extends ActionContext {
 	private String signatureGenerator;
 	private final List<PublicKey> mixerKeys = new ArrayList<>();
 	private final Set<CertificateProcessingRecord> certificateProcessingRecords = new ConcurrentSkipListSet<>();
+	private final Map<String, String> mixerGenerators = new HashMap<>();
 
 	public LateVoterCertificatesContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), true);
@@ -103,23 +107,47 @@ public class LateVoterCertificatesContext extends ActionContext {
 
 	/**
 	 * Returns the certificate processing record, if any, for a voter identified by his/her common name.
+	 *
 	 * @param commonName
 	 * @return
 	 */
 	public CertificateProcessingRecord findRecordByCommonName(String commonName) {
+		for (CertificateProcessingRecord cpr : this.certificateProcessingRecords) {
+			if (cpr.getCertificate().getCommonName().equals(commonName)) {
+				return cpr;
+			}
+		}
 		return null;
 	}
 
 	/**
 	 * Returns the certificate processing record, if any, for the given verification key.
+	 *
 	 * @param currentVK
 	 * @return
 	 */
 	public CertificateProcessingRecord findRecordByCurrentVK(String currentVK) {
+		for (CertificateProcessingRecord cpr : this.certificateProcessingRecords) {
+			if (cpr.getCurrentVK().equals(currentVK)) {
+				return cpr;
+			}
+		}
 		return null;
 	}
 
-	public void removeCertificateProcessingRecord(CertificateProcessingRecord cpr) {
+	public synchronized boolean testAndSetCertificateProcessingRecord(Certificate voterCertificate) {
+		for (CertificateProcessingRecord cpr : this.certificateProcessingRecords) {
+			if (cpr.getCertificate().getCommonName().equals(voterCertificate.getCommonName())) {
+				return true;
+			}
+		}
+		CertificateProcessingRecord cpr = new CertificateProcessingRecord();
+		cpr.setCertificate(voterCertificate);
+		this.certificateProcessingRecords.add(cpr);
+		return false;
+	}
+
+	public synchronized void removeCertificateProcessingRecord(CertificateProcessingRecord cpr) {
 		this.certificateProcessingRecords.remove(cpr);
 	}
 
@@ -138,4 +166,9 @@ public class LateVoterCertificatesContext extends ActionContext {
 	public void setSignatureGenerator(String signatureGenerator) {
 		this.signatureGenerator = signatureGenerator;
 	}
+
+	public Map<String, String> getMixerGenerators() {
+		return mixerGenerators;
+	}
+
 }

@@ -42,7 +42,6 @@
 package ch.bfh.univote2.trustee.mixer.keyMixing;
 
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
-import ch.bfh.univote2.common.message.SingleKeyMixingRequest;
 import ch.bfh.univote2.trustee.ATrusteeActionContext;
 
 /**
@@ -51,23 +50,12 @@ import ch.bfh.univote2.trustee.ATrusteeActionContext;
  */
 public class SingleKeyMixingActionContext extends ATrusteeActionContext {
 
-	private SingleKeyMixingRequest keyMixingRequest;
-
 	public SingleKeyMixingActionContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, true);
 	}
 
 	@Override
 	protected void purgeSpecializedData() {
-		this.keyMixingRequest = null;
-	}
-
-	public SingleKeyMixingRequest getSingleKeyMixingRequest() {
-		return keyMixingRequest;
-	}
-
-	public void setSingleKeyMixingRequest(SingleKeyMixingRequest keyMixingRequest) {
-		this.keyMixingRequest = keyMixingRequest;
 	}
 
 }

@@ -385,25 +385,40 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 		CyclicGroup cyclicGroup = CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting()
 				.getEncryptionSetting()).cryptoGroup;
 
-		//TODO Combine
+		//Combine
+		int n = actionContext.getGeneratorFunctions().length;
 		DecryptedVotes votes = new DecryptedVotes();
+		for (int i = 0; i < n; i++) {
+			Element wPrime = cyclicGroup.getIdentityElement();
+			for (List<String> partDec : actionContext.getPartialDecryptions().values()) {
+				Element a = cyclicGroup.getElementFrom(partDec.get(i));
+				wPrime = wPrime.apply(a);
+			}
+			//TODO Get from mixed votes
+			//Element b = ...
+			//wPrime = wPrime.apply(b);
+			//ZModElement w = ZModToGStarModSafePrimeEncoder.getInstance(cyclicGroup).decode(wPrime);
+			//votes.getDecryptedVotes().add(i, w.convertToString());
+		}
 
-		try {
-			//post ac
-			PublicKey pk = this.tenantManager.getPublicKey(actionContext.getTenant());
-			byte[] arMessage = MessageFactory.createAccessRight(GroupEnum.DECRYPTED_VOTES, pk, 1);
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
-					GroupEnum.ACCESS_RIGHT.getValue(), arMessage, actionContext.getTenant());
-			//post encKey
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
-					GroupEnum.DECRYPTED_VOTES.getValue(),
-					JSONConverter.marshal(votes).getBytes(Charset.forName("UTF-8")), actionContext.getTenant());
-			//inform am
-			this.informationService.informTenant(actionContext.getActionContextKey(), "Posted decrypted votes.");
-			this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
-		} catch (UnivoteException ex) {
-			this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
-			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+		{
+			try {
+				//post ac
+				PublicKey pk = this.tenantManager.getPublicKey(actionContext.getTenant());
+				byte[] arMessage = MessageFactory.createAccessRight(GroupEnum.DECRYPTED_VOTES, pk, 1);
+				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+						GroupEnum.ACCESS_RIGHT.getValue(), arMessage, actionContext.getTenant());
+				//post encKey
+				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
+						GroupEnum.DECRYPTED_VOTES.getValue(),
+						JSONConverter.marshal(votes).getBytes(Charset.forName("UTF-8")), actionContext.getTenant());
+				//inform am
+				this.informationService.informTenant(actionContext.getActionContextKey(), "Posted decrypted votes.");
+				this.actionManager.runFinished(actionContext, ResultStatus.FINISHED);
+			} catch (UnivoteException ex) {
+				this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
+				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
+			}
 		}
 	}
 

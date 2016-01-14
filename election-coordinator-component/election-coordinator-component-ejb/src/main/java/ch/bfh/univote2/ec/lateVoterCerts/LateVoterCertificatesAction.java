@@ -47,8 +47,27 @@ import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
+import ch.bfh.unicrypt.crypto.proofsystem.classes.EqualityPreimageProofSystem;
+import ch.bfh.unicrypt.helper.converter.classes.ConvertMethod;
+import ch.bfh.unicrypt.helper.converter.classes.biginteger.ByteArrayToBigInteger;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.BigIntegerToByteArray;
+import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
+import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
+import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
+import ch.bfh.unicrypt.helper.hash.HashMethod;
+import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.helper.math.MathUtil;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
+import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
+import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
+import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
+import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModPrime;
+import ch.bfh.unicrypt.math.function.classes.GeneratorFunction;
+import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
 import ch.bfh.univote2.common.crypto.CryptoSetup;
@@ -59,6 +78,7 @@ import ch.bfh.univote2.common.message.DL;
 import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
 import ch.bfh.univote2.common.message.JSONConverter;
+import ch.bfh.univote2.common.message.KeyMixingResult;
 import ch.bfh.univote2.common.message.MixedKeys;
 import ch.bfh.univote2.common.message.SingleKeyMixingRequest;
 import ch.bfh.univote2.common.message.SingleKeyMixingResult;
@@ -82,6 +102,7 @@ import ch.bfh.univote2.ec.BoardsEnum;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
@@ -164,6 +185,17 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 					throw new UnivoteException("Trustees certificates not published yet.");
 				}
 				this.parseMixers(actionContext, result.getResult().getPost().get(0));
+
+				for (PublicKey pk : actionContext.getMixerKeys()) {
+					ResultContainerDTO result2 = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+							QueryFactory.getQueryForKeyMixingResultForMixer(actionContext.getSection(), pk));
+					if (result2.getResult().getPost().isEmpty()) {
+						throw new UnivoteException("Trustees mixing result not published yet.");
+					}
+					KeyMixingResult keyMixingResult = JSONConverter.unmarshal(KeyMixingResult.class,
+							result2.getResult().getPost().get(0).getMessage());
+					actionContext.getMixerGenerators().put(this.getMixerId(pk), keyMixingResult.getGenerator());
+				}
 			}
 			{
 				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
@@ -195,8 +227,7 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 							BoardsEnum.UNICERT.getValue());
 			actionContext.getPreconditionQueries().add(bQuery2);
 		} catch (UnivoteException ex) {
-			Logger.getLogger(LateVoterCertificatesAction.class.getName()).log(Level.SEVERE, null, ex);
-			// TODO: Failure reporting to, and appropriate handling by the action manager to be provided
+			logger.log(Level.SEVERE, ex.getMessage());
 		}
 		return actionContext;
 	}
@@ -256,15 +287,15 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 				try {
 					SingleKeyMixingResult skmr
 							= JSONConverter.unmarshal(SingleKeyMixingResult.class, post.getMessage());
-					if (!verifySingleKeyMixingResult(skmr)) {
+					CertificateProcessingRecord cpr = context.findRecordByCurrentVK(skmr.getPublicKey());
+					if (!verifySingleKeyMixingResult(context, cpr, skmr)) {
 						logger.log(Level.SEVERE, "Invalid proof for single key mixing result: {0}", skmr.getMixerId());
 						this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
 						return;
 					}
-					CertificateProcessingRecord cpr = context.findRecordByCurrentVK(skmr.getPublicKey());
-					if (moreMoreMixersToEngage(cpr)) {
+					if (moreMixersToEngage(context, cpr)) {
 						cpr.incrementK();
-						this.createMixingRequest(context, cpr.getK(), skmr.getPublicKey(), skmr.getMixedKey());
+						this.createMixingRequest(context, cpr, skmr.getPublicKey(), skmr.getMixedKey());
 					} else {
 						switch (cpr.getProcessingState()) {
 							case MIXING_OLD_VK:
@@ -274,9 +305,11 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 								this.activateNewCertificate(context, cpr, skmr.getMixedKey());
 								break;
 							default:
-							// ERROR !! Should not happen!
-							// TODO: Add logger statement
-							// TODO: Write more tests!
+								// ERROR !! Should not happen!
+								logger.log(Level.SEVERE, "Unexpected state.", cpr.getProcessingState());
+								this.informationService.informTenant(actionContext.getActionContextKey(),
+										"Unexpected state." + cpr.getProcessingState());
+								this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 						}
 					}
 				} catch (UnivoteException ex) {
@@ -301,7 +334,7 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 					// Given Zi'. Then:
 					// if record exists
 					// - queue certificate Zi' and return
-					if (testAndSetCertificateProcessingRecord(context, voterCertificate)) {
+					if (context.testAndSetCertificateProcessingRecord(voterCertificate)) {
 						// There is another certificate for this voter being processed; queue this one for
 						// later processing.
 						queueCertificate(context, voterCertificate);
@@ -349,24 +382,22 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 	}
 
 	private boolean checkIfEligible(LateVoterCertificatesContext context, Certificate voterCertificate) {
-		// TODO ...
-		throw new UnsupportedOperationException("Not supported yet.");
+		return context.getElectoralRoll().getVoterIds().contains(voterCertificate.getCommonName());
 	}
 
 	private boolean verifyCertificate(Certificate voterCertificate) {
-		// TODO ...
-		throw new UnsupportedOperationException("Not supported yet.");
+		//TODO
+		return true;
+
 	}
 
 	private void queueCertificate(LateVoterCertificatesContext context, Certificate voterCertificate) {
-		// TODO ...
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	private boolean testAndSetCertificateProcessingRecord(LateVoterCertificatesContext context,
-			Certificate voterCertificate) {
-		// TODO ...
-		throw new UnsupportedOperationException("Not supported yet.");
+		try {
+			context.findRecordByCommonName(voterCertificate.getCommonName()).getQueuedNotifications()
+					.put(voterCertificate);
+		} catch (InterruptedException ex) {
+			logger.log(Level.SEVERE, "Could not add certificate to queue for {0}", voterCertificate.getCommonName());
+		}
 	}
 
 	private void postNewCertificateAndCheckOldOne(LateVoterCertificatesContext context,
@@ -394,22 +425,33 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 			}
 			//   - start mixing
 			cpr.resetK();
-			this.createMixingRequest(context, cpr.getK(), cpr.getCurrentVK(), cpr.getCurrentVK());
+			this.createMixingRequest(context, cpr, cpr.getCurrentVK(), cpr.getCurrentVK());
 		} catch (UnivoteException ex) {
 			Logger.getLogger(LateVoterCertificatesAction.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
 
-	private void createMixingRequest(LateVoterCertificatesContext context, int k, String currentVK,
-			String vkToBeMixed) {
+	private void createMixingRequest(LateVoterCertificatesContext context, CertificateProcessingRecord cpr,
+			String currentVK, String vkToBeMixed) {
 		try {
-			String mixerId = getMixerId(context, k);
+			String mixerId = getMixerId(context.getMixerKeys().get(cpr.getK()));
 			// - post request
-			SingleKeyMixingRequest smr = new SingleKeyMixingRequest(mixerId, currentVK, vkToBeMixed);
+			String inputGenerator;
+			if (cpr.getK() == 0) {
+				CryptoSetup cSetup = CryptoProvider.getSignatureSetup(context.getCryptoSetting().getSignatureSetting());
+				inputGenerator = cSetup.cryptoGenerator.convertToString();
+			} else {
+				inputGenerator = context.getMixerGenerators().get(
+						this.getMixerId(context.getMixerKeys().get(cpr.getK() - 1)));
+			}
+			String outputGenerator = context.getMixerGenerators().get(mixerId);
+			SingleKeyMixingRequest smr = new SingleKeyMixingRequest(mixerId, currentVK, vkToBeMixed,
+					inputGenerator, outputGenerator);
 			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
 					GroupEnum.MIXED_KEYS.getValue(),
 					JSONConverter.marshal(smr).getBytes(Charset.forName("UTF-8")),
 					context.getTenant());
+			cpr.setLastMixingRequest(smr);
 			//inform tenant
 			this.informationService.informTenant(context.getActionContextKey(),
 					"Posted single key mixing request to " + mixerId + " for VK: " + currentVK);
@@ -456,8 +498,7 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 		}
 	}
 
-	private String getMixerId(LateVoterCertificatesContext context, int k) throws UnivoteException {
-		PublicKey publicKey = context.getMixerKeys().get(k);
+	private String getMixerId(PublicKey publicKey) throws UnivoteException {
 		if (publicKey instanceof DSAPublicKey) {
 			DSAPublicKey dsaPubKey = (DSAPublicKey) publicKey;
 			return dsaPubKey.getY().toString(10);
@@ -466,7 +507,7 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 			BigInteger unicertRsaPubKey = MathUtil.pair(rsaPubKey.getPublicExponent(), rsaPubKey.getModulus());
 			return unicertRsaPubKey.toString(10);
 		}
-		throw new UnivoteException("Unssuport public key type");
+		throw new UnivoteException("Unsupported public key type");
 	}
 
 	private String getVKFromCertificate(Certificate certificate) throws UnivoteException {
@@ -482,10 +523,6 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 	private void revokeOldCertificate(LateVoterCertificatesContext context, CertificateProcessingRecord cpr,
 			String oldMixedVK) {
 		try {
-			//   - post old certificate Zi to the set of cancelled certificates
-			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
-					GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue(),
-					JSONConverter.marshal(cpr.getOldCertificate()).getBytes(), context.getTenant());
 			//   - remove access right for old mixed VKi
 
 			CryptoSetup sSetup = CryptoProvider.getSignatureSetup(context.getCryptoSetting().getSignatureSetting());
@@ -517,12 +554,16 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 				return;
 			}
 			logger.log(Level.INFO, "{0} has not voted yet.", cpr.getCertificate().getCommonName());
+			//   - post old certificate Zi to the set of cancelled certificates
+			this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), context.getSection(),
+					GroupEnum.CANCELLED_VOTER_CERTIFICATE.getValue(),
+					JSONConverter.marshal(cpr.getOldCertificate()).getBytes(), context.getTenant());
 			// - set current VKi = Zi'.pem.pk
 			cpr.setCurrentVK(this.getVKFromCertificate(cpr.getCertificate()));
 			// - new mixed VKi = mix(current VKi)
 			cpr.setProcessingState(CertificateProcessingRecord.ProcessingState.MIXING_NEW_VK);
 			cpr.resetK();
-			this.createMixingRequest(context, cpr.getK(), cpr.getCurrentVK(), cpr.getCurrentVK());
+			this.createMixingRequest(context, cpr, cpr.getCurrentVK(), cpr.getCurrentVK());
 		} catch (UnivoteException ex) {
 			logger.log(Level.SEVERE, ex.getMessage());
 			this.informationService.informTenant(context.getActionContextKey(), ex.getMessage());
@@ -573,14 +614,71 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 		}
 	}
 
-	private boolean verifySingleKeyMixingResult(SingleKeyMixingResult skmr) {
-		// TODO: Implement...
-		throw new UnsupportedOperationException("Not supported yet.");
+	private boolean verifySingleKeyMixingResult(LateVoterCertificatesContext context, CertificateProcessingRecord cpr,
+			SingleKeyMixingResult skmr) {
+		try {
+			CryptoSetup sigSetup = CryptoProvider.getSignatureSetup(context.getCryptoSetting()
+					.getSignatureSetting());
+			CyclicGroup cyclicGroup = sigSetup.cryptoGroup;
+			String kString = cpr.getLastMixingRequest().getKey();
+			Element vkMinus = cyclicGroup.getElementFrom(kString);
+			Element mixerMinusGenerator;
+			if (cpr.getK() == 0) {
+				mixerMinusGenerator = sigSetup.cryptoGenerator;
+			} else {
+				String mixerMinusPK = this.getMixerId(context.getMixerKeys().get(cpr.getK() - 1));
+				mixerMinusGenerator = cyclicGroup.getElementFrom(context.getMixerGenerators().get(mixerMinusPK));
+			}
+
+			Element mixedKey = cyclicGroup.getElementFrom(skmr.getMixedKey());
+			String mixerPK = this.getMixerId(context.getMixerKeys().get(cpr.getK()));
+			Element mixerGenerator = cyclicGroup.getElementFrom(context.getMixerGenerators().get(mixerPK));
+
+			// P R O O F
+			//-----------
+			// 0. Setup
+			// Create sigma challenge generator
+			// Create proof functions
+			Function f1 = GeneratorFunction.getInstance(mixerMinusGenerator);
+			Function f2 = GeneratorFunction.getInstance(vkMinus);
+			// Private and public input and prover id
+			Pair publicInput = Pair.getInstance(mixerGenerator, mixedKey);
+			StringElement otherInput = StringMonoid.getInstance(Alphabet.UNICODE_BMP).getElement(mixerPK);
+			HashMethod hashMethod = HashMethod.getInstance(HashAlgorithm.SHA256);
+			ConvertMethod convertMethod = ConvertMethod.getInstance(
+					BigIntegerToByteArray.getInstance(ByteOrder.BIG_ENDIAN),
+					StringToByteArray.getInstance(Charset.forName("UTF-8")));
+
+			Converter converter = ByteArrayToBigInteger.getInstance(HashAlgorithm.SHA256.getByteLength(), 1);
+			// Rebuild proof
+			SigmaChallengeGenerator challengeGenerator = FiatShamirSigmaChallengeGenerator.getInstance(
+					cyclicGroup.getZModOrder(), otherInput, convertMethod, hashMethod, converter);
+			EqualityPreimageProofSystem proofSystem
+					= EqualityPreimageProofSystem.getInstance(challengeGenerator, f1, f2);
+
+			//Fill triple
+			Element commitment
+					= proofSystem.getCommitmentSpace().getElementFrom(skmr.getProof().getCommitment());
+			Element challenge
+					= proofSystem.getChallengeSpace().getElementFrom(skmr.getProof().getChallenge());
+			Element response
+					= proofSystem.getResponseSpace().getElementFrom(skmr.getProof().getResponse());
+
+			Triple proofTriple = Triple.getInstance(commitment, challenge, response);
+			// Verify proof
+			return proofSystem.verify(proofTriple, publicInput);
+		} catch (UnivoteException ex) {
+			logger.log(Level.SEVERE, ex.getMessage());
+			this.informationService.informTenant(context.getActionContextKey(), ex.getMessage());
+			return false;
+		}
 	}
 
-	private boolean moreMoreMixersToEngage(CertificateProcessingRecord cpr) {
-		// TODO: Implement...
-		throw new UnsupportedOperationException("Not supported yet.");
+	private boolean moreMixersToEngage(LateVoterCertificatesContext context, CertificateProcessingRecord cpr) {
+		if (cpr.getK() < context.getMixerKeys().size()) {
+			return true;
+		}
+		return false;
 	}
 
 	private Certificate checkIfOldCertifcateExists(ActionContext context, String commonName) throws UnivoteException {

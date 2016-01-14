@@ -42,6 +42,7 @@
 package ch.bfh.univote2.ec.lateVoterCerts;
 
 import ch.bfh.univote2.common.message.Certificate;
+import ch.bfh.univote2.common.message.SingleKeyMixingRequest;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -49,12 +50,14 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Eric Dubuis &lt;eric.dubuis@bfh.ch&gt;
  */
 public class CertificateProcessingRecord {
+
 	private Certificate certificate;
 	private Certificate oldCertificate; // can be null
 	private String currentVK;
 	private final LinkedBlockingQueue<Certificate> queuedNotifications = new LinkedBlockingQueue<>();
 	private ProcessingState processingState;
 	private int k; // 0 <= k <= m-1 where m is the number of mixers as given in the surrounding context
+	private SingleKeyMixingRequest lastMixingRequest;
 
 	public enum ProcessingState {
 		BEGIN,
@@ -115,4 +118,13 @@ public class CertificateProcessingRecord {
 	public LinkedBlockingQueue<Certificate> getQueuedNotifications() {
 		return queuedNotifications;
 	}
+
+	public SingleKeyMixingRequest getLastMixingRequest() {
+		return lastMixingRequest;
+	}
+
+	public void setLastMixingRequest(SingleKeyMixingRequest lastMixingRequest) {
+		this.lastMixingRequest = lastMixingRequest;
+	}
+
 }
