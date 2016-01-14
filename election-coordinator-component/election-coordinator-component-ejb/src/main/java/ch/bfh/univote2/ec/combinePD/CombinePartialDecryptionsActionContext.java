@@ -45,6 +45,7 @@ import ch.bfh.unicrypt.math.function.interfaces.Function;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
 import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.MixedVotes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,7 @@ public class CombinePartialDecryptionsActionContext extends ActionContext {
 	private final Map<String, List<String>> partialDecryptions = new HashMap<>();
 	private Function[] generatorFunctions;
 	private CryptoSetting cryptoSetting;
+	private MixedVotes mixedVotes;
 
 	public CombinePartialDecryptionsActionContext(ActionContextKey actionContextKey) {
 		super(actionContextKey, new ArrayList<>(), false);
@@ -96,6 +98,14 @@ public class CombinePartialDecryptionsActionContext extends ActionContext {
 
 	public void setGeneratorFunctions(Function[] generatorFunctions) {
 		this.generatorFunctions = generatorFunctions;
+	}
+
+	public MixedVotes getMixedVotes() {
+		return mixedVotes;
+	}
+
+	public void setMixedVotes(MixedVotes mixedVotes) {
+		this.mixedVotes = mixedVotes;
 	}
 
 }

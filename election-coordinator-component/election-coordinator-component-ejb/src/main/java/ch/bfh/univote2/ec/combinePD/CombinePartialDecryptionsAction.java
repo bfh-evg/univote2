@@ -47,6 +47,7 @@ import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.StringValueDTO;
+import ch.bfh.unicrypt.crypto.encoder.classes.ZModPrimeToGStarModSafePrime;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.classes.EqualityPreimageProofSystem;
@@ -61,11 +62,13 @@ import ch.bfh.unicrypt.helper.hash.HashMethod;
 import ch.bfh.unicrypt.helper.math.Alphabet;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringElement;
 import ch.bfh.unicrypt.math.algebra.concatenative.classes.StringMonoid;
+import ch.bfh.unicrypt.math.algebra.dualistic.classes.ZModElement;
 import ch.bfh.unicrypt.math.algebra.general.classes.Pair;
 import ch.bfh.unicrypt.math.algebra.general.classes.Triple;
 import ch.bfh.unicrypt.math.algebra.general.classes.Tuple;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.CyclicGroup;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
+import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModSafePrime;
 import ch.bfh.unicrypt.math.function.classes.CompositeFunction;
 import ch.bfh.unicrypt.math.function.classes.GeneratorFunction;
 import ch.bfh.unicrypt.math.function.classes.InvertFunction;
@@ -179,7 +182,7 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 
 				if (ceksac.getGeneratorFunctions() == null) {
 					//Retrieve generatorFunctions
-					this.retrieveGeneratorFunctions(ceksac);
+					this.retrieveMixedVotesAndGeneratorFunctions(ceksac);
 				}
 			} catch (UnivoteException ex) {
 				this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -234,7 +237,7 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 					}
 					if (ceksac.getGeneratorFunctions() == null) {
 						//Retrieve generatorFunctions
-						this.retrieveGeneratorFunctions(ceksac);
+						this.retrieveMixedVotesAndGeneratorFunctions(ceksac);
 					}
 					if (this.validateAndAddPartialDecryption(ceksac, post)) {
 						this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -295,7 +298,8 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 		actionContext.setCryptoSetting(cryptoSetting);
 	}
 
-	protected void retrieveGeneratorFunctions(CombinePartialDecryptionsActionContext actionContext) throws UnivoteException {
+	protected void retrieveMixedVotesAndGeneratorFunctions(CombinePartialDecryptionsActionContext actionContext)
+			throws UnivoteException {
 		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForMixedVotes(actionContext.getSection())).getResult();
 		if (result.getPost().isEmpty()) {
@@ -306,6 +310,7 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 		CyclicGroup cyclicGroup = cSetup.cryptoGroup;
 
 		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
+		actionContext.setMixedVotes(mixedVotes);
 		List<Function> generatorFunctions = new ArrayList<>();
 		for (EncryptedVote encVote : mixedVotes.getMixedVotes()) {
 			Element element = cyclicGroup.getElementFrom(encVote.getFirstValue());
@@ -316,10 +321,11 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 
 	}
 
-	protected boolean validateAndAddPartialDecryption(CombinePartialDecryptionsActionContext actionContext, PostDTO post)
-			throws UnivoteException {
+	protected boolean validateAndAddPartialDecryption(CombinePartialDecryptionsActionContext actionContext,
+			PostDTO post) throws UnivoteException {
 
-		AttributesDTO.AttributeDTO tallier = AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.PUBLICKEY.getValue());
+		AttributesDTO.AttributeDTO tallier
+				= AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.PUBLICKEY.getValue());
 		if (tallier == null) {
 			throw new UnivoteException("Publickey is missing in alpha.");
 		}
@@ -373,7 +379,8 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 
 		Triple proofTriple = Triple.getInstance(commitment, challenge, response);
 		if (proofSystem.verify(proofTriple, publicInput)) {
-			actionContext.getPartialDecryptions().put(tallierPublicKey, partDecryptedVotes.getPartiallyDecryptedVotes());
+			actionContext.getPartialDecryptions().put(tallierPublicKey,
+					partDecryptedVotes.getPartiallyDecryptedVotes());
 			return true;
 		}
 		return false;
@@ -394,11 +401,19 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 				Element a = cyclicGroup.getElementFrom(partDec.get(i));
 				wPrime = wPrime.apply(a);
 			}
-			//TODO Get from mixed votes
-			//Element b = ...
-			//wPrime = wPrime.apply(b);
-			//ZModElement w = ZModToGStarModSafePrimeEncoder.getInstance(cyclicGroup).decode(wPrime);
-			//votes.getDecryptedVotes().add(i, w.convertToString());
+			//Get b from mixed votes
+			Element b
+					= cyclicGroup.getElementFrom(actionContext.getMixedVotes().getMixedVotes().get(i).getSecondValue());
+			wPrime = wPrime.apply(b);
+			System.out.println(wPrime);
+			//Decode votes from cyclic group
+
+			//Case for GStarModSafePrime groups
+			if (cyclicGroup instanceof GStarModSafePrime) {
+				GStarModSafePrime gStarModPrimeGroup = (GStarModSafePrime) cyclicGroup;
+				ZModElement w = ZModPrimeToGStarModSafePrime.getInstance(gStarModPrimeGroup).decode(wPrime);
+				votes.getDecryptedVotes().add(i, w.convertToString());
+			}
 		}
 
 		{
