@@ -249,7 +249,7 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 			CyclicGroup cyclicGroup = cSetup.cryptoGroup;
 			Element encryptionGenerator = cSetup.cryptoGenerator;
 
-			Element secretKey = cyclicGroup.getElementFrom(privateKey);
+			Element secretKey = cyclicGroup.getZModOrder().getElementFrom(privateKey);
 			Element decryptionKey = secretKey.invert();
 			Element publicKey = encryptionGenerator.selfApply(secretKey);
 
