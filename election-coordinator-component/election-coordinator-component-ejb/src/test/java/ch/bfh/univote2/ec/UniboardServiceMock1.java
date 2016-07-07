@@ -41,16 +41,16 @@
  */
 package ch.bfh.univote2.ec;
 
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.ConstraintDTO;
 import ch.bfh.uniboard.data.EqualDTO;
 import ch.bfh.uniboard.data.IdentifierDTO;
 import ch.bfh.uniboard.data.PostDTO;
+import ch.bfh.uniboard.data.PropertyIdentifierDTO;
+import ch.bfh.uniboard.data.PropertyIdentifierTypeDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
-import ch.bfh.uniboard.data.ValueDTO;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.query.AlphaEnum;
 import ch.bfh.univote2.component.core.services.UniboardService;
@@ -73,22 +73,23 @@ public class UniboardServiceMock1 implements UniboardService {
 
 	private PostDTO post;
 
-	private final Map<String, List<ResultDTO>> groupedPostings = new HashMap<>();
+	private final Map<String, List<List<PostDTO>>> groupedPostings = new HashMap<>();
 
 	@Override
 	public ResultContainerDTO get(String board, QueryDTO query) throws UnivoteException {
 		ResultContainerDTO resultContainer = new ResultContainerDTO();
-		resultContainer.setResult(new ResultDTO());
+		resultContainer.setResult(new ArrayList<PostDTO>());
 		for (ConstraintDTO c : query.getConstraint()) {
 			if (c instanceof EqualDTO) {
 				EqualDTO cc = (EqualDTO) c;
 				IdentifierDTO id = cc.getIdentifier();
-				if (id.getPart().size() == 1 && id.getPart().get(0).equals(AlphaEnum.GROUP.getValue())) {
-					// found a constraint DTO for a group
-					ValueDTO v = cc.getValue();
-					if (v instanceof StringValueDTO) {
-						String key = ((StringValueDTO) v).getValue();
-						List<ResultDTO> result = groupedPostings.get(key);
+				if (id instanceof PropertyIdentifierDTO) {
+					PropertyIdentifierDTO id2 = (PropertyIdentifierDTO) id;
+					if (id2.getKey().equals(AlphaEnum.GROUP.getValue())
+							&& ((PropertyIdentifierDTO) id).getPropertyType().equals(PropertyIdentifierTypeDTO.ALPHA)) {
+						// found a constraint DTO for a group
+						String group = cc.getValue();
+						List<List<PostDTO>> result = groupedPostings.get(group);
 						if (result != null && result.size() > 0) {
 							// we finally found we are looking for; replace previously set content
 							resultContainer.setResult(result.get(0));
@@ -101,22 +102,22 @@ public class UniboardServiceMock1 implements UniboardService {
 	}
 
 	@Override
-	public AttributesDTO post(String board, String section, String group, byte[] message, String tennant)
+	public List<AttributeDTO> post(String board, String section, String group, byte[] message, String tennant)
 			throws UnivoteException {
 		AttributesDTO alpha = new AttributesDTO();
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("board", new StringValueDTO(board)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("section", new StringValueDTO(section)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("group", new StringValueDTO(group)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("tenant", new StringValueDTO(tennant)));
-		this.post = new PostDTO(message, alpha, alpha);
-		return alpha;
+		alpha.getAttribute().add(new AttributeDTO("board", board, null));
+		alpha.getAttribute().add(new AttributeDTO("section", section, null));
+		alpha.getAttribute().add(new AttributeDTO("group", group, null));
+		alpha.getAttribute().add(new AttributeDTO("tenant", tennant, null));
+		this.post = new PostDTO(message, alpha.getAttribute(), alpha.getAttribute());
+		return alpha.getAttribute();
 	}
 
-	public void addResponse(ResultDTO response, String group) {
+	public void addResponse(List<PostDTO> response, String group) {
 		if (groupedPostings.containsKey(group)) {
 			groupedPostings.get(group).add(response);
 		} else {
-			List<ResultDTO> l = new ArrayList<>();
+			List<List<PostDTO>> l = new ArrayList<>();
 			l.add(response);
 			groupedPostings.put(group, l);
 		}

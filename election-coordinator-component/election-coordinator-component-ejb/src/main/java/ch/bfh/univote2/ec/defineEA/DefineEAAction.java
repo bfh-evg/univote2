@@ -97,7 +97,7 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForEACert(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
+			return !result.getResult().isEmpty();
 		} catch (UnivoteException ex) {
 			logger.log(Level.WARNING, "Could not check the board for the ea certificate.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -175,7 +175,7 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 			this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			return;
 		}
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"No certificate found for the specified EA name.");
 			UserInputPreconditionQuery uiQuery = new UserInputPreconditionQuery(new UserInputTask(INPUT_NAME,
@@ -185,7 +185,7 @@ public class DefineEAAction extends AbstractAction implements NotifiableAction {
 			this.actionManager.runFinished(actionContext, ResultStatus.RUN_FINISHED);
 			return;
 		}
-		PostDTO post = result.getResult().getPost().get(0);
+		PostDTO post = result.getResult().get(0);
 
 		try {
 			//Grant urself the right to post

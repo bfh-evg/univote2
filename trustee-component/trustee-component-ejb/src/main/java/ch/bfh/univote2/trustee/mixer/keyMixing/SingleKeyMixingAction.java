@@ -41,12 +41,11 @@
  */
 package ch.bfh.univote2.trustee.mixer.keyMixing;
 
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
-import ch.bfh.uniboard.service.Attributes;
-import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.uniboard.service.data.Attributes;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.classes.EqualityPreimageProofSystem;
@@ -100,6 +99,7 @@ import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -144,13 +144,13 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 				return false;
 			}
 			SingleKeyMixingActionContext vmac = (SingleKeyMixingActionContext) actionContext;
-			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+			List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForElectionDefinition(actionContext.getSection())).getResult();
-			if (result.getPost().isEmpty()) {
+			if (result.isEmpty()) {
 				throw new UnivoteException("Election definition not yet published.");
 			}
 			ElectionDefinition electionDefinition
-					= JSONConverter.unmarshal(ElectionDefinition.class, result.getPost().get(0).getMessage());
+					= JSONConverter.unmarshal(ElectionDefinition.class, result.get(0).getMessage());
 			Date votingPeriodEnd = electionDefinition.getVotingPeriodEnd();
 			// end of voting period notification
 			TimerPreconditionQuery bQuery = new TimerPreconditionQuery(votingPeriodEnd);
@@ -223,24 +223,20 @@ public class SingleKeyMixingAction extends AbstractAction implements NotifiableA
 		}
 		PostDTO post = (PostDTO) notification;
 		try {
-			Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
-			attr.containsKey(AlphaEnum.GROUP.getValue());
+			Attributes attr = Transformer.convertAttributesDTOtoAttributes(new AttributesDTO(post.getAlpha()));
 
 			if (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.ACCESS_RIGHT.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
+					&& attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.ACCESS_RIGHT.getValue())) {
 				skmac.setAccessRightGranted(Boolean.TRUE);
-			} else if (skmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.CRYPTO_SETTING.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			} else if (skmac.getCryptoSetting() == null && attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.CRYPTO_SETTING.getValue())) {
 				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 				skmac.setCryptoSetting(cryptoSetting);
-			} else if (skmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.SINGLE_KEY_MIXING_REQUEST.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			} else if (skmac.getCryptoSetting() == null && attr.containsKey(AlphaEnum.GROUP.getValue())
+					&& attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.SINGLE_KEY_MIXING_REQUEST.getValue())) {
 				SingleKeyMixingRequest smkr = JSONConverter.unmarshal(SingleKeyMixingRequest.class, post.getMessage());
 				try {
 

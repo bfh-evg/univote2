@@ -41,10 +41,11 @@
  */
 package ch.bfh.univote2.component.core.services;
 
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.univote2.common.UnivoteException;
+import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -56,7 +57,7 @@ public interface UniboardService {
 
 	ResultContainerDTO get(String board, QueryDTO query) throws UnivoteException;
 
-	AttributesDTO post(String board, String section, String group, byte[] message, String tennant)
+	List<AttributeDTO> post(String board, String section, String group, byte[] message, String tennant)
 			throws UnivoteException;
 
 }

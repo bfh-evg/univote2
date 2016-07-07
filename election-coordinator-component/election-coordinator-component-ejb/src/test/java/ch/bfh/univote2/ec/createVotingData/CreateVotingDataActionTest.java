@@ -41,10 +41,8 @@
  */
 package ch.bfh.univote2.ec.createVotingData;
 
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.data.PreconditionQuery;
@@ -148,8 +146,8 @@ public class CreateVotingDataActionTest {
 	public void testPrepareContext1() throws Exception {
 		String tenant = "testPrepareContext1";
 		String section = "section";
-		ResultDTO response1 = new ResultDTO();
-		response1.getPost().add(new PostDTO());
+		List<PostDTO> response1 = new ArrayList();
+		response1.add(new PostDTO());
 		this.uniboardServiceMock.addResponse(response1, "");
 		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
 		assertFalse(context.checkPostCondition());
@@ -199,8 +197,8 @@ public class CreateVotingDataActionTest {
 				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		byte[] message = jsonElectionDefinition.getBytes(Charset.forName("UTF-8"));
-		ResultDTO response = new ResultDTO();
-		response.getPost().add(new PostDTO(message, null, null));
+		List<PostDTO> response = new ArrayList<>();
+		response.add(new PostDTO(message, null, null));
 		// Post message1 to the board.
 		this.uniboardServiceMock.addResponse(response, GroupEnum.ELECTION_DEFINITION.getValue());
 
@@ -230,14 +228,12 @@ public class CreateVotingDataActionTest {
 				+ "}";
 		byte[] message5 = jsonSignatureGenerator.getBytes(Charset.forName("UTF-8"));
 		PostDTO post = new PostDTO(message5, null, null);
-		StringValueDTO groupValue = new StringValueDTO(GroupEnum.MIXED_KEYS.getValue());
-		AttributesDTO.AttributeDTO attribute = new AttributesDTO.AttributeDTO(AlphaEnum.GROUP.getValue(), groupValue);
-		List<AttributesDTO.AttributeDTO> attributes = new ArrayList<>();
+		AttributeDTO attribute = new AttributeDTO(AlphaEnum.GROUP.getValue(), GroupEnum.MIXED_KEYS.getValue(), null);
+		List<AttributeDTO> attributes = new ArrayList<>();
 		attributes.add(attribute);
-		AttributesDTO group = new AttributesDTO(attributes);
-		post.setAlpha(group);
-		ResultDTO response5 = new ResultDTO();
-		response5.getPost().add(post);
+		post.setAlpha(attributes);
+		List<PostDTO> response5 = new ArrayList();
+		response5.add(post);
 
 		// Let's call notifyAction, check its behavior.
 		ActionContext context = this.createVotingDataAction.prepareContext(tenant, section);
@@ -279,14 +275,10 @@ public class CreateVotingDataActionTest {
 				+ "}";
 		byte[] message5 = jsonSignatureGenerator.getBytes(Charset.forName("UTF-8"));
 		PostDTO post = new PostDTO(message5, null, null);
-		StringValueDTO groupValue = new StringValueDTO(GroupEnum.MIXED_KEYS.getValue());
-		AttributesDTO.AttributeDTO attribute = new AttributesDTO.AttributeDTO(AlphaEnum.GROUP.getValue(), groupValue);
-		List<AttributesDTO.AttributeDTO> attributes = new ArrayList<>();
+		AttributeDTO attribute = new AttributeDTO(AlphaEnum.GROUP.getValue(), GroupEnum.MIXED_KEYS.getValue(), null);
+		List<AttributeDTO> attributes = new ArrayList<>();
 		attributes.add(attribute);
-		AttributesDTO group = new AttributesDTO(attributes);
-		post.setAlpha(group);
-		ResultDTO response5 = new ResultDTO();
-		response5.getPost().add(post);
+		post.setAlpha(attributes);
 
 		// Let's call notifyAction, check its behavior.
 		this.createVotingDataAction.notifyAction(cvdContext, post);
@@ -392,8 +384,8 @@ public class CreateVotingDataActionTest {
 				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		byte[] message1 = jsonElectionDefinition.getBytes(Charset.forName("UTF-8"));
-		ResultDTO response1 = new ResultDTO();
-		response1.getPost().add(new PostDTO(message1, null, null));
+		List<PostDTO> response1 = new ArrayList();
+		response1.add(new PostDTO(message1, null, null));
 		// Post message1 to the board.
 		this.uniboardServiceMock.addResponse(response1, GroupEnum.ELECTION_DEFINITION.getValue());
 
@@ -598,8 +590,8 @@ public class CreateVotingDataActionTest {
 				+ "}";
 		// Post message2 to the board.
 		byte[] message2 = jsonElectionDetails.getBytes(Charset.forName("UTF-8"));
-		ResultDTO response2 = new ResultDTO();
-		response2.getPost().add(new PostDTO(message2, null, null));
+		List<PostDTO> response2 = new ArrayList();
+		response2.add(new PostDTO(message2, null, null));
 		// Post message2 to the board.
 		this.uniboardServiceMock.addResponse(response2, GroupEnum.ELECTION_DETAILS.getValue());
 
@@ -611,8 +603,8 @@ public class CreateVotingDataActionTest {
 				+ "  \"hashSetting\": \"H2\"\n"
 				+ "}";
 		byte[] message3 = jsonCryptoSetting.getBytes(Charset.forName("UTF-8"));
-		ResultDTO response3 = new ResultDTO();
-		response3.getPost().add(new PostDTO(message3, null, null));
+		List<PostDTO> response3 = new ArrayList();
+		response3.add(new PostDTO(message3, null, null));
 		// Post message3 to the board.
 		this.uniboardServiceMock.addResponse(response3, GroupEnum.CRYPTO_SETTING.getValue());
 
@@ -622,8 +614,8 @@ public class CreateVotingDataActionTest {
 				+ "	\"encryptionKey\": \"1234567890\"\n"
 				+ "}";
 		byte[] message4 = jsonEncryptionKey.getBytes(Charset.forName("UTF-8"));
-		ResultDTO response4 = new ResultDTO();
-		response4.getPost().add(new PostDTO(message4, null, null));
+		List<PostDTO> response4 = new ArrayList();
+		response4.add(new PostDTO(message4, null, null));
 		// Post message4 to the board.
 		this.uniboardServiceMock.addResponse(response4, GroupEnum.ENCRYPTION_KEY.getValue());
 	}
@@ -635,8 +627,8 @@ public class CreateVotingDataActionTest {
 				+ "	\"signatureGenerator\": \"1234567890\"\n"
 				+ "}";
 		byte[] message5 = jsonSignatureGenerator.getBytes(Charset.forName("UTF-8"));
-		ResultDTO response5 = new ResultDTO();
-		response5.getPost().add(new PostDTO(message5, null, null));
+		List<PostDTO> response5 = new ArrayList();
+		response5.add(new PostDTO(message5, null, null));
 		// Post message5 to the board.
 		this.uniboardServiceMock.addResponse(response5, GroupEnum.MIXED_KEYS.getValue());
 	}

@@ -42,10 +42,9 @@
 package ch.bfh.univote2.ec.keyMix;
 
 import ch.bfh.uniboard.clientlib.AttributeHelper;
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.helper.math.MathUtil;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.common.UnivoteException;
@@ -121,7 +120,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForMixedKeys(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
+			return !result.getResult().isEmpty();
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not check post condition. UniBoard is not reachable. " + ex.getMessage());
@@ -226,9 +225,9 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			KeyMixingActionContext kmac = (KeyMixingActionContext) actionContext;
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
-				AttributesDTO.AttributeDTO group
+				AttributeDTO group
 						= AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
-				String groupStr = ((StringValueDTO) group.getValue()).getValue();
+				String groupStr = group.getValue();
 				//Check Type (TC, ER, MR)
 				if (groupStr.equals(GroupEnum.TRUSTEE_CERTIFICATES.getValue())) {
 					try {
@@ -302,10 +301,10 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	protected void retrieveVoterCertificates(KeyMixingActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForVoterCertificates(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Voter certificates not published yet.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		VoterCertificates voterCertificates = JSONConverter.unmarshal(VoterCertificates.class, message);
 		this.retrieveInitialKeys(actionContext, voterCertificates);
 	}
@@ -332,10 +331,10 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Crypto setting not published yet.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, message);
 		actionContext.setCryptoSetting(cryptoSetting);
 	}
@@ -343,10 +342,10 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	protected void retrieveMixers(KeyMixingActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
-		this.parseMixers(actionContext, result.getResult().getPost().get(0));
+		this.parseMixers(actionContext, result.getResult().get(0));
 	}
 
 	protected void parseMixers(KeyMixingActionContext actionContext, PostDTO post) throws UnivoteException {
@@ -382,7 +381,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForLastKeyMixingRequest(actionContext.getSection()));
 		//Not yet started
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			actionContext.setCurrentMixer(actionContext.getMixerOrder().get(0));
 			//Set generator
 			Element generator = CryptoProvider.getSignatureSetup(actionContext.getCryptoSetting()
@@ -392,11 +391,11 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		} else {
 			//Try to retrieve a corresponding mixing result
 			KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class,
-					result.getResult().getPost().get(0).getMessage());
+					result.getResult().get(0).getMessage());
 			PublicKey pk = actionContext.getMixerKeys().get(keyMixingRequest.getMixerId());
 			ResultContainerDTO result2 = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForKeyMixingResultForMixer(actionContext.getSection(), pk));
-			if (result2.getResult().getPost().isEmpty()) {
+			if (result2.getResult().isEmpty()) {
 				//Current Mixer has not published his/her result yet
 				this.informationService.informTenant(actionContext.getActionContextKey(),
 						"Waiting for mixing result of " + actionContext.getCurrentMixer());
@@ -404,7 +403,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			} else {
 				//Validate mixing result and continue
 				KeyMixingResult keyMixingResult = JSONConverter.unmarshal(KeyMixingResult.class,
-						result2.getResult().getPost().get(0).getMessage());
+						result2.getResult().get(0).getMessage());
 				this.validateMixingResult(actionContext, keyMixingResult);
 			}
 		}

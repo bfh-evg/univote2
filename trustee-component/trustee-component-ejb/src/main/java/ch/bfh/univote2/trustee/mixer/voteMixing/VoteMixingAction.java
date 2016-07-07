@@ -41,12 +41,11 @@
  */
 package ch.bfh.univote2.trustee.mixer.voteMixing;
 
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.Transformer;
-import ch.bfh.uniboard.service.Attributes;
-import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.uniboard.service.data.Attributes;
 import ch.bfh.unicrypt.crypto.mixer.classes.ReEncryptionMixer;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.ChallengeGenerator;
@@ -146,7 +145,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForVoteMixingResultForMixer(actionContext.getSection(), publicKey));
-			if (!result.getResult().getPost().isEmpty()) {
+			if (!result.getResult().isEmpty()) {
 				return true;
 			}
 		} catch (UnivoteException ex) {
@@ -173,15 +172,15 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	}
 
 	protected VoteMixingRequest retrieveVoteMixingRequest(ActionContext actionContext) throws UnivoteException {
-		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+		List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForVoteMixingRequestForMixer(actionContext.getSection(),
 						actionContext.getTenant())).getResult();
-		if (result.getPost().isEmpty()) {
+		if (result.isEmpty()) {
 			throw new UnivoteException("key mixing request not published yet.");
 
 		}
 		VoteMixingRequest voteMixingRequest
-				= JSONConverter.unmarshal(VoteMixingRequest.class, result.getPost().get(0).getMessage());
+				= JSONConverter.unmarshal(VoteMixingRequest.class, result.get(0).getMessage());
 		return voteMixingRequest;
 
 	}
@@ -316,33 +315,27 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		}
 		PostDTO post = (PostDTO) notification;
 		try {
-			Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
+			Attributes attr = Transformer.convertAttributesDTOtoAttributes(new AttributesDTO(post.getAlpha()));
 			attr.containsKey(AlphaEnum.GROUP.getValue());
 
 			if (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.ACCESS_RIGHT.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
+					&& attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.ACCESS_RIGHT.getValue())) {
 				vmac.setAccessRightGranted(Boolean.TRUE);
 			}
-			if (vmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.CRYPTO_SETTING.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			if (vmac.getCryptoSetting() == null && attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.CRYPTO_SETTING.getValue())) {
 				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 				vmac.setCryptoSetting(cryptoSetting);
 			}
-			if (vmac.getVoteMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.VOTE_MIXING_REQUEST.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
-				VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class, post.getMessage());
+			if (vmac.getVoteMixingRequest() == null && attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.VOTE_MIXING_REQUEST.getValue())) {
+				VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class,
+						post.getMessage());
 				vmac.setVoteMixingRequest(voteMixingRequest);
 			}
-			if (vmac.getVoteMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.ENCRYPTION_KEY.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			if (vmac.getVoteMixingRequest() == null && attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.ENCRYPTION_KEY.getValue())) {
 				EncryptionKey encryptionKey = JSONConverter.unmarshal(EncryptionKey.class, post.getMessage());
 				vmac.setEncryptionKey(encryptionKey);
 			}

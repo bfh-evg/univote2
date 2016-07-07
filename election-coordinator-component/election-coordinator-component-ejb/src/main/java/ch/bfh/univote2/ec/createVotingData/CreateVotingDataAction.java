@@ -42,11 +42,9 @@
 package ch.bfh.univote2.ec.createVotingData;
 
 import ch.bfh.uniboard.clientlib.AttributeHelper;
-import ch.bfh.uniboard.data.AttributesDTO.AttributeDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.message.EncryptionKey;
 import ch.bfh.univote2.common.message.JSONConverter;
@@ -71,6 +69,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.security.PublicKey;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -120,8 +119,8 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForVotingData(actionContext.getSection()));
-			ResultDTO result = container.getResult();
-			return !result.getPost().isEmpty();
+			List<PostDTO> result = container.getResult();
+			return !result.isEmpty();
 		} catch (UnivoteException ex) {
 			logger.log(Level.WARNING, "Could not request trustees certificates.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -323,19 +322,19 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 	private void parsePostDTO(PostDTO post, CreateVotingDataActionContext context)
 			throws UnivoteException {
 		AttributeDTO group = AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
-		if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.ELECTION_DEFINITION.getValue())) {
+		if (group.getValue().equals(GroupEnum.ELECTION_DEFINITION.getValue())) {
 			JsonObject electionDefinition = unmarshal(post.getMessage());
 			context.setElectionDefinition(electionDefinition);
-		} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.ELECTION_DETAILS.getValue())) {
+		} else if (group.getValue().equals(GroupEnum.ELECTION_DETAILS.getValue())) {
 			JsonObject electionDetails = unmarshal(post.getMessage());
 			context.setElectionDetails(electionDetails);
-		} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.CRYPTO_SETTING.getValue())) {
+		} else if (group.getValue().equals(GroupEnum.CRYPTO_SETTING.getValue())) {
 			JsonObject cryptoSetting = unmarshal(post.getMessage());
 			context.setCryptoSetting(cryptoSetting);
-		} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.ENCRYPTION_KEY.getValue())) {
+		} else if (group.getValue().equals(GroupEnum.ENCRYPTION_KEY.getValue())) {
 			EncryptionKey encryptionKey = JSONConverter.unmarshal(EncryptionKey.class, post.getMessage());
 			context.setEncryptionKey(encryptionKey.getEncryptionKey());
-		} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.MIXED_KEYS.getValue())) {
+		} else if (group.getValue().equals(GroupEnum.MIXED_KEYS.getValue())) {
 			MixedKeys mixedKeys = JSONConverter.unmarshal(MixedKeys.class, post.getMessage());
 			String signatureGenerator = mixedKeys.getGenerator();
 			context.setSignatureGenerator(signatureGenerator);
@@ -436,9 +435,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForElectionDefinition(context.getSection()));
-			ResultDTO result = container.getResult();
-			if (result != null && result.getPost() != null && result.getPost().size() == 1) {
-				return unmarshal(result.getPost().get(0).getMessage());
+			List<PostDTO> result = container.getResult();
+			if (result != null && result.size() == 1) {
+				return unmarshal(result.get(0).getMessage());
 			} else {
 				// TODO Provide tenant and section information in logger message.
 				logger.log(Level.INFO, "Could not retrieve Election Definition from board.");
@@ -461,9 +460,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForElectionDetails(context.getSection()));
-			ResultDTO result = container.getResult();
-			if (result != null && result.getPost() != null && result.getPost().size() == 1) {
-				return unmarshal(result.getPost().get(0).getMessage());
+			List<PostDTO> result = container.getResult();
+			if (result != null && result.size() == 1) {
+				return unmarshal(result.get(0).getMessage());
 			} else {
 				// TODO Provide tenant and section information in logger message.
 				logger.log(Level.INFO, "Could not retrieve Election Details from board.");
@@ -486,9 +485,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForCryptoSetting(context.getSection()));
-			ResultDTO result = container.getResult();
-			if (result != null && result.getPost() != null && result.getPost().size() == 1) {
-				return unmarshal(result.getPost().get(0).getMessage());
+			List<PostDTO> result = container.getResult();
+			if (result != null && result.size() == 1) {
+				return unmarshal(result.get(0).getMessage());
 			} else {
 				// TODO Provide tenant and section information in logger message.
 				logger.log(Level.INFO, "Could not retrieve Crypto Setting from board.");
@@ -511,10 +510,10 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForEncryptionKey(context.getSection()));
-			ResultDTO result = container.getResult();
-			if (result != null && result.getPost() != null && result.getPost().size() == 1) {
+			List<PostDTO> result = container.getResult();
+			if (result != null && result.size() == 1) {
 				EncryptionKey encryptionKey
-						= JSONConverter.unmarshal(EncryptionKey.class, result.getPost().get(0).getMessage());
+						= JSONConverter.unmarshal(EncryptionKey.class, result.get(0).getMessage());
 				return encryptionKey.getEncryptionKey();
 			} else {
 				// TODO Provide tenant and section information in logger message.
@@ -538,9 +537,9 @@ public class CreateVotingDataAction extends AbstractAction implements Notifiable
 		try {
 			ResultContainerDTO container = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForMixedKeys(context.getSection()));
-			ResultDTO result = container.getResult();
-			if (result != null && result.getPost() != null && result.getPost().size() == 1) {
-				MixedKeys mixedKeys = JSONConverter.unmarshal(MixedKeys.class, result.getPost().get(0).getMessage());
+			List<PostDTO> result = container.getResult();
+			if (result != null && result.size() == 1) {
+				MixedKeys mixedKeys = JSONConverter.unmarshal(MixedKeys.class, result.get(0).getMessage());
 				return mixedKeys.getGenerator();
 			} else {
 				// TODO Provide tenant and section information in logger message.

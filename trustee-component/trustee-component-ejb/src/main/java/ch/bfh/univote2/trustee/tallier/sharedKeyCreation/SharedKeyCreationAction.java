@@ -41,12 +41,12 @@
  */
 package ch.bfh.univote2.trustee.tallier.sharedKeyCreation;
 
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
-import ch.bfh.uniboard.service.Attributes;
-import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.uniboard.service.data.Attributes;
 import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
@@ -130,7 +130,7 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForEncryptionKeyShareForTallier(actionContext.getSection(), publicKey));
-			if (!result.getResult().getPost().isEmpty()) {
+			if (!result.getResult().isEmpty()) {
 				return true;
 			}
 		} catch (UnivoteException ex) {
@@ -248,19 +248,16 @@ public class SharedKeyCreationAction extends AbstractAction implements Notifiabl
 		}
 		PostDTO post = (PostDTO) notification;
 		try {
-			Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
+			Attributes attr = Transformer.convertAttributesDTOtoAttributes(new AttributesDTO(post.getAlpha()));
 			attr.containsKey(AlphaEnum.GROUP.getValue());
 
 			if (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.ACCESS_RIGHT.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
+					&& attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.ACCESS_RIGHT.getValue())) {
 				skcac.setAccessRightGranted(Boolean.TRUE);
 			}
-			if (skcac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.CRYPTO_SETTING.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			if (skcac.getCryptoSetting() == null && attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.CRYPTO_SETTING.getValue())) {
 				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 				skcac.setCryptoSetting(cryptoSetting);
 			}

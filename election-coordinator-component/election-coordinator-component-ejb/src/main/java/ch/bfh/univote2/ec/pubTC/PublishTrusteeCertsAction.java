@@ -104,7 +104,7 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
+			return !result.getResult().isEmpty();
 		} catch (UnivoteException ex) {
 			logger.log(Level.WARNING, "Could not request trustees certificates.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -186,10 +186,10 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 	protected byte[] retrieveTrustees(ActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrustees(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Trustees not published yet.");
 		}
-		return result.getResult().getPost().get(0).getMessage();
+		return result.getResult().get(0).getMessage();
 
 	}
 
@@ -215,10 +215,10 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 				missingMixers.add(mixer);
 				break;
 			}
-			if (result.getResult().getPost().isEmpty()) {
+			if (result.getResult().isEmpty()) {
 				missingMixers.add(mixer);
 			}
-			PostDTO post = result.getResult().getPost().get(0);
+			PostDTO post = result.getResult().get(0);
 			try {
 				mixerCerts.add(JSONConverter.unmarshal(Certificate.class, post.getMessage()));
 			} catch (UnivoteException ex) {
@@ -242,10 +242,10 @@ public class PublishTrusteeCertsAction extends AbstractAction implements Notifia
 				missingTalliers.add(tallier);
 				break;
 			}
-			if (result.getResult().getPost().isEmpty()) {
+			if (result.getResult().isEmpty()) {
 				missingTalliers.add(tallier);
 			}
-			PostDTO post = result.getResult().getPost().get(0);
+			PostDTO post = result.getResult().get(0);
 			try {
 				tallierCerts.add(JSONConverter.unmarshal(Certificate.class, post.getMessage()));
 			} catch (UnivoteException ex) {

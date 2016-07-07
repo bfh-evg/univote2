@@ -42,7 +42,6 @@
 package ch.bfh.univote2.ec.pubTC;
 
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.univote2.component.core.action.NotifiableAction;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
@@ -52,6 +51,8 @@ import ch.bfh.univote2.ec.InformationServiceMock;
 import ch.bfh.univote2.ec.TenantManagerMock;
 import ch.bfh.univote2.ec.UniboardServiceMock;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.EJB;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -112,8 +113,8 @@ public class PublishTrusteeCertsActionTest {
 	public void testPrepareContext1() throws Exception {
 		String tenant = "testPrepareContext1";
 		String section = "section";
-		ResultDTO response1 = new ResultDTO();
-		response1.getPost().add(new PostDTO());
+		List<PostDTO> response1 = new ArrayList();
+		response1.add(new PostDTO());
 		this.uniboardServiceMock.addResponse(response1);
 		ActionContext context = this.publishTrusteeCertsAction.prepareContext(tenant, section);
 		assertTrue(context.checkPostCondition());
@@ -128,15 +129,15 @@ public class PublishTrusteeCertsActionTest {
 	public void testPrepareContext2() throws Exception {
 		String tenant = "testPrepareContext2";
 		String section = "section";
-		ResultDTO response1 = new ResultDTO();
+		List<PostDTO> response1 = new ArrayList();
 		this.uniboardServiceMock.addResponse(response1);
-		ResultDTO response2 = new ResultDTO();
+		List<PostDTO> response2 = new ArrayList();
 		String msg = "{"
 				+ "	\"mixerIds\": [\"mixer1\", \"mixer2\", \"mixer3\"],"
 				+ "	\"tallierIds\": [\"tallier1\", \"tallier2\", \"tallier3\"]"
 				+ "}";
 		byte[] message = msg.getBytes(Charset.forName("UTF-8"));
-		response2.getPost().add(new PostDTO(message, null, null));
+		response2.add(new PostDTO(message, null, null));
 		this.uniboardServiceMock.addResponse(response2);
 		ActionContext context = this.publishTrusteeCertsAction.prepareContext(tenant, section);
 		assertFalse(context.checkPostCondition());
@@ -161,9 +162,9 @@ public class PublishTrusteeCertsActionTest {
 	public void testPrepareContext3() throws Exception {
 		String tenant = "testPrepareContext3";
 		String section = "section";
-		ResultDTO response1 = new ResultDTO();
+		List<PostDTO> response1 = new ArrayList();
 		this.uniboardServiceMock.addResponse(response1);
-		ResultDTO response2 = new ResultDTO();
+		List<PostDTO> response2 = new ArrayList();
 		this.uniboardServiceMock.addResponse(response2);
 		ActionContext context = this.publishTrusteeCertsAction.prepareContext(tenant, section);
 		assertFalse(context.checkPostCondition());
@@ -184,7 +185,7 @@ public class PublishTrusteeCertsActionTest {
 		String section = "section";
 		ActionContextKey ack = new ActionContextKey("Test", tenant, section);
 		PublishTrusteeCertsActionContext context = new PublishTrusteeCertsActionContext(ack, null);
-		ResultDTO response1 = new ResultDTO();
+		List<PostDTO> response1 = new ArrayList();
 		this.uniboardServiceMock.addResponse(response1);
 		this.publishTrusteeCertsAction.run(context);
 		assertEquals((ResultStatus.FAILURE), this.actionManagerMock.getResultStatus());
@@ -202,27 +203,27 @@ public class PublishTrusteeCertsActionTest {
 		String section = "section";
 		ActionContextKey ack = new ActionContextKey("Test", tenant, section);
 		PublishTrusteeCertsActionContext context = new PublishTrusteeCertsActionContext(ack, null);
-		ResultDTO response1 = new ResultDTO();
+		List<PostDTO> response1 = new ArrayList();
 		String msg = "{"
 				+ "	\"mixerIds\": [\"mixer1\"],"
 				+ "	\"tallierIds\": [\"tallier1\"]"
 				+ "}";
 		byte[] message = msg.getBytes(Charset.forName("UTF-8"));
-		response1.getPost().add(new PostDTO(message, null, null));
+		response1.add(new PostDTO(message, null, null));
 		this.uniboardServiceMock.addResponse(response1);
-		ResultDTO response2 = new ResultDTO();
+		List<PostDTO> response2 = new ArrayList();
 		String msg2 = "{"
 				+ "	\"certContent\": [\"mixer1\"]"
 				+ "}";
 		byte[] message2 = msg2.getBytes(Charset.forName("UTF-8"));
-		response2.getPost().add(new PostDTO(message2, null, null));
+		response2.add(new PostDTO(message2, null, null));
 		this.uniboardServiceMock.addResponse(response2);
-		ResultDTO response3 = new ResultDTO();
+		List<PostDTO> response3 = new ArrayList();
 		String msg3 = "{"
 				+ "	\"certContent\": [\"tallier1\"],"
 				+ "}";
 		byte[] message3 = msg3.getBytes(Charset.forName("UTF-8"));
-		response3.getPost().add(new PostDTO(message3, null, null));
+		response3.add(new PostDTO(message3, null, null));
 		this.uniboardServiceMock.addResponse(response3);
 		this.publishTrusteeCertsAction.run(context);
 		assertEquals((ResultStatus.FINISHED), this.actionManagerMock.getResultStatus());
@@ -241,13 +242,13 @@ public class PublishTrusteeCertsActionTest {
 		String section = "section";
 		ActionContextKey ack = new ActionContextKey("Test", tenant, section);
 		PublishTrusteeCertsActionContext context = new PublishTrusteeCertsActionContext(ack, null);
-		ResultDTO response1 = new ResultDTO();
+		List<PostDTO> response1 = new ArrayList();
 		String msg = "{"
 				+ "	\"mixerIDs\": [\"mixer1\"],"
 				+ "	\"tallierIDs\": [\"tallier1\"]"
 				+ "}";
 		byte[] message = msg.getBytes(Charset.forName("UTF-8"));
-		response1.getPost().add(new PostDTO(message, null, null));
+		response1.add(new PostDTO(message, null, null));
 		this.uniboardServiceMock.addResponse(response1);
 		this.publishTrusteeCertsAction.run(context);
 		assertEquals((ResultStatus.FAILURE), this.actionManagerMock.getResultStatus());
@@ -308,19 +309,19 @@ public class PublishTrusteeCertsActionTest {
 		byte[] message = msg.getBytes(Charset.forName("UTF-8"));
 		PostDTO notification = new PostDTO(message, null, null);
 
-		ResultDTO response2 = new ResultDTO();
+		List<PostDTO> response2 = new ArrayList();
 		String msg2 = "{"
 				+ "	\"certContent\": [\"mixer1\"]"
 				+ "}";
 		byte[] message2 = msg2.getBytes(Charset.forName("UTF-8"));
-		response2.getPost().add(new PostDTO(message2, null, null));
+		response2.add(new PostDTO(message2, null, null));
 		this.uniboardServiceMock.addResponse(response2);
-		ResultDTO response3 = new ResultDTO();
+		List<PostDTO> response3 = new ArrayList();
 		String msg3 = "{"
 				+ "	\"certContent\": [\"tallier1\"],"
 				+ "}";
 		byte[] message3 = msg3.getBytes(Charset.forName("UTF-8"));
-		response3.getPost().add(new PostDTO(message3, null, null));
+		response3.add(new PostDTO(message3, null, null));
 		this.uniboardServiceMock.addResponse(response3);
 
 		this.publishTrusteeCertsAction.notifyAction(context, notification);

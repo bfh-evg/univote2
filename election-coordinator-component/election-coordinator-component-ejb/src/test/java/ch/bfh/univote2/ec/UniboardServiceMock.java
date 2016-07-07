@@ -41,14 +41,14 @@
  */
 package ch.bfh.univote2.ec;
 
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.services.UniboardService;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
@@ -61,7 +61,7 @@ import javax.ejb.Singleton;
 @LocalBean
 public class UniboardServiceMock implements UniboardService {
 
-	private final ArrayBlockingQueue<ResultDTO> response = new ArrayBlockingQueue<>(10);
+	private final ArrayBlockingQueue<List<PostDTO>> response = new ArrayBlockingQueue<>(10);
 	private final ArrayBlockingQueue<PostDTO> post = new ArrayBlockingQueue<>(10);
 
 	@Override
@@ -72,18 +72,18 @@ public class UniboardServiceMock implements UniboardService {
 	}
 
 	@Override
-	public AttributesDTO post(String board, String section, String group, byte[] message, String tennant)
+	public List<AttributeDTO> post(String board, String section, String group, byte[] message, String tennant)
 			throws UnivoteException {
 		AttributesDTO alpha = new AttributesDTO();
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("board", new StringValueDTO(board)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("section", new StringValueDTO(section)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("group", new StringValueDTO(group)));
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("tenant", new StringValueDTO(tennant)));
-		this.post.offer(new PostDTO(message, alpha, alpha));
-		return alpha;
+		alpha.getAttribute().add(new AttributeDTO("board", board, null));
+		alpha.getAttribute().add(new AttributeDTO("section", section, null));
+		alpha.getAttribute().add(new AttributeDTO("group", group, null));
+		alpha.getAttribute().add(new AttributeDTO("tenant", tennant, null));
+		this.post.offer(new PostDTO(message, alpha.getAttribute(), alpha.getAttribute()));
+		return alpha.getAttribute();
 	}
 
-	public void addResponse(ResultDTO response) throws InterruptedException {
+	public void addResponse(List<PostDTO> response) throws InterruptedException {
 		this.response.put(response);
 	}
 

@@ -42,7 +42,6 @@
 package ch.bfh.univote2.ec.grantEKS;
 
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.actionmanager.ActionContext;
 import ch.bfh.univote2.component.core.actionmanager.ActionContextKey;
@@ -54,6 +53,8 @@ import ch.bfh.univote2.ec.UniboardServiceMock;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.EJB;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -128,7 +129,7 @@ public class GrantEncryptionKeyShareAction1Test {
 		ActionContext actionContext = new GrantEncryptionKeyShareActionContext(ack);
 		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
 
-		ResultDTO response1 = new ResultDTO();
+		List<PostDTO> response1 = new ArrayList();
 		this.uniboardServiceMock.addResponse(response1);
 		try {
 			assertFalse(this.grantEKSAction.checkAccessRight(actionContext, publicKey));
@@ -148,8 +149,8 @@ public class GrantEncryptionKeyShareAction1Test {
 		ActionContext actionContext = new GrantEncryptionKeyShareActionContext(ack);
 		PublicKey publicKey = new DSAPublicKey(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
 
-		ResultDTO response1 = new ResultDTO();
-		response1.getPost().add(new PostDTO("".getBytes(), null, null));
+		List<PostDTO> response1 = new ArrayList<>();
+		response1.add(new PostDTO("".getBytes(), null, null));
 		this.uniboardServiceMock.addResponse(response1);
 		try {
 			assertTrue(this.grantEKSAction.checkAccessRight(actionContext, publicKey));
@@ -288,8 +289,8 @@ public class GrantEncryptionKeyShareAction1Test {
 				+ "qZ1aWTxkEL2KHkryh0py3Rs1/4jLAFPHT5TwDRrsbmUoVLGMLLn+XWDFAKZv"
 				+ "-----END CERTIFICATE-----\"}]}";
 
-		ResultDTO response1 = new ResultDTO();
-		response1.getPost().add(new PostDTO(messageString.getBytes(), null, null));
+		List<PostDTO> response1 = new ArrayList();
+		response1.add(new PostDTO(messageString.getBytes(), null, null));
 		this.uniboardServiceMock.addResponse(response1);
 
 		try {

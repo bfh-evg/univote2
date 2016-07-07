@@ -123,7 +123,7 @@ public class TrusteeActionHelper {
 			String tenant = actionContext.getTenant();
 			PublicKey publicKey = tenantManager.getPublicKey(tenant);
 			QueryDTO query = QueryFactory.getQueryForAccessRight(section, publicKey, groupEnum);
-			if (uniboardService.get(BoardsEnum.UNIVOTE.getValue(), query).getResult().getPost().isEmpty()) {
+			if (uniboardService.get(BoardsEnum.UNIVOTE.getValue(), query).getResult().isEmpty()) {
 				BoardPreconditionQuery bQuery = new BoardPreconditionQuery(query,
 						BoardsEnum.UNIVOTE.getValue());
 				actionContext.getPreconditionQueries().add(bQuery);
@@ -143,11 +143,11 @@ public class TrusteeActionHelper {
 			throws UnivoteException {
 		ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForEncryptionKey(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Encryption key not published yet.");
 		}
 		EncryptionKey encryptionKey
-				= JSONConverter.unmarshal(EncryptionKey.class, result.getResult().getPost().get(0).getMessage());
+				= JSONConverter.unmarshal(EncryptionKey.class, result.getResult().get(0).getMessage());
 		return encryptionKey;
 
 	}
@@ -156,12 +156,12 @@ public class TrusteeActionHelper {
 			throws UnivoteException {
 		ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Crypto setting not published yet.");
 
 		}
 		CryptoSetting cryptoSetting
-				= JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
+				= JSONConverter.unmarshal(CryptoSetting.class, result.getResult().get(0).getMessage());
 		return cryptoSetting;
 
 	}

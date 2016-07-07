@@ -98,7 +98,7 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
+			return !result.getResult().isEmpty();
 		} catch (UnivoteException ex) {
 			logger.log(Level.WARNING, "Could not request crypto setting.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -181,13 +181,13 @@ public class SetCryptoSettingAction extends AbstractAction implements Notifiable
 	protected SecurityLevel retrieveSecurityLevel(ActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForSecurityLevel(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Security level not published yet.");
 		}
 		SecurityLevel securityLevel;
 		try {
 			securityLevel
-					= JSONConverter.unmarshal(SecurityLevel.class, result.getResult().getPost().get(0).getMessage());
+					= JSONConverter.unmarshal(SecurityLevel.class, result.getResult().get(0).getMessage());
 		} catch (Exception ex) {
 			throw new UnivoteException("Could not unmarshal securityLevel", ex);
 		}

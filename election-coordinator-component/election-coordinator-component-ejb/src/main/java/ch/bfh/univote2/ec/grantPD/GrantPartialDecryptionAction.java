@@ -211,11 +211,11 @@ public class GrantPartialDecryptionAction implements NotifiableAction {
 	protected void retrieveTalliers(GrantPartialDecryptionActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
 
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		TrusteeCertificates trusteeCertificates;
 		try {
 			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
@@ -249,7 +249,7 @@ public class GrantPartialDecryptionAction implements NotifiableAction {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForAccessRight(actionContext.getSection(),
 						publicKey, GroupEnum.PARTIAL_DECRYPTION));
-		return !result.getResult().getPost().isEmpty();
+		return !result.getResult().isEmpty();
 	}
 
 	protected void runInternal(GrantPartialDecryptionActionContext actionContext) {

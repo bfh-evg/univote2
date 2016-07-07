@@ -42,11 +42,9 @@
 package ch.bfh.univote2.ec.lateVoterCerts;
 
 import ch.bfh.uniboard.clientlib.AttributeHelper;
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.classes.EqualityPreimageProofSystem;
@@ -149,62 +147,62 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 		LateVoterCertificatesContext actionContext = new LateVoterCertificatesContext(ack);
 		try {
 			{
-				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForElectoralRoll(actionContext.getSection())).getResult();
-				if (result.getPost().isEmpty()) {
+				if (result.isEmpty()) {
 					throw new UnivoteException("Electoral Roll not yet published.");
 				}
 				ElectoralRoll electoralRoll
-						= JSONConverter.unmarshal(ElectoralRoll.class, result.getPost().get(0).getMessage());
+						= JSONConverter.unmarshal(ElectoralRoll.class, result.get(0).getMessage());
 				actionContext.setElectoralRoll(electoralRoll);
 			}
 			{
-				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForCryptoSetting(actionContext.getSection())).getResult();
-				if (result.getPost().isEmpty()) {
+				if (result.isEmpty()) {
 					throw new UnivoteException("Crypto setting not yet published.");
 				}
 				CryptoSetting cryptoSetting
-						= JSONConverter.unmarshal(CryptoSetting.class, result.getPost().get(0).getMessage());
+						= JSONConverter.unmarshal(CryptoSetting.class, result.get(0).getMessage());
 				actionContext.setCryptoSetting(cryptoSetting);
 			}
 			{
-				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForMixedKeys(actionContext.getSection())).getResult();
-				if (result.getPost().isEmpty()) {
+				if (result.isEmpty()) {
 					throw new UnivoteException("Mixed keys not yet published.");
 				}
 				MixedKeys mixedKeys
-						= JSONConverter.unmarshal(MixedKeys.class, result.getPost().get(0).getMessage());
+						= JSONConverter.unmarshal(MixedKeys.class, result.get(0).getMessage());
 				actionContext.setSignatureGenerator(mixedKeys.getGenerator());
 			}
 			{
 				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
-				if (result.getResult().getPost().isEmpty()) {
+				if (result.getResult().isEmpty()) {
 					throw new UnivoteException("Trustees certificates not published yet.");
 				}
-				this.parseMixers(actionContext, result.getResult().getPost().get(0));
+				this.parseMixers(actionContext, result.getResult().get(0));
 
 				for (PublicKey pk : actionContext.getMixerKeys()) {
 					ResultContainerDTO result2 = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 							QueryFactory.getQueryForKeyMixingResultForMixer(actionContext.getSection(), pk));
-					if (result2.getResult().getPost().isEmpty()) {
+					if (result2.getResult().isEmpty()) {
 						throw new UnivoteException("Trustees mixing result not published yet.");
 					}
 					KeyMixingResult keyMixingResult = JSONConverter.unmarshal(KeyMixingResult.class,
-							result2.getResult().getPost().get(0).getMessage());
+							result2.getResult().get(0).getMessage());
 					actionContext.getMixerGenerators().put(this.getMixerId(pk), keyMixingResult.getGenerator());
 				}
 			}
 			{
-				ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForElectionDefinition(actionContext.getSection())).getResult();
-				if (result.getPost().isEmpty()) {
+				if (result.isEmpty()) {
 					throw new UnivoteException("Election definition not yet published.");
 				}
 				ElectionDefinition electionDefinition
-						= JSONConverter.unmarshal(ElectionDefinition.class, result.getPost().get(0).getMessage());
+						= JSONConverter.unmarshal(ElectionDefinition.class, result.get(0).getMessage());
 				actionContext.setElectionDefinition(electionDefinition);
 				Date votingPeriodEnd = electionDefinition.getVotingPeriodEnd();
 				// end of voting period notification
@@ -281,9 +279,9 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 
 		if ((notification instanceof PostDTO)) {
 			PostDTO post = (PostDTO) notification;
-			AttributesDTO.AttributeDTO group
+			AttributeDTO group
 					= AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
-			if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.SINGLE_KEY_MIXING_RESULT.getValue())) {
+			if (group.getValue().equals(GroupEnum.SINGLE_KEY_MIXING_RESULT.getValue())) {
 				try {
 					SingleKeyMixingResult skmr
 							= JSONConverter.unmarshal(SingleKeyMixingResult.class, post.getMessage());
@@ -318,7 +316,7 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 							ex.getMessage());
 					this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 				}
-			} else if (((StringValueDTO) group.getValue()).getValue().equals(GroupEnum.CERTIFICATE.getValue())) {
+			} else if (group.getValue().equals(GroupEnum.CERTIFICATE.getValue())) {
 				try {
 					Certificate voterCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
 					if (!verifyCertificate(voterCertificate)) {
@@ -486,7 +484,7 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForAccessRight(actionContext.getSection(),
 							publickey, group));
-			if (result.getResult().getPost().isEmpty()) {
+			if (result.getResult().isEmpty()) {
 				byte[] message = MessageFactory.createAccessRight(group, publickey);
 				this.uniboardService.post(BoardsEnum.UNIVOTE.getValue(), actionContext.getSection(),
 						GroupEnum.ACCESS_RIGHT.getValue(), message, actionContext.getTenant());
@@ -543,9 +541,9 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 			logger.log(Level.INFO, "pk revoked {0}.", oldMixedVK);
 			//   - if exists ballot (old mixed VKi)
 			// Check if a ballot exists for revoked mixed vk_i if so... abort.
-			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+			List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForBallot(context.getSection(), oldMixedVK)).getResult();
-			if (!result.getPost().isEmpty()) {
+			if (!result.isEmpty()) {
 				//  - remove certificate processing record
 				context.removeCertificateProcessingRecord(cpr);
 				logger.log(Level.INFO, "{0} has already voted.", cpr.getCertificate().getCommonName());
@@ -692,11 +690,11 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 		List<Certificate> zvaList = new ArrayList<>();
 		// TODO: Minimal optimization possible if no certificate available for the common name in the
 		// votercertificates post.
-		ResultDTO voterCertificatesResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+		List<PostDTO> voterCertificatesResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForVoterCertificates(context.getSection())).getResult();
 
 		VoterCertificates voterCertificates = JSONConverter.unmarshal(VoterCertificates.class,
-				voterCertificatesResult.getPost().get(0).getMessage());
+				voterCertificatesResult.get(0).getMessage());
 		for (Certificate certificate : voterCertificates.getVoterCertificates()) {
 			if (certificate.getCommonName().equals(commonName)) {
 				zvaList.add(certificate);
@@ -707,17 +705,17 @@ public class LateVoterCertificatesAction implements NotifiableAction {
 		//Get List Z_A and put all items (z_v) into with the following constraint:
 		//if Z_C contains the item (z_v) then skip it and remove it from Z_C
 		//Get addedVoterCertificate Z_A from UVB
-		ResultDTO addedVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+		List<PostDTO> addedVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForAddedVoterCertificate(context.getSection(), commonName)).getResult();
-		for (PostDTO post : addedVoterCertificateResult.getPost()) {
+		for (PostDTO post : addedVoterCertificateResult) {
 			Certificate certificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
 			zvaList.add(certificate);
 		}
 
 		//Get cancelledVoterCertifiecate Z_C from UBV
-		ResultDTO cancelledVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+		List<PostDTO> cancelledVoterCertificateResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCancelledVoterCertificate(context.getSection(), commonName)).getResult();
-		for (PostDTO post : cancelledVoterCertificateResult.getPost()) {
+		for (PostDTO post : cancelledVoterCertificateResult) {
 			Certificate cancelledCertificate = JSONConverter.unmarshal(Certificate.class, post.getMessage());
 			for (Iterator<Certificate> iterator = zvaList.iterator(); iterator.hasNext();) {
 				Certificate avCertificate = iterator.next();

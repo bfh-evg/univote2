@@ -41,9 +41,9 @@
  */
 package ch.bfh.univote2.ec.combineEKS;
 
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
@@ -207,8 +207,8 @@ public class CombineEncryptionKeyShareAction1Test {
 
 		byte[] message = JSONConverter.marshal(encryptionKeyShare).getBytes();
 		AttributesDTO alpha = new AttributesDTO();
-		alpha.getAttribute().add(new AttributesDTO.AttributeDTO("publickey", new StringValueDTO(tenant)));
-		PostDTO post = new PostDTO(message, alpha, null);
+		alpha.getAttribute().add(new AttributeDTO("publickey", tenant, null));
+		PostDTO post = new PostDTO(message, alpha.getAttribute(), null);
 
 		this.combineEKSAction.validateAndAddKeyShare(actionContext, post);
 

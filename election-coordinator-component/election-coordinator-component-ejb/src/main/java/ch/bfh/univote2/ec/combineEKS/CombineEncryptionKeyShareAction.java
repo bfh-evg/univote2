@@ -42,10 +42,9 @@
 package ch.bfh.univote2.ec.combineEKS;
 
 import ch.bfh.uniboard.clientlib.AttributeHelper;
-import ch.bfh.uniboard.data.AttributesDTO.AttributeDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.crypto.keygenerator.interfaces.KeyPairGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
@@ -133,7 +132,7 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForEncryptionKey(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
+			return !result.getResult().isEmpty();
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not check post condition. UniBoard is not reachable." + ex.getMessage());
@@ -177,8 +176,8 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForEncryptionKeyShares(actionContext.getSection()));
 				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Amount of found keyShares: " + result.getResult().getPost().size());
-				for (PostDTO post : result.getResult().getPost()) {
+						"Amount of found keyShares: " + result.getResult().size());
+				for (PostDTO post : result.getResult()) {
 					//validate keyshare and if valid add
 					if (this.validateAndAddKeyShare(ceksac, post)) {
 						if (ceksac.getAmount() == ceksac.getKeyShares().size()) {
@@ -251,10 +250,10 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 			UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		TrusteeCertificates trusteeCertificates;
 		try {
 			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
@@ -269,10 +268,10 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 	protected void retrieveCryptoSetting(CombineEncryptionKeyShareActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Crypto setting not yet published.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, message);
 		actionContext.setCryptoSetting(cryptoSetting);
 	}
@@ -284,7 +283,7 @@ public class CombineEncryptionKeyShareAction extends AbstractAction implements N
 		if (tallier == null) {
 			throw new UnivoteException("Publickey is missing in alpha.");
 		}
-		String strTallier = ((StringValueDTO) tallier.getValue()).getValue();
+		String strTallier = tallier.getValue();
 
 		EncryptionKeyShare encryptionKeyShare = JSONConverter.unmarshal(EncryptionKeyShare.class, post.getMessage());
 

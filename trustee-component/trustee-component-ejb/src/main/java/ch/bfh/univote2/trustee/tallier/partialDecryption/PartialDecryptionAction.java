@@ -41,13 +41,12 @@
  */
 package ch.bfh.univote2.trustee.tallier.partialDecryption;
 
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
-import ch.bfh.uniboard.service.Attributes;
-import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.uniboard.service.data.Attributes;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.classes.EqualityPreimageProofSystem;
@@ -144,12 +143,11 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 			logger.log(Level.SEVERE, "The actionContext was not the expected one.");
 			return false;
 		}
-		PartialDecryptionActionContext pdac = (PartialDecryptionActionContext) actionContext;
 		try {
 			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForPartialDecryptionForTallier(actionContext.getSection(), publicKey));
-			if (!result.getResult().getPost().isEmpty()) {
+			if (!result.getResult().isEmpty()) {
 				return true;
 			}
 		} catch (UnivoteException ex) {
@@ -303,27 +301,22 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 		}
 		PostDTO post = (PostDTO) notification;
 		try {
-			Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
+			Attributes attr = Transformer.convertAttributesDTOtoAttributes(new AttributesDTO(post.getAlpha()));
 			attr.containsKey(AlphaEnum.GROUP.getValue());
 
 			if (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.ACCESS_RIGHT.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
+					&& attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.ACCESS_RIGHT.getValue())) {
 				pdac.setAccessRightGranted(Boolean.TRUE);
 			}
 
-			if (pdac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.CRYPTO_SETTING.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			if (pdac.getCryptoSetting() == null && attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.CRYPTO_SETTING.getValue())) {
 				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 				pdac.setCryptoSetting(cryptoSetting);
 			}
-			if (pdac.getMixedVotes() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.MIXED_VOTES.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			if (pdac.getMixedVotes() == null && attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.MIXED_VOTES.getValue())) {
 				MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, post.getMessage());
 				pdac.setMixedVotes(mixedVotes);
 			}
@@ -340,13 +333,13 @@ public class PartialDecryptionAction extends AbstractAction implements Notifiabl
 	}
 
 	protected MixedVotes retrieveMixedVotes(ActionContext actionContext) throws UnivoteException {
-		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+		List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForMixedVotes(actionContext.getSection())).getResult();
-		if (result.getPost().isEmpty()) {
+		if (result.isEmpty()) {
 			throw new UnivoteException("Mixed votes not published yet.");
 
 		}
-		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
+		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.get(0).getMessage());
 		return mixedVotes;
 
 	}

@@ -215,10 +215,10 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 	private void retrieveEA(GrantAccessRightEAActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForEACert(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("EA certificate not published yet.");
 		}
-		this.parseEACert(result.getResult().getPost().get(0).getMessage(), actionContext);
+		this.parseEACert(result.getResult().get(0).getMessage(), actionContext);
 	}
 
 	private void parseEACert(byte[] message, GrantAccessRightEAActionContext actionContext)
@@ -249,7 +249,7 @@ public abstract class GrantAccessRightEAAction implements NotifiableAction {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForAccessRight(actionContext.getSection(),
 						actionContext.getPublicKey(), this.getGroupName()));
-		return !result.getResult().getPost().isEmpty();
+		return !result.getResult().isEmpty();
 
 	}
 

@@ -41,13 +41,12 @@
  */
 package ch.bfh.univote2.ec.grantVK;
 
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
-import ch.bfh.uniboard.service.Attributes;
-import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.uniboard.service.data.Attributes;
 import ch.bfh.unicrypt.math.algebra.multiplicative.classes.GStarModPrime;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.action.AbstractAction;
@@ -72,6 +71,7 @@ import ch.bfh.univote2.component.core.services.InformationService;
 import ch.bfh.univote2.component.core.services.UniboardService;
 import ch.bfh.univote2.ec.BoardsEnum;
 import ch.bfh.univote2.common.query.QueryFactory;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Asynchronous;
@@ -122,13 +122,13 @@ public class GrantAccessRightBallotAction extends AbstractAction implements Noti
 		this.checkAndSetMixedKeys(skcac);
 
 		try {
-			ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+			List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForElectionDefinition(actionContext.getSection())).getResult();
-			if (result.getPost().isEmpty()) {
+			if (result.isEmpty()) {
 				throw new UnivoteException("Election definition not yet published.");
 			}
 			ElectionDefinition electionDefinition = JSONConverter.unmarshal(ElectionDefinition.class,
-					result.getPost().get(0).getMessage());
+					result.get(0).getMessage());
 			skcac.setElectionDefinition(electionDefinition);
 		} catch (UnivoteException ex) {
 			//Add Notification
@@ -207,27 +207,17 @@ public class GrantAccessRightBallotAction extends AbstractAction implements Noti
 		}
 		PostDTO post = (PostDTO) notification;
 		try {
-			Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
-			attr.containsKey(AlphaEnum.GROUP.getValue());
+			Attributes attr = Transformer.convertAttributesDTOtoAttributes(new AttributesDTO(post.getAlpha()));
+			String group = attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue();
 
-			if (skcac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.CRYPTO_SETTING.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			if (skcac.getCryptoSetting() == null && GroupEnum.CRYPTO_SETTING.getValue().equals(group)) {
 				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 				skcac.setCryptoSetting(cryptoSetting);
-			}
-			if (skcac.getMixedKeys() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.MIXED_KEYS.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			} else if (skcac.getMixedKeys() == null && GroupEnum.MIXED_KEYS.getValue().equals(group)) {
 				MixedKeys mixedKeysDTO = JSONConverter.unmarshal(MixedKeys.class, post.getMessage());
 				skcac.setMixedKeys(mixedKeysDTO);
-			}
-			if (skcac.getElectionDefinition() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.ELECTION_DEFINITION.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			} else if (skcac.getElectionDefinition() == null
+					&& GroupEnum.ELECTION_DEFINITION.getValue().equals(group)) {
 				ElectionDefinition electionDefinition
 						= JSONConverter.unmarshal(ElectionDefinition.class, post.getMessage());
 				skcac.setElectionDefinition(electionDefinition);
@@ -281,12 +271,12 @@ public class GrantAccessRightBallotAction extends AbstractAction implements Noti
 			throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Cryptosetting not published yet.");
 
 		}
 		CryptoSetting cryptoSetting
-				= JSONConverter.unmarshal(CryptoSetting.class, result.getResult().getPost().get(0).getMessage());
+				= JSONConverter.unmarshal(CryptoSetting.class, result.getResult().get(0).getMessage());
 		return cryptoSetting;
 
 	}
@@ -329,12 +319,12 @@ public class GrantAccessRightBallotAction extends AbstractAction implements Noti
 			throws UnivoteException {
 		ResultContainerDTO result = uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForMixedKeys(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("mixed keys not published yet.");
 
 		}
 		MixedKeys mixedKeys
-				= JSONConverter.unmarshal(MixedKeys.class, result.getResult().getPost().get(0).getMessage());
+				= JSONConverter.unmarshal(MixedKeys.class, result.getResult().get(0).getMessage());
 		return mixedKeys;
 
 	}

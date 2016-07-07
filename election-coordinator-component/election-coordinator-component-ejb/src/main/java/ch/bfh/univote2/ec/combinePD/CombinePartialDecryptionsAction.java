@@ -42,11 +42,9 @@
 package ch.bfh.univote2.ec.combinePD;
 
 import ch.bfh.uniboard.clientlib.AttributeHelper;
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.crypto.encoder.classes.ZModPrimeToGStarModSafePrime;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.SigmaChallengeGenerator;
@@ -145,7 +143,7 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForDecryptedVotes(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
+			return !result.getResult().isEmpty();
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not check post condition. UniBoard is not reachable." + ex.getMessage());
@@ -194,8 +192,8 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 						QueryFactory.getQueryForEncryptionKeyShares(actionContext.getSection()));
 				this.informationService.informTenant(actionContext.getActionContextKey(),
-						"Amount of found partial decryptions: " + result.getResult().getPost().size());
-				for (PostDTO post : result.getResult().getPost()) {
+						"Amount of found partial decryptions: " + result.getResult().size());
+				for (PostDTO post : result.getResult()) {
 					//validate keyshare and if valid add
 					if (this.validateAndAddPartialDecryption(ceksac, post)) {
 						if (ceksac.getAmount() == ceksac.getPartialDecryptions().size()) {
@@ -272,10 +270,10 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 			UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		TrusteeCertificates trusteeCertificates;
 		try {
 			trusteeCertificates = JSONConverter.unmarshal(TrusteeCertificates.class, message);
@@ -290,26 +288,26 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 	protected void retrieveCryptoSetting(CombinePartialDecryptionsActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Crypto setting not yet published.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, message);
 		actionContext.setCryptoSetting(cryptoSetting);
 	}
 
 	protected void retrieveMixedVotesAndGeneratorFunctions(CombinePartialDecryptionsActionContext actionContext)
 			throws UnivoteException {
-		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+		List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForMixedVotes(actionContext.getSection())).getResult();
-		if (result.getPost().isEmpty()) {
+		if (result.isEmpty()) {
 			throw new UnivoteException("Mixed votes not published yet.");
 
 		}
 		CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());
 		CyclicGroup cyclicGroup = cSetup.cryptoGroup;
 
-		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.getPost().get(0).getMessage());
+		MixedVotes mixedVotes = JSONConverter.unmarshal(MixedVotes.class, result.get(0).getMessage());
 		actionContext.setMixedVotes(mixedVotes);
 		List<Function> generatorFunctions = new ArrayList<>();
 		for (EncryptedVote encVote : mixedVotes.getMixedVotes()) {
@@ -324,12 +322,12 @@ public class CombinePartialDecryptionsAction extends AbstractAction implements N
 	protected boolean validateAndAddPartialDecryption(CombinePartialDecryptionsActionContext actionContext,
 			PostDTO post) throws UnivoteException {
 
-		AttributesDTO.AttributeDTO tallier
+		AttributeDTO tallier
 				= AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.PUBLICKEY.getValue());
 		if (tallier == null) {
 			throw new UnivoteException("Publickey is missing in alpha.");
 		}
-		String tallierPublicKey = ((StringValueDTO) tallier.getValue()).getValue();
+		String tallierPublicKey = tallier.getValue();
 
 		PartialDecryption partDecryptedVotes = JSONConverter.unmarshal(PartialDecryption.class, post.getMessage());
 		CryptoSetup cSetup = CryptoProvider.getEncryptionSetup(actionContext.getCryptoSetting().getEncryptionSetting());

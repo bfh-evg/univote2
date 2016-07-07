@@ -42,7 +42,7 @@
 package ch.bfh.univote2.common.crypto;
 
 import ch.bfh.uniboard.clientlib.signaturehelper.SchnorrSignatureHelper;
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -54,6 +54,8 @@ import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.spec.DSAPrivateKeySpec;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KeyUtil {
 
@@ -74,7 +76,7 @@ public class KeyUtil {
 
 	public static boolean checkDSAKeys(DSAPublicKey publicKey, DSAPrivateKey privateKey) throws Exception {
 		byte[] message = "Hello World!".getBytes();
-		AttributesDTO alpha = new AttributesDTO();
+		List<AttributeDTO> alpha = new ArrayList();
 		BigInteger signature = new SchnorrSignatureHelper(privateKey).sign(message, alpha);
 		return new SchnorrSignatureHelper(publicKey).verify(message, alpha, signature);
 	}

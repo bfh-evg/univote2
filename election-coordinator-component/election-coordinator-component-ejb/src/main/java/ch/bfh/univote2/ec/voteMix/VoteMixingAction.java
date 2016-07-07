@@ -42,10 +42,9 @@
 package ch.bfh.univote2.ec.voteMix;
 
 import ch.bfh.uniboard.clientlib.AttributeHelper;
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
@@ -117,7 +116,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForMixedVotes(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
+			return !result.getResult().isEmpty();
 		} catch (UnivoteException ex) {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Could not check post condition. UniBoard is not reachable. " + ex.getMessage());
@@ -222,9 +221,9 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 			VoteMixingActionContext vmac = (VoteMixingActionContext) actionContext;
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
-				AttributesDTO.AttributeDTO group
+				AttributeDTO group
 						= AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
-				String groupStr = ((StringValueDTO) group.getValue()).getValue();
+				String groupStr = group.getValue();
 				//Check Type (TC, E, MR)
 				if (groupStr.equals(GroupEnum.TRUSTEE_CERTIFICATES.getValue())) {
 					try {
@@ -292,7 +291,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	}
 
 	protected void retrieveValidVotes(VoteMixingActionContext actionContext) throws UnivoteException {
-		//Not yet implemented
+		//TODO Not yet implemented
 
 	}
 
@@ -300,10 +299,10 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 			throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForCryptoSetting(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Crypto setting not published yet.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, message);
 		actionContext.setCryptoSetting(cryptoSetting);
 	}
@@ -311,10 +310,10 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	protected void retrieveMixers(VoteMixingActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForTrusteeCerts(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Trustees certificates not published yet.");
 		}
-		this.parseMixers(actionContext, result.getResult().getPost().get(0));
+		this.parseMixers(actionContext, result.getResult().get(0));
 	}
 
 	protected void parseMixers(VoteMixingActionContext actionContext, PostDTO post) throws UnivoteException {
@@ -350,7 +349,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForLastKeyMixingRequest(actionContext.getSection()));
 		//Not yet started
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			actionContext.setCurrentMixer(actionContext.getMixerOrder().get(0));
 			//Set generator
 			Element generator = CryptoProvider.getSignatureSetup(actionContext.getCryptoSetting()
@@ -359,11 +358,11 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		} else {
 			//Try to retrieve a corresponding mixing result
 			VoteMixingRequest voteMixingRequest = JSONConverter.unmarshal(VoteMixingRequest.class,
-					result.getResult().getPost().get(0).getMessage());
+					result.getResult().get(0).getMessage());
 			PublicKey pk = actionContext.getMixerKeys().get(voteMixingRequest.getMixerId());
 			ResultContainerDTO result2 = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForVoteMixingResultForMixer(actionContext.getSection(), pk));
-			if (result2.getResult().getPost().isEmpty()) {
+			if (result2.getResult().isEmpty()) {
 				//Current Mixer has not published his/her result yet
 				this.informationService.informTenant(actionContext.getActionContextKey(),
 						"Waiting for mixing result of " + actionContext.getCurrentMixer());
@@ -371,7 +370,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 			} else {
 				//Validate mixing result and continue
 				VoteMixingResult voteMixingResult = JSONConverter.unmarshal(VoteMixingResult.class,
-						result2.getResult().getPost().get(0).getMessage());
+						result2.getResult().get(0).getMessage());
 				this.validateMixingResult(actionContext, voteMixingResult);
 			}
 		}

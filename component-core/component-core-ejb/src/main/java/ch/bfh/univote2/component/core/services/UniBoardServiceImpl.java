@@ -47,13 +47,14 @@ import ch.bfh.uniboard.clientlib.GetHelper;
 import ch.bfh.uniboard.clientlib.PostException;
 import ch.bfh.uniboard.clientlib.PostHelper;
 import ch.bfh.uniboard.clientlib.signaturehelper.SignatureException;
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.QueryDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.component.core.data.UniBoard;
 import ch.bfh.univote2.component.core.manager.TenantManager;
 import ch.bfh.univote2.component.core.manager.UniBoardManager;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -83,7 +84,7 @@ public class UniBoardServiceImpl implements UniboardService {
 	}
 
 	@Override
-	public AttributesDTO post(String board, String section, String group, byte[] message, String tenant)
+	public List<AttributeDTO> post(String board, String section, String group, byte[] message, String tenant)
 			throws UnivoteException {
 		try {
 			UniBoard boardConfig = this.uniBoardManager.getUniBoard(board);

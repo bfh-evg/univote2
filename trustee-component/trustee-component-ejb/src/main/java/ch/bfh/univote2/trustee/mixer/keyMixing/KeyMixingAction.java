@@ -41,13 +41,12 @@
  */
 package ch.bfh.univote2.trustee.mixer.keyMixing;
 
+import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.uniboard.data.TransformException;
 import ch.bfh.uniboard.data.Transformer;
-import ch.bfh.uniboard.service.Attributes;
-import ch.bfh.uniboard.service.StringValue;
+import ch.bfh.uniboard.service.data.Attributes;
 import ch.bfh.unicrypt.crypto.mixer.classes.IdentityMixer;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.classes.FiatShamirSigmaChallengeGenerator;
 import ch.bfh.unicrypt.crypto.proofsystem.challengegenerator.interfaces.ChallengeGenerator;
@@ -149,7 +148,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 			PublicKey publicKey = tenantManager.getPublicKey(actionContext.getTenant());
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForKeyMixingResultForMixer(actionContext.getSection(), publicKey));
-			if (!result.getResult().getPost().isEmpty()) {
+			if (!result.getResult().isEmpty()) {
 				return true;
 			}
 		} catch (UnivoteException ex) {
@@ -202,15 +201,15 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 	}
 
 	protected KeyMixingRequest retrieveKeyMixingRequest(ActionContext actionContext) throws UnivoteException {
-		ResultDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+		List<PostDTO> result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForKeyMixingRequestForMixer(actionContext.getSection(),
 						actionContext.getTenant())).getResult();
-		if (result.getPost().isEmpty()) {
+		if (result.isEmpty()) {
 			throw new UnivoteException("Key mixing request not published yet.");
 
 		}
 		KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class,
-				result.getPost().get(0).getMessage());
+				result.get(0).getMessage());
 		return keyMixingRequest;
 
 	}
@@ -312,24 +311,19 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 		PostDTO post = (PostDTO) notification;
 		try {
-			Attributes attr = Transformer.convertAttributesDTOtoAttributes(post.getAlpha());
+			Attributes attr = Transformer.convertAttributesDTOtoAttributes(new AttributesDTO(post.getAlpha()));
 			attr.containsKey(AlphaEnum.GROUP.getValue());
 
 			if (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.ACCESS_RIGHT.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue())) {
+					&& attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue().equals(
+					GroupEnum.ACCESS_RIGHT.getValue())) {
 				kmac.setAccessRightGranted(true);
-			} else if (kmac.getCryptoSetting() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.CRYPTO_SETTING.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			} else if (kmac.getCryptoSetting() == null && attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue()
+					.equals(GroupEnum.CRYPTO_SETTING.getValue())) {
 				CryptoSetting cryptoSetting = JSONConverter.unmarshal(CryptoSetting.class, post.getMessage());
 				kmac.setCryptoSetting(cryptoSetting);
-			} else if (kmac.getKeyMixingRequest() == null && (attr.containsKey(AlphaEnum.GROUP.getValue())
-					&& attr.getValue(AlphaEnum.GROUP.getValue()) instanceof StringValue
-					&& GroupEnum.KEY_MIXING_REQUEST.getValue()
-					.equals(((StringValue) attr.getValue(AlphaEnum.GROUP.getValue())).getValue()))) {
+			} else if (kmac.getKeyMixingRequest() == null && attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue()
+					.equals(GroupEnum.KEY_MIXING_REQUEST.getValue())) {
 				KeyMixingRequest keyMixingRequest = JSONConverter.unmarshal(KeyMixingRequest.class, post.getMessage());
 				kmac.setKeyMixingRequest(keyMixingRequest);
 			}
@@ -365,6 +359,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		List<String> vkString = keyMixingRequest.getKeys();
 		Tuple vks = Tuple.getInstance();
 		for (String string : vkString) {
+			logger.log(Level.INFO, string);
 			vks = vks.add(cyclicGroup.getElementFrom(string));
 		}
 

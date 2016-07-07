@@ -44,9 +44,9 @@ package ch.bfh.univote2.ec;
 import ch.bfh.univote2.common.query.QueryFactory;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.ResultDTO;
 import ch.bfh.univote2.common.query.GroupEnum;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -67,6 +67,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
  */
 @RunWith(Arquillian.class)
 public class UniboardServiceMock1Test {
+
 	/**
 	 * Helper method for building the in-memory variant of a deployable unit. See Arquillian for more information.
 	 *
@@ -107,17 +108,15 @@ public class UniboardServiceMock1Test {
 				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		byte[] message = jsonElectionDefinition.getBytes(Charset.forName("UTF-8"));
-		ResultDTO response = new ResultDTO();
-		response.getPost().add(new PostDTO(message, null, null));
+		List<PostDTO> response = new ArrayList();
+		response.add(new PostDTO(message, null, null));
 		// Post message to the mock.
 		this.uniboardServiceMock.addResponse(response, GroupEnum.ELECTION_DEFINITION.getValue());
 
 		ResultContainerDTO container = this.uniboardServiceMock.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForElectionDefinition("section"));
 		assertNotNull(container);
-		ResultDTO result = container.getResult();
-		assertNotNull(result);
-		List<PostDTO> posts = result.getPost();
+		List<PostDTO> posts = container.getResult();
 		assertNotNull(posts);
 		assertEquals(1, posts.size());
 		PostDTO p = posts.get(0);
@@ -143,8 +142,8 @@ public class UniboardServiceMock1Test {
 				+ "	\"votingPeriodEnd\": \"2015-03-26T11:00:00Z\"\n"
 				+ "}";
 		byte[] message = jsonElectionDefinition.getBytes(Charset.forName("UTF-8"));
-		ResultDTO response = new ResultDTO();
-		response.getPost().add(new PostDTO(message, null, null));
+		List<PostDTO> response = new ArrayList<>();
+		response.add(new PostDTO(message, null, null));
 		// Post message to the mock.
 		this.uniboardServiceMock.addResponse(response, GroupEnum.ELECTION_DEFINITION.getValue());
 
@@ -152,9 +151,7 @@ public class UniboardServiceMock1Test {
 		ResultContainerDTO container = this.uniboardServiceMock.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForVotingData("section"));
 		assertNotNull(container);
-		ResultDTO result = container.getResult();
-		assertNotNull(result);
-		List<PostDTO> posts = result.getPost();
+		List<PostDTO> posts = container.getResult();
 		assertTrue(posts == null || posts.isEmpty());
 	}
 }

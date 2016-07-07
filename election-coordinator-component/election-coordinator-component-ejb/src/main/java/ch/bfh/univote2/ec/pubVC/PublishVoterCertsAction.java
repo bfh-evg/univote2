@@ -42,10 +42,9 @@
 package ch.bfh.univote2.ec.pubVC;
 
 import ch.bfh.uniboard.clientlib.AttributeHelper;
-import ch.bfh.uniboard.data.AttributesDTO;
+import ch.bfh.uniboard.data.AttributeDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
-import ch.bfh.uniboard.data.StringValueDTO;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.message.Certificate;
 import ch.bfh.univote2.common.message.ElectoralRoll;
@@ -104,7 +103,7 @@ public class PublishVoterCertsAction extends AbstractAction implements Notifiabl
 		try {
 			ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 					QueryFactory.getQueryForVoterCertificates(actionContext.getSection()));
-			return !result.getResult().getPost().isEmpty();
+			return !result.getResult().isEmpty();
 		} catch (UnivoteException ex) {
 			return false;
 		}
@@ -150,9 +149,9 @@ public class PublishVoterCertsAction extends AbstractAction implements Notifiabl
 			PublishVoterCertsActionContext pvcac = (PublishVoterCertsActionContext) actionContext;
 			if (notification instanceof PostDTO) {
 				PostDTO post = (PostDTO) notification;
-				AttributesDTO.AttributeDTO group
+				AttributeDTO group
 						= AttributeHelper.searchAttribute(post.getAlpha(), AlphaEnum.GROUP.getValue());
-				String groupStr = ((StringValueDTO) group.getValue()).getValue();
+				String groupStr = group.getValue();
 				//Check Type
 				if (groupStr.equals(GroupEnum.ELECTORAL_ROLL.getValue())) {
 					try {
@@ -193,8 +192,8 @@ public class PublishVoterCertsAction extends AbstractAction implements Notifiabl
 			try {
 				ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNICERT.getValue(),
 						QueryFactory.getQueryFormUniCertForVoterCert(voterId));
-				if (!result.getResult().getPost().isEmpty()) {
-					PostDTO post = result.getResult().getPost().get(0);
+				if (!result.getResult().isEmpty()) {
+					PostDTO post = result.getResult().get(0);
 					Certificate certi = JSONConverter.unmarshal(Certificate.class, post.getMessage());
 					voterCertificates.getVoterCertificates().add(certi);
 
@@ -227,10 +226,10 @@ public class PublishVoterCertsAction extends AbstractAction implements Notifiabl
 	protected void retrieveElectoralRoll(PublishVoterCertsActionContext actionContext) throws UnivoteException {
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
 				QueryFactory.getQueryForElectoralRoll(actionContext.getSection()));
-		if (result.getResult().getPost().isEmpty()) {
+		if (result.getResult().isEmpty()) {
 			throw new UnivoteException("Electoral roll not published yet.");
 		}
-		byte[] message = result.getResult().getPost().get(0).getMessage();
+		byte[] message = result.getResult().get(0).getMessage();
 		ElectoralRoll electoralRoll = JSONConverter.unmarshal(ElectoralRoll.class, message);
 		actionContext.setElectoralRoll(electoralRoll);
 	}
