@@ -48,8 +48,10 @@ import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.unicrypt.math.algebra.general.interfaces.Element;
 import ch.bfh.univote2.common.UnivoteException;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
+import ch.bfh.univote2.common.message.Ballot;
 import ch.bfh.univote2.common.message.Certificate;
 import ch.bfh.univote2.common.message.CryptoSetting;
+import ch.bfh.univote2.common.message.EncryptedVote;
 import ch.bfh.univote2.common.message.JSONConverter;
 import ch.bfh.univote2.common.message.MixedVotes;
 import ch.bfh.univote2.common.message.TrusteeCertificates;
@@ -132,7 +134,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		} catch (UnivoteException ex) {
 			//Add Notification
 			BoardPreconditionQuery bQuery = new BoardPreconditionQuery(
-					QueryFactory.getQueryForValidVotes(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
+					QueryFactory.getQueryForBallots(actionContext.getSection()), BoardsEnum.UNIVOTE.getValue());
 			actionContext.getPreconditionQueries().add(bQuery);
 			logger.log(Level.INFO, "Could not get valid encrypted votes.", ex);
 			this.informationService.informTenant(actionContext.getActionContextKey(),
@@ -207,6 +209,9 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 				this.informationService.informTenant(actionContext.getActionContextKey(), ex.getMessage());
 				this.actionManager.runFinished(actionContext, ResultStatus.FAILURE);
 			}
+
+			//Ich glaube... da sollte ich auch noch was ergänzen; Aber... bei der KeyMixingAction geht's da auch nicht mehr weiter?
+			//Magic?
 		} else {
 			this.informationService.informTenant(actionContext.getActionContextKey(),
 					"Unsupported context.");
@@ -290,8 +295,31 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 		}
 	}
 
+	//determineValidBallots
+	//Laut Dokumentation muss folgendes passieren:
+	// Query für alle Ballots ausführen
+	//(Query für das Holen aller Ballots muss erstellt werden)
+	// For each Ballot validate Proofs.
+	// In Context speichern.
 	protected void retrieveValidVotes(VoteMixingActionContext actionContext) throws UnivoteException {
-		//TODO Not yet implemented
+		List<PostDTO> ballotsResult = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
+				QueryFactory.getQueryForBallots(actionContext.getSection())).getResult();
+		if (ballotsResult.isEmpty()) {
+			throw new UnivoteException("No ballots found.");
+		}
+		for (PostDTO post : ballotsResult) {
+			byte[] message = post.getMessage();
+			Ballot ballot = JSONConverter.unmarshal(Ballot.class, message);
+			if (this.validateBallot(ballot)){
+				actionContext.getCurrentVotes().add(ballot.getEncryptedVote());
+			}
+		}
+	}
+
+	protected boolean validateBallot(Ballot ballot) {
+		//Validate proofs and if ok...
+		return true;
+		//else return false;
 
 	}
 
