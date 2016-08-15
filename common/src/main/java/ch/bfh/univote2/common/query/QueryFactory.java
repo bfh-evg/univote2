@@ -519,8 +519,28 @@ public class QueryFactory {
         query.setLimit(1);
         return query;
     }
+    
+    public static QueryDTO getQueryForLastVoteMixingRequest(String section) {
+        QueryDTO query = new QueryDTO();
+        IdentifierDTO identifier = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.ALPHA,
+                AlphaEnum.SECTION.getValue());
+        ConstraintDTO constraint = new EqualDTO(identifier, null, section);
+        query.getConstraint().add(constraint);
 
-    public static QueryDTO getQueryForKeyMixingResultForMixer(String section, PublicKey publicKey)
+        IdentifierDTO identifier2 = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.ALPHA,
+                AlphaEnum.GROUP.getValue());
+        ConstraintDTO constraint2 = new EqualDTO(identifier2, null, GroupEnum.VOTE_MIXING_REQUEST.getValue());
+        query.getConstraint().add(constraint2);
+        //Order by timestamp desc
+        IdentifierDTO identifier3 = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.BETA,
+                BetaEnum.TIMESTAMP.getValue());
+        query.getOrder().add(new OrderDTO(identifier3, false));
+        //Return only first post
+        query.setLimit(1);
+        return query;
+    }
+
+    public static QueryDTO getQueryForVoteMixingResultForMixer(String section, PublicKey publicKey)
             throws UnivoteException {
         QueryDTO query = new QueryDTO();
         IdentifierDTO identifier = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.ALPHA,
@@ -530,7 +550,7 @@ public class QueryFactory {
 
         IdentifierDTO identifier2 = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.ALPHA,
                 AlphaEnum.GROUP.getValue());
-        ConstraintDTO constraint2 = new EqualDTO(identifier2, null, GroupEnum.KEY_MIXING_RESULT.getValue());
+        ConstraintDTO constraint2 = new EqualDTO(identifier2, null, GroupEnum.VOTE_MIXING_RESULT.getValue());
         query.getConstraint().add(constraint2);
 
         IdentifierDTO identifier3 = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.ALPHA,
@@ -613,7 +633,7 @@ public class QueryFactory {
         return query;
     }
 
-    public static QueryDTO getQueryForVoteMixingResultForMixer(String section, PublicKey publicKey)
+    public static QueryDTO getQueryForKeyMixingResultForMixer(String section, PublicKey publicKey)
             throws UnivoteException {
         QueryDTO query = new QueryDTO();
         IdentifierDTO identifier = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.ALPHA,
@@ -623,7 +643,7 @@ public class QueryFactory {
 
         IdentifierDTO identifier2 = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.ALPHA,
                 AlphaEnum.GROUP.getValue());
-        ConstraintDTO constraint2 = new EqualDTO(identifier2, null, GroupEnum.VOTE_MIXING_RESULT.getValue());
+        ConstraintDTO constraint2 = new EqualDTO(identifier2, null, GroupEnum.KEY_MIXING_RESULT.getValue());
         query.getConstraint().add(constraint2);
 
         IdentifierDTO identifier3 = new PropertyIdentifierDTO(PropertyIdentifierTypeDTO.ALPHA,

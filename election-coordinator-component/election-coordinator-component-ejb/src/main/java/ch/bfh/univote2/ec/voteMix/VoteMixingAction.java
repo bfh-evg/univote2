@@ -273,7 +273,7 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 					}
 				} else if (groupStr.equals(GroupEnum.VOTE_MIXING_RESULT.getValue())) {
 					try {
-						//MR: create request for next or post mixed keys
+						//MR: create request for next or post mixed votes
 						VoteMixingResult voteMixingResult
 								= JSONConverter.unmarshal(VoteMixingResult.class, post.getMessage());
 
@@ -373,9 +373,9 @@ public class VoteMixingAction extends AbstractAction implements NotifiableAction
 	}
 
 	protected void determineCurrentMixer(VoteMixingActionContext actionContext) throws UnivoteException {
-		//Retrieve last KeyMixingRequest
+		//Retrieve last VoteMixingRequest
 		ResultContainerDTO result = this.uniboardService.get(BoardsEnum.UNIVOTE.getValue(),
-				QueryFactory.getQueryForLastKeyMixingRequest(actionContext.getSection()));
+				QueryFactory.getQueryForLastVoteMixingRequest(actionContext.getSection()));
 		//Not yet started
 		if (result.getResult().isEmpty()) {
 			actionContext.setCurrentMixer(actionContext.getMixerOrder().get(0));
