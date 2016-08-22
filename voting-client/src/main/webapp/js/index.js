@@ -93,7 +93,7 @@ function retrieveElections() {
 	//Query of election data over all sections
 	var query = {constraint: [{
 				type: "equal",
-				identifier: {type: "alphaIdentifier", part: ["group"]},
+				identifier: {type: "propertyIdentifier", propertyType: "alpha", key: "group"},
 				value: {type: "stringValue", value: "electionDefinition"}
 			}]
 	};

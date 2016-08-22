@@ -80,6 +80,9 @@
 			};
 		};
 
+		this.getSignatureParameters = function () {
+			return this.signatureSetting;
+		};
 
 		/**
 		 * Sets the hash parameters.
@@ -241,8 +244,7 @@
 			do {
 				last = current;
 				current = leemon.rightShift(leemon.add(last, leemon.divide(bigInt, last)), 1);
-			}
-			while (leemon.greater(last, current) === 1);
+			} while (leemon.greater(last, current) === 1);
 			return last;
 		};
 

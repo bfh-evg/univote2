@@ -90,25 +90,19 @@ function retrieveElectionData() {
 	var query = {
 		constraint: [{
 				type: "equal",
-				identifier: {type: "alphaIdentifier", part: ["section"]},
-				value: {type: "stringValue", value: electionId}
+				identifier: {type: "propertyIdentifier", propertyType: "alpha", key: "section"},
+				value: electionId
 			}, {
 				type: "equal",
-				identifier: {type: "alphaIdentifier", part: ["group"]},
-				value: {type: "stringValue", value: "votingData"}
-			}]
+				identifier: {type: "propertyIdentifier", propertyType: "alpha", key: "group"},
+				value: "votingData"
+			}],
+		limit: 1
 	};
 
 	var successCB = function (resultContainer) {
 
 		if (!uvConfig.MOCK) {
-			resultContainer.result.post = resultContainer.result.post || [];
-			var sigSuccess = uvCrypto.verifyResultSignature(query, resultContainer, uvConfig.EC_SETTING, true);
-			if (sigSuccess !== true) {
-				console.log("ERROR: " + sigSuccess);
-				processFatalError(msg.signatureError);
-				return;
-			}
 			var posts = resultContainer.result.post;
 			// Expect exactly one post! ElectionId should be unique!
 			if (posts.length != 1) {
@@ -150,13 +144,14 @@ function retrieveElectionData() {
 		$.unblockUI();
 	};
 
-	var errorCB = function () {
+	var errorCB = function (errorObj) {
 		console.log("ERROR: Unable to retreive VotingData from UniBoard ('" + uvConfig.URL_UNIBOARD_GET + "')");
+		console.log("ERROR: Message from BB Type: " + errorObj.type + "Code: " + errorObj.code + "Message:" + errorObj.message);
 		processFatalError(msg.retreiveElectionDataError);
 	};
 
 	if (!uvConfig.MOCK) {
-		UniBoard.GET(query, successCB, errorCB);
+		UBClient.get(query, successCB, errorCB, true);
 	} else {
 		//Ajax request
 		$.ajax({
@@ -833,6 +828,14 @@ function finalizeVote() {
 		//6 - Sign post
 		console.log("6. Sign Post");
 		var messageB64 = B64.encode(JSON.stringify(ballot));
+		var successCB = function (beta) {
+			clearInterval(update);
+			castVoteSuccessCallback(ballotData, {timestamp: beta.attribute[0].value.value, rank: beta.attribute[1].value.value, signature: beta.attribute[2].value.value});
+		};
+		var errorCB = function (error) {
+			clearInterval(update);
+			castVoteErrorCallback(error);
+		};
 		var post = {
 			message: messageB64,
 			alpha: {
@@ -841,40 +844,14 @@ function finalizeVote() {
 					{key: "group", value: {type: "stringValue", value: "ballot"}}
 				]}
 		};
+		var ss = uvCrypto.getSignatureSetting();
 
-		ballotData.signature = uvCrypto.signPost(post, signatureGenerator, secretKey);
-		ballotData.hashedMessage = uvCrypto.hashPostMessage(messageB64);
+		UBClient.post(messageB64, electionId, "ballot", secretKey, ss.p, ss.q, signatureGenerator, successCB, errorCB);
 
 		updateProcessing();
 		setTimeout(function () {
 			step6(post);
 		}, 100);
-	};
-
-	var step6 = function (post) {
-		post.alpha.attribute[2] = {key: "signature", value: {type: "stringValue", value: ballotData.signature.sigString}};
-		post.alpha.attribute[3] = {key: "publickey", value: {type: "stringValue", value: ballotData.verifKey.vkString}};
-
-		// 7 - Finally cast ballot
-		console.log("7. Cast Ballot");
-		var update = setInterval(updateProcessing, 1000);
-		var successCB = function (beta) {
-			// TODO: Parse beta to a 'nice' Object!
-			clearInterval(update);
-			var msg = beta.attribute[0].key;
-			if (msg == "rejected" || msg == "error") {
-				castVoteErrorCallback(beta.attribute[0].value.value);
-				return;
-			}
-			// TODO: Verify signature!
-			// TODO: Order of post is currently ignored!
-			castVoteSuccessCallback(ballotData, {timestamp: beta.attribute[0].value.value, rank: beta.attribute[1].value.value, signature: beta.attribute[2].value.value});
-		};
-		var errorCB = function (xhr, status, error) {
-			clearInterval(update);
-			castVoteErrorCallback(error);
-		};
-		UniBoard.POST(post, successCB, errorCB);
 	};
 
 	step1();
@@ -897,12 +874,12 @@ function processExceptionInFinalizeVote(msgToDisplay) {
 /**
  * Error callback to handle vote casting faults.
  *
- *  @param message - error message
+ *  @param message - errorObj error object by the ubclient library
  */
-function castVoteErrorCallback(message) {
-	console.log("ERROR: Message from BB: " + message);
+function castVoteErrorCallback(errorObj) {
+	console.log("ERROR: Message from BB Type: " + errorObj.type + "Code: " + errorObj.code + "Message:" + errorObj.message);
 	message = message || "";
-	var errorCode = message.substring(0, 7);
+	var errorCode = errorObj.code;
 	var errorMsg = "";
 	switch (errorCode) {
 		case "BAC-002":

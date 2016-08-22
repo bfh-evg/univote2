@@ -41,7 +41,6 @@
  */
 package ch.bfh.univote2.trustee.mixer.keyMixing;
 
-import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.TransformException;
@@ -311,7 +310,7 @@ public class KeyMixingAction extends AbstractAction implements NotifiableAction 
 		}
 		PostDTO post = (PostDTO) notification;
 		try {
-			Attributes attr = Transformer.convertAttributesDTOtoAttributes(new AttributesDTO(post.getAlpha()));
+			Attributes attr = Transformer.convertDTOListtoAttributes(post.getAlpha());
 			attr.containsKey(AlphaEnum.GROUP.getValue());
 
 			if (attr.containsKey(AlphaEnum.GROUP.getValue())

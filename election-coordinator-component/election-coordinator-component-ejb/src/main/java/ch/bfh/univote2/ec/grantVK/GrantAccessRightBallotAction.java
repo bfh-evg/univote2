@@ -41,7 +41,6 @@
  */
 package ch.bfh.univote2.ec.grantVK;
 
-import ch.bfh.uniboard.data.AttributesDTO;
 import ch.bfh.uniboard.data.PostDTO;
 import ch.bfh.uniboard.data.ResultContainerDTO;
 import ch.bfh.uniboard.data.TransformException;
@@ -207,7 +206,7 @@ public class GrantAccessRightBallotAction extends AbstractAction implements Noti
 		}
 		PostDTO post = (PostDTO) notification;
 		try {
-			Attributes attr = Transformer.convertAttributesDTOtoAttributes(new AttributesDTO(post.getAlpha()));
+			Attributes attr = Transformer.convertDTOListtoAttributes(post.getAlpha());
 			String group = attr.getAttribute(AlphaEnum.GROUP.getValue()).getValue();
 
 			if (skcac.getCryptoSetting() == null && GroupEnum.CRYPTO_SETTING.getValue().equals(group)) {
