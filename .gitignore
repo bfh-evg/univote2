@@ -4,6 +4,7 @@
 !/doc/report/*.pdf
 **/derby.log
 /admin-client/etc
+/admin-client/dist
 /voting-client/bower_components/
 /voting-client/etc/
 /voting-client/node/

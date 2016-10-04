@@ -17,14 +17,8 @@ import ch.bfh.unicrypt.helper.converter.classes.bytearray.StringToByteArray;
 import ch.bfh.unicrypt.helper.converter.classes.string.ByteArrayToString;
 import ch.bfh.unicrypt.helper.converter.interfaces.Converter;
 import ch.bfh.unicrypt.helper.hash.HashAlgorithm;
-import ch.bfh.univote2.admin.message.CandidateElection;
-import ch.bfh.univote2.admin.message.CandidateOption;
 import ch.bfh.univote2.admin.message.ElectionDetails;
 import ch.bfh.univote2.admin.message.ElectionIssue;
-import ch.bfh.univote2.admin.message.ElectionOption;
-import ch.bfh.univote2.admin.message.ListElection;
-import ch.bfh.univote2.admin.message.ListOption;
-import ch.bfh.univote2.admin.message.Vote;
 import ch.bfh.univote2.common.crypto.KeyUtil;
 import ch.bfh.univote2.common.message.ElectionDefinition;
 import ch.bfh.univote2.common.message.ElectoralRoll;
@@ -52,7 +46,6 @@ import java.util.stream.Collectors;
 public class AdminClient {
 
 	private static final String CONFIG_FILE = "config.properties";
-	private static final String INDENT = "    ";
 
 	private static final Scanner CONSOLE = new Scanner(System.in);
 	private static final HashAlgorithm HASH_ALGORITHM = HashAlgorithm.SHA256;
@@ -154,7 +147,7 @@ public class AdminClient {
 		String message = new String(Files.readAllBytes(path), "UTF-8");
 		ElectionDetails electionDetails = JSONConverter.unmarshal(ElectionDetails.class, message);
 		for (ElectionIssue electionIssue : electionDetails.getIssues()) {
-			printElectionIssue(electionIssue, electionDetails.getOptions());
+			PrintUtility.printElectionIssue(electionIssue, electionDetails.getOptions());
 		}
 		postMessage("electionDetails", message);
 	}
@@ -186,57 +179,5 @@ public class AdminClient {
 
 	private static String hashVoterId(String voterId) {
 		return BYREARRAY_TO_STRING.convert(HASH_ALGORITHM.getHashValue(STRING_TO_BYTEARRAY.convert(voterId)));
-	}
-
-	private static void printElectionIssue(ElectionIssue issue, List<ElectionOption> options) {
-		if (issue instanceof ListElection) {
-			printListElection((ListElection) issue, options);
-		} else if (issue instanceof CandidateElection) {
-			printCandidateElection((CandidateElection) issue, options);
-		} else if (issue instanceof Vote) {
-			printVote((Vote) issue, options);
-		}
-	}
-
-	private static void printListElection(ListElection election, List<ElectionOption> options) {
-		System.out.println("List Election: " + election.getTitle().getDefault());
-		for (Integer optionId : election.getOptionIds()) {
-			for (ElectionOption option : options) {
-				if (option.getId().equals(optionId) && option instanceof ListOption) {
-					printListOption((ListOption) option, options);
-				}
-			}
-		}
-	}
-
-	private static void printCandidateElection(CandidateElection election, List<ElectionOption> options) {
-		System.out.println("Candidate Election: " + election.getTitle().getDefault());
-		for (Integer optionId : election.getOptionIds()) {
-			for (ElectionOption option : options) {
-				if (option.getId().equals(optionId)) {
-					printCandidateOption((CandidateOption) option);
-				}
-			}
-		}
-	}
-
-	private static void printVote(Vote vote, List<ElectionOption> options) {
-		System.out.println("Vote: " + vote.getTitle().getDefault());
-		System.out.println("Question: " + vote.getQuestion().getDefault());
-	}
-
-	private static void printListOption(ListOption listOption, List<ElectionOption> options) {
-		System.out.println("List " + listOption.getNumber() + ": " + listOption.getListName().getDefault());
-		for (Integer optionId : listOption.getCandidateIds()) {
-			for (ElectionOption option : options) {
-				if (option.getId().equals(optionId)) {
-					printCandidateOption((CandidateOption) option);
-				}
-			}
-		}
-	}
-
-	private static void printCandidateOption(CandidateOption candidateOption) {
-		System.out.println(INDENT + "Candidate: " + candidateOption.getLastName() + " " + candidateOption.getFirstName());
 	}
 }
