@@ -35,6 +35,7 @@ import ch.bfh.univote2.admin.message.ElectionDetails;
 import ch.bfh.univote2.admin.message.ElectionOption;
 import ch.bfh.univote2.admin.message.ElectionRule;
 import ch.bfh.univote2.admin.message.ListOption;
+import ch.bfh.univote2.admin.message.VotingOption;
 import ch.bfh.univote2.common.crypto.CryptoProvider;
 import ch.bfh.univote2.common.crypto.CryptoSetup;
 import ch.bfh.univote2.common.crypto.KeyEncryption;
@@ -212,9 +213,11 @@ public class CountingClient {
 			for (ElectionOption option : electionDetails.getOptions()) {
 				if (option instanceof ListOption) {
 					writer.print(";" + ((ListOption) option).getListName().getDefault());
-				} else {
+				} else if (option instanceof CandidateOption) {
 					writer.print(";" + ((CandidateOption) option).getLastName()
 							+ " " + ((CandidateOption) option).getFirstName());
+				} else if (option instanceof VotingOption) {
+					writer.print(";" + ((VotingOption) option).getAnswer().getDefault());
 				}
 			}
 			writer.println();
